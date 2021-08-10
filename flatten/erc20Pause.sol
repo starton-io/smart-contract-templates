@@ -2,7 +2,7 @@
 
 // File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.1.0
 
-
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
 
