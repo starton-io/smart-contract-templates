@@ -20,10 +20,10 @@ async function main() {
         ]
     );
 
-    const StartonErc20MintBurnPause = await ethers.getContractFactory("StartonErc20MintBurnPause");
+    const StartonERC20MintBurnPause = await ethers.getContractFactory("StartonERC20MintBurnPause");
 
     const initialSupply = ethers.utils.parseUnits("100000", 18);
-    const erc20 = await StartonErc20MintBurnPause.deploy("Starton test token", "STT", initialSupply, timelock.address);
+    const erc20 = await StartonERC20MintBurnPause.deploy("Starton test token", "STT", initialSupply, timelock.address);
 
     await erc20.deployed();
     console.log("Contract deployed to:", erc20.address);

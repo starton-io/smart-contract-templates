@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract StartonErc20Pause is ERC20, Pausable, AccessControl {
+contract StartonERC20Pause is ERC20, Pausable, AccessControl {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     constructor(string memory name, string memory symbol, uint256 initialSupply, address ownerOrMultiSigContract) ERC20(name, symbol) {
