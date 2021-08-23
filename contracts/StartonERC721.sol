@@ -16,10 +16,10 @@ contract StartonERC721 is ERC721Enumerable, ERC721URIStorage, Pausable, AccessCo
     Counters.Counter private _tokenIdCounter;
     string private _uri;
 
-    constructor(string memory name, string memory symbol, string memory baseUri) ERC721(name, symbol) {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(PAUSER_ROLE, msg.sender);
-        _setupRole(MINTER_ROLE, msg.sender);
+    constructor(string memory name, string memory symbol, string memory baseUri, address ownerOrMultiSigContract) ERC721(name, symbol) {
+        _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
+        _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
+        _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
         _uri = baseUri;
     }
 
@@ -27,9 +27,10 @@ contract StartonERC721 is ERC721Enumerable, ERC721URIStorage, Pausable, AccessCo
         return _uri;
     }
 
-    function safeMint(address to) public {
+    function safeMint(address to, string memory metadataURI) public {
         require(hasRole(MINTER_ROLE, msg.sender));
         _safeMint(to, _tokenIdCounter.current());
+        _setTokenURI(_tokenIdCounter.current(), metadataURI);
         _tokenIdCounter.increment();
     }
 

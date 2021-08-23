@@ -1579,7 +1579,7 @@ library Counters {
 }
 
 
-// File contracts/erc721.sol
+// File contracts/StartonERC721.sol
 
 
 pragma solidity ^0.8.0;
@@ -1589,8 +1589,7 @@ pragma solidity ^0.8.0;
 
 
 
-
-contract StartonERC721 is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, AccessControl, ERC721Burnable {
+contract StartonERC721 is ERC721Enumerable, ERC721URIStorage, Pausable, AccessControl, ERC721Burnable {
     using Counters for Counters.Counter;
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -1609,9 +1608,10 @@ contract StartonERC721 is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         return _uri;
     }
 
-    function safeMint(address to) public {
+    function safeMint(address to, string memory metadataURI) public {
         require(hasRole(MINTER_ROLE, msg.sender));
         _safeMint(to, _tokenIdCounter.current());
+        _setTokenURI(_tokenIdCounter.current(), metadataURI);
         _tokenIdCounter.increment();
     }
 

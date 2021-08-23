@@ -9,11 +9,11 @@ contract StartonErc20MintBurnPause is ERC20Burnable, Pausable, AccessControl {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    constructor(string memory name, string memory symbol, uint256 initialSupply) ERC20(name, symbol) {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(PAUSER_ROLE, msg.sender);
-        _setupRole(MINTER_ROLE, msg.sender);
-        _mint(msg.sender, initialSupply);
+    constructor(string memory name, string memory symbol, uint256 initialSupply, address ownerOrMultiSigContract) ERC20(name, symbol) {
+        _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
+        _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
+        _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
+        _mint(ownerOrMultiSigContract, initialSupply);
     }
 
     function pause() public {

@@ -17,11 +17,11 @@ contract StartonERC721Capped is ERC721Enumerable, ERC721URIStorage, Pausable, Ac
     string private _uri;
     uint256 private _maxSupply;
 
-    constructor(string memory name, string memory symbol, string memory baseUri, uint256 tokenMaxSupply) ERC721(name, symbol) {
+    constructor(string memory name, string memory symbol, string memory baseUri, uint256 tokenMaxSupply, address ownerOrMultiSigContract) ERC721(name, symbol) {
         require(tokenMaxSupply > 0, "maxSupply: must be > 0");
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(PAUSER_ROLE, msg.sender);
-        _setupRole(MINTER_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
+        _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
+        _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
         _uri = baseUri;
         _maxSupply = tokenMaxSupply;
     }

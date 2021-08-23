@@ -6,21 +6,14 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 
 contract StartonERC1155 is AccessControl, Pausable, ERC1155Burnable {
-    bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    constructor(string memory name, string memory baseUri) ERC1155(name) {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(URI_SETTER_ROLE, msg.sender);
-        _setupRole(PAUSER_ROLE, msg.sender);
-        _setupRole(MINTER_ROLE, msg.sender);
-        setURI(baseUri);
-    }
-
-    function setURI(string memory newuri) public {
-        require(hasRole(URI_SETTER_ROLE, msg.sender));
-        _setURI(newuri);
+    constructor(string memory name, string memory baseUri, address ownerOrMultiSigContract) ERC1155(name) {
+        _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
+        _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
+        _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
+        _setURI(baseUri);
     }
 
     function pause() public {

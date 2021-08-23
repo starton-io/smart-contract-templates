@@ -3,13 +3,30 @@ import { run, ethers } from "hardhat"
 
 async function main() {
 
-  await run("compile")
-  const StartonERC721 = await ethers.getContractFactory("StartonERC721");
+    await run("compile")
 
-  const nft = await StartonERC721.deploy("Starton nft", "NFT", "https://nft.starton.io/");
+    const StartonTimelockController = await ethers.getContractFactory("StartonTimelockController");
+    const [owner, addr1, addr2] = await ethers.getSigners();
+    const timelock = await StartonTimelockController.deploy(
+        172800,
+        [
+            owner.address,
+            addr1.address,
+            addr2.address
+        ],
+        [
+            owner.address,
+            addr1.address,
+            addr2.address
+        ]
+    );
 
-  await nft.deployed();
-  console.log("Contract deployed to:", nft.address);
+    const StartonERC721 = await ethers.getContractFactory("StartonERC721");
+
+    const nft = await StartonERC721.deploy("Starton nft", "NFT", "ipfs://ipfs/", timelock.address);
+
+    await nft.deployed();
+    console.log("Contract deployed to:", nft.address);
 
 }
 
