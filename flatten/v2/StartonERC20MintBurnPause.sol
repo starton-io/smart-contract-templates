@@ -84,7 +84,6 @@ interface IERC20 {
 // File @openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -113,7 +112,6 @@ interface IERC20Metadata is IERC20 {
 // File @openzeppelin/contracts/utils/Context.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /*
@@ -139,7 +137,6 @@ abstract contract Context {
 
 
 // File @openzeppelin/contracts/token/ERC20/ERC20.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -447,7 +444,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 // File @openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 
@@ -487,7 +483,6 @@ abstract contract ERC20Burnable is Context, ERC20 {
 
 
 // File @openzeppelin/contracts/security/Pausable.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -581,7 +576,6 @@ abstract contract Pausable is Context {
 // File @openzeppelin/contracts/utils/Strings.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -652,7 +646,6 @@ library Strings {
 // File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -678,7 +671,6 @@ interface IERC165 {
 
 
 // File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -708,7 +700,6 @@ abstract contract ERC165 is IERC165 {
 
 
 // File @openzeppelin/contracts/access/AccessControl.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -952,8 +943,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 }
 
 
-// File contracts/StartonERC20MintBurnPause.sol
-
+// File contracts/v2/StartonERC20MintBurnPause.sol
 
 pragma solidity ^0.8.0;
 

@@ -84,7 +84,6 @@ interface IERC20 {
 // File @openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -113,7 +112,6 @@ interface IERC20Metadata is IERC20 {
 // File @openzeppelin/contracts/utils/Context.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /*
@@ -139,7 +137,6 @@ abstract contract Context {
 
 
 // File @openzeppelin/contracts/token/ERC20/ERC20.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -444,50 +441,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol@v4.1.0
-
-
-
-pragma solidity ^0.8.0;
-
-
-/**
- * @dev Extension of {ERC20} that allows token holders to destroy both their own
- * tokens and those that they have an allowance for, in a way that can be
- * recognized off-chain (via event analysis).
- */
-abstract contract ERC20Burnable is Context, ERC20 {
-    /**
-     * @dev Destroys `amount` tokens from the caller.
-     *
-     * See {ERC20-_burn}.
-     */
-    function burn(uint256 amount) public virtual {
-        _burn(_msgSender(), amount);
-    }
-
-    /**
-     * @dev Destroys `amount` tokens from `account`, deducting from the caller's
-     * allowance.
-     *
-     * See {ERC20-_burn} and {ERC20-allowance}.
-     *
-     * Requirements:
-     *
-     * - the caller must have allowance for ``accounts``'s tokens of at least
-     * `amount`.
-     */
-    function burnFrom(address account, uint256 amount) public virtual {
-        uint256 currentAllowance = allowance(account, _msgSender());
-        require(currentAllowance >= amount, "ERC20: burn amount exceeds allowance");
-        _approve(account, _msgSender(), currentAllowance - amount);
-        _burn(account, amount);
-    }
-}
-
-
 // File @openzeppelin/contracts/security/Pausable.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -581,7 +535,6 @@ abstract contract Pausable is Context {
 // File @openzeppelin/contracts/utils/Strings.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -652,7 +605,6 @@ library Strings {
 // File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -678,7 +630,6 @@ interface IERC165 {
 
 
 // File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -708,7 +659,6 @@ abstract contract ERC165 is IERC165 {
 
 
 // File @openzeppelin/contracts/access/AccessControl.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -952,16 +902,15 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 }
 
 
-// File contracts/erc20BurnPause.sol
-
+// File contracts/v1/polygon/ChildStartonERC20Pause.sol
 
 pragma solidity ^0.8.0;
 
 
 
-
-contract StartonErc20BurnPause is ERC20, ERC20Burnable, Pausable, AccessControl {
+contract ChildStartonERC20Pause is ERC20, Pausable, AccessControl {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    bytes32 public constant DEPOSITOR_ROLE = keccak256("DEPOSITOR_ROLE");
 
     constructor(string memory name, string memory symbol, uint256 initialSupply) ERC20(name, symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -985,5 +934,31 @@ contract StartonErc20BurnPause is ERC20, ERC20Burnable, Pausable, AccessControl 
         override
     {
         super._beforeTokenTransfer(from, to, amount);
+    }
+
+     /**
+     * @notice called when token is deposited on root chain
+     * @dev Should be callable only by ChildChainManager
+     * Should handle deposit by minting the required amount for user
+     * Make sure minting is done only by this function
+     * @param user user address for whom deposit is being done
+     * @param depositData abi encoded amount
+     */
+    function deposit(address user, bytes calldata depositData)
+        external
+        whenNotPaused
+    {
+        require(hasRole(DEPOSITOR_ROLE, msg.sender));
+        uint256 amount = abi.decode(depositData, (uint256));
+        _mint(user, amount);
+    }
+
+    /**
+     * @notice called when user wants to withdraw tokens back to root chain
+     * @dev Should burn user's tokens. This transaction will be verified when exiting on root chain
+     * @param amount amount of tokens to withdraw
+     */
+    function withdraw(uint256 amount) external whenNotPaused {
+        _burn(_msgSender(), amount);
     }
 }

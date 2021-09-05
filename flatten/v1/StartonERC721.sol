@@ -1564,7 +1564,7 @@ library Counters {
 }
 
 
-// File contracts/v2/StartonERC721.sol
+// File contracts/v1/StartonERC721.sol
 
 pragma solidity ^0.8.0;
 
@@ -1581,10 +1581,10 @@ contract StartonERC721 is ERC721Enumerable, ERC721URIStorage, Pausable, AccessCo
     Counters.Counter private _tokenIdCounter;
     string private _uri;
 
-    constructor(string memory name, string memory symbol, string memory baseUri, address ownerOrMultiSigContract) ERC721(name, symbol) {
-        _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
-        _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
-        _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
+    constructor(string memory name, string memory symbol, string memory baseUri) ERC721(name, symbol) {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(PAUSER_ROLE, msg.sender);
+        _setupRole(MINTER_ROLE, msg.sender);
         _uri = baseUri;
     }
 

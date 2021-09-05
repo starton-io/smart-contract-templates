@@ -31,7 +31,6 @@ interface IERC165 {
 // File @openzeppelin/contracts/token/ERC721/IERC721.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -162,7 +161,6 @@ interface IERC721 is IERC165 {
 // File @openzeppelin/contracts/token/ERC721/IERC721Receiver.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -185,7 +183,6 @@ interface IERC721Receiver {
 
 
 // File @openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -214,7 +211,6 @@ interface IERC721Metadata is IERC721 {
 
 
 // File @openzeppelin/contracts/utils/Address.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -409,7 +405,6 @@ library Address {
 // File @openzeppelin/contracts/utils/Context.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /*
@@ -435,7 +430,6 @@ abstract contract Context {
 
 
 // File @openzeppelin/contracts/utils/Strings.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -508,7 +502,6 @@ library Strings {
 // File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -536,7 +529,6 @@ abstract contract ERC165 is IERC165 {
 
 
 // File @openzeppelin/contracts/token/ERC721/ERC721.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -916,7 +908,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 // File @openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -945,7 +936,6 @@ interface IERC721Enumerable is IERC721 {
 
 
 // File @openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -1108,7 +1098,6 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
 // File @openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 /**
@@ -1174,7 +1163,6 @@ abstract contract ERC721URIStorage is ERC721 {
 
 
 // File @openzeppelin/contracts/security/Pausable.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -1266,7 +1254,6 @@ abstract contract Pausable is Context {
 
 
 // File @openzeppelin/contracts/access/AccessControl.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -1513,7 +1500,6 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 // File @openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol@v4.1.0
 
 
-
 pragma solidity ^0.8.0;
 
 
@@ -1538,7 +1524,6 @@ abstract contract ERC721Burnable is Context, ERC721 {
 
 
 // File @openzeppelin/contracts/utils/Counters.sol@v4.1.0
-
 
 
 pragma solidity ^0.8.0;
@@ -1579,8 +1564,7 @@ library Counters {
 }
 
 
-// File contracts/StartonERC721Capped.sol
-
+// File contracts/v2/StartonERC721Capped.sol
 
 pragma solidity ^0.8.0;
 
