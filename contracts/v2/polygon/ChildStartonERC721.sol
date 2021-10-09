@@ -38,11 +38,15 @@ contract ChildStartonERC721 is ERC721Enumerable, ERC721URIStorage, Pausable, Acc
     }
 
     function contractURI() public view returns (string memory) {
-        string memory baseContractUri = _baseContractUri;
-        string memory contractUriSuffix = _contractUriSuffix;
-        return bytes(baseContractUri).length > 0
-            ? string(abi.encodePacked(baseContractUri, contractUriSuffix))
+        return bytes(_baseContractUri).length > 0
+            ? string(abi.encodePacked(_baseContractUri, _contractUriSuffix))
             : '';
+    }
+
+    function setBaseContractURI(string memory newBaseContractUri) public {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+        
+        _baseContractUri = newBaseContractUri;
     }
 
     function _baseURI() internal view override returns (string memory) {
