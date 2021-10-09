@@ -17,6 +17,8 @@ contract ChildStartonERC721 is ERC721Enumerable, ERC721URIStorage, Pausable, Acc
 
     Counters.Counter private _tokenIdCounter;
     string private _uri;
+    string private _contractUriSuffix;
+    string private _baseContractUri;
 
     mapping (uint256 => bool) public withdrawnTokens;
 
@@ -26,11 +28,21 @@ contract ChildStartonERC721 is ERC721Enumerable, ERC721URIStorage, Pausable, Acc
     event WithdrawnBatch(address indexed user, uint256[] tokenIds);
     event TransferWithMetadata(address indexed from, address indexed to, uint256 indexed tokenId, bytes metaData);
 
-    constructor(string memory name, string memory symbol, string memory baseUri, address ownerOrMultiSigContract) ERC721(name, symbol) {
+    constructor(string memory name, string memory symbol, string memory baseUri, string memory contractUriSuffix, address ownerOrMultiSigContract) ERC721(name, symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
         _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
         _uri = baseUri;
+        _contractUriSuffix = contractUriSuffix;
+        _baseContractUri = "https://ipfs.io/ipfs/";
+    }
+
+    function contractURI() public view returns (string memory) {
+        string memory baseContractUri = _baseContractUri;
+        string memory contractUriSuffix = _contractUriSuffix;
+        return bytes(baseContractUri).length > 0
+            ? string(abi.encodePacked(baseContractUri, contractUriSuffix))
+            : '';
     }
 
     function _baseURI() internal view override returns (string memory) {
