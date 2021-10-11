@@ -1305,12 +1305,36 @@ pragma solidity ^0.8.0;
 contract StartonERC1155 is AccessControl, Pausable, ERC1155Burnable {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
 
-    constructor(string memory name, string memory baseUri, address ownerOrMultiSigContract) ERC1155(name) {
+    string private _contractUriSuffix;
+    string private _baseContractUri;
+
+    constructor(string memory name, string memory baseUri, string memory contractUriSuffix, address ownerOrMultiSigContract) ERC1155(name) {
         _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
         _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
+        _setupRole(URI_SETTER_ROLE, ownerOrMultiSigContract);
         _setURI(baseUri);
+        _contractUriSuffix = contractUriSuffix;
+        _baseContractUri = "https://ipfs.io/ipfs/";
+    }
+
+    function setURI(string memory newuri) public {
+        require(hasRole(URI_SETTER_ROLE, msg.sender));
+        _setURI(newuri);
+    }
+
+    function contractURI() public view returns (string memory) {
+        return bytes(_baseContractUri).length > 0
+            ? string(abi.encodePacked(_baseContractUri, _contractUriSuffix))
+            : '';
+    }
+
+    function setBaseContractURI(string memory newBaseContractUri) public {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+        
+        _baseContractUri = newBaseContractUri;
     }
 
     function pause() public {
