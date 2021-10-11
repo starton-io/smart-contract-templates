@@ -14,13 +14,30 @@ contract StartonERC721 is ERC721Enumerable, ERC721URIStorage, Pausable, AccessCo
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     Counters.Counter private _tokenIdCounter;
+    
     string private _uri;
+    string private _contractUriSuffix;
+    string private _baseContractUri;
 
-    constructor(string memory name, string memory symbol, string memory baseUri, address ownerOrMultiSigContract) ERC721(name, symbol) {
+    constructor(string memory name, string memory symbol, string memory baseUri, string memory contractUriSuffix, address ownerOrMultiSigContract) ERC721(name, symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
         _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
         _uri = baseUri;
+        _contractUriSuffix = contractUriSuffix;
+        _baseContractUri = "https://ipfs.io/ipfs/";
+    }
+
+    function contractURI() public view returns (string memory) {
+        return bytes(_baseContractUri).length > 0
+            ? string(abi.encodePacked(_baseContractUri, _contractUriSuffix))
+            : '';
+    }
+
+    function setBaseContractURI(string memory newBaseContractUri) public {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+        
+        _baseContractUri = newBaseContractUri;
     }
 
     function _baseURI() internal view override returns (string memory) {
