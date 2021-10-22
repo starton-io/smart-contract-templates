@@ -14,11 +14,14 @@ contract ChildStartonERC721 is ERC721Enumerable, ERC721URIStorage, Pausable, Acc
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant DEPOSITOR_ROLE = keccak256("DEPOSITOR_ROLE");
+    bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
 
     Counters.Counter private _tokenIdCounter;
     string private _uri;
     string private _contractUriSuffix;
     string private _baseContractUri;
+
+    bool private _isMintAllowed;
 
     mapping (uint256 => bool) public withdrawnTokens;
 
@@ -32,9 +35,12 @@ contract ChildStartonERC721 is ERC721Enumerable, ERC721URIStorage, Pausable, Acc
         _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
         _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
+        _setupRole(LOCKER_ROLE, ownerOrMultiSigContract);
+
         _uri = baseUri;
         _contractUriSuffix = contractUriSuffix;
         _baseContractUri = "https://ipfs.io/ipfs/";
+        _isMintAllowed = true;
     }
 
     function contractURI() public view returns (string memory) {
@@ -53,8 +59,15 @@ contract ChildStartonERC721 is ERC721Enumerable, ERC721URIStorage, Pausable, Acc
         return _uri;
     }
 
+    function lockMint() public {
+        require(hasRole(LOCKER_ROLE, msg.sender));
+        _isMintAllowed = false;
+    }
+
     function safeMint(address to, string memory metadataURI) public {
         require(hasRole(MINTER_ROLE, msg.sender));
+        require(_isMintAllowed);
+
         _safeMint(to, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), metadataURI);
         _tokenIdCounter.increment();

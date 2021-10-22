@@ -1306,18 +1306,25 @@ contract StartonERC1155 is AccessControl, Pausable, ERC1155Burnable {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
+    bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
+
 
     string private _contractUriSuffix;
     string private _baseContractUri;
+
+    bool private _isMintAllowed;
 
     constructor(string memory name, string memory baseUri, string memory contractUriSuffix, address ownerOrMultiSigContract) ERC1155(name) {
         _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
         _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
         _setupRole(URI_SETTER_ROLE, ownerOrMultiSigContract);
+        _setupRole(LOCKER_ROLE, ownerOrMultiSigContract);
+
         _setURI(baseUri);
         _contractUriSuffix = contractUriSuffix;
         _baseContractUri = "https://ipfs.io/ipfs/";
+        _isMintAllowed = true;
     }
 
     function setURI(string memory newuri) public {
@@ -1347,10 +1354,17 @@ contract StartonERC1155 is AccessControl, Pausable, ERC1155Burnable {
         _unpause();
     }
 
+    function lockMint() public {
+        require(hasRole(LOCKER_ROLE, msg.sender));
+        _isMintAllowed = false;
+    }
+
     function mint(address account, uint256 id, uint256 amount, bytes memory data)
         public
     {
         require(hasRole(MINTER_ROLE, msg.sender));
+        require(_isMintAllowed);
+
         _mint(account, id, amount, data);
     }
 
@@ -1358,6 +1372,8 @@ contract StartonERC1155 is AccessControl, Pausable, ERC1155Burnable {
         public
     {
         require(hasRole(MINTER_ROLE, msg.sender));
+        require(_isMintAllowed);
+
         _mintBatch(to, ids, amounts, data);
     }
 

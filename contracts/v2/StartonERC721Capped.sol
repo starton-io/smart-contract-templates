@@ -13,17 +13,22 @@ contract StartonERC721Capped is ERC721Enumerable, ERC721URIStorage, Pausable, Ac
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
     Counters.Counter private _tokenIdCounter;
     string private _uri;
     uint256 private _maxSupply;
+
+    bool private _isMintAllowed;
 
     constructor(string memory name, string memory symbol, string memory baseUri, uint256 tokenMaxSupply, address ownerOrMultiSigContract) ERC721(name, symbol) {
         require(tokenMaxSupply > 0, "maxSupply: must be > 0");
         _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
         _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
+        _setupRole(LOCKER_ROLE, ownerOrMultiSigContract);
         _uri = baseUri;
         _maxSupply = tokenMaxSupply;
+        _isMintAllowed = true;
     }
 
     function _baseURI() internal view override returns (string memory) {
@@ -34,8 +39,14 @@ contract StartonERC721Capped is ERC721Enumerable, ERC721URIStorage, Pausable, Ac
         return _maxSupply;
     }
 
+    function lockMint() public {
+        require(hasRole(LOCKER_ROLE, msg.sender));
+        _isMintAllowed = false;
+    }
+
     function safeMint(address to) public {
         require(hasRole(MINTER_ROLE, msg.sender));
+        require(_isMintAllowed);
         require(_tokenIdCounter.current() < _maxSupply, "maxSupply: reached");
         _safeMint(to, _tokenIdCounter.current());
         _tokenIdCounter.increment();
