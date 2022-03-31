@@ -19,7 +19,15 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 export default {
-  solidity: "0.8.0",
+  solidity: {
+    version: "0.8.9", // v0.8.9+commit.e5eed63a
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
   defaultNetwork: "ropsten",
   networks: {
     hardhat: {},
@@ -30,5 +38,8 @@ export default {
       },
     }
   },
+  paths: {
+    sources: "./flatten",
+  }
 };
 
