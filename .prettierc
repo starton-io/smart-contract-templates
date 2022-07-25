@@ -1,0 +1,13 @@
+{
+  "overrides": [
+    {
+      "files": "*.sol",
+      "options": {
+        "compiler": "0.8.9",
+        "singleQuote": false,
+        "printWidth": 120,
+        "explicitTypes": "always"
+      }
+    }
+  ]
+}
