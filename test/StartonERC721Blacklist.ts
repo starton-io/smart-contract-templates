@@ -94,7 +94,7 @@ describe("ERC721 contract", function () {
     });
 
     it("Should set correctly the uri", async function () {
-      await instanceERC721.setURI("comeon");
+      await instanceERC721.setBaseURI("comeon");
     });
   });
 
@@ -347,7 +347,8 @@ describe("ERC721 contract", function () {
     });
 
     it("Shouldn't let anyone without the metadata role to be able to set metadata", async function () {
-      await expect(instanceERC721.connect(addr1).setURI("wow")).to.be.reverted;
+      await expect(instanceERC721.connect(addr1).setBaseURI("wow")).to.be
+        .reverted;
       await expect(instanceERC721.connect(addr1).setContractURI("wow")).to.be
         .reverted;
     });
@@ -356,7 +357,7 @@ describe("ERC721 contract", function () {
       const metadataRole = await instanceERC721.METADATA_ROLE();
       await instanceERC721.grantRole(metadataRole, addr1.address);
 
-      await instanceERC721.connect(addr1).setURI("wow");
+      await instanceERC721.connect(addr1).setBaseURI("wow");
       await instanceERC721.connect(addr1).setContractURI("wow");
     });
 
@@ -445,6 +446,18 @@ describe("ERC721 contract", function () {
       expect(
         await instanceERC721.isApprovedForAll(addr1.address, addr2.address)
       ).to.equal(true);
+    });
+  });
+
+  describe("Burn", function () {
+    it("Should be able to burn tokens", async function () {
+      await instanceERC721.safeMint(addr1.address, "");
+      await instanceERC721.safeMint(addr2.address, "");
+
+      await instanceERC721.connect(addr1).burn(0);
+
+      expect(await instanceERC721.balanceOf(addr1.address)).to.equal(0);
+      expect(await instanceERC721.balanceOf(addr2.address)).to.equal(1);
     });
   });
 });

@@ -12,13 +12,13 @@ import "./StartonBlacklist.sol";
 import "./ContextMixin.sol";
 
 /**
- * @dev This implements a ERC1155 token that can be blacklisted, paused, locked and have a access management.
- * On top of that it supports meta transactions.
+ * @dev This implements a ERC1155 token that can be blacklisted, paused, locked, burned and have a access management.
+ * On top of that it supports meta transactions with built in forwarder.
  */
 contract StartonERC1155Blacklist is
+    ERC1155Burnable,
     AccessControl,
     Pausable,
-    ERC1155Burnable,
     StartonBlacklist,
     ContextMixin,
     NativeMetaTransaction
@@ -29,10 +29,12 @@ contract StartonERC1155Blacklist is
     bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
 
     string public name;
-    string private _contractUri;
+
+    string private _contractURI;
+
     bool private _isMintAllowed;
 
-    event LockMinting(address indexed account);
+    event MintingLocked(address indexed account);
 
     modifier notLocked() {
         require(_isMintAllowed, "Minting is locked");
@@ -40,9 +42,9 @@ contract StartonERC1155Blacklist is
     }
 
     constructor(
-        string memory contractName,
+        string memory name_,
         string memory uri,
-        string memory contractUri,
+        string memory contractURI_,
         address ownerOrMultiSigContract
     ) ERC1155(uri) {
         _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
@@ -52,23 +54,19 @@ contract StartonERC1155Blacklist is
         _setupRole(LOCKER_ROLE, ownerOrMultiSigContract);
         _setupRole(BLACKLISTER_ROLE, ownerOrMultiSigContract);
 
-        _contractUri = contractUri;
+        _contractURI = contractURI_;
         _isMintAllowed = true;
-        name = contractName;
+        name = name_;
         _initializeEIP712(name);
     }
 
     // For ERC1155 there isn't any base uri so it's the whole uri with {id} in it
-    function setURI(string memory newUri)
+    function setURI(string memory newURI)
         public
         whenNotPaused
         onlyRole(METADATA_ROLE)
     {
-        _setURI(newUri);
-    }
-
-    function contractURI() public view returns (string memory) {
-        return _contractUri;
+        _setURI(newURI);
     }
 
     function setContractURI(string memory newContractUri)
@@ -76,7 +74,7 @@ contract StartonERC1155Blacklist is
         whenNotPaused
         onlyRole(METADATA_ROLE)
     {
-        _contractUri = newContractUri;
+        _contractURI = newContractUri;
     }
 
     function pause() public onlyRole(PAUSER_ROLE) {
@@ -88,17 +86,17 @@ contract StartonERC1155Blacklist is
     }
 
     function lockMint() public onlyRole(LOCKER_ROLE) {
-        emit LockMinting(_msgSender());
+        emit MintingLocked(_msgSender());
         _isMintAllowed = false;
     }
 
     function mint(
-        address account,
+        address to,
         uint256 id,
         uint256 amount,
         bytes memory data
     ) public whenNotPaused notLocked onlyRole(MINTER_ROLE) {
-        _mint(account, id, amount, data);
+        _mint(to, id, amount, data);
     }
 
     function mintBatch(
@@ -116,9 +114,11 @@ contract StartonERC1155Blacklist is
         override(ERC1155, AccessControl)
         returns (bool)
     {
-        return
-            AccessControl.supportsInterface(interfaceId) ||
-            ERC1155.supportsInterface(interfaceId);
+        return super.supportsInterface(interfaceId);
+    }
+
+    function contractURI() public view returns (string memory) {
+        return _contractURI;
     }
 
     function _setApprovalForAll(
@@ -144,9 +144,9 @@ contract StartonERC1155Blacklist is
         internal
         view
         virtual
-        override(Context)
+        override(Context, ContextMixin)
         returns (address sender)
     {
-        return ContextMixin.msgSender();
+        return ContextMixin._msgSender();
     }
 }

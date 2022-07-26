@@ -12,96 +12,105 @@ import "./StartonERC721Blacklist.sol";
 contract StartonERC721WhitelistSale is Ownable {
     using SafeMath for uint256;
 
+    address private _feeReceiver;
+
     bytes32 private _merkleRoot;
+
     StartonERC721Blacklist public token;
+
     uint256 public price;
     uint256 public startTime;
     uint256 public endTime;
     uint256 public maxTokens;
-    address payable private _feeReceiver;
     uint256 public maxSupply;
 
     mapping(address => uint256) public tokensClaimed;
 
     constructor(
-        address _token,
-        bytes32 _root,
-        uint256 _price,
-        uint256 _startTime,
-        uint256 _endTime,
-        uint256 _maxTokens,
-        uint256 _maxSupply,
-        address payable _receiver
+        address tokenAddress,
+        bytes32 merkleRoot_,
+        uint256 price_,
+        uint256 startTime_,
+        uint256 endTime_,
+        uint256 maxTokens_,
+        uint256 maxSupply_,
+        address feeReceiver_
     ) {
-        token = StartonERC721Blacklist(_token);
-        _merkleRoot = _root;
-        price = _price;
-        startTime = _startTime;
-        endTime = _endTime;
-        maxTokens = _maxTokens;
-        maxSupply = _maxSupply;
-        _feeReceiver = _receiver;
+        token = StartonERC721Blacklist(tokenAddress);
+        _merkleRoot = merkleRoot_;
+        price = price_;
+        startTime = startTime_;
+        endTime = endTime_;
+        maxTokens = maxTokens_;
+        maxSupply = maxSupply_;
+        _feeReceiver = feeReceiver_;
     }
 
-    function mint(
-        address _receiver,
-        string memory _metadataURI,
-        bytes32[] calldata _merkleProof
+    function safeMint(
+        address to,
+        string memory tokenURI,
+        bytes32[] calldata merkleProof
     ) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(_receiver));
+        bytes32 leaf = keccak256(abi.encodePacked(to));
         require(
-            MerkleProof.verify(_merkleProof, _merkleRoot, leaf),
+            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
             "Invalid proof"
         );
-        require(tokensClaimed[_receiver] < maxTokens, "Max tokens reached");
+
+        require(tokensClaimed[to] < maxTokens, "Max tokens reached");
         require(msg.value >= price, "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
         require(token.totalSupply() < maxSupply, "Max supply reached");
 
-        token.safeMint(_receiver, _metadataURI);
+        token.safeMint(to, tokenURI);
     }
 
-    function batchMint(
-        address _receiver,
+    function safeBatchMint(
+        address to,
         uint256 _amount,
-        string[] memory _metadataURI,
-        bytes32[] calldata _merkleProof
+        string[] memory tokenURI,
+        bytes32[] calldata merkleProof
     ) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(_receiver));
+        bytes32 leaf = keccak256(abi.encodePacked(to));
         require(
-            MerkleProof.verify(_merkleProof, _merkleRoot, leaf),
+            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
             "Invalid proof"
         );
-        require(tokensClaimed[_receiver] < maxTokens, "Max tokens reached");
+
+        require(tokensClaimed[to] < maxTokens, "Max tokens reached");
         require(msg.value >= price.mul(_amount), "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
         for (uint256 i = 0; i < _amount; ++i) {
             require(token.totalSupply() < maxSupply, "Max supply reached");
-            token.safeMint(_receiver, _metadataURI[i]);
+            token.safeMint(to, tokenURI[i]);
         }
     }
 
-    function withdraw() public onlyOwner {
-        _feeReceiver.transfer(address(this).balance);
-    }
-
-    function adminMint(address _receiver, string memory _metaDataURI)
+    function safeAdminMint(address to, string memory tokenURI)
         public
         onlyOwner
     {
-        token.safeMint(_receiver, _metaDataURI);
+        token.safeMint(to, tokenURI);
     }
 
-    function adminBatchMint(
-        address _receiver,
-        uint256 _amount,
-        string[] memory _metadataURI
+    function safeAdminBatchMint(
+        address to,
+        uint256 amount,
+        string[] memory tokenURI
     ) public onlyOwner {
-        for (uint256 i = 0; i < _amount; ++i) {
-            token.safeMint(_receiver, _metadataURI[i]);
+        for (uint256 i = 0; i < amount; ++i) {
+            token.safeMint(to, tokenURI[i]);
         }
+    }
+
+    function changeFeeReceiver(address newFeeReceiver) public onlyOwner {
+        _feeReceiver = newFeeReceiver;
+    }
+
+    function withdraw() public onlyOwner {
+        payable(_feeReceiver).transfer(address(this).balance);
     }
 }

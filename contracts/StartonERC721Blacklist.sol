@@ -15,15 +15,15 @@ import "./StartonBlacklist.sol";
 import "./ContextMixin.sol";
 
 /**
- * @dev This implements a ERC721 token that can be blacklisted, paused, locked and have a access management.
- * On top of that it supports meta transactions.
+ * @dev This implements a ERC721 token that can be blacklisted, paused, locked, burned and have a access management.
+ * On top of that it supports meta transactions with built in forwarder.
  */
 contract StartonERC721Blacklist is
     ERC721Enumerable,
     ERC721URIStorage,
+    ERC721Burnable,
     Pausable,
     AccessControl,
-    ERC721Burnable,
     StartonBlacklist,
     ContextMixin,
     NativeMetaTransaction
@@ -38,16 +38,22 @@ contract StartonERC721Blacklist is
     Counters.Counter private _tokenIdCounter;
 
     string private _uri;
-    string private _contractUri;
+    string private _contractURI;
+
     bool private _isMintAllowed;
 
-    event LockMinting(address indexed account);
+    event MintingLocked(address indexed account);
+
+    modifier notLocked() {
+        require(_isMintAllowed, "Minting is locked");
+        _;
+    }
 
     constructor(
         string memory name,
         string memory symbol,
-        string memory baseUri,
-        string memory contractUri,
+        string memory baseURI,
+        string memory contractURI_,
         address ownerOrMultiSigContract
     ) ERC721(name, symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
@@ -57,35 +63,33 @@ contract StartonERC721Blacklist is
         _setupRole(LOCKER_ROLE, ownerOrMultiSigContract);
         _setupRole(BLACKLISTER_ROLE, ownerOrMultiSigContract);
 
-        _uri = baseUri;
-        _contractUri = contractUri;
+        _uri = baseURI;
+        _contractURI = contractURI_;
         _isMintAllowed = true;
         _initializeEIP712(name);
     }
 
-    function contractURI() public view returns (string memory) {
-        return _contractUri;
-    }
-
-    function setContractURI(string memory newBaseContractUri)
+    function setContractURI(string memory newContractURI)
         public
         onlyRole(METADATA_ROLE)
     {
-        _contractUri = newBaseContractUri;
+        _contractURI = newContractURI;
     }
 
-    function setURI(string memory newUri) public onlyRole(METADATA_ROLE) {
-        _uri = newUri;
-    }
-
-    function safeMint(address to, string memory metadataURI)
+    function setBaseURI(string memory newBaseURI)
         public
+        onlyRole(METADATA_ROLE)
+    {
+        _uri = newBaseURI;
+    }
+
+    function safeMint(address to, string memory uri)
+        public
+        notLocked
         onlyRole(MINTER_ROLE)
     {
-        require(_isMintAllowed, "Minting is locked");
-
         _safeMint(to, _tokenIdCounter.current());
-        _setTokenURI(_tokenIdCounter.current(), metadataURI);
+        _setTokenURI(_tokenIdCounter.current(), uri);
         _tokenIdCounter.increment();
     }
 
@@ -98,8 +102,12 @@ contract StartonERC721Blacklist is
     }
 
     function lockMint() public onlyRole(LOCKER_ROLE) {
-        emit LockMinting(_msgSender());
+        emit MintingLocked(_msgSender());
         _isMintAllowed = false;
+    }
+
+    function contractURI() public view returns (string memory) {
+        return _contractURI;
     }
 
     function tokenURI(uint256 tokenId)
@@ -114,12 +122,10 @@ contract StartonERC721Blacklist is
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC721Enumerable, AccessControl, ERC721)
+        override(ERC721, AccessControl, ERC721Enumerable)
         returns (bool)
     {
-        return
-            AccessControl.supportsInterface(interfaceId) ||
-            ERC721Enumerable.supportsInterface(interfaceId);
+        return super.supportsInterface(interfaceId);
     }
 
     function _setApprovalForAll(
@@ -158,9 +164,9 @@ contract StartonERC721Blacklist is
         internal
         view
         virtual
-        override(Context)
+        override(Context, ContextMixin)
         returns (address sender)
     {
-        return ContextMixin.msgSender();
+        return ContextMixin._msgSender();
     }
 }
