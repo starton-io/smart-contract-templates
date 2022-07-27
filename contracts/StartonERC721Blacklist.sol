@@ -97,7 +97,7 @@ contract StartonERC721Blacklist is
 
     /**
      * @notice Mint a new token to the given address and set the token metadata while minting is not locked
-     * only accessible by the addresses that own the metadata role
+     * only accessible by the addresses that own the minter role
      * @param to The address that will receive the token
      * @param uri The URI of the token metadata
      */
@@ -172,7 +172,7 @@ contract StartonERC721Blacklist is
     }
 
     /**
-     * @notice Stop approval of token if the contract is paused or the sender is blacklisted
+     * @dev Stop approval of token if the contract is paused or the sender is blacklisted
      * @param owner The owner of the token
      * @param operator The operator of the token
      * @param approved Approve or not the approval of the token
@@ -186,7 +186,7 @@ contract StartonERC721Blacklist is
     }
 
     /**
-     * @notice Stop transfer if the contract is paused or the sender is blacklisted
+     * @dev Stop transfer if the contract is paused or the sender is blacklisted
      * @param from The address that will send the token
      * @param to The address that will receive the token
      * @param tokenId The ID of the token to be transferred
@@ -205,7 +205,6 @@ contract StartonERC721Blacklist is
     }
 
     /**
-     * @notice Burn a token
      * @dev Fix the inheritence problem for the _burn between ERC721 and erc721URIStorage
      * @param tokenId Id of the token that will be burnt
      */
