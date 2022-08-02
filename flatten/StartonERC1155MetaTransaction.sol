@@ -1601,7 +1601,7 @@ abstract contract Pausable is Context {
 }
 
 
-// File contracts/Initializable.sol
+// File contracts/utils/Initializable.sol
 
 // Initializable contract: version 0.0.1
 // Creator: https://starton.io
@@ -1619,7 +1619,7 @@ contract Initializable {
 }
 
 
-// File contracts/EIP712Base.sol
+// File contracts/utils/EIP712Base.sol
 
 // EIP712Base contract: version 0.0.1
 // Creator: https://starton.io
@@ -1695,7 +1695,7 @@ contract EIP712Base is Initializable {
 }
 
 
-// File contracts/NativeMetaTransaction.sol
+// File contracts/utils/NativeMetaTransaction.sol
 
 // NativeMetaTransaction contract: version 0.0.1
 // Creator: https://starton.io
@@ -1803,7 +1803,7 @@ contract NativeMetaTransaction is EIP712Base {
 }
 
 
-// File contracts/StartonBlacklist.sol
+// File contracts/utils/StartonBlacklist.sol
 
 // StartonBlacklist contract: version 0.0.1
 // Creator: https://starton.io
@@ -1881,7 +1881,7 @@ contract StartonBlacklist is AccessControl {
 }
 
 
-// File contracts/ContextMixin.sol
+// File contracts/utils/ContextMixin.sol
 
 // ContextMixin contract: version 0.0.1
 // Creator: https://starton.io
@@ -1939,13 +1939,23 @@ contract StartonERC1155MetaTransaction is
     string private _contractURI;
 
     bool private _isMintAllowed;
+    bool private _isMetatadataChangingAllowed;
 
     /** @notice Event when the minting is locked */
     event MintingLocked(address indexed account);
 
+    /** @notice Event when the metadata are locked */
+    event MetadataLocked(address indexed account);
+
     /** @dev Modifier that reverts when the minting is locked */
-    modifier notLocked() {
+    modifier mintingNotLocked() {
         require(_isMintAllowed, "Minting is locked");
+        _;
+    }
+
+    /** @dev Modifier that reverts when the metadatas are locked */
+    modifier metadataNotLocked() {
+        require(_isMintAllowed, "Metadats are locked");
         _;
     }
 
@@ -1966,6 +1976,7 @@ contract StartonERC1155MetaTransaction is
         name = name_;
         _contractURI = contractURI_;
         _isMintAllowed = true;
+        _isMetatadataChangingAllowed = true;
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(name_);
@@ -1979,6 +1990,7 @@ contract StartonERC1155MetaTransaction is
     function setURI(string memory newURI)
         public
         whenNotPaused
+        metadataNotLocked
         onlyRole(METADATA_ROLE)
     {
         _setURI(newURI);
@@ -1992,6 +2004,7 @@ contract StartonERC1155MetaTransaction is
     function setContractURI(string memory newContractURI)
         public
         whenNotPaused
+        metadataNotLocked
         onlyRole(METADATA_ROLE)
     {
         _contractURI = newContractURI;
@@ -2017,9 +2030,18 @@ contract StartonERC1155MetaTransaction is
      * @notice Lock the mint and won't allow any minting anymore
      * only accessible by the addresses that own the locker role
      */
-    function lockMint() public onlyRole(LOCKER_ROLE) {
-        emit MintingLocked(_msgSender());
+    function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMintAllowed = false;
+        emit MintingLocked(_msgSender());
+    }
+
+    /**
+     * @notice Lock the metadats and won't allow any changes anymore
+     * only accessible by the addresses that own the locker role
+     */
+    function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
+        _isMetatadataChangingAllowed = false;
+        emit MetadataLocked(_msgSender());
     }
 
     /**
@@ -2035,7 +2057,7 @@ contract StartonERC1155MetaTransaction is
         uint256 id,
         uint256 amount,
         bytes memory data
-    ) public whenNotPaused notLocked onlyRole(MINTER_ROLE) {
+    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
         _mint(to, id, amount, data);
     }
 
@@ -2052,7 +2074,7 @@ contract StartonERC1155MetaTransaction is
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) public whenNotPaused notLocked onlyRole(MINTER_ROLE) {
+    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
         _mintBatch(to, ids, amounts, data);
     }
 

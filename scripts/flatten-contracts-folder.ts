@@ -14,7 +14,9 @@ function getAllFiles(dirPath, arrayOfFiles) {
 
   files.forEach((file) => {
     if (fs.statSync(dirPath + "/" + file).isDirectory()) {
-      arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
+      if (file !== "utils") {
+        arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
+      }
     } else {
       arrayOfFiles.push(path.join(dirPath, "/", file));
     }
