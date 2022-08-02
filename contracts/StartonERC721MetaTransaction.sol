@@ -89,6 +89,7 @@ contract StartonERC721MetaTransaction is
      */
     function setContractURI(string memory newContractURI)
         public
+        whenNotPaused
         metadataNotLocked
         onlyRole(METADATA_ROLE)
     {
@@ -102,6 +103,7 @@ contract StartonERC721MetaTransaction is
      */
     function setBaseURI(string memory newBaseURI)
         public
+        whenNotPaused
         onlyRole(METADATA_ROLE)
     {
         _uri = newBaseURI;
@@ -143,7 +145,7 @@ contract StartonERC721MetaTransaction is
      * @notice Lock the mint and won't allow any minting anymore
      * only accessible by the addresses that own the locker role
      */
-    function lockMint() public onlyRole(LOCKER_ROLE) {
+    function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMintAllowed = false;
         emit MintingLocked(_msgSender());
     }
@@ -152,7 +154,7 @@ contract StartonERC721MetaTransaction is
      * @notice Lock the metadats and won't allow any changes anymore
      * only accessible by the addresses that own the locker role
      */
-    function lockMetadata() public onlyRole(LOCKER_ROLE) {
+    function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMetatadataChangingAllowed = false;
         emit MetadataLocked(_msgSender());
     }

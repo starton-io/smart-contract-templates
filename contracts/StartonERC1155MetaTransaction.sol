@@ -121,18 +121,18 @@ contract StartonERC1155MetaTransaction is
      * @notice Lock the mint and won't allow any minting anymore
      * only accessible by the addresses that own the locker role
      */
-    function lockMint() public onlyRole(LOCKER_ROLE) {
-        emit MintingLocked(_msgSender());
+    function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMintAllowed = false;
+        emit MintingLocked(_msgSender());
     }
 
     /**
      * @notice Lock the metadats and won't allow any changes anymore
      * only accessible by the addresses that own the locker role
      */
-    function lockMetadata() public onlyRole(LOCKER_ROLE) {
-        emit MetadataLocked(_msgSender());
+    function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMetatadataChangingAllowed = false;
+        emit MetadataLocked(_msgSender());
     }
 
     /**
