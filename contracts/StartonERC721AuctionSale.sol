@@ -16,6 +16,10 @@ contract StartonERC721AuctionSale is Ownable {
     uint256 public endTime;
     bool private _claimed;
 
+    event AuctionStarted(uint256 startTime, uint256 endTime);
+    event AuctionClaimed(address indexed winner, uint256 price);
+    event Bided(address indexed bidder, uint256 amount);
+
     constructor(
         address tokenAddress,
         uint256 startingPrice,
@@ -32,6 +36,7 @@ contract StartonERC721AuctionSale is Ownable {
         endTime = endTime_;
         currentAuctionWinner = address(0);
         _claimed = false;
+        emit AuctionStarted(startTime, endTime);
     }
 
     function bid() public payable {
@@ -41,6 +46,7 @@ contract StartonERC721AuctionSale is Ownable {
 
         currentPrice = msg.value;
         currentAuctionWinner = _msgSender();
+        emit Bided(_msgSender(), msg.value);
     }
 
     function safeMint(address to, string memory tokenURI) public {
@@ -52,6 +58,7 @@ contract StartonERC721AuctionSale is Ownable {
 
         token.safeMint(to, tokenURI);
         _claimed = true;
+        emit AuctionClaimed(to, currentPrice);
     }
 
     function startNewAuction(
@@ -66,6 +73,7 @@ contract StartonERC721AuctionSale is Ownable {
         currentAuctionWinner = address(0);
         startTime = startTime_;
         endTime = endTime_;
+        emit AuctionStarted(startTime, endTime);
     }
 
     function withdraw() public {
