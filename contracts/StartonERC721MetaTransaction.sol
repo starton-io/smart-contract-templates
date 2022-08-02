@@ -12,10 +12,10 @@ import "./NativeMetaTransaction.sol";
 import "./StartonBlacklist.sol";
 import "./ContextMixin.sol";
 
-/// @title StartonERC721Blacklist
+/// @title StartonERC721MetaTransaction
 /// @author Starton
 /// @notice This implements a ERC721 token that can be blacklisted, paused, locked, burned and have a access management
-contract StartonERC721Blacklist is
+contract StartonERC721MetaTransaction is
     ERC721Enumerable,
     ERC721URIStorage,
     ERC721Burnable,
