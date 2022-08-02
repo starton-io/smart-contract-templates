@@ -1,20 +1,20 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ContractFactory } from "@ethersproject/contracts";
-import { StartonERC721Blacklist } from "../typechain-types";
+import { StartonERC721MetaTransaction } from "../typechain-types";
 import { ethers } from "hardhat";
 import { expect } from "chai";
 
 let ERC721: ContractFactory;
 
 describe("ERC721 contract", function () {
-  let instanceERC721: StartonERC721Blacklist;
+  let instanceERC721: StartonERC721MetaTransaction;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
   let addrs: SignerWithAddress[];
 
   before(async () => {
-    ERC721 = await ethers.getContractFactory("StartonERC721Blacklist");
+    ERC721 = await ethers.getContractFactory("StartonERC721MetaTransaction");
   });
 
   beforeEach(async function () {
@@ -27,7 +27,7 @@ describe("ERC721 contract", function () {
       "rnd1",
       "rnd2",
       owner.address
-    )) as StartonERC721Blacklist;
+    )) as StartonERC721MetaTransaction;
     await instanceERC721.deployed();
   });
 
