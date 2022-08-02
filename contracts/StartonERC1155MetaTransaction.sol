@@ -76,6 +76,7 @@ contract StartonERC1155MetaTransaction is
     /**
      * @notice Set the URI if the token
      * For ERC1155 there isn't any base uri so it's the whole uri with {id} in it
+     * example: ipfs://QmW77ZQQ7Jm9q8WuLbH8YZg2K7T9Qnjbzm7jYVQQrJY5Y/{id}
      * only accessible by the addresses that own the metadata role
      */
     function setURI(string memory newURI)
