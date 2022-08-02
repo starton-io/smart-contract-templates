@@ -38,13 +38,23 @@ contract StartonERC721MetaTransaction is
     string private _contractURI;
 
     bool private _isMintAllowed;
+    bool private _isMetatadataChangingAllowed;
 
     /** @notice Event when the minting is locked */
     event MintingLocked(address indexed account);
 
+    /** @notice Event when the metadata are locked */
+    event MetadataLocked(address indexed account);
+
     /** @dev Modifier that reverts when the minting is locked */
-    modifier notLocked() {
+    modifier mintingNotLocked() {
         require(_isMintAllowed, "Minting is locked");
+        _;
+    }
+
+    /** @dev Modifier that reverts when the metadatas are locked */
+    modifier metadataNotLocked() {
+        require(_isMintAllowed, "Metadats are locked");
         _;
     }
 
@@ -66,6 +76,7 @@ contract StartonERC721MetaTransaction is
         _uri = baseURI;
         _contractURI = contractURI_;
         _isMintAllowed = true;
+        _isMetatadataChangingAllowed = true;
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(name);
@@ -78,6 +89,7 @@ contract StartonERC721MetaTransaction is
      */
     function setContractURI(string memory newContractURI)
         public
+        metadataNotLocked
         onlyRole(METADATA_ROLE)
     {
         _contractURI = newContractURI;
@@ -103,7 +115,7 @@ contract StartonERC721MetaTransaction is
      */
     function safeMint(address to, string memory uri)
         public
-        notLocked
+        mintingNotLocked
         onlyRole(MINTER_ROLE)
     {
         _safeMint(to, _tokenIdCounter.current());
@@ -134,6 +146,15 @@ contract StartonERC721MetaTransaction is
     function lockMint() public onlyRole(LOCKER_ROLE) {
         _isMintAllowed = false;
         emit MintingLocked(_msgSender());
+    }
+
+    /**
+     * @notice Lock the metadats and won't allow any changes anymore
+     * only accessible by the addresses that own the locker role
+     */
+    function lockMetadata() public onlyRole(LOCKER_ROLE) {
+        _isMetatadataChangingAllowed = false;
+        emit MetadataLocked(_msgSender());
     }
 
     /**

@@ -30,13 +30,23 @@ contract StartonERC1155MetaTransaction is
     string private _contractURI;
 
     bool private _isMintAllowed;
+    bool private _isMetatadataChangingAllowed;
 
     /** @notice Event when the minting is locked */
     event MintingLocked(address indexed account);
 
+    /** @notice Event when the metadata are locked */
+    event MetadataLocked(address indexed account);
+
     /** @dev Modifier that reverts when the minting is locked */
-    modifier notLocked() {
+    modifier mintingNotLocked() {
         require(_isMintAllowed, "Minting is locked");
+        _;
+    }
+
+    /** @dev Modifier that reverts when the metadatas are locked */
+    modifier metadataNotLocked() {
+        require(_isMintAllowed, "Metadats are locked");
         _;
     }
 
@@ -57,6 +67,7 @@ contract StartonERC1155MetaTransaction is
         name = name_;
         _contractURI = contractURI_;
         _isMintAllowed = true;
+        _isMetatadataChangingAllowed = true;
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(name_);
@@ -70,6 +81,7 @@ contract StartonERC1155MetaTransaction is
     function setURI(string memory newURI)
         public
         whenNotPaused
+        metadataNotLocked
         onlyRole(METADATA_ROLE)
     {
         _setURI(newURI);
@@ -83,6 +95,7 @@ contract StartonERC1155MetaTransaction is
     function setContractURI(string memory newContractURI)
         public
         whenNotPaused
+        metadataNotLocked
         onlyRole(METADATA_ROLE)
     {
         _contractURI = newContractURI;
@@ -114,6 +127,15 @@ contract StartonERC1155MetaTransaction is
     }
 
     /**
+     * @notice Lock the metadats and won't allow any changes anymore
+     * only accessible by the addresses that own the locker role
+     */
+    function lockMetadata() public onlyRole(LOCKER_ROLE) {
+        emit MetadataLocked(_msgSender());
+        _isMetatadataChangingAllowed = false;
+    }
+
+    /**
      * @notice Mint a new amount of tokens to a given address and by the given id
      * only accessible by the addresses that own the minter role
      * @param to The address to mint the tokens to
@@ -126,7 +148,7 @@ contract StartonERC1155MetaTransaction is
         uint256 id,
         uint256 amount,
         bytes memory data
-    ) public whenNotPaused notLocked onlyRole(MINTER_ROLE) {
+    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
         _mint(to, id, amount, data);
     }
 
@@ -143,7 +165,7 @@ contract StartonERC1155MetaTransaction is
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) public whenNotPaused notLocked onlyRole(MINTER_ROLE) {
+    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
         _mintBatch(to, ids, amounts, data);
     }
 
