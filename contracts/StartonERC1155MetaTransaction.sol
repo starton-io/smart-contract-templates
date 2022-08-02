@@ -5,9 +5,9 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "./NativeMetaTransaction.sol";
-import "./StartonBlacklist.sol";
-import "./ContextMixin.sol";
+import "./utils/NativeMetaTransaction.sol";
+import "./utils/StartonBlacklist.sol";
+import "./utils/ContextMixin.sol";
 
 /// @title StartonERC1155MetaTransaction
 /// @author Starton
