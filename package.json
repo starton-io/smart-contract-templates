@@ -8,7 +8,7 @@
     "compile": "hardhat compile",
     "clean": "hardhat clean",
     "coverage": "hardhat coverage",
-    "flatten": "node scripts/flatten-contracts-folder.ts",
+    "flatten": "ts-node scripts/flatten-contracts-folder.ts",
     "prettier": "prettier '**/*.{json,sol,md}' --check",
     "solhint": "solhint 'contracts/**/*.sol'",
     "solhint:fix": "solhint 'contracts/**/*.sol' --fix",
