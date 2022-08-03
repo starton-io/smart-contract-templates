@@ -34,6 +34,7 @@ contract StartonERC721Sale is Context {
         uint256 maxSupply,
         address feeReceiver
     ) {
+        // Check if the address of the feeReceiver is correct
         require(feeReceiver != address(0), "Fee receiver address is not valid");
         _feeReceiver = feeReceiver;
 

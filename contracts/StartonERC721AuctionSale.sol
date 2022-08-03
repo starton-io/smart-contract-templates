@@ -7,7 +7,7 @@ import "./StartonERC721MetaTransaction.sol";
 
 /// @title StartonERC721AuctionSale
 /// @author Starton
-/// @notice Contract to be able to sell ERC721 tokens through a auction
+/// @notice Contract that can sell ERC721 tokens through a auction
 contract StartonERC721AuctionSale is Ownable {
     address private immutable _feeReceiver;
 
@@ -83,7 +83,7 @@ contract StartonERC721AuctionSale is Ownable {
     }
 
     /**
-     * @notice start a new auction for a new NFT
+     * @notice Start a new auction for a new NFT
      * @param startingPrice the starting price of the new auction
      * @param startTime_ the time when the auction starts
      * @param endTime_ the time when the auction ends
@@ -106,7 +106,7 @@ contract StartonERC721AuctionSale is Ownable {
     }
 
     /**
-     * @notice withdraw funds from the smart contract to the feeReceiver
+     * @notice Wsithdraw funds from the smart contract to the feeReceiver
      */
     function withdraw() public {
         payable(_feeReceiver).transfer(address(this).balance);
