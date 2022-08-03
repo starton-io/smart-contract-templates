@@ -3,7 +3,7 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./StartonERC721MetaTransaction.sol";
+import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721AuctionSale
 /// @author Starton
@@ -11,7 +11,7 @@ import "./StartonERC721MetaTransaction.sol";
 contract StartonERC721AuctionSale is Ownable {
     address private immutable _feeReceiver;
 
-    StartonERC721MetaTransaction public token;
+    IStartonERC721 public token;
 
     uint256 public currentPrice;
     address public currentAuctionWinner;
@@ -39,7 +39,7 @@ contract StartonERC721AuctionSale is Ownable {
         require(feeReceiver != address(0), "Fee receiver address is not valid");
         _feeReceiver = feeReceiver;
 
-        token = StartonERC721MetaTransaction(tokenAddress);
+        token = IStartonERC721(tokenAddress);
         currentPrice = startingPrice;
         startTime = startTime_;
         endTime = endTime_;

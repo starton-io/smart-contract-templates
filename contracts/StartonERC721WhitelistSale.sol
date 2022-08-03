@@ -5,7 +5,7 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
-import "./StartonERC721MetaTransaction.sol";
+import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721WhitelistSale
 /// @author Starton
@@ -18,7 +18,7 @@ contract StartonERC721WhitelistSale is Context {
     // Root of the merkle tree for the whitelisted address
     bytes32 private _merkleRoot;
 
-    StartonERC721MetaTransaction public token;
+    IStartonERC721 public token;
 
     uint256 public price;
     uint256 public startTime;
@@ -42,7 +42,7 @@ contract StartonERC721WhitelistSale is Context {
         require(feeReceiver != address(0), "Fee receiver address is not valid");
         _feeReceiver = feeReceiver;
 
-        token = StartonERC721MetaTransaction(tokenAddress);
+        token = IStartonERC721(tokenAddress);
         _merkleRoot = merkleRoot_;
         price = price_;
         startTime = startTime_;
