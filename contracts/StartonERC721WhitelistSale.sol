@@ -18,12 +18,13 @@ contract StartonERC721WhitelistSale is Context {
     // Root of the merkle tree for the whitelisted address
     bytes32 private _merkleRoot;
 
-    IStartonERC721 public token;
+    IStartonERC721 public immutable token;
 
-    uint256 public price;
-    uint256 public startTime;
-    uint256 public endTime;
-    uint256 public maxTokensPerAddress;
+    uint256 public immutable price;
+    uint256 public immutable startTime;
+    uint256 public immutable endTime;
+    uint256 public immutable maxTokensPerAddress;
+
     uint256 public leftSupply;
 
     mapping(address => uint256) public tokensClaimed;

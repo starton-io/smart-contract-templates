@@ -11,12 +11,14 @@ import "./interfaces/IStartonERC721.sol";
 contract StartonERC721AuctionSale is Ownable {
     address private immutable _feeReceiver;
 
-    IStartonERC721 public token;
+    IStartonERC721 public immutable token;
 
     uint256 public currentPrice;
     address public currentAuctionWinner;
     uint256 public startTime;
     uint256 public endTime;
+
+    // If the token as been claimed or not yet
     bool private _claimed;
 
     /** @notice Event when a auction started */
