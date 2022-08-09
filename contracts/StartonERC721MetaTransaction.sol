@@ -83,9 +83,9 @@ contract StartonERC721MetaTransaction is
     }
 
     /**
-     * @notice Set the URI of the contract
-     * only accessible by the addresses that own the metadata role
+     * @notice Set the URI of the contract if the metadata are not locked and the contract is not paused
      * @param newContractURI The new URI of the contract
+     * @custom:requires METADATA_ROLE
      */
     function setContractURI(string memory newContractURI)
         public
@@ -97,13 +97,14 @@ contract StartonERC721MetaTransaction is
     }
 
     /**
-     * @notice Set the base URI of the token
-     * only accessible by the addresses that own the metadata role
+     * @notice Set the base URI of the token if the metadata are not locked and the contract is not paused
      * @param newBaseURI The new base URI of the token
+     * @custom:requires METADATA_ROLE
      */
     function setBaseURI(string memory newBaseURI)
         public
         whenNotPaused
+        metadataNotLocked
         onlyRole(METADATA_ROLE)
     {
         _uri = newBaseURI;
@@ -111,9 +112,9 @@ contract StartonERC721MetaTransaction is
 
     /**
      * @notice Mint a new token to the given address and set the token metadata while minting is not locked
-     * only accessible by the addresses that own the minter role
      * @param to The address that will receive the token
      * @param uri The URI of the token metadata
+     * @custom:requires MINTER_ROLE
      */
     function safeMint(address to, string memory uri)
         public
@@ -127,7 +128,7 @@ contract StartonERC721MetaTransaction is
 
     /**
      * @notice Pause the contract which stop any changes regarding the ERC721 and minting
-     * only accessible by the addresses that own the pauser role
+     * @custom:requires PAUSER_ROLE
      */
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -135,15 +136,15 @@ contract StartonERC721MetaTransaction is
 
     /**
      * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
-     * only accessible by the addresses that own the pauser role
+     * @custom:requires PAUSER_ROLE
      */
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
     /**
-     * @notice Lock the mint and won't allow any minting anymore
-     * only accessible by the addresses that own the locker role
+     * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
      */
     function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMintAllowed = false;
@@ -151,8 +152,8 @@ contract StartonERC721MetaTransaction is
     }
 
     /**
-     * @notice Lock the metadats and won't allow any changes anymore
-     * only accessible by the addresses that own the locker role
+     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
      */
     function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMetatadataChangingAllowed = false;
@@ -161,7 +162,7 @@ contract StartonERC721MetaTransaction is
 
     /**
      * @notice Returns the metadata of the contract
-     * @return string : Contract URI of the token
+     * @return Contract URI of the token
      */
     function contractURI() public view returns (string memory) {
         return _contractURI;
@@ -170,7 +171,7 @@ contract StartonERC721MetaTransaction is
     /**
      * @notice Returns the metadata of token with the given token id
      * @param tokenId The token id of the token
-     * @return string : Contract URI of the token
+     * @return Contract URI of the token
      */
     function tokenURI(uint256 tokenId)
         public
@@ -183,7 +184,7 @@ contract StartonERC721MetaTransaction is
 
     /**
      * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
-     * @return bool : True if the interface is supported
+     * @return True if the interface is supported
      */
     function supportsInterface(bytes4 interfaceId)
         public
@@ -240,7 +241,7 @@ contract StartonERC721MetaTransaction is
 
     /**
      * @notice Returns the first part of the uri being used for the token metadata
-     * @return string : Base URI of the token
+     * @return Base URI of the token
      */
     function _baseURI() internal view override returns (string memory) {
         return _uri;
@@ -248,7 +249,7 @@ contract StartonERC721MetaTransaction is
 
     /**
      * @dev Specify the _msgSender in case the forwarder calls a function to the real sender
-     * @return address : The sender of the message
+     * @return The sender of the message
      */
     function _msgSender()
         internal

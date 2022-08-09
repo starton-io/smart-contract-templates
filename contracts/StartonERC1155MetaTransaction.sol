@@ -74,10 +74,10 @@ contract StartonERC1155MetaTransaction is
     }
 
     /**
-     * @notice Set the URI if the token
+     * @notice Set the URI if the token if the metadata are not locked and the contract is not paused
      * For ERC1155 there isn't any base uri so it's the whole uri with {id} in it
      * example: ipfs://QmW77ZQQ7Jm9q8WuLbH8YZg2K7T9Qnjbzm7jYVQQrJY5Y/{id}
-     * only accessible by the addresses that own the metadata role
+     * @custom:requires METADATA_ROLE
      */
     function setURI(string memory newURI)
         public
@@ -89,9 +89,9 @@ contract StartonERC1155MetaTransaction is
     }
 
     /**
-     * @notice Set the URI of the contract
-     * only accessible by the addresses that own the metadata role
+     * @notice Set the URI of the contract if the metadata are not locked and the contract is not paused
      * @param newContractURI The new URI of the contract
+     * @custom:requires METADATA_ROLE
      */
     function setContractURI(string memory newContractURI)
         public
@@ -104,7 +104,7 @@ contract StartonERC1155MetaTransaction is
 
     /**
      * @notice Pause the contract which stop any changes regarding the ERC721 and minting
-     * only accessible by the addresses that own the pauser role
+     * @custom:requires PAUSER_ROLE
      */
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -112,15 +112,15 @@ contract StartonERC1155MetaTransaction is
 
     /**
      * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
-     * only accessible by the addresses that own the pauser role
+     * @custom:requires PAUSER_ROLE
      */
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
     /**
-     * @notice Lock the mint and won't allow any minting anymore
-     * only accessible by the addresses that own the locker role
+     * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
      */
     function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMintAllowed = false;
@@ -128,8 +128,8 @@ contract StartonERC1155MetaTransaction is
     }
 
     /**
-     * @notice Lock the metadats and won't allow any changes anymore
-     * only accessible by the addresses that own the locker role
+     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
      */
     function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMetatadataChangingAllowed = false;
@@ -137,12 +137,12 @@ contract StartonERC1155MetaTransaction is
     }
 
     /**
-     * @notice Mint a new amount of tokens to a given address and by the given id
-     * only accessible by the addresses that own the minter role
+     * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
      * @param to The address to mint the tokens to
      * @param id The id of the token to mint
      * @param amount The amount of tokens to mint
      * @param data Extra data if necessary
+     * @custom:requires MINTER_ROLE
      */
     function mint(
         address to,
@@ -154,11 +154,11 @@ contract StartonERC1155MetaTransaction is
     }
 
     /**
-     * @notice Mint a new amount of tokens to a given address and by the given id
-     * only accessible by the addresses that own the minter role
+     * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
      * @param to The address to mint the tokens to
      * @param id The id of the token to mint
      * @param amount The amount of tokens to mint
+     * @custom:requires MINTER_ROLE
      */
     function mint(
         address to,
@@ -169,12 +169,12 @@ contract StartonERC1155MetaTransaction is
     }
 
     /**
-     * @notice Batch mint a new amount of tokens to a given address and by the given id
-     * only accessible by the addresses that own the minter role
+     * @notice Batch mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
      * @param to The address to mint the tokens to
      * @param ids The ids of the token to mint
      * @param amounts The amounts of tokens to mint
      * @param data Extra data if necessary
+     * @custom:requires MINTER_ROLE
      */
     function mintBatch(
         address to,
@@ -186,11 +186,11 @@ contract StartonERC1155MetaTransaction is
     }
 
     /**
-     * @notice Batch mint a new amount of tokens to a given address and by the given id
-     * only accessible by the addresses that own the minter role
+     * @notice Batch mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
      * @param to The address to mint the tokens to
      * @param ids The ids of the token to mint
      * @param amounts The amounts of tokens to mint
+     * @custom:requires MINTER_ROLE
      */
     function mintBatch(
         address to,
@@ -202,7 +202,7 @@ contract StartonERC1155MetaTransaction is
 
     /**
      * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
-     * @return bool : True if the interface is supported
+     * @return True if the interface is supported
      */
     function supportsInterface(bytes4 interfaceId)
         public
@@ -215,7 +215,7 @@ contract StartonERC1155MetaTransaction is
 
     /**
      * @notice Returns the metadata of the contract
-     * @return string : Contract URI of the token
+     * @return Contract URI of the token
      */
     function contractURI() public view returns (string memory) {
         return _contractURI;
@@ -257,7 +257,7 @@ contract StartonERC1155MetaTransaction is
 
     /**
      * @dev Specify the _msgSender in case the forwarder calls a function to the real sender
-     * @return address : The sender of the message
+     * @return The sender of the message
      */
     function _msgSender()
         internal
