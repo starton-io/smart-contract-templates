@@ -6,7 +6,7 @@ import { expect } from "chai";
 
 let ERC721: ContractFactory;
 
-describe("ERC721 contract", function () {
+describe("StartonERC721MetaTransaction", function () {
   let instanceERC721: StartonERC721MetaTransaction;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;

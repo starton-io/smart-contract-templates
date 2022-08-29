@@ -6,7 +6,7 @@ import { expect } from "chai";
 
 let ERC1155: ContractFactory;
 
-describe("ERC1155 contract", function () {
+describe("StartonERC1155MetaTransaction", function () {
   let instanceERC1155: StartonERC1155MetaTransaction;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
@@ -96,31 +96,28 @@ describe("ERC1155 contract", function () {
 
   describe("Minting", function () {
     it("Should mint unique token correctly", async function () {
-      await instanceERC1155.mint(
+      await instanceERC1155["mint(address,uint256,uint256)"](
         addr1.address,
         1536,
-        1,
-        ethers.utils.formatBytes32String("")
+        1
       );
       expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(1);
     });
 
     it("Should mint multiples token correctly", async function () {
-      await instanceERC1155.mint(
+      await instanceERC1155["mint(address,uint256,uint256)"](
         addr1.address,
         1536,
-        11,
-        ethers.utils.formatBytes32String("")
+        11
       );
       expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(11);
     });
 
     it("Batch minting should go accordingly", async function () {
-      await instanceERC1155.mintBatch(
+      await instanceERC1155["mintBatch(address,uint256[],uint256[])"](
         addr1.address,
         [1536, 100, 10, 164658, 184],
-        [2747, 29, 957, 284, 2945],
-        ethers.utils.formatBytes32String("")
+        [2747, 29, 957, 284, 2945]
       );
       expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(
         2747
@@ -138,11 +135,10 @@ describe("ERC1155 contract", function () {
 
   describe("Transfer", function () {
     it("Shouldn't transfer without approval", async function () {
-      await instanceERC1155.mint(
+      await instanceERC1155["mint(address,uint256,uint256)"](
         addr1.address,
         1536,
-        11,
-        ethers.utils.formatBytes32String("")
+        11
       );
       await expect(
         instanceERC1155.safeTransferFrom(
@@ -156,11 +152,10 @@ describe("ERC1155 contract", function () {
     });
 
     it("Shouldn't transfer more than owned", async function () {
-      await instanceERC1155.mint(
+      await instanceERC1155["mint(address,uint256,uint256)"](
         addr1.address,
         1536,
-        11,
-        ethers.utils.formatBytes32String("")
+        11
       );
       await expect(
         instanceERC1155
@@ -176,11 +171,10 @@ describe("ERC1155 contract", function () {
     });
 
     it("Should transfer without approval while owner", async function () {
-      await instanceERC1155.mint(
+      await instanceERC1155["mint(address,uint256,uint256)"](
         addr1.address,
         1536,
-        11,
-        ethers.utils.formatBytes32String("")
+        11
       );
       await instanceERC1155
         .connect(addr1)
@@ -196,11 +190,10 @@ describe("ERC1155 contract", function () {
     });
 
     it("Should transfer with approval", async function () {
-      await instanceERC1155.mint(
+      await instanceERC1155["mint(address,uint256,uint256)"](
         addr1.address,
         1536,
-        11,
-        ethers.utils.formatBytes32String("")
+        11
       );
       await instanceERC1155
         .connect(addr1)
@@ -217,11 +210,10 @@ describe("ERC1155 contract", function () {
     });
 
     it("Should batch transfer without approval while owner", async function () {
-      await instanceERC1155.mintBatch(
+      await instanceERC1155["mintBatch(address,uint256[],uint256[])"](
         addr1.address,
         [1536, 100, 10, 164658, 184],
-        [2747, 29, 957, 284, 2945],
-        ethers.utils.formatBytes32String("")
+        [2747, 29, 957, 284, 2945]
       );
       await instanceERC1155
         .connect(addr1)
@@ -261,11 +253,10 @@ describe("ERC1155 contract", function () {
     });
 
     it("Should batch transfer with approval", async function () {
-      await instanceERC1155.mintBatch(
+      await instanceERC1155["mintBatch(address,uint256[],uint256[])"](
         addr1.address,
         [1536, 100, 10, 164658, 184],
-        [2747, 29, 957, 284, 2945],
-        ethers.utils.formatBytes32String("")
+        [2747, 29, 957, 284, 2945]
       );
       await instanceERC1155
         .connect(addr1)
@@ -376,11 +367,10 @@ describe("ERC1155 contract", function () {
     });
 
     it("Shouldn't transfer while blacklisted", async function () {
-      await instanceERC1155.mint(
+      await instanceERC1155["mint(address,uint256,uint256)"](
         addr2.address,
         1536,
-        11,
-        ethers.utils.formatBytes32String("")
+        11
       );
       await instanceERC1155
         .connect(addr2)
@@ -419,23 +409,17 @@ describe("ERC1155 contract", function () {
     it("Should lock the mint and not let anyone mint anymore", async function () {
       await instanceERC1155.lockMint();
       await expect(
-        instanceERC1155.mint(
-          addr1.address,
-          254,
-          10,
-          ethers.utils.formatBytes32String("")
-        )
+        instanceERC1155["mint(address,uint256,uint256)"](addr1.address, 254, 10)
       ).to.be.revertedWith("Minting is locked");
     });
 
     it("Should lock the mint and not let anyone batch mint anymore", async function () {
       await instanceERC1155.lockMint();
       await expect(
-        instanceERC1155.mintBatch(
+        instanceERC1155["mintBatch(address,uint256[],uint256[])"](
           addr1.address,
           [1536, 100, 10, 164658, 184],
-          [2747, 29, 957, 284, 2945],
-          ethers.utils.formatBytes32String("")
+          [2747, 29, 957, 284, 2945]
         )
       ).to.be.revertedWith("Minting is locked");
     });
@@ -529,16 +513,15 @@ describe("ERC1155 contract", function () {
       await expect(
         instanceERC1155
           .connect(addr1)
-          .mint(addr2.address, 1536, 11, ethers.utils.formatBytes32String(""))
+          ["mint(address,uint256,uint256)"](addr2.address, 1536, 11)
       ).to.be.reverted;
       await expect(
         instanceERC1155
           .connect(addr1)
-          .mintBatch(
+          ["mintBatch(address,uint256[],uint256[])"](
             addr2.address,
             [1536, 100, 10, 164658, 184],
-            [2747, 29, 957, 284, 2945],
-            ethers.utils.formatBytes32String("")
+            [2747, 29, 957, 284, 2945]
           )
       ).to.be.reverted;
     });
@@ -549,14 +532,13 @@ describe("ERC1155 contract", function () {
 
       await instanceERC1155
         .connect(addr1)
-        .mint(addr2.address, 1536, 11, ethers.utils.formatBytes32String(""));
+        ["mint(address,uint256,uint256)"](addr2.address, 1536, 11);
       await instanceERC1155
         .connect(addr1)
-        .mintBatch(
+        ["mintBatch(address,uint256[],uint256[])"](
           addr2.address,
           [1536, 100, 10, 164658, 184],
-          [2747, 29, 957, 284, 2945],
-          ethers.utils.formatBytes32String("")
+          [2747, 29, 957, 284, 2945]
         );
     });
 
