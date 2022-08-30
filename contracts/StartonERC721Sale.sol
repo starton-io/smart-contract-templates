@@ -99,7 +99,7 @@ contract StartonERC721Sale is Context {
         require(leftSupply != 0, "Max supply reached");
 
         token.safeMint(to, tokenURI);
-        leftSupply.sub(1);
-        tokensClaimed[_msgSender()].add(1);
+        leftSupply = leftSupply.sub(1);
+        tokensClaimed[_msgSender()] = tokensClaimed[_msgSender()].add(1);
     }
 }
