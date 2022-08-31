@@ -1,10 +1,13 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { ContractFactory } from "@ethersproject/contracts";
-import { StartonERC1155MetaTransaction } from "../typechain-types";
 import { ethers } from "hardhat";
 import { expect } from "chai";
 
-let ERC1155: ContractFactory;
+import {
+  StartonERC1155MetaTransaction,
+  StartonERC1155MetaTransaction__factory, // eslint-disable-line camelcase
+} from "../typechain-types";
+
+let ERC1155: StartonERC1155MetaTransaction__factory; // eslint-disable-line camelcase
 
 describe("StartonERC1155MetaTransaction", function () {
   let instanceERC1155: StartonERC1155MetaTransaction;
@@ -14,13 +17,14 @@ describe("StartonERC1155MetaTransaction", function () {
   let addrs: SignerWithAddress[];
 
   before(async () => {
-    ERC1155 = await ethers.getContractFactory("StartonERC1155MetaTransaction");
-  });
-
-  beforeEach(async function () {
     // Get the Signers here
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
+    // Create factory
+    ERC1155 = new StartonERC1155MetaTransaction__factory(owner);
+  });
+
+  beforeEach(async function () {
     instanceERC1155 = (await ERC1155.deploy(
       "testContract",
       "rnd",
@@ -30,16 +34,15 @@ describe("StartonERC1155MetaTransaction", function () {
     await instanceERC1155.deployed();
   });
 
-  describe("Deployement", function () {
+  describe("Deployment", function () {
     it("Should deploy", async function () {});
 
     it("Should owner have admin role", async function () {
-      expect(
-        await instanceERC1155.hasRole(
-          "0x0000000000000000000000000000000000000000000000000000000000000000",
-          owner.address
-        )
-      ).to.equal(true);
+      const adminRole = await instanceERC1155.DEFAULT_ADMIN_ROLE();
+
+      expect(await instanceERC1155.hasRole(adminRole, owner.address)).to.equal(
+        true
+      );
     });
 
     it("Should owner have default roles", async function () {
