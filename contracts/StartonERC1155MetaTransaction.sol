@@ -75,6 +75,7 @@ contract StartonERC1155MetaTransaction is
 
     /**
      * @notice Set the URI if the token if the metadata are not locked and the contract is not paused
+     * @param newTokenURI The new URI of the token
      * For ERC1155 there isn't any base uri so it's the whole uri with {id} in it
      * example: ipfs://QmW77ZQQ7Jm9q8WuLbH8YZg2K7T9Qnjbzm7jYVQQrJY5Y/{id}
      * @custom:requires METADATA_ROLE
