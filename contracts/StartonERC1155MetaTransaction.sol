@@ -51,26 +51,26 @@ contract StartonERC1155MetaTransaction is
     }
 
     constructor(
-        string memory name_,
-        string memory uri,
-        string memory contractURI_,
-        address ownerOrMultiSigContract
-    ) ERC1155(uri) {
-        // Set all default roles for ownerOrMultiSigContract
-        _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
-        _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
-        _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
-        _setupRole(METADATA_ROLE, ownerOrMultiSigContract);
-        _setupRole(LOCKER_ROLE, ownerOrMultiSigContract);
-        _setupRole(BLACKLISTER_ROLE, ownerOrMultiSigContract);
+        string memory definitiveName,
+        string memory initialTokenURI,
+        string memory initialContractURI,
+        address initialOwnerOrMultiSigContract
+    ) ERC1155(initialTokenURI) {
+        // Set all default roles for initialOwnerOrMultiSigContract
+        _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(LOCKER_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(BLACKLISTER_ROLE, initialOwnerOrMultiSigContract);
 
-        name = name_;
-        _contractURI = contractURI_;
+        name = definitiveName;
+        _contractURI = initialContractURI;
         _isMintAllowed = true;
         _isMetatadataChangingAllowed = true;
 
         // Intialize the EIP712 so we can perform metatransactions
-        _initializeEIP712(name_);
+        _initializeEIP712(definitiveName);
     }
 
     /**
@@ -79,13 +79,13 @@ contract StartonERC1155MetaTransaction is
      * example: ipfs://QmW77ZQQ7Jm9q8WuLbH8YZg2K7T9Qnjbzm7jYVQQrJY5Y/{id}
      * @custom:requires METADATA_ROLE
      */
-    function setURI(string memory newURI)
+    function setTokenURI(string memory newTokenURI)
         public
         whenNotPaused
         metadataNotLocked
         onlyRole(METADATA_ROLE)
     {
-        _setURI(newURI);
+        _setURI(newTokenURI);
     }
 
     /**

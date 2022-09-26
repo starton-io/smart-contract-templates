@@ -34,7 +34,7 @@ contract StartonERC721MetaTransaction is
 
     Counters.Counter private _tokenIdCounter;
 
-    string private _uri;
+    string private _baseTokenURI;
     string private _contractURI;
 
     bool private _isMintAllowed;
@@ -59,27 +59,27 @@ contract StartonERC721MetaTransaction is
     }
 
     constructor(
-        string memory name,
-        string memory symbol,
-        string memory baseURI,
-        string memory contractURI_,
-        address ownerOrMultiSigContract
-    ) ERC721(name, symbol) {
-        // Set all default roles for ownerOrMultiSigContract
-        _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
-        _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
-        _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
-        _setupRole(METADATA_ROLE, ownerOrMultiSigContract);
-        _setupRole(LOCKER_ROLE, ownerOrMultiSigContract);
-        _setupRole(BLACKLISTER_ROLE, ownerOrMultiSigContract);
+        string memory definitiveName,
+        string memory definitiveSymbol,
+        string memory initialBaseTokenURI,
+        string memory initialContractURI,
+        address initialOwnerOrMultiSigContract
+    ) ERC721(definitiveName, definitiveSymbol) {
+        // Set all default roles for initialOwnerOrMultiSigContract
+        _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(LOCKER_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(BLACKLISTER_ROLE, initialOwnerOrMultiSigContract);
 
-        _uri = baseURI;
-        _contractURI = contractURI_;
+        _baseTokenURI = initialBaseTokenURI;
+        _contractURI = initialContractURI;
         _isMintAllowed = true;
         _isMetatadataChangingAllowed = true;
 
         // Intialize the EIP712 so we can perform metatransactions
-        _initializeEIP712(name);
+        _initializeEIP712(definitiveName);
     }
 
     /**
@@ -98,16 +98,16 @@ contract StartonERC721MetaTransaction is
 
     /**
      * @notice Set the base URI of the token if the metadata are not locked and the contract is not paused
-     * @param newBaseURI The new base URI of the token
+     * @param newBaseTokenURI The new base URI of the token
      * @custom:requires METADATA_ROLE
      */
-    function setBaseURI(string memory newBaseURI)
+    function setBaseTokenURI(string memory newBaseTokenURI)
         public
         whenNotPaused
         metadataNotLocked
         onlyRole(METADATA_ROLE)
     {
-        _uri = newBaseURI;
+        _baseTokenURI = newBaseTokenURI;
     }
 
     /**
@@ -116,7 +116,7 @@ contract StartonERC721MetaTransaction is
      * @param uri The URI of the token metadata
      * @custom:requires MINTER_ROLE
      */
-    function safeMint(address to, string memory uri)
+    function mint(address to, string memory uri)
         public
         mintingNotLocked
         onlyRole(MINTER_ROLE)
@@ -244,7 +244,7 @@ contract StartonERC721MetaTransaction is
      * @return Base URI of the token
      */
     function _baseURI() internal view override returns (string memory) {
-        return _uri;
+        return _baseTokenURI;
     }
 
     /**
