@@ -31,27 +31,27 @@ contract StartonERC721AuctionSale is Ownable {
     event Bided(address indexed bidder, uint256 amount);
 
     constructor(
-        address tokenAddress,
-        uint256 startingPrice,
-        uint256 startTime_,
-        uint256 endTime_,
-        address feeReceiver
+        address definitiveTokenAddress,
+        address definitiveFeeReceiver,
+        uint256 initialStartingPrice,
+        uint256 initialStartTime,
+        uint256 initialEndTime
     ) {
         // Check if the address of the feeReceiver is correct
-        require(feeReceiver != address(0), "Fee receiver address is not valid");
-        _feeReceiver = feeReceiver;
+        require(definitiveFeeReceiver != address(0), "Fee receiver address is not valid");
+        _feeReceiver = definitiveFeeReceiver;
 
-        token = IStartonERC721(tokenAddress);
-        currentPrice = startingPrice;
-        startTime = startTime_;
-        endTime = endTime_;
+        token = IStartonERC721(definitiveTokenAddress);
+        currentPrice = initialStartingPrice;
+        startTime = initialStartTime;
+        endTime = initialEndTime;
 
         // Set inititial states of the auction to no winner and not claimed
         currentAuctionWinner = address(0);
         _claimed = false;
 
         // Emit the event when the auction starts
-        emit AuctionStarted(startTime, endTime);
+        emit AuctionStarted(initialStartTime, initialEndTime);
     }
 
     /**
@@ -72,14 +72,14 @@ contract StartonERC721AuctionSale is Ownable {
      * @param to The address to send the prize to
      * @param tokenURI The tokenURI of the token to be sent
      */
-    function safeMint(address to, string memory tokenURI) public {
+    function mint(address to, string memory tokenURI) public {
         require(
             to == currentAuctionWinner,
             "destination address isn't the current auction winner"
         );
         require(endTime < block.timestamp, "Minting hasn't finished yet");
 
-        token.safeMint(to, tokenURI);
+        token.mint(to, tokenURI);
         _claimed = true;
         emit AuctionClaimed(to, currentPrice);
     }
@@ -108,7 +108,7 @@ contract StartonERC721AuctionSale is Ownable {
     }
 
     /**
-     * @notice Wsithdraw funds from the smart contract to the feeReceiver
+     * @notice Withdraw funds from the smart contract to the feeReceiver
      */
     function withdraw() public {
         payable(_feeReceiver).transfer(address(this).balance);

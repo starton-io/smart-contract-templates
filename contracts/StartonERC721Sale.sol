@@ -2,15 +2,13 @@
 
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
 import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721Sale
 /// @author Starton
 /// @notice Contract that can sell ERC721 tokens through a public sale with a limited avaible supply, start and end time as well as max tokens per address
-contract StartonERC721Sale is Context {
+contract StartonERC721Sale {
     using SafeMath for uint256;
 
     address private immutable _feeReceiver;
@@ -27,24 +25,24 @@ contract StartonERC721Sale is Context {
     mapping(address => uint256) public tokensClaimed;
 
     constructor(
-        address tokenAddress,
-        uint256 price_,
-        uint256 startTime_,
-        uint256 endTime_,
-        uint256 maxTokensPerAddress_,
-        uint256 maxSupply,
-        address feeReceiver
+        address definitiveTokenAddress,
+        uint256 definitivePrice,
+        uint256 definitiveStartTime,
+        uint256 definitiveEndTime,
+        uint256 definitiveMaxTokensPerAddress,
+        uint256 definitiveMaxSupply,
+        address definitiveFeeReceiver
     ) {
         // Check if the address of the feeReceiver is correct
-        require(feeReceiver != address(0), "Fee receiver address is not valid");
-        _feeReceiver = feeReceiver;
+        require(definitiveFeeReceiver != address(0), "Fee receiver address is not valid");
+        _feeReceiver = definitiveFeeReceiver;
 
-        token = IStartonERC721(tokenAddress);
-        price = price_;
-        startTime = startTime_;
-        endTime = endTime_;
-        maxTokensPerAddress = maxTokensPerAddress_;
-        leftSupply = maxSupply;
+        token = IStartonERC721(definitiveTokenAddress);
+        price = definitivePrice;
+        startTime = definitiveStartTime;
+        endTime = definitiveEndTime;
+        maxTokensPerAddress = definitiveMaxTokensPerAddress;
+        leftSupply = definitiveMaxSupply;
     }
 
     /**
@@ -52,7 +50,7 @@ contract StartonERC721Sale is Context {
      * @param to The address to mint the token to
      * @param tokenURI The token metadata URI
      */
-    function safeMint(address to, string memory tokenURI) public payable {
+    function mint(address to, string memory tokenURI) public payable {
         require(msg.value >= price, "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
@@ -65,7 +63,7 @@ contract StartonERC721Sale is Context {
      * @param to The address to mint the token to
      * @param tokenURIs The token metadata URI array
      */
-    function safeBatchMint(
+    function batchMint(
         address to,
         uint256 amount,
         string[] memory tokenURIs
@@ -93,13 +91,13 @@ contract StartonERC721Sale is Context {
      */
     function _mint(address to, string memory tokenURI) internal {
         require(
-            tokensClaimed[_msgSender()] < maxTokensPerAddress,
+            tokensClaimed[msg.sender] < maxTokensPerAddress,
             "Max tokens reached"
         );
         require(leftSupply != 0, "Max supply reached");
 
-        token.safeMint(to, tokenURI);
+        token.mint(to, tokenURI);
         leftSupply = leftSupply.sub(1);
-        tokensClaimed[_msgSender()] = tokensClaimed[_msgSender()].add(1);
+        tokensClaimed[msg.sender] = tokensClaimed[msg.sender].add(1);
     }
 }
