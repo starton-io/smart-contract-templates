@@ -10,6 +10,7 @@
     "coverage": "hardhat coverage",
     "flatten": "ts-node scripts/flatten-contracts-folder.ts",
     "prettier": "prettier '**/*.{json,sol,md}' --check",
+    "prettier:fix": "prettier '**/*.{json,sol,md}' --write",
     "solhint": "solhint 'contracts/**/*.sol'",
     "solhint:fix": "solhint 'contracts/**/*.sol' --fix",
     "eslint": "eslint '**/*.{js,ts}'",
