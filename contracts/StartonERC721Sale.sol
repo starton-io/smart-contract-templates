@@ -34,7 +34,10 @@ contract StartonERC721Sale {
         address definitiveFeeReceiver
     ) {
         // Check if the address of the feeReceiver is correct
-        require(definitiveFeeReceiver != address(0), "Fee receiver address is not valid");
+        require(
+            definitiveFeeReceiver != address(0),
+            "Fee receiver address is not valid"
+        );
         _feeReceiver = definitiveFeeReceiver;
 
         token = IStartonERC721(definitiveTokenAddress);
