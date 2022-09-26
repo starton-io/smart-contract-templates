@@ -92,7 +92,7 @@ describe("StartonERC1155MetaTransaction", function () {
     });
 
     it("Should set correctly the uri", async function () {
-      await instanceERC1155.setURI("comeon");
+      await instanceERC1155.setTokenURI("comeon");
       expect(await instanceERC1155.uri(0)).to.equal("comeon");
     });
   });
@@ -546,7 +546,7 @@ describe("StartonERC1155MetaTransaction", function () {
     });
 
     it("Shouldn't let anyone without the metadata role to be able to set metadata", async function () {
-      await expect(instanceERC1155.connect(addr1).setURI("wow")).to.be.reverted;
+      await expect(instanceERC1155.connect(addr1).setTokenURI("wow")).to.be.reverted;
       await expect(instanceERC1155.connect(addr1).setContractURI("wow")).to.be
         .reverted;
     });
@@ -555,7 +555,7 @@ describe("StartonERC1155MetaTransaction", function () {
       const metadataRole = await instanceERC1155.METADATA_ROLE();
       await instanceERC1155.grantRole(metadataRole, addr1.address);
 
-      await instanceERC1155.connect(addr1).setURI("wow");
+      await instanceERC1155.connect(addr1).setTokenURI("wow");
       await instanceERC1155.connect(addr1).setContractURI("wow");
     });
 

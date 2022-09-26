@@ -97,13 +97,13 @@ describe("StartonERC721MetaTransaction", function () {
     });
 
     it("Should set correctly the uri", async function () {
-      await instanceERC721.setBaseURI("comeon");
+      await instanceERC721.setBaseTokenURI("comeon");
     });
   });
 
   describe("Minting", function () {
     it("Should mint token correctly", async function () {
-      await instanceERC721.safeMint(addr1.address, "");
+      await instanceERC721.mint(addr1.address, "");
       expect(
         await instanceERC721.tokenOfOwnerByIndex(addr1.address, 0)
       ).to.equal(0);
@@ -114,7 +114,7 @@ describe("StartonERC721MetaTransaction", function () {
 
   describe("Transfer", function () {
     it("Shouldn't transfer without approval", async function () {
-      await instanceERC721.safeMint(addr1.address, "");
+      await instanceERC721.mint(addr1.address, "");
       await expect(
         instanceERC721.functions["safeTransferFrom(address,address,uint256)"](
           addr1.address,
@@ -125,7 +125,7 @@ describe("StartonERC721MetaTransaction", function () {
     });
 
     it("Should transfer without approval while owner", async function () {
-      await instanceERC721.safeMint(addr1.address, "");
+      await instanceERC721.mint(addr1.address, "");
       await instanceERC721
         .connect(addr1)
         .functions["safeTransferFrom(address,address,uint256)"](
@@ -138,7 +138,7 @@ describe("StartonERC721MetaTransaction", function () {
     });
 
     it("Should transfer with approval", async function () {
-      await instanceERC721.safeMint(addr1.address, "");
+      await instanceERC721.mint(addr1.address, "");
       await instanceERC721
         .connect(addr1)
         .setApprovalForAll(owner.address, true);
@@ -212,7 +212,7 @@ describe("StartonERC721MetaTransaction", function () {
     });
 
     it("Shouldn't transfer while blacklisted", async function () {
-      await instanceERC721.safeMint(addr2.address, "");
+      await instanceERC721.mint(addr2.address, "");
       await instanceERC721
         .connect(addr2)
         .setApprovalForAll(addr1.address, true);
@@ -248,7 +248,7 @@ describe("StartonERC721MetaTransaction", function () {
     it("Should lock the mint and not let anyone mint anymore", async function () {
       await instanceERC721.lockMint();
       await expect(
-        instanceERC721.safeMint(addr1.address, "")
+        instanceERC721.mint(addr1.address, "")
       ).to.be.revertedWith("Minting is locked");
     });
   });
@@ -338,7 +338,7 @@ describe("StartonERC721MetaTransaction", function () {
     });
 
     it("Shouldn't let anyone without the minter role to be able to mint or batch mint", async function () {
-      await expect(instanceERC721.connect(addr1).safeMint(addr2.address, "")).to
+      await expect(instanceERC721.connect(addr1).mint(addr2.address, "")).to
         .be.reverted;
     });
 
@@ -346,11 +346,11 @@ describe("StartonERC721MetaTransaction", function () {
       const minterRole = await instanceERC721.MINTER_ROLE();
       await instanceERC721.grantRole(minterRole, addr1.address);
 
-      await instanceERC721.connect(addr1).safeMint(addr2.address, "");
+      await instanceERC721.connect(addr1).mint(addr2.address, "");
     });
 
     it("Shouldn't let anyone without the metadata role to be able to set metadata", async function () {
-      await expect(instanceERC721.connect(addr1).setBaseURI("wow")).to.be
+      await expect(instanceERC721.connect(addr1).setBaseTokenURI("wow")).to.be
         .reverted;
       await expect(instanceERC721.connect(addr1).setContractURI("wow")).to.be
         .reverted;
@@ -360,7 +360,7 @@ describe("StartonERC721MetaTransaction", function () {
       const metadataRole = await instanceERC721.METADATA_ROLE();
       await instanceERC721.grantRole(metadataRole, addr1.address);
 
-      await instanceERC721.connect(addr1).setBaseURI("wow");
+      await instanceERC721.connect(addr1).setBaseTokenURI("wow");
       await instanceERC721.connect(addr1).setContractURI("wow");
     });
 
@@ -454,8 +454,8 @@ describe("StartonERC721MetaTransaction", function () {
 
   describe("Burn", function () {
     it("Should be able to burn tokens", async function () {
-      await instanceERC721.safeMint(addr1.address, "");
-      await instanceERC721.safeMint(addr2.address, "");
+      await instanceERC721.mint(addr1.address, "");
+      await instanceERC721.mint(addr2.address, "");
 
       await instanceERC721.connect(addr1).burn(0);
 

@@ -97,7 +97,7 @@ describe("StartonERC721Sale", function () {
       ]);
 
       await expect(
-        instanceSale.safeMint(addr1.address, "wow", {
+        instanceSale.mint(addr1.address, "wow", {
           value: ethers.utils.parseEther("0.1"),
         })
       ).to.be.revertedWith("Minting not started");
@@ -109,7 +109,7 @@ describe("StartonERC721Sale", function () {
       ]);
 
       await expect(
-        instanceSale.safeMint(addr1.address, "wow", {
+        instanceSale.mint(addr1.address, "wow", {
           value: ethers.utils.parseEther("0.1"),
         })
       ).to.be.revertedWith("Minting finished");
@@ -119,7 +119,7 @@ describe("StartonERC721Sale", function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
-        instanceSale.safeMint(addr1.address, "wow", {
+        instanceSale.mint(addr1.address, "wow", {
           value: BigNumber.from("999"),
         })
       ).to.be.revertedWith("Insufficient funds");
@@ -128,17 +128,17 @@ describe("StartonERC721Sale", function () {
     it("shouldn't mint more than allowed per wallet", async function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.safeMint(addr1.address, "wow", {
+      await instanceSale.mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
-      await instanceSale.safeMint(addr1.address, "wow", {
+      await instanceSale.mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
-      await instanceSale.safeMint(addr1.address, "wow", {
+      await instanceSale.mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
       await expect(
-        instanceSale.safeMint(addr1.address, "wow", {
+        instanceSale.mint(addr1.address, "wow", {
           value: ethers.utils.parseEther("0.1"),
         })
       ).to.be.revertedWith("Max tokens reached");
@@ -147,38 +147,38 @@ describe("StartonERC721Sale", function () {
     it("shouldn't mint more than total supply", async function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.safeMint(addr1.address, "wow", {
+      await instanceSale.mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
-      await instanceSale.safeMint(addr1.address, "wow", {
+      await instanceSale.mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
-      await instanceSale.safeMint(addr1.address, "wow", {
+      await instanceSale.mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
-      await instanceSale.connect(addr1).safeMint(addr1.address, "wow", {
+      await instanceSale.connect(addr1).mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
-      await instanceSale.connect(addr1).safeMint(addr1.address, "wow", {
+      await instanceSale.connect(addr1).mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
-      await instanceSale.connect(addr1).safeMint(addr1.address, "wow", {
+      await instanceSale.connect(addr1).mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
-      await instanceSale.connect(addr2).safeMint(addr1.address, "wow", {
+      await instanceSale.connect(addr2).mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
-      await instanceSale.connect(addr2).safeMint(addr1.address, "wow", {
+      await instanceSale.connect(addr2).mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
-      await instanceSale.connect(addr2).safeMint(addr1.address, "wow", {
+      await instanceSale.connect(addr2).mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
-      await instanceSale.connect(addrs[3]).safeMint(addr1.address, "wow", {
+      await instanceSale.connect(addrs[3]).mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
       await expect(
-        instanceSale.connect(addrs[3]).safeMint(addr1.address, "wow", {
+        instanceSale.connect(addrs[3]).mint(addr1.address, "wow", {
           value: ethers.utils.parseEther("0.1"),
         })
       ).to.be.revertedWith("Max supply reached");
@@ -187,7 +187,7 @@ describe("StartonERC721Sale", function () {
     it("should mint with a correct time and correct value", async function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.safeMint(addr1.address, "wow", {
+      await instanceSale.mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
 
@@ -197,7 +197,7 @@ describe("StartonERC721Sale", function () {
         now.valueOf() + 1000 * 60 * 60 * 24 * 7,
       ]);
 
-      await instanceSale.safeMint(addr1.address, "wow", {
+      await instanceSale.mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.1"),
       });
 
@@ -212,7 +212,7 @@ describe("StartonERC721Sale", function () {
       ]);
 
       await expect(
-        instanceSale.safeBatchMint(
+        instanceSale.batchMint(
           addr1.address,
           3,
           ["wow", "ijbib", "iubibubiu"],
@@ -229,7 +229,7 @@ describe("StartonERC721Sale", function () {
       ]);
 
       await expect(
-        instanceSale.safeBatchMint(
+        instanceSale.batchMint(
           addr1.address,
           3,
           ["wow", "ijbib", "iubibubiu"],
@@ -244,7 +244,7 @@ describe("StartonERC721Sale", function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
-        instanceSale.safeBatchMint(
+        instanceSale.batchMint(
           addr1.address,
           3,
           ["wow", "ijbib", "iubibubiu"],
@@ -259,7 +259,7 @@ describe("StartonERC721Sale", function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
-        instanceSale.safeBatchMint(
+        instanceSale.batchMint(
           addr1.address,
           4,
           ["wow", "ijbib", "iubibubiu", "ibuvib"],
@@ -273,7 +273,7 @@ describe("StartonERC721Sale", function () {
     it("shouldn't batch mint more than total supply", async function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      instanceSale.safeBatchMint(
+      instanceSale.batchMint(
         addr1.address,
         3,
         ["wow", "ijbib", "iubibubiu"],
@@ -283,21 +283,21 @@ describe("StartonERC721Sale", function () {
       );
       instanceSale
         .connect(addr1)
-        .safeBatchMint(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
+        .batchMint(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
           value: ethers.utils.parseEther("0.1"),
         });
       instanceSale
         .connect(addr2)
-        .safeBatchMint(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
+        .batchMint(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
           value: ethers.utils.parseEther("0.1"),
         });
-      instanceSale.connect(addrs[3]).safeBatchMint(addr1.address, 1, ["wow"], {
+      instanceSale.connect(addrs[3]).batchMint(addr1.address, 1, ["wow"], {
         value: ethers.utils.parseEther("0.1"),
       });
       await expect(
         instanceSale
           .connect(addrs[3])
-          .safeBatchMint(addr1.address, 1, ["wow"], {
+          .batchMint(addr1.address, 1, ["wow"], {
             value: ethers.utils.parseEther("0.1"),
           })
       ).to.be.revertedWith("Max supply reached");
@@ -306,7 +306,7 @@ describe("StartonERC721Sale", function () {
     it("should batch mint with a correct time and correct value", async function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.safeBatchMint(
+      await instanceSale.batchMint(
         addr1.address,
         3,
         ["wow", "ijbib", "iubibubiu"],
@@ -325,11 +325,11 @@ describe("StartonERC721Sale", function () {
 
       const ownerBalance = await owner.getBalance();
 
-      await instanceSale.connect(addr1).safeMint(addr1.address, "wow", {
+      await instanceSale.connect(addr1).mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.26"),
       });
 
-      await instanceSale.connect(addr1).safeMint(addr1.address, "wow", {
+      await instanceSale.connect(addr1).mint(addr1.address, "wow", {
         value: ethers.utils.parseEther("0.4"),
       });
 
