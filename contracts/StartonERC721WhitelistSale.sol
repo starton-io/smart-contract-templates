@@ -84,7 +84,7 @@ contract StartonERC721WhitelistSale {
      * @param tokenURIs The token metadata URI array
      * @param merkleProof The merkle proof of the address in the whitelist
      */
-    function batchMint(
+    function mintBatch(
         address to,
         uint256 amount,
         string[] memory tokenURIs,

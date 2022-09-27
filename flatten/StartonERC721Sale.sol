@@ -448,7 +448,10 @@ contract StartonERC721Sale {
         address definitiveFeeReceiver
     ) {
         // Check if the address of the feeReceiver is correct
-        require(definitiveFeeReceiver != address(0), "Fee receiver address is not valid");
+        require(
+            definitiveFeeReceiver != address(0),
+            "Fee receiver address is not valid"
+        );
         _feeReceiver = definitiveFeeReceiver;
 
         token = IStartonERC721(definitiveTokenAddress);
@@ -477,7 +480,7 @@ contract StartonERC721Sale {
      * @param to The address to mint the token to
      * @param tokenURIs The token metadata URI array
      */
-    function batchMint(
+    function mintBatch(
         address to,
         uint256 amount,
         string[] memory tokenURIs

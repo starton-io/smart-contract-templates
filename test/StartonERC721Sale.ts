@@ -205,14 +205,14 @@ describe("StartonERC721Sale", function () {
     });
   });
 
-  describe("batchMint", function () {
+  describe("mintBatch", function () {
     it("shouldn't batch mint with a time before", async function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() - 1,
       ]);
 
       await expect(
-        instanceSale.batchMint(
+        instanceSale.mintBatch(
           addr1.address,
           3,
           ["wow", "ijbib", "iubibubiu"],
@@ -229,7 +229,7 @@ describe("StartonERC721Sale", function () {
       ]);
 
       await expect(
-        instanceSale.batchMint(
+        instanceSale.mintBatch(
           addr1.address,
           3,
           ["wow", "ijbib", "iubibubiu"],
@@ -244,7 +244,7 @@ describe("StartonERC721Sale", function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
-        instanceSale.batchMint(
+        instanceSale.mintBatch(
           addr1.address,
           3,
           ["wow", "ijbib", "iubibubiu"],
@@ -259,7 +259,7 @@ describe("StartonERC721Sale", function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
-        instanceSale.batchMint(
+        instanceSale.mintBatch(
           addr1.address,
           4,
           ["wow", "ijbib", "iubibubiu", "ibuvib"],
@@ -273,7 +273,7 @@ describe("StartonERC721Sale", function () {
     it("shouldn't batch mint more than total supply", async function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      instanceSale.batchMint(
+      instanceSale.mintBatch(
         addr1.address,
         3,
         ["wow", "ijbib", "iubibubiu"],
@@ -283,21 +283,21 @@ describe("StartonERC721Sale", function () {
       );
       instanceSale
         .connect(addr1)
-        .batchMint(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
+        .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
           value: ethers.utils.parseEther("0.1"),
         });
       instanceSale
         .connect(addr2)
-        .batchMint(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
+        .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
           value: ethers.utils.parseEther("0.1"),
         });
-      instanceSale.connect(addrs[3]).batchMint(addr1.address, 1, ["wow"], {
+      instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, ["wow"], {
         value: ethers.utils.parseEther("0.1"),
       });
       await expect(
         instanceSale
           .connect(addrs[3])
-          .batchMint(addr1.address, 1, ["wow"], {
+          .mintBatch(addr1.address, 1, ["wow"], {
             value: ethers.utils.parseEther("0.1"),
           })
       ).to.be.revertedWith("Max supply reached");
@@ -306,7 +306,7 @@ describe("StartonERC721Sale", function () {
     it("should batch mint with a correct time and correct value", async function () {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.batchMint(
+      await instanceSale.mintBatch(
         addr1.address,
         3,
         ["wow", "ijbib", "iubibubiu"],

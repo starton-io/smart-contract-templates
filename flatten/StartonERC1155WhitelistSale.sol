@@ -738,7 +738,7 @@ contract StartonERC1155WhitelistSale {
         require(endTime >= block.timestamp, "Minting finished");
 
         uint256 totalAmount = 0;
-        for (uint256 i = 0; i < amount; ++i) {
+        for (uint256 i = 0; i < ids.length; ++i) {
             totalAmount = totalAmount.add(price.mul(amounts[i]));
             require(msg.value >= totalAmount, "Insufficient funds");
 

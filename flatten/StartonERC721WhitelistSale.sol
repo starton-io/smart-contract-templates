@@ -668,7 +668,10 @@ contract StartonERC721WhitelistSale {
         address definitiveFeeReceiver
     ) {
         // Check if the address of the feeReceiver correct
-        require(definitiveFeeReceiver != address(0), "Fee receiver address is not valid");
+        require(
+            definitiveFeeReceiver != address(0),
+            "Fee receiver address is not valid"
+        );
         _feeReceiver = definitiveFeeReceiver;
 
         token = IStartonERC721(definitiveTokenAddress);
@@ -710,7 +713,7 @@ contract StartonERC721WhitelistSale {
      * @param tokenURIs The token metadata URI array
      * @param merkleProof The merkle proof of the address in the whitelist
      */
-    function batchMint(
+    function mintBatch(
         address to,
         uint256 amount,
         string[] memory tokenURIs,

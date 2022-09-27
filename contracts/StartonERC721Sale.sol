@@ -66,7 +66,7 @@ contract StartonERC721Sale {
      * @param to The address to mint the token to
      * @param tokenURIs The token metadata URI array
      */
-    function batchMint(
+    function mintBatch(
         address to,
         uint256 amount,
         string[] memory tokenURIs
