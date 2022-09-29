@@ -247,9 +247,9 @@ describe("StartonERC721MetaTransaction", function () {
   describe("Lock", function () {
     it("Should lock the mint and not let anyone mint anymore", async function () {
       await instanceERC721.lockMint();
-      await expect(
-        instanceERC721.mint(addr1.address, "")
-      ).to.be.revertedWith("Minting is locked");
+      await expect(instanceERC721.mint(addr1.address, "")).to.be.revertedWith(
+        "Minting is locked"
+      );
     });
   });
 
@@ -338,8 +338,8 @@ describe("StartonERC721MetaTransaction", function () {
     });
 
     it("Shouldn't let anyone without the minter role to be able to mint or batch mint", async function () {
-      await expect(instanceERC721.connect(addr1).mint(addr2.address, "")).to
-        .be.reverted;
+      await expect(instanceERC721.connect(addr1).mint(addr2.address, "")).to.be
+        .reverted;
     });
 
     it("Should let anyone with the minter role to be able to mint or batch mint", async function () {

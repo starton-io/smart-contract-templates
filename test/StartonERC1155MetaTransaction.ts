@@ -546,7 +546,8 @@ describe("StartonERC1155MetaTransaction", function () {
     });
 
     it("Shouldn't let anyone without the metadata role to be able to set metadata", async function () {
-      await expect(instanceERC1155.connect(addr1).setTokenURI("wow")).to.be.reverted;
+      await expect(instanceERC1155.connect(addr1).setTokenURI("wow")).to.be
+        .reverted;
       await expect(instanceERC1155.connect(addr1).setContractURI("wow")).to.be
         .reverted;
     });
