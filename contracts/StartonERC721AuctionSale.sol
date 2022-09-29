@@ -89,23 +89,23 @@ contract StartonERC721AuctionSale is Ownable {
 
     /**
      * @notice Start a new auction for a new NFT
-     * @param startingPrice the starting price of the new auction
-     * @param startTime_ the time when the auction starts
-     * @param endTime_ the time when the auction ends
+     * @param newStartingPrice the starting price of the new auction
+     * @param newStartTime the time when the auction starts
+     * @param newEndTime the time when the auction ends
      */
     function startNewAuction(
-        uint256 startingPrice,
-        uint256 startTime_,
-        uint256 endTime_
+        uint256 newStartingPrice,
+        uint256 newStartTime,
+        uint256 newEndTime
     ) public onlyOwner {
         require(_claimed, "The auction hasn't been claimed yet");
 
         // Reset the state variables for a new auction to begin
         _claimed = false;
-        currentPrice = startingPrice;
+        currentPrice = newStartingPrice;
         currentAuctionWinner = address(0);
-        startTime = startTime_;
-        endTime = endTime_;
+        startTime = newStartTime;
+        endTime = newEndTime;
 
         emit AuctionStarted(startTime, endTime);
     }
