@@ -333,7 +333,10 @@ contract StartonERC721AuctionSale is Ownable {
         uint256 initialEndTime
     ) {
         // Check if the address of the feeReceiver is correct
-        require(definitiveFeeReceiver != address(0), "Fee receiver address is not valid");
+        require(
+            definitiveFeeReceiver != address(0),
+            "Fee receiver address is not valid"
+        );
         _feeReceiver = definitiveFeeReceiver;
 
         token = IStartonERC721(definitiveTokenAddress);
@@ -355,11 +358,20 @@ contract StartonERC721AuctionSale is Ownable {
     function bid() public payable {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
-        require(currentPrice <= msg.value, "Bid is too low");
+        require(currentPrice < msg.value, "Bid is too low");
+
+        // Store the old auction winner and price
+        address oldAuctionWinner = currentAuctionWinner;
+        uint256 oldPrice = currentPrice;
 
         currentPrice = msg.value;
         currentAuctionWinner = _msgSender();
         emit Bided(_msgSender(), msg.value);
+
+        // If there is a current winner, send the money back
+        if (oldAuctionWinner != address(0)) {
+            payable(oldAuctionWinner).transfer(oldPrice);
+        }
     }
 
     /**
@@ -370,9 +382,10 @@ contract StartonERC721AuctionSale is Ownable {
     function mint(address to, string memory tokenURI) public {
         require(
             to == currentAuctionWinner,
-            "destination address isn't the current auction winner"
+            "Destination address isn't the current auction winner"
         );
         require(endTime < block.timestamp, "Minting hasn't finished yet");
+        require(!_claimed, "Token has already been claimed");
 
         token.mint(to, tokenURI);
         _claimed = true;
@@ -381,23 +394,23 @@ contract StartonERC721AuctionSale is Ownable {
 
     /**
      * @notice Start a new auction for a new NFT
-     * @param startingPrice the starting price of the new auction
-     * @param startTime_ the time when the auction starts
-     * @param endTime_ the time when the auction ends
+     * @param newStartingPrice the starting price of the new auction
+     * @param newStartTime the time when the auction starts
+     * @param newEndTime the time when the auction ends
      */
     function startNewAuction(
-        uint256 startingPrice,
-        uint256 startTime_,
-        uint256 endTime_
+        uint256 newStartingPrice,
+        uint256 newStartTime,
+        uint256 newEndTime
     ) public onlyOwner {
         require(_claimed, "The auction hasn't been claimed yet");
 
         // Reset the state variables for a new auction to begin
         _claimed = false;
-        currentPrice = startingPrice;
+        currentPrice = newStartingPrice;
         currentAuctionWinner = address(0);
-        startTime = startTime_;
-        endTime = endTime_;
+        startTime = newStartTime;
+        endTime = newEndTime;
 
         emit AuctionStarted(startTime, endTime);
     }
@@ -406,6 +419,12 @@ contract StartonERC721AuctionSale is Ownable {
      * @notice Withdraw funds from the smart contract to the feeReceiver
      */
     function withdraw() public {
-        payable(_feeReceiver).transfer(address(this).balance);
+        if (currentAuctionWinner != address(0) && !_claimed) {
+            payable(_feeReceiver).transfer(
+                address(this).balance - currentPrice
+            );
+        } else {
+            payable(_feeReceiver).transfer(address(this).balance);
+        }
     }
 }

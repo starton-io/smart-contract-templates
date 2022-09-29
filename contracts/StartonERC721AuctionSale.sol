@@ -63,11 +63,20 @@ contract StartonERC721AuctionSale is Ownable {
     function bid() public payable {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
-        require(currentPrice <= msg.value, "Bid is too low");
+        require(currentPrice < msg.value, "Bid is too low");
+
+        // Store the old auction winner and price
+        address oldAuctionWinner = currentAuctionWinner;
+        uint256 oldPrice = currentPrice;
 
         currentPrice = msg.value;
         currentAuctionWinner = _msgSender();
         emit Bided(_msgSender(), msg.value);
+
+        // If there is a current winner, send the money back
+        if (oldAuctionWinner != address(0)) {
+            payable(oldAuctionWinner).transfer(oldPrice);
+        }
     }
 
     /**
@@ -78,9 +87,10 @@ contract StartonERC721AuctionSale is Ownable {
     function mint(address to, string memory tokenURI) public {
         require(
             to == currentAuctionWinner,
-            "destination address isn't the current auction winner"
+            "Destination address isn't the current auction winner"
         );
         require(endTime < block.timestamp, "Minting hasn't finished yet");
+        require(!_claimed, "Token has already been claimed");
 
         token.mint(to, tokenURI);
         _claimed = true;
@@ -114,6 +124,12 @@ contract StartonERC721AuctionSale is Ownable {
      * @notice Withdraw funds from the smart contract to the feeReceiver
      */
     function withdraw() public {
-        payable(_feeReceiver).transfer(address(this).balance);
+        if (currentAuctionWinner != address(0) && !_claimed) {
+            payable(_feeReceiver).transfer(
+                address(this).balance - currentPrice
+            );
+        } else {
+            payable(_feeReceiver).transfer(address(this).balance);
+        }
     }
 }
