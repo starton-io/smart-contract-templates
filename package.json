@@ -4,7 +4,7 @@
   "description": "This is templates being used and created by starton",
   "main": "hardhat.config.ts",
   "scripts": {
-    "test": "hardhat test",
+    "test": "hardhat compile && hardhat test",
     "compile": "hardhat compile",
     "clean": "hardhat clean",
     "coverage": "hardhat coverage",
