@@ -32,6 +32,6 @@ yarn coverage
 
 When you're going to run the tests you will get all the informations about gas comsuption of every functions inside the contracts
 
-## Authors
+## Author
 
 [Starton](https://www.starton.io/)
