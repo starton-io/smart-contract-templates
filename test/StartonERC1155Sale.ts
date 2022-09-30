@@ -59,39 +59,39 @@ describe("StartonERC1155Sale", () => {
   });
 
   describe("Deployment", () => {
-    it("should deploy the contract", async () => {});
+    it("Should deploy the contract", async () => {});
 
-    it("should set the token correctly", async () => {
+    it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC1155.address);
     });
 
-    it("should set the price correctly", async () => {
+    it("Should set the price correctly", async () => {
       expect(await instanceSale.price()).to.be.equal(BigNumber.from("1000"));
     });
 
-    it("should set the startTime correctly", async () => {
+    it("Should set the startTime correctly", async () => {
       expect(await instanceSale.startTime()).to.be.equal(now.valueOf());
     });
 
-    it("should set the endTime correctly", async () => {
+    it("Should set the endTime correctly", async () => {
       expect(await instanceSale.endTime()).to.be.equal(
         now.valueOf() + 1000 * 60 * 60 * 24 * 7
       );
     });
 
-    it("should set the maxTokensPerAddress correctly", async () => {
+    it("Should set the maxTokensPerAddress correctly", async () => {
       expect(await instanceSale.maxTokensPerAddress()).to.be.equal(
         BigNumber.from("3")
       );
     });
 
-    it("should set the maxSupply correctly", async () => {
+    it("Should set the maxSupply correctly", async () => {
       expect(await instanceSale.leftSupply()).to.be.equal(BigNumber.from("10"));
     });
   });
 
-  describe("mint", () => {
-    it("shouldn't mint with a time before", async () => {
+  describe("Mint", () => {
+    it("Shouldn't mint with a time before", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() - 1,
       ]);
@@ -103,7 +103,7 @@ describe("StartonERC1155Sale", () => {
       ).to.be.revertedWith("Minting not started");
     });
 
-    it("shouldn't mint with a time after", async () => {
+    it("Shouldn't mint with a time after", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
@@ -115,7 +115,7 @@ describe("StartonERC1155Sale", () => {
       ).to.be.revertedWith("Minting finished");
     });
 
-    it("shouldn't mint with lower value than required", async () => {
+    it("Shouldn't mint with lower value than required", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
@@ -125,7 +125,7 @@ describe("StartonERC1155Sale", () => {
       ).to.be.revertedWith("Insufficient funds");
     });
 
-    it("shouldn't mint more than allowed per wallet", async () => {
+    it("Shouldn't mint more than allowed per wallet", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
@@ -135,7 +135,7 @@ describe("StartonERC1155Sale", () => {
       ).to.be.revertedWith("Max tokens reached");
     });
 
-    it("shouldn't mint more than total supply", async () => {
+    it("Shouldn't mint more than total supply", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale.mint(addr1.address, 10, 3, {
@@ -154,7 +154,7 @@ describe("StartonERC1155Sale", () => {
       ).to.be.revertedWith("Max supply reached");
     });
 
-    it("should mint with a correct time and correct value", async () => {
+    it("Should mint with a correct time and correct value", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale.mint(addr1.address, 10, 1, {
@@ -175,8 +175,8 @@ describe("StartonERC1155Sale", () => {
     });
   });
 
-  describe("mintBatch", () => {
-    it("shouldn't batch mint with a time before", async () => {
+  describe("MintBatch", () => {
+    it("Shouldn't batch mint with a time before", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() - 1,
       ]);
@@ -188,7 +188,7 @@ describe("StartonERC1155Sale", () => {
       ).to.be.revertedWith("Minting not started");
     });
 
-    it("shouldn't batch mint with a time after", async () => {
+    it("Shouldn't batch mint with a time after", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
@@ -200,7 +200,7 @@ describe("StartonERC1155Sale", () => {
       ).to.be.revertedWith("Minting finished");
     });
 
-    it("shouldn't batch mint with lower value than required", async () => {
+    it("Shouldn't batch mint with lower value than required", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
@@ -210,7 +210,7 @@ describe("StartonERC1155Sale", () => {
       ).to.be.revertedWith("Insufficient funds");
     });
 
-    it("shouldn't batch mint more than allowed per wallet", async () => {
+    it("Shouldn't batch mint more than allowed per wallet", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
@@ -220,7 +220,7 @@ describe("StartonERC1155Sale", () => {
       ).to.be.revertedWith("Max tokens reached");
     });
 
-    it("shouldn't batch mint more than total supply", async () => {
+    it("Shouldn't batch mint more than total supply", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       instanceSale.mintBatch(addr1.address, [10, 11], [1, 2], {
@@ -239,7 +239,7 @@ describe("StartonERC1155Sale", () => {
       ).to.be.revertedWith("Max supply reached");
     });
 
-    it("should batch mint with a correct time and correct value", async () => {
+    it("Should batch mint with a correct time and correct value", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale.mintBatch(addr1.address, [10, 11], [2, 1], {
@@ -251,7 +251,7 @@ describe("StartonERC1155Sale", () => {
     });
   });
 
-  describe("withdraw", () => {
+  describe("Withdraw", () => {
     it("shoud be able to withdraw the whole balance", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 

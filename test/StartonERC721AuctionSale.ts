@@ -57,37 +57,37 @@ describe("StartonERC721AuctionSale", () => {
   });
 
   describe("Deployment", () => {
-    it("should deploy the contract", async () => {});
+    it("Should deploy the contract", async () => {});
 
-    it("should set the token correctly", async () => {
+    it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC721.address);
     });
 
-    it("should set the currentPrice correctly", async () => {
+    it("Should set the currentPrice correctly", async () => {
       expect(await instanceSale.currentPrice()).to.be.equal(
         BigNumber.from("1000")
       );
     });
 
-    it("should set the startTime correctly", async () => {
+    it("Should set the startTime correctly", async () => {
       expect(await instanceSale.startTime()).to.be.equal(now.valueOf());
     });
 
-    it("should set the endTime correctly", async () => {
+    it("Should set the endTime correctly", async () => {
       expect(await instanceSale.endTime()).to.be.equal(
         now.valueOf() + 1000 * 60 * 60 * 24 * 7
       );
     });
 
-    it("should set the currentAuctionWinner correctly", async () => {
+    it("Should set the currentAuctionWinner correctly", async () => {
       expect(await instanceSale.currentAuctionWinner()).to.be.equal(
         "0x0000000000000000000000000000000000000000"
       );
     });
   });
 
-  describe("bid", () => {
-    it("shouldn't bid with a time before", async () => {
+  describe("Bid", () => {
+    it("Shouldn't bid with a time before", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() - 1,
       ]);
@@ -97,7 +97,7 @@ describe("StartonERC721AuctionSale", () => {
       ).to.be.revertedWith("Bidding not started");
     });
 
-    it("shouldn't bit with a time after", async () => {
+    it("Shouldn't bit with a time after", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
@@ -107,7 +107,7 @@ describe("StartonERC721AuctionSale", () => {
       ).to.be.revertedWith("Bidding finished");
     });
 
-    it("shouldn't bid with a lower or equal value", async () => {
+    it("Shouldn't bid with a lower or equal value", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
@@ -119,7 +119,7 @@ describe("StartonERC721AuctionSale", () => {
       ).to.be.revertedWith("Bid is too low");
     });
 
-    it("should bid if everything is correct", async () => {
+    it("Should bid if everything is correct", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale.bid({ value: ethers.utils.parseEther("0.1") });
@@ -131,7 +131,7 @@ describe("StartonERC721AuctionSale", () => {
       );
     });
 
-    it("should send back the money of the last bid", async () => {
+    it("Should send back the money of the last bid", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale.bid({ value: ethers.utils.parseEther("0.1") });
@@ -146,8 +146,8 @@ describe("StartonERC721AuctionSale", () => {
     });
   });
 
-  describe("mint", () => {
-    it("shouldn't mint if the auction hasn't finished", async () => {
+  describe("Mint", () => {
+    it("Shouldn't mint if the auction hasn't finished", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale
@@ -162,7 +162,7 @@ describe("StartonERC721AuctionSale", () => {
       ).to.be.revertedWith("Minting hasn't finished yet");
     });
 
-    it("shouldn't mint if the destination address isn't the winner", async () => {
+    it("Shouldn't mint if the destination address isn't the winner", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale
@@ -179,7 +179,7 @@ describe("StartonERC721AuctionSale", () => {
       );
     });
 
-    it("shouldn't mint twice to the winner", async () => {
+    it("Shouldn't mint twice to the winner", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale
@@ -195,7 +195,7 @@ describe("StartonERC721AuctionSale", () => {
       ).to.be.revertedWith("Token has already been claimed");
     });
 
-    it("should mint if everything is correct", async () => {
+    it("Should mint if everything is correct", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale
@@ -210,14 +210,14 @@ describe("StartonERC721AuctionSale", () => {
     });
   });
 
-  describe("withdraw", () => {
-    it("shouldn't transfer anything if there isn't any bid yet", async () => {
+  describe("Withdraw", () => {
+    it("Shouldn't transfer anything if there isn't any bid yet", async () => {
       const oldBalance = await owner.getBalance();
       await instanceSale.connect(addr1).withdraw();
       expect(await owner.getBalance()).to.be.equal(oldBalance);
     });
 
-    it("should transfer everything", async () => {
+    it("Should transfer everything", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale
@@ -237,8 +237,8 @@ describe("StartonERC721AuctionSale", () => {
     });
   });
 
-  describe("startNewAuction", () => {
-    it("shouldn't start a new auction if the current one hasn't been claimed", async () => {
+  describe("StartNewAuction", () => {
+    it("Shouldn't start a new auction if the current one hasn't been claimed", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
       await expect(
         instanceSale.startNewAuction(
@@ -249,7 +249,7 @@ describe("StartonERC721AuctionSale", () => {
       ).to.be.revertedWith("The auction hasn't been claimed yet");
     });
 
-    it("should start a new auction if everything is correct", async () => {
+    it("Should start a new auction if everything is correct", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale

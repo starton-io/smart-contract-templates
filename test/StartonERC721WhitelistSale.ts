@@ -16,7 +16,7 @@ let ERC721: StartonERC721MetaTransaction__factory; // eslint-disable-line camelc
 let ERC721Sale: StartonERC721WhitelistSale__factory; // eslint-disable-line camelcase
 let merkleTree: MerkleTree;
 
-describe("StartonERC721WhitelistSale", function () {
+describe("StartonERC721WhitelistSale", () => {
   let instanceERC721: StartonERC721MetaTransaction;
   let instanceSale: StartonERC721WhitelistSale;
   let owner: SignerWithAddress;
@@ -33,7 +33,7 @@ describe("StartonERC721WhitelistSale", function () {
     ERC721Sale = new StartonERC721WhitelistSale__factory(owner);
   });
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     // Reset the whole waffle for each test
     await ethers.provider.send("hardhat_reset", []);
 
@@ -73,40 +73,40 @@ describe("StartonERC721WhitelistSale", function () {
     await instanceERC721.grantRole(minterRole, instanceSale.address);
   });
 
-  describe("Deployment", function () {
-    it("should deploy the contract", async function () {});
+  describe("Deployment", () => {
+    it("Should deploy the contract", async () => {});
 
-    it("should set the token correctly", async function () {
+    it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC721.address);
     });
 
-    it("should set the price correctly", async function () {
+    it("Should set the price correctly", async () => {
       expect(await instanceSale.price()).to.be.equal(BigNumber.from("1000"));
     });
 
-    it("should set the startTime correctly", async function () {
+    it("Should set the startTime correctly", async () => {
       expect(await instanceSale.startTime()).to.be.equal(now.valueOf());
     });
 
-    it("should set the endTime correctly", async function () {
+    it("Should set the endTime correctly", async () => {
       expect(await instanceSale.endTime()).to.be.equal(
         now.valueOf() + 1000 * 60 * 60 * 24 * 7
       );
     });
 
-    it("should set the maxTokensPerAddress correctly", async function () {
+    it("Should set the maxTokensPerAddress correctly", async () => {
       expect(await instanceSale.maxTokensPerAddress()).to.be.equal(
         BigNumber.from("3")
       );
     });
 
-    it("should set the maxSupply correctly", async function () {
+    it("Should set the maxSupply correctly", async () => {
       expect(await instanceSale.leftSupply()).to.be.equal(BigNumber.from("10"));
     });
   });
 
-  describe("mint", function () {
-    it("shouldn't mint with a time before", async function () {
+  describe("Mint", () => {
+    it("Shouldn't mint with a time before", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() - 1,
       ]);
@@ -120,7 +120,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Minting not started");
     });
 
-    it("shouldn't mint with a time after", async function () {
+    it("Shouldn't mint with a time after", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
@@ -134,7 +134,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Minting finished");
     });
 
-    it("shouldn't mint with lower value than required", async function () {
+    it("Shouldn't mint with lower value than required", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
@@ -146,7 +146,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Insufficient funds");
     });
 
-    it("shouldn't mint more than allowed per wallet", async function () {
+    it("Shouldn't mint more than allowed per wallet", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
@@ -167,7 +167,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Max tokens reached");
     });
 
-    it("shouldn't mint more than total supply", async function () {
+    it("Shouldn't mint more than total supply", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
@@ -212,7 +212,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Max supply reached");
     });
 
-    it("shouldn't mint with a wrong proof", async function () {
+    it("Shouldn't mint with a wrong proof", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const proof = merkleTree.getHexProof(keccak256(addrs[4].address));
@@ -224,7 +224,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Invalid proof");
     });
 
-    it("shouldn't mint with a correct proof but not right sender", async function () {
+    it("Shouldn't mint with a correct proof but not right sender", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
@@ -236,7 +236,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Invalid proof");
     });
 
-    it("should mint with a correct time and correct value and correct proof", async function () {
+    it("Should mint with a correct time and correct value and correct proof", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
@@ -259,8 +259,8 @@ describe("StartonERC721WhitelistSale", function () {
     });
   });
 
-  describe("mintBatch", function () {
-    it("shouldn't batch mint with a time before", async function () {
+  describe("MintBatch", () => {
+    it("Shouldn't batch mint with a time before", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() - 1,
       ]);
@@ -280,7 +280,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Minting not started");
     });
 
-    it("shouldn't batch mint with a time after", async function () {
+    it("Shouldn't batch mint with a time after", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
@@ -300,7 +300,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Minting finished");
     });
 
-    it("shouldn't batch mint with lower value than required", async function () {
+    it("Shouldn't batch mint with lower value than required", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
@@ -318,7 +318,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Insufficient funds");
     });
 
-    it("shouldn't batch mint more than allowed per wallet", async function () {
+    it("Shouldn't batch mint more than allowed per wallet", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
@@ -336,7 +336,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Max tokens reached");
     });
 
-    it("shouldn't batch mint more than total supply", async function () {
+    it("Shouldn't batch mint more than total supply", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
@@ -377,7 +377,7 @@ describe("StartonERC721WhitelistSale", function () {
       ).to.be.revertedWith("Max supply reached");
     });
 
-    it("should batch mint with a correct time and correct value", async function () {
+    it("Should batch mint with a correct time and correct value", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
@@ -396,8 +396,8 @@ describe("StartonERC721WhitelistSale", function () {
     });
   });
 
-  describe("withdraw", function () {
-    it("shoud be able to withdraw the whole balance", async function () {
+  describe("Withdraw", () => {
+    it("shoud be able to withdraw the whole balance", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const ownerBalance = await owner.getBalance();
