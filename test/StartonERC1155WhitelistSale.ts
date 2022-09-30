@@ -355,7 +355,7 @@ describe("StartonERC1155WhitelistSale", () => {
   });
 
   describe("Withdraw", () => {
-    it("shoud be able to withdraw the whole balance", async () => {
+    it("Should be able to withdraw the whole balance", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       const ownerBalance = await owner.getBalance();
