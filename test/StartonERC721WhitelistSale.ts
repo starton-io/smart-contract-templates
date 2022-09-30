@@ -116,7 +116,7 @@ describe("StartonERC721WhitelistSale", () => {
 
       await expect(
         instanceSale.mint(addr1.address, "wow", proof, {
-          value: ethers.utils.parseEther("0.1"),
+          value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Minting not started");
     });
@@ -130,7 +130,7 @@ describe("StartonERC721WhitelistSale", () => {
 
       await expect(
         instanceSale.mint(addr1.address, "wow", proof, {
-          value: ethers.utils.parseEther("0.1"),
+          value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Minting finished");
     });
@@ -153,17 +153,17 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await instanceSale.mint(addr1.address, "wow", proof, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await instanceSale.mint(addr1.address, "wow", proof, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await instanceSale.mint(addr1.address, "wow", proof, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await expect(
         instanceSale.mint(addr1.address, "wow", proof, {
-          value: ethers.utils.parseEther("0.1"),
+          value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Max tokens reached");
     });
@@ -177,38 +177,38 @@ describe("StartonERC721WhitelistSale", () => {
       const proof4 = merkleTree.getHexProof(keccak256(addrs[3].address));
 
       await instanceSale.mint(addr1.address, "wow", proof, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await instanceSale.mint(addr1.address, "wow", proof, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await instanceSale.mint(addr1.address, "wow", proof, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await instanceSale.connect(addr1).mint(addr1.address, "wow", proof2, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await instanceSale.connect(addr1).mint(addr1.address, "wow", proof2, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await instanceSale.connect(addr1).mint(addr1.address, "wow", proof2, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await instanceSale.connect(addr2).mint(addr1.address, "wow", proof3, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await instanceSale.connect(addr2).mint(addr1.address, "wow", proof3, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await instanceSale.connect(addr2).mint(addr1.address, "wow", proof3, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await instanceSale.connect(addrs[3]).mint(addr1.address, "wow", proof4, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
       await expect(
         instanceSale.connect(addrs[3]).mint(addr1.address, "wow", proof4, {
-          value: ethers.utils.parseEther("0.1"),
+          value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Max supply reached");
     });
@@ -220,7 +220,7 @@ describe("StartonERC721WhitelistSale", () => {
 
       await expect(
         instanceSale.connect(addrs[4]).mint(addr1.address, "wow", proof, {
-          value: ethers.utils.parseEther("0.1"),
+          value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Invalid proof");
     });
@@ -232,7 +232,7 @@ describe("StartonERC721WhitelistSale", () => {
 
       await expect(
         instanceSale.connect(addrs[4]).mint(addr1.address, "wow", proof, {
-          value: ethers.utils.parseEther("0.1"),
+          value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Invalid proof");
     });
@@ -243,7 +243,7 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await instanceSale.mint(addr1.address, "wow", proof, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
 
       expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(1);
@@ -253,7 +253,7 @@ describe("StartonERC721WhitelistSale", () => {
       ]);
 
       await instanceSale.mint(addr1.address, "wow", proof, {
-        value: ethers.utils.parseEther("0.1"),
+        value: BigNumber.from("1000"),
       });
 
       expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(2);
@@ -275,7 +275,7 @@ describe("StartonERC721WhitelistSale", () => {
           ["wow", "ijbib", "iubibubiu"],
           proof,
           {
-            value: ethers.utils.parseEther("0.1"),
+            value: BigNumber.from("3000"),
           }
         )
       ).to.be.revertedWith("Minting not started");
@@ -295,7 +295,7 @@ describe("StartonERC721WhitelistSale", () => {
           ["wow", "ijbib", "iubibubiu"],
           proof,
           {
-            value: ethers.utils.parseEther("0.1"),
+            value: BigNumber.from("3000"),
           }
         )
       ).to.be.revertedWith("Minting finished");
@@ -331,7 +331,7 @@ describe("StartonERC721WhitelistSale", () => {
           ["wow", "ijbib", "iubibubiu", "ibuvib"],
           proof,
           {
-            value: ethers.utils.parseEther("0.1"),
+            value: BigNumber.from("4000"),
           }
         )
       ).to.be.revertedWith("Max tokens reached");
@@ -351,29 +351,29 @@ describe("StartonERC721WhitelistSale", () => {
         ["wow", "ijbib", "iubibubiu"],
         proof,
         {
-          value: ethers.utils.parseEther("0.1"),
+          value: BigNumber.from("3000"),
         }
       );
       instanceSale
         .connect(addr1)
         .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], proof2, {
-          value: ethers.utils.parseEther("0.1"),
+          value: BigNumber.from("3000"),
         });
       instanceSale
         .connect(addr2)
         .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], proof3, {
-          value: ethers.utils.parseEther("0.1"),
+          value: BigNumber.from("3000"),
         });
       instanceSale
         .connect(addrs[3])
         .mintBatch(addr1.address, 1, ["wow"], proof4, {
-          value: ethers.utils.parseEther("0.1"),
+          value: BigNumber.from("3000"),
         });
       await expect(
         instanceSale
           .connect(addrs[3])
           .mintBatch(addr1.address, 1, ["wow"], proof4, {
-            value: ethers.utils.parseEther("0.1"),
+            value: BigNumber.from("3000"),
           })
       ).to.be.revertedWith("Max supply reached");
     });
@@ -387,7 +387,7 @@ describe("StartonERC721WhitelistSale", () => {
         instanceSale
           .connect(addrs[4])
           .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], proof, {
-            value: ethers.utils.parseEther("0.1"),
+            value: BigNumber.from("3000"),
           })
       ).to.be.revertedWith("Invalid proof");
     });
@@ -401,7 +401,7 @@ describe("StartonERC721WhitelistSale", () => {
         instanceSale
           .connect(addrs[4])
           .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], proof, {
-            value: ethers.utils.parseEther("0.1"),
+            value: BigNumber.from("3000"),
           })
       ).to.be.revertedWith("Invalid proof");
     });
@@ -417,7 +417,7 @@ describe("StartonERC721WhitelistSale", () => {
         ["wow", "ijbib", "iubibubiu"],
         proof,
         {
-          value: ethers.utils.parseEther("0.1"),
+          value: BigNumber.from("3000"),
         }
       );
 
