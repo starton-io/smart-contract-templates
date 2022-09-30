@@ -46,6 +46,7 @@ describe("StartonERC1155AuctionSale", () => {
       instanceERC1155.address,
       owner.address,
       BigNumber.from("1000"),
+      BigNumber.from("100"),
       now.valueOf(),
       now.valueOf() + 1000 * 60 * 60 * 24 * 7
     )) as StartonERC1155AuctionSale;
@@ -65,6 +66,12 @@ describe("StartonERC1155AuctionSale", () => {
     it("Should set the currentPrice correctly", async () => {
       expect(await instanceSale.currentPrice()).to.be.equal(
         BigNumber.from("1000")
+      );
+    });
+
+    it("Should set the minPriceDifference correctly", async () => {
+      expect(await instanceSale.minPriceDifference()).to.be.equal(
+        BigNumber.from("100")
       );
     });
 
@@ -115,6 +122,16 @@ describe("StartonERC1155AuctionSale", () => {
 
       await expect(
         instanceSale.bid({ value: BigNumber.from("987") })
+      ).to.be.revertedWith("Bid is too low");
+    });
+
+    it("Shouldn't bid if the minPriceDifference isn't fulfill", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
+
+      instanceSale.connect(addr1).bid({ value: BigNumber.from("1000") });
+
+      await expect(
+        instanceSale.bid({ value: BigNumber.from("1099") })
       ).to.be.revertedWith("Bid is too low");
     });
 
@@ -240,6 +257,7 @@ describe("StartonERC1155AuctionSale", () => {
       await expect(
         instanceSale.startNewAuction(
           BigNumber.from("1000"),
+          BigNumber.from("100"),
           now.valueOf(),
           now.valueOf() + 1000 * 60 * 60 * 24 * 7
         )
@@ -260,10 +278,14 @@ describe("StartonERC1155AuctionSale", () => {
 
       await instanceSale.startNewAuction(
         BigNumber.from("10000"),
+        BigNumber.from("1000"),
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 * 2 + 1
       );
 
+      expect(await instanceSale.minPriceDifference()).to.be.equal(
+        BigNumber.from("1000")
+      );
       expect(await instanceSale.currentPrice()).to.be.equal(
         BigNumber.from("10000")
       );

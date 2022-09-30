@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.9;
 
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IStartonERC721.sol";
 
@@ -9,11 +10,14 @@ import "./interfaces/IStartonERC721.sol";
 /// @author Starton
 /// @notice Contract that can sell ERC721 tokens through a auction
 contract StartonERC721AuctionSale is Ownable {
+    using SafeMath for uint256;
+
     address private immutable _feeReceiver;
 
     IStartonERC721 public immutable token;
 
     uint256 public currentPrice;
+    uint256 public minPriceDifference;
     address public currentAuctionWinner;
     uint256 public startTime;
     uint256 public endTime;
@@ -34,6 +38,7 @@ contract StartonERC721AuctionSale is Ownable {
         address definitiveTokenAddress,
         address definitiveFeeReceiver,
         uint256 initialStartingPrice,
+        uint256 initialMinPriceDifference,
         uint256 initialStartTime,
         uint256 initialEndTime
     ) {
@@ -46,6 +51,7 @@ contract StartonERC721AuctionSale is Ownable {
 
         token = IStartonERC721(definitiveTokenAddress);
         currentPrice = initialStartingPrice;
+        minPriceDifference = initialMinPriceDifference;
         startTime = initialStartTime;
         endTime = initialEndTime;
 
@@ -63,7 +69,7 @@ contract StartonERC721AuctionSale is Ownable {
     function bid() public payable {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
-        require(currentPrice < msg.value, "Bid is too low");
+        require(currentPrice.add(minPriceDifference) <= msg.value, "Bid is too low");
 
         // Store the old auction winner and price
         address oldAuctionWinner = currentAuctionWinner;
@@ -105,6 +111,7 @@ contract StartonERC721AuctionSale is Ownable {
      */
     function startNewAuction(
         uint256 newStartingPrice,
+        uint256 newMinPriceDifference,
         uint256 newStartTime,
         uint256 newEndTime
     ) public onlyOwner {
@@ -113,6 +120,7 @@ contract StartonERC721AuctionSale is Ownable {
         // Reset the state variables for a new auction to begin
         _claimed = false;
         currentPrice = newStartingPrice;
+        minPriceDifference = newMinPriceDifference;
         currentAuctionWinner = address(0);
         startTime = newStartTime;
         endTime = newEndTime;
