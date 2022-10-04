@@ -7,11 +7,11 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract StartonBlacklist is AccessControl {
-    event Blacklisted(address indexed account, bool indexed isBlacklisted);
-
     bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
 
     mapping(address => bool) private _blacklisted;
+
+    event Blacklisted(address indexed account, bool indexed isBlacklisted);
 
     modifier notBlacklisted(address checkAddress) {
         require(
@@ -45,10 +45,6 @@ contract StartonBlacklist is AccessControl {
         emit Blacklisted(addressToRemove, false);
     }
 
-    function isBlacklisted(address checkAddress) public view returns (bool) {
-        return _blacklisted[checkAddress];
-    }
-
     function addBatchToBlacklist(address[] memory multiAddrToBl)
         public
         onlyRole(BLACKLISTER_ROLE)
@@ -73,5 +69,9 @@ contract StartonBlacklist is AccessControl {
             _blacklisted[multiAddrToRm[i]] = false;
             emit Blacklisted(multiAddrToRm[i], false);
         }
+    }
+
+    function isBlacklisted(address checkAddress) public view returns (bool) {
+        return _blacklisted[checkAddress];
     }
 }

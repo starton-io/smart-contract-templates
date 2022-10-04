@@ -474,171 +474,177 @@ interface IERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC721/IERC721.sol@v4.7.1
+// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.7.1
 
-// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC721/IERC721.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC1155/IERC1155.sol)
 
 pragma solidity ^0.8.0;
 
 /**
- * @dev Required interface of an ERC721 compliant contract.
+ * @dev Required interface of an ERC1155 compliant contract, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-1155[EIP].
+ *
+ * _Available since v3.1._
  */
-interface IERC721 is IERC165 {
+interface IERC1155 is IERC165 {
     /**
-     * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
+     * @dev Emitted when `value` tokens of token type `id` are transferred from `from` to `to` by `operator`.
      */
-    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+    event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value);
 
     /**
-     * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
+     * @dev Equivalent to multiple {TransferSingle} events, where `operator`, `from` and `to` are the same for all
+     * transfers.
      */
-    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+    event TransferBatch(
+        address indexed operator,
+        address indexed from,
+        address indexed to,
+        uint256[] ids,
+        uint256[] values
+    );
 
     /**
-     * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
+     * @dev Emitted when `account` grants or revokes permission to `operator` to transfer their tokens, according to
+     * `approved`.
      */
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+    event ApprovalForAll(address indexed account, address indexed operator, bool approved);
 
     /**
-     * @dev Returns the number of tokens in ``owner``'s account.
+     * @dev Emitted when the URI for token type `id` changes to `value`, if it is a non-programmatic URI.
+     *
+     * If an {URI} event was emitted for `id`, the standard
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions[guarantees] that `value` will equal the value
+     * returned by {IERC1155MetadataURI-uri}.
      */
-    function balanceOf(address owner) external view returns (uint256 balance);
+    event URI(string value, uint256 indexed id);
 
     /**
-     * @dev Returns the owner of the `tokenId` token.
+     * @dev Returns the amount of tokens of token type `id` owned by `account`.
      *
      * Requirements:
      *
-     * - `tokenId` must exist.
+     * - `account` cannot be the zero address.
      */
-    function ownerOf(uint256 tokenId) external view returns (address owner);
+    function balanceOf(address account, uint256 id) external view returns (uint256);
 
     /**
-     * @dev Safely transfers `tokenId` token from `from` to `to`.
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {balanceOf}.
      *
      * Requirements:
      *
-     * - `from` cannot be the zero address.
+     * - `accounts` and `ids` must have the same length.
+     */
+    function balanceOfBatch(address[] calldata accounts, uint256[] calldata ids)
+        external
+        view
+        returns (uint256[] memory);
+
+    /**
+     * @dev Grants or revokes permission to `operator` to transfer the caller's tokens, according to `approved`,
+     *
+     * Emits an {ApprovalForAll} event.
+     *
+     * Requirements:
+     *
+     * - `operator` cannot be the caller.
+     */
+    function setApprovalForAll(address operator, bool approved) external;
+
+    /**
+     * @dev Returns true if `operator` is approved to transfer ``account``'s tokens.
+     *
+     * See {setApprovalForAll}.
+     */
+    function isApprovedForAll(address account, address operator) external view returns (bool);
+
+    /**
+     * @dev Transfers `amount` tokens of token type `id` from `from` to `to`.
+     *
+     * Emits a {TransferSingle} event.
+     *
+     * Requirements:
+     *
      * - `to` cannot be the zero address.
-     * - `tokenId` token must exist and be owned by `from`.
-     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-     *
-     * Emits a {Transfer} event.
+     * - If the caller is not `from`, it must have been approved to spend ``from``'s tokens via {setApprovalForAll}.
+     * - `from` must have a balance of tokens of type `id` of at least `amount`.
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
+     * acceptance magic value.
      */
     function safeTransferFrom(
         address from,
         address to,
-        uint256 tokenId,
+        uint256 id,
+        uint256 amount,
         bytes calldata data
     ) external;
 
     /**
-     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
-     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
+     *
+     * Emits a {TransferBatch} event.
      *
      * Requirements:
      *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must exist and be owned by `from`.
-     * - If the caller is not `from`, it must have been allowed to move this token by either {approve} or {setApprovalForAll}.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-     *
-     * Emits a {Transfer} event.
+     * - `ids` and `amounts` must have the same length.
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
+     * acceptance magic value.
      */
-    function safeTransferFrom(
+    function safeBatchTransferFrom(
         address from,
         address to,
-        uint256 tokenId
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
+        bytes calldata data
     ) external;
-
-    /**
-     * @dev Transfers `tokenId` token from `from` to `to`.
-     *
-     * WARNING: Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
-     *
-     * Requirements:
-     *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must be owned by `from`.
-     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external;
-
-    /**
-     * @dev Gives permission to `to` to transfer `tokenId` token to another account.
-     * The approval is cleared when the token is transferred.
-     *
-     * Only a single account can be approved at a time, so approving the zero address clears previous approvals.
-     *
-     * Requirements:
-     *
-     * - The caller must own the token or be an approved operator.
-     * - `tokenId` must exist.
-     *
-     * Emits an {Approval} event.
-     */
-    function approve(address to, uint256 tokenId) external;
-
-    /**
-     * @dev Approve or remove `operator` as an operator for the caller.
-     * Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
-     *
-     * Requirements:
-     *
-     * - The `operator` cannot be the caller.
-     *
-     * Emits an {ApprovalForAll} event.
-     */
-    function setApprovalForAll(address operator, bool _approved) external;
-
-    /**
-     * @dev Returns the account approved for `tokenId` token.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
-     */
-    function getApproved(uint256 tokenId) external view returns (address operator);
-
-    /**
-     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
-     *
-     * See {setApprovalForAll}
-     */
-    function isApprovedForAll(address owner, address operator) external view returns (bool);
 }
 
 
-// File contracts/interfaces/IStartonERC721.sol
+// File contracts/interfaces/IStartonERC1155.sol
 
 
 pragma solidity 0.8.9;
 
-interface IStartonERC721 is IERC721 {
-    function mint(address to, string memory uri) external;
+interface IStartonERC1155 is IERC1155 {
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) external;
+
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount
+    ) external payable;
+
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) external;
+
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) external;
 }
 
 
-// File contracts/StartonERC721WhitelistSale.sol
+// File contracts/StartonERC1155WhitelistSale.sol
 
 
 pragma solidity 0.8.9;
 
 
 
-/// @title StartonERC721WhitelistSale
+/// @title StartonERC1155WhitelistSale
 /// @author Starton
 /// @notice Contract that can sell ERC721 tokens through a whitelist sale with a limited avaible supply, start and end time as well as max tokens per address
-contract StartonERC721WhitelistSale {
+contract StartonERC1155WhitelistSale {
     using SafeMath for uint256;
 
     address private immutable _feeReceiver;
@@ -646,7 +652,7 @@ contract StartonERC721WhitelistSale {
     // Root of the merkle tree for the whitelisted address
     bytes32 private _merkleRoot;
 
-    IStartonERC721 public immutable token;
+    IStartonERC1155 public immutable token;
 
     uint256 public immutable price;
     uint256 public immutable startTime;
@@ -667,14 +673,14 @@ contract StartonERC721WhitelistSale {
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
-        // Check if the address of the feeReceiver correct
+        // Check if the address of the feeReceiver is correct
         require(
             definitiveFeeReceiver != address(0),
             "Fee receiver address is not valid"
         );
         _feeReceiver = definitiveFeeReceiver;
 
-        token = IStartonERC721(definitiveTokenAddress);
+        token = IStartonERC1155(definitiveTokenAddress);
         _merkleRoot = definitiveMerkleRoot;
         price = definitivePrice;
         startTime = definitiveStartTime;
@@ -686,37 +692,14 @@ contract StartonERC721WhitelistSale {
     /**
      * @notice Mint a token to a given address for a price if the given address is whitelisted
      * @param to The address to mint the token to
-     * @param tokenURI The token metadata URI
+     * @param id The id of the token
+     * @param amount The amount of tokens to mint
      * @param merkleProof The merkle proof of the address in the whitelist
      */
     function mint(
         address to,
-        string memory tokenURI,
-        bytes32[] calldata merkleProof
-    ) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
-
-        require(msg.value >= price, "Insufficient funds");
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
-
-        _mint(to, tokenURI);
-    }
-
-    /**
-     * @notice Mint multiple tokens to a given address for a price if the given address is whitelisted
-     * @param to The address to mint the token to
-     * @param tokenURIs The token metadata URI array
-     * @param merkleProof The merkle proof of the address in the whitelist
-     */
-    function mintBatch(
-        address to,
+        uint256 id,
         uint256 amount,
-        string[] memory tokenURIs,
         bytes32[] calldata merkleProof
     ) public payable {
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
@@ -729,8 +712,37 @@ contract StartonERC721WhitelistSale {
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
-        for (uint256 i = 0; i < amount; ++i) {
-            _mint(to, tokenURIs[i]);
+        _mint(to, id, amount);
+    }
+
+    /**
+     * @notice Mint multiple tokens to a given address for a price if the given address is whitelisted
+     * @param to The address to mint the token to
+     * @param ids The ids of the token to mint
+     * @param amounts The amounts of tokens to mint
+     * @param merkleProof The merkle proof of the address in the whitelist
+     */
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes32[] calldata merkleProof
+    ) public payable {
+        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
+        require(
+            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
+            "Invalid proof"
+        );
+
+        require(startTime <= block.timestamp, "Minting not started");
+        require(endTime >= block.timestamp, "Minting finished");
+
+        uint256 totalAmount = 0;
+        for (uint256 i = 0; i < ids.length; ++i) {
+            totalAmount = totalAmount.add(price.mul(amounts[i]));
+            require(msg.value >= totalAmount, "Insufficient funds");
+
+            _mint(to, ids[i], amounts[i]);
         }
     }
 
@@ -744,17 +756,22 @@ contract StartonERC721WhitelistSale {
     /**
      * @dev Mint a token to the given address and updates state variables for the sale
      * @param to The address to mint the token to
-     * @param tokenURI The URI of the token
+     * @param id The id of the token
+     * @param amount The amount of tokens to mint
      */
-    function _mint(address to, string memory tokenURI) internal {
+    function _mint(
+        address to,
+        uint256 id,
+        uint256 amount
+    ) internal {
         require(
-            tokensClaimed[msg.sender] < maxTokensPerAddress,
+            tokensClaimed[msg.sender].add(amount) <= maxTokensPerAddress,
             "Max tokens reached"
         );
-        require(leftSupply != 0, "Max supply reached");
+        require(leftSupply >= amount, "Max supply reached");
 
-        token.mint(to, tokenURI);
-        leftSupply = leftSupply.sub(1);
-        tokensClaimed[msg.sender] = tokensClaimed[msg.sender].add(1);
+        token.mint(to, id, amount);
+        leftSupply = leftSupply.sub(amount);
+        tokensClaimed[msg.sender] = tokensClaimed[msg.sender].add(amount);
     }
 }

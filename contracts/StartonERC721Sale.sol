@@ -2,20 +2,16 @@
 
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./interfaces/IStartonERC721.sol";
 
-/// @title StartonERC721WhitelistSale
+/// @title StartonERC721Sale
 /// @author Starton
-/// @notice Contract that can sell ERC721 tokens through a whitelist sale with a limited avaible supply, start and end time as well as max tokens per address
-contract StartonERC721WhitelistSale {
+/// @notice Contract that can sell ERC721 tokens through a public sale with a limited avaible supply, start and end time as well as max tokens per address
+contract StartonERC721Sale {
     using SafeMath for uint256;
 
     address private immutable _feeReceiver;
-
-    // Root of the merkle tree for the whitelisted address
-    bytes32 private _merkleRoot;
 
     IStartonERC721 public immutable token;
 
@@ -30,7 +26,6 @@ contract StartonERC721WhitelistSale {
 
     constructor(
         address definitiveTokenAddress,
-        bytes32 definitiveMerkleRoot,
         uint256 definitivePrice,
         uint256 definitiveStartTime,
         uint256 definitiveEndTime,
@@ -38,7 +33,7 @@ contract StartonERC721WhitelistSale {
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
-        // Check if the address of the feeReceiver correct
+        // Check if the address of the feeReceiver is correct
         require(
             definitiveFeeReceiver != address(0),
             "Fee receiver address is not valid"
@@ -46,7 +41,6 @@ contract StartonERC721WhitelistSale {
         _feeReceiver = definitiveFeeReceiver;
 
         token = IStartonERC721(definitiveTokenAddress);
-        _merkleRoot = definitiveMerkleRoot;
         price = definitivePrice;
         startTime = definitiveStartTime;
         endTime = definitiveEndTime;
@@ -55,22 +49,11 @@ contract StartonERC721WhitelistSale {
     }
 
     /**
-     * @notice Mint a token to a given address for a price if the given address is whitelisted
+     * @notice Mint a token to a given address for a price
      * @param to The address to mint the token to
      * @param tokenURI The token metadata URI
-     * @param merkleProof The merkle proof of the address in the whitelist
      */
-    function mint(
-        address to,
-        string memory tokenURI,
-        bytes32[] calldata merkleProof
-    ) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
-
+    function mint(address to, string memory tokenURI) public payable {
         require(msg.value >= price, "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
@@ -79,23 +62,15 @@ contract StartonERC721WhitelistSale {
     }
 
     /**
-     * @notice Mint multiple tokens to a given address for a price if the given address is whitelisted
+     * @notice Mint multiple tokens to a given address for a price
      * @param to The address to mint the token to
      * @param tokenURIs The token metadata URI array
-     * @param merkleProof The merkle proof of the address in the whitelist
      */
     function mintBatch(
         address to,
         uint256 amount,
-        string[] memory tokenURIs,
-        bytes32[] calldata merkleProof
+        string[] memory tokenURIs
     ) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
-
         require(msg.value >= price.mul(amount), "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
