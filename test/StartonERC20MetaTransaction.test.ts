@@ -46,12 +46,11 @@ describe("StartonERC20MetaTransaction", () => {
     });
 
     it("Should set default roles to owner", async () => {
-      expect(
-        await instanceERC20.hasRole(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("PAUSER_ROLE")),
-          owner.address
-        )
-      ).to.equal(true);
+      const pauserRole = await instanceERC20.PAUSER_ROLE();
+
+      expect(await instanceERC20.hasRole(pauserRole, owner.address)).to.equal(
+        true
+      );
     });
 
     it("Should set correctly the name", async () => {
