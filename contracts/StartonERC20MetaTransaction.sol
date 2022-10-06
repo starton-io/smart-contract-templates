@@ -10,7 +10,7 @@ import "./utils/ContextMixin.sol";
 
 /// @title StartonERC20MetaTransaction
 /// @author Starton
-/// @notice This implements a ERC20 token that can be paused, burned and have a access management
+/// @notice ERC20 token that can be paused, burned, have a access management and handle meta transactions
 contract StartonERC20MetaTransaction is
     ERC20Burnable,
     Pausable,
