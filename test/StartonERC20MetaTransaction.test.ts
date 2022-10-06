@@ -26,8 +26,8 @@ describe("StartonERC20MetaTransaction", () => {
 
   beforeEach(async () => {
     instanceERC20 = (await ERC20.deploy(
-      "testContract",
-      "TC",
+      "StartonToken",
+      "ST",
       BigNumber.from("1000000000000000000000000000"),
       owner.address
     )) as StartonERC20MetaTransaction;
@@ -37,7 +37,7 @@ describe("StartonERC20MetaTransaction", () => {
   describe("Deployment", () => {
     it("Should deploy", async () => {});
 
-    it("Should owner have admin role", async () => {
+    it("Should set admin role to owner", async () => {
       const adminRole = await instanceERC20.DEFAULT_ADMIN_ROLE();
 
       expect(await instanceERC20.hasRole(adminRole, owner.address)).to.equal(
@@ -45,7 +45,7 @@ describe("StartonERC20MetaTransaction", () => {
       );
     });
 
-    it("Should owner have default roles", async () => {
+    it("Should set default roles to owner", async () => {
       expect(
         await instanceERC20.hasRole(
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("PAUSER_ROLE")),
@@ -55,11 +55,11 @@ describe("StartonERC20MetaTransaction", () => {
     });
 
     it("Should set correctly the name", async () => {
-      expect(await instanceERC20.name()).to.equal("testContract");
+      expect(await instanceERC20.name()).to.equal("StartonToken");
     });
 
     it("Should set correctly the symbol", async () => {
-      expect(await instanceERC20.symbol()).to.equal("TC");
+      expect(await instanceERC20.symbol()).to.equal("ST");
     });
 
     it("Should not be paused", async () => {
@@ -77,7 +77,7 @@ describe("StartonERC20MetaTransaction", () => {
     it("Should return 0", async () => {
       expect(
         await instanceERC20.allowance(owner.address, addr1.address)
-      ).to.equal(0);
+      ).to.equal(BigNumber.from("0"));
     });
 
     it("Should increase allowance", async () => {
@@ -124,7 +124,9 @@ describe("StartonERC20MetaTransaction", () => {
         addr2.address,
         BigNumber.from("1000000000000000000000000000")
       );
-      expect(await instanceERC20.balanceOf(owner.address)).to.equal(0);
+      expect(await instanceERC20.balanceOf(owner.address)).to.equal(
+        BigNumber.from("0")
+      );
       expect(await instanceERC20.balanceOf(addr2.address)).to.equal(
         BigNumber.from("1000000000000000000000000000")
       );
@@ -142,7 +144,9 @@ describe("StartonERC20MetaTransaction", () => {
           addr2.address,
           BigNumber.from("1000000000000000000000000000")
         );
-      expect(await instanceERC20.balanceOf(owner.address)).to.equal(0);
+      expect(await instanceERC20.balanceOf(owner.address)).to.equal(
+        BigNumber.from("0")
+      );
       expect(await instanceERC20.balanceOf(addr2.address)).to.equal(
         BigNumber.from("1000000000000000000000000000")
       );
@@ -198,6 +202,14 @@ describe("StartonERC20MetaTransaction", () => {
     });
   });
 
+  describe("Burn", () => {
+    it("Should be able to burn tokens", async () => {
+      await instanceERC20.burn(BigNumber.from("1000000000000000000000000000"));
+
+      expect(await instanceERC20.balanceOf(owner.address)).to.equal(0);
+    });
+  });
+
   describe("Forwarder", () => {
     it("Should be able to send a forwarded transaction", async () => {
       const metaTransactionType = [
@@ -231,6 +243,7 @@ describe("StartonERC20MetaTransaction", () => {
         [addr2.address, BigNumber.from("1000000000000000000000000000")]
       );
 
+      // Create the signature of the transaction
       const signature = await addr1._signTypedData(
         domainType,
         {
@@ -243,6 +256,7 @@ describe("StartonERC20MetaTransaction", () => {
         }
       );
 
+      // Sign the transaction by the destiner user
       const { r, s, v } = ethers.utils.splitSignature(signature);
 
       await instanceERC20.executeMetaTransaction(
@@ -256,14 +270,6 @@ describe("StartonERC20MetaTransaction", () => {
       expect(
         await instanceERC20.allowance(addr1.address, addr2.address)
       ).to.equal(BigNumber.from("1000000000000000000000000000"));
-    });
-  });
-
-  describe("Burn", () => {
-    it("Should be able to burn tokens", async () => {
-      await instanceERC20.burn(BigNumber.from("1000000000000000000000000000"));
-
-      expect(await instanceERC20.balanceOf(owner.address)).to.equal(0);
     });
   });
 });
