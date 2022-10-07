@@ -14,7 +14,7 @@ import "./utils/ContextMixin.sol";
 
 /// @title StartonERC721MetaTransaction
 /// @author Starton
-/// @notice This implements a ERC721 token that can be blacklisted, paused, locked, burned and have a access management
+/// @notice ERC721 token that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
 contract StartonERC721MetaTransaction is
     ERC721Enumerable,
     ERC721URIStorage,

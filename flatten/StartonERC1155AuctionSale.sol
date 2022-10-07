@@ -539,7 +539,7 @@ pragma solidity 0.8.9;
 
 /// @title StartonERC1155AuctionSale
 /// @author Starton
-/// @notice Contract that can sell ERC1155 tokens through a auction
+/// @notice Can sell ERC1155 tokens through a auction
 contract StartonERC1155AuctionSale is Ownable {
     using SafeMath for uint256;
 

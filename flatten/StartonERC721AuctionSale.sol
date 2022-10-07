@@ -533,7 +533,7 @@ pragma solidity 0.8.9;
 
 /// @title StartonERC721AuctionSale
 /// @author Starton
-/// @notice Contract that can sell ERC721 tokens through a auction
+/// @notice Can sell ERC721 tokens through a auction
 contract StartonERC721AuctionSale is Ownable {
     using SafeMath for uint256;
 

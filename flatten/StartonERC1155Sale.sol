@@ -427,7 +427,7 @@ pragma solidity 0.8.9;
 
 /// @title StartonERC1155Sale
 /// @author Starton
-/// @notice Contract that can sell ERC1155 tokens through a public sale with a limited avaible supply, start and end time as well as max tokens per address
+/// @notice Can sell ERC1155 tokens through a public sale with a limited avaible supply, start and end time as well as max tokens per address
 contract StartonERC1155Sale {
     using SafeMath for uint256;
 
