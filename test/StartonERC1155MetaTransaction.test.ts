@@ -46,30 +46,23 @@ describe("StartonERC1155MetaTransaction", () => {
     });
 
     it("Should owner have default roles", async () => {
+      const pauserRole = await instanceERC1155.PAUSER_ROLE();
+      const minterRole = await instanceERC1155.MINTER_ROLE();
+      const metadataRole = await instanceERC1155.METADATA_ROLE();
+      const lockerRole = await instanceERC1155.LOCKER_ROLE();
+
+      expect(await instanceERC1155.hasRole(pauserRole, owner.address)).to.equal(
+        true
+      );
+      expect(await instanceERC1155.hasRole(minterRole, owner.address)).to.equal(
+        true
+      );
       expect(
-        await instanceERC1155.hasRole(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("PAUSER_ROLE")),
-          owner.address
-        )
+        await instanceERC1155.hasRole(metadataRole, owner.address)
       ).to.equal(true);
-      expect(
-        await instanceERC1155.hasRole(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MINTER_ROLE")),
-          owner.address
-        )
-      ).to.equal(true);
-      expect(
-        await instanceERC1155.hasRole(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("METADATA_ROLE")),
-          owner.address
-        )
-      ).to.equal(true);
-      expect(
-        await instanceERC1155.hasRole(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")),
-          owner.address
-        )
-      ).to.equal(true);
+      expect(await instanceERC1155.hasRole(lockerRole, owner.address)).to.equal(
+        true
+      );
     });
 
     it("Should set correctly the contractUri", async () => {
