@@ -69,7 +69,10 @@ contract StartonERC721AuctionSale is Ownable {
     function bid() public payable {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
-        require(currentPrice.add(minPriceDifference) <= msg.value, "Bid is too low");
+        require(
+            currentPrice.add(minPriceDifference) <= msg.value,
+            "Bid is too low"
+        );
 
         // Store the old auction winner and price
         address oldAuctionWinner = currentAuctionWinner;
