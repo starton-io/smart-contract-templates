@@ -20,6 +20,8 @@ describe("StartonERC721Sale", () => {
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
   let addrs: SignerWithAddress[];
+
+  // The current date of the test that will be used to mine blocks
   let now: Date;
 
   before(async () => {
@@ -35,10 +37,10 @@ describe("StartonERC721Sale", () => {
     await ethers.provider.send("hardhat_reset", []);
 
     instanceERC721 = (await ERC721.deploy(
-      "testContract",
-      "TC",
-      "rnd1",
-      "rnd2",
+      "StartonToken",
+      "ST",
+      "https://ipfs.io/",
+      "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
     )) as StartonERC721MetaTransaction;
     await instanceERC721.deployed();
@@ -98,9 +100,13 @@ describe("StartonERC721Sale", () => {
       ]);
 
       await expect(
-        instanceSale.mint(addr1.address, "wow", {
-          value: BigNumber.from("1000"),
-        })
+        instanceSale.mint(
+          addr1.address,
+          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+          {
+            value: BigNumber.from("1000"),
+          }
+        )
       ).to.be.revertedWith("Minting not started");
     });
 
@@ -110,9 +116,13 @@ describe("StartonERC721Sale", () => {
       ]);
 
       await expect(
-        instanceSale.mint(addr1.address, "wow", {
-          value: BigNumber.from("1000"),
-        })
+        instanceSale.mint(
+          addr1.address,
+          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+          {
+            value: BigNumber.from("1000"),
+          }
+        )
       ).to.be.revertedWith("Minting finished");
     });
 
@@ -120,77 +130,133 @@ describe("StartonERC721Sale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
-        instanceSale.mint(addr1.address, "wow", {
-          value: BigNumber.from("999"),
-        })
+        instanceSale.mint(
+          addr1.address,
+          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+          {
+            value: BigNumber.from("999"),
+          }
+        )
       ).to.be.revertedWith("Insufficient funds");
     });
 
     it("Shouldn't mint more than allowed per wallet", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await expect(
-        instanceSale.mint(addr1.address, "wow", {
+      await instanceSale.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+        {
           value: BigNumber.from("1000"),
-        })
+        }
+      );
+      await instanceSale.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+        {
+          value: BigNumber.from("1000"),
+        }
+      );
+      await instanceSale.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+        {
+          value: BigNumber.from("1000"),
+        }
+      );
+      await expect(
+        instanceSale.mint(
+          addr1.address,
+          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+          {
+            value: BigNumber.from("1000"),
+          }
+        )
       ).to.be.revertedWith("Max tokens reached");
     });
 
     it("Shouldn't mint more than total supply", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr1).mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr1).mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr1).mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr2).mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr2).mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr2).mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addrs[3]).mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
-      await expect(
-        instanceSale.connect(addrs[3]).mint(addr1.address, "wow", {
+      await instanceSale.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+        {
           value: BigNumber.from("1000"),
-        })
+        }
+      );
+      await instanceSale.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+        {
+          value: BigNumber.from("1000"),
+        }
+      );
+      await instanceSale.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+        {
+          value: BigNumber.from("1000"),
+        }
+      );
+      await instanceSale
+        .connect(addr1)
+        .mint(addr1.address, "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1", {
+          value: BigNumber.from("1000"),
+        });
+      await instanceSale
+        .connect(addr1)
+        .mint(addr1.address, "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1", {
+          value: BigNumber.from("1000"),
+        });
+      await instanceSale
+        .connect(addr1)
+        .mint(addr1.address, "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1", {
+          value: BigNumber.from("1000"),
+        });
+      await instanceSale
+        .connect(addr2)
+        .mint(addr1.address, "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1", {
+          value: BigNumber.from("1000"),
+        });
+      await instanceSale
+        .connect(addr2)
+        .mint(addr1.address, "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1", {
+          value: BigNumber.from("1000"),
+        });
+      await instanceSale
+        .connect(addr2)
+        .mint(addr1.address, "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1", {
+          value: BigNumber.from("1000"),
+        });
+      await instanceSale
+        .connect(addrs[3])
+        .mint(addr1.address, "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1", {
+          value: BigNumber.from("1000"),
+        });
+      await expect(
+        instanceSale
+          .connect(addrs[3])
+          .mint(
+            addr1.address,
+            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+            {
+              value: BigNumber.from("1000"),
+            }
+          )
       ).to.be.revertedWith("Max supply reached");
     });
 
     it("Should mint with a correct time and correct value", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
+      await instanceSale.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+        {
+          value: BigNumber.from("1000"),
+        }
+      );
 
       expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(1);
 
@@ -198,9 +264,13 @@ describe("StartonERC721Sale", () => {
         now.valueOf() + 1000 * 60 * 60 * 24 * 7,
       ]);
 
-      await instanceSale.mint(addr1.address, "wow", {
-        value: BigNumber.from("1000"),
-      });
+      await instanceSale.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+        {
+          value: BigNumber.from("1000"),
+        }
+      );
 
       expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(2);
     });
@@ -216,7 +286,11 @@ describe("StartonERC721Sale", () => {
         instanceSale.mintBatch(
           addr1.address,
           3,
-          ["wow", "ijbib", "iubibubiu"],
+          [
+            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
+            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
+          ],
           {
             value: BigNumber.from("3000"),
           }
@@ -233,7 +307,11 @@ describe("StartonERC721Sale", () => {
         instanceSale.mintBatch(
           addr1.address,
           3,
-          ["wow", "ijbib", "iubibubiu"],
+          [
+            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
+            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
+          ],
           {
             value: BigNumber.from("3000"),
           }
@@ -248,7 +326,11 @@ describe("StartonERC721Sale", () => {
         instanceSale.mintBatch(
           addr1.address,
           3,
-          ["wow", "ijbib", "iubibubiu"],
+          [
+            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
+            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
+          ],
           {
             value: BigNumber.from("2999"),
           }
@@ -263,7 +345,12 @@ describe("StartonERC721Sale", () => {
         instanceSale.mintBatch(
           addr1.address,
           4,
-          ["wow", "ijbib", "iubibubiu", "ibuvib"],
+          [
+            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
+            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
+            "QmeSjSinHpPnmXmspMjwiXyN6zS4E18bcariGR3jxcaWtQ",
+          ],
           {
             value: BigNumber.from("4000"),
           }
@@ -274,26 +361,67 @@ describe("StartonERC721Sale", () => {
     it("Shouldn't batch mint more than total supply", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      instanceSale.mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
-        value: BigNumber.from("3000"),
-      });
+      instanceSale.mintBatch(
+        addr1.address,
+        3,
+        [
+          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+          "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
+          "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
+        ],
+        {
+          value: BigNumber.from("3000"),
+        }
+      );
       instanceSale
         .connect(addr1)
-        .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
-          value: BigNumber.from("3000"),
-        });
+        .mintBatch(
+          addr1.address,
+          3,
+          [
+            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
+            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
+          ],
+          {
+            value: BigNumber.from("3000"),
+          }
+        );
       instanceSale
         .connect(addr2)
-        .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
-          value: BigNumber.from("3000"),
-        });
-      instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, ["wow"], {
-        value: BigNumber.from("3000"),
-      });
+        .mintBatch(
+          addr1.address,
+          3,
+          [
+            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
+            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
+          ],
+          {
+            value: BigNumber.from("3000"),
+          }
+        );
+      instanceSale
+        .connect(addrs[3])
+        .mintBatch(
+          addr1.address,
+          1,
+          ["QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"],
+          {
+            value: BigNumber.from("3000"),
+          }
+        );
       await expect(
-        instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, ["wow"], {
-          value: BigNumber.from("3000"),
-        })
+        instanceSale
+          .connect(addrs[3])
+          .mintBatch(
+            addr1.address,
+            1,
+            ["QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"],
+            {
+              value: BigNumber.from("3000"),
+            }
+          )
       ).to.be.revertedWith("Max supply reached");
     });
 
@@ -303,7 +431,11 @@ describe("StartonERC721Sale", () => {
       await instanceSale.mintBatch(
         addr1.address,
         3,
-        ["wow", "ijbib", "iubibubiu"],
+        [
+          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
+          "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
+          "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
+        ],
         {
           value: BigNumber.from("3000"),
         }
@@ -319,13 +451,17 @@ describe("StartonERC721Sale", () => {
 
       const ownerBalance = await owner.getBalance();
 
-      await instanceSale.connect(addr1).mint(addr1.address, "wow", {
-        value: ethers.utils.parseEther("0.26"),
-      });
+      await instanceSale
+        .connect(addr1)
+        .mint(addr1.address, "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1", {
+          value: ethers.utils.parseEther("0.26"),
+        });
 
-      await instanceSale.connect(addr1).mint(addr1.address, "wow", {
-        value: ethers.utils.parseEther("0.4"),
-      });
+      await instanceSale
+        .connect(addr1)
+        .mint(addr1.address, "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1", {
+          value: ethers.utils.parseEther("0.4"),
+        });
 
       await instanceSale.connect(addr1).withdraw();
       expect(await owner.getBalance()).to.be.equal(

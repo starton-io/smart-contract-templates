@@ -19,6 +19,8 @@ describe("StartonERC721AuctionSale", () => {
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
+
+  // The current date of the test that will be used to mine blocks
   let now: Date;
 
   before(async () => {
@@ -34,10 +36,10 @@ describe("StartonERC721AuctionSale", () => {
     await ethers.provider.send("hardhat_reset", []);
 
     instanceERC721 = (await ERC721.deploy(
-      "testContract",
-      "TC",
-      "rnd1",
-      "rnd2",
+      "StartonToken",
+      "ST",
+      "https://ipfs.io/",
+      "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
     )) as StartonERC721MetaTransaction;
     await instanceERC721.deployed();
@@ -175,7 +177,10 @@ describe("StartonERC721AuctionSale", () => {
         now.valueOf() + 1000 * 60 * 60 * 24 * 7,
       ]);
       await expect(
-        instanceSale.mint(addr2.address, "gvygvy")
+        instanceSale.mint(
+          addr2.address,
+          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+        )
       ).to.be.revertedWith("Minting hasn't finished yet");
     });
 
@@ -190,7 +195,10 @@ describe("StartonERC721AuctionSale", () => {
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
       await expect(
-        instanceSale.mint(addr1.address, "gvygvy")
+        instanceSale.mint(
+          addr1.address,
+          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+        )
       ).to.be.revertedWith(
         "Destination address isn't the current auction winner"
       );
@@ -206,9 +214,15 @@ describe("StartonERC721AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, "gvygvy");
+      await instanceSale.mint(
+        addr2.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
       await expect(
-        instanceSale.mint(addr2.address, "gvygvy")
+        instanceSale.mint(
+          addr2.address,
+          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+        )
       ).to.be.revertedWith("Token has already been claimed");
     });
 
@@ -222,7 +236,10 @@ describe("StartonERC721AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, "gvygvy");
+      await instanceSale.mint(
+        addr2.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
       expect(await instanceERC721.ownerOf(0)).to.be.equal(addr2.address);
     });
   });
@@ -244,7 +261,10 @@ describe("StartonERC721AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, "gvygvy");
+      await instanceSale.mint(
+        addr2.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
 
       const oldBalance = await owner.getBalance();
       await instanceSale.connect(addr1).withdraw();
@@ -277,7 +297,10 @@ describe("StartonERC721AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, "gvygvy");
+      await instanceSale.mint(
+        addr2.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
 
       await instanceSale.startNewAuction(
         BigNumber.from("10000"),

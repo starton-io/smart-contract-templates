@@ -26,9 +26,9 @@ describe("StartonERC1155MetaTransaction", () => {
 
   beforeEach(async () => {
     instanceERC1155 = (await ERC1155.deploy(
-      "testContract",
-      "rnd",
-      "rnd2",
+      "StartonToken",
+      "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}",
+      "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
     )) as StartonERC1155MetaTransaction;
     await instanceERC1155.deployed();
@@ -73,11 +73,15 @@ describe("StartonERC1155MetaTransaction", () => {
     });
 
     it("Should set correctly the contractUri", async () => {
-      expect(await instanceERC1155.contractURI()).to.equal("rnd2");
+      expect(await instanceERC1155.contractURI()).to.equal(
+        "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR"
+      );
     });
 
     it("Should set correctly the uri", async () => {
-      expect(await instanceERC1155.uri(0)).to.equal("rnd");
+      expect(await instanceERC1155.uri(0)).to.equal(
+        "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}"
+      );
     });
 
     it("Should not be paused", async () => {
@@ -87,13 +91,21 @@ describe("StartonERC1155MetaTransaction", () => {
 
   describe("URI", () => {
     it("Should set correctly the contractUri", async () => {
-      await instanceERC1155.setContractURI("comeon");
-      expect(await instanceERC1155.contractURI()).to.equal("comeon");
+      await instanceERC1155.setContractURI(
+        "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+      );
+      expect(await instanceERC1155.contractURI()).to.equal(
+        "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+      );
     });
 
     it("Should set correctly the uri", async () => {
-      await instanceERC1155.setTokenURI("comeon");
-      expect(await instanceERC1155.uri(0)).to.equal("comeon");
+      await instanceERC1155.setTokenURI(
+        "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3pV4v4Ghgc4/{id}"
+      );
+      expect(await instanceERC1155.uri(0)).to.equal(
+        "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3pV4v4Ghgc4/{id}"
+      );
     });
   });
 
@@ -546,18 +558,36 @@ describe("StartonERC1155MetaTransaction", () => {
     });
 
     it("Shouldn't let anyone without the metadata role to be able to set metadata", async () => {
-      await expect(instanceERC1155.connect(addr1).setTokenURI("wow")).to.be
-        .reverted;
-      await expect(instanceERC1155.connect(addr1).setContractURI("wow")).to.be
-        .reverted;
+      await expect(
+        instanceERC1155
+          .connect(addr1)
+          .setTokenURI(
+            "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3pV4v4Ghgc4/{id}"
+          )
+      ).to.be.reverted;
+      await expect(
+        instanceERC1155
+          .connect(addr1)
+          .setContractURI(
+            "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+          )
+      ).to.be.reverted;
     });
 
     it("Should let anyone with the metadata role to be able to set metadata", async () => {
       const metadataRole = await instanceERC1155.METADATA_ROLE();
       await instanceERC1155.grantRole(metadataRole, addr1.address);
 
-      await instanceERC1155.connect(addr1).setTokenURI("wow");
-      await instanceERC1155.connect(addr1).setContractURI("wow");
+      await instanceERC1155
+        .connect(addr1)
+        .setTokenURI(
+          "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3pV4v4Ghgc4/{id}"
+        );
+      await instanceERC1155
+        .connect(addr1)
+        .setContractURI(
+          "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+        );
     });
 
     it("Shouldn't let anyone without the blacklister role to be able to blacklist", async () => {

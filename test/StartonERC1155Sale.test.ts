@@ -20,6 +20,8 @@ describe("StartonERC1155Sale", () => {
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
   let addrs: SignerWithAddress[];
+
+  // The current date of the test that will be used to mine blocks
   let now: Date;
 
   before(async () => {
@@ -35,9 +37,9 @@ describe("StartonERC1155Sale", () => {
     await ethers.provider.send("hardhat_reset", []);
 
     instanceERC1155 = (await ERC1155.deploy(
-      "testContract",
-      "rnd1",
-      "rnd2",
+      "StartonToken",
+      "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}",
+      "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
     )) as StartonERC1155MetaTransaction;
     await instanceERC1155.deployed();
