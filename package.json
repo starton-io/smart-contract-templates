@@ -9,6 +9,8 @@
     "clean": "hardhat clean",
     "coverage": "hardhat coverage",
     "flatten": "ts-node scripts/flatten-contracts-folder.ts",
+    "lint": "yarn prettier ; yarn eslint ; yarn solhint",
+    "lint:fix": "yarn prettier:fix ; yarn eslint:fix ; yarn solhint:fix",
     "prettier": "prettier '**/*.{json,sol,md}' --check",
     "prettier:fix": "prettier '**/*.{json,sol,md}' --write",
     "solhint": "solhint 'contracts/**/*.sol'",
