@@ -1,12 +1,12 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ethers } from "hardhat";
 import { expect } from "chai";
+import { BigNumber } from "ethers";
 
 import {
   StartonERC20MetaTransaction,
   StartonERC20MetaTransaction__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
-import { BigNumber } from "ethers";
 
 let ERC20: StartonERC20MetaTransaction__factory; // eslint-disable-line camelcase
 

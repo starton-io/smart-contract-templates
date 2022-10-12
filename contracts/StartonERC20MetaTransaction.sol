@@ -32,6 +32,9 @@ contract StartonERC20MetaTransaction is
 
         // Mint initialSupply to initialOwnerOrMultiSigContract
         _mint(initialOwnerOrMultiSigContract, initialSupply);
+
+        // Intialize the EIP712 so we can perform metatransactions
+        _initializeEIP712(definitiveName);
     }
 
     /**
