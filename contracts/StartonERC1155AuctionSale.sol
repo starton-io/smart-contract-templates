@@ -47,14 +47,9 @@ contract StartonERC1155AuctionSale is Ownable {
             initialStartTime < initialEndTime,
             "Start time must be before end time"
         );
-        // Check if the address of the feeReceiver is correct
-        require(
-            definitiveFeeReceiver != address(0),
-            "Fee receiver address is not valid"
-        );
-        _feeReceiver = definitiveFeeReceiver;
 
         token = IStartonERC1155(definitiveTokenAddress);
+        _feeReceiver = definitiveFeeReceiver;
         currentPrice = initialStartingPrice;
         minPriceDifference = initialMinPriceDifference;
         startTime = initialStartTime;

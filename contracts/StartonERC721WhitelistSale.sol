@@ -38,14 +38,8 @@ contract StartonERC721WhitelistSale {
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
-        // Check if the address of the feeReceiver correct
-        require(
-            definitiveFeeReceiver != address(0),
-            "Fee receiver address is not valid"
-        );
-        _feeReceiver = definitiveFeeReceiver;
-
         token = IStartonERC721(definitiveTokenAddress);
+        _feeReceiver = definitiveFeeReceiver;
         _merkleRoot = definitiveMerkleRoot;
         price = definitivePrice;
         startTime = definitiveStartTime;
