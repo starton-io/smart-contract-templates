@@ -76,7 +76,7 @@ describe("StartonERC20MetaTransaction", () => {
     it("Should return 0", async () => {
       expect(
         await instanceERC20.allowance(owner.address, addr1.address)
-      ).to.equal(BigNumber.from("0"));
+      ).to.equal(0);
     });
 
     it("Should increase allowance", async () => {
@@ -123,9 +123,7 @@ describe("StartonERC20MetaTransaction", () => {
         addr2.address,
         BigNumber.from("1000000000000000000000000000")
       );
-      expect(await instanceERC20.balanceOf(owner.address)).to.equal(
-        BigNumber.from("0")
-      );
+      expect(await instanceERC20.balanceOf(owner.address)).to.equal(0);
       expect(await instanceERC20.balanceOf(addr2.address)).to.equal(
         BigNumber.from("1000000000000000000000000000")
       );
@@ -143,9 +141,7 @@ describe("StartonERC20MetaTransaction", () => {
           addr2.address,
           BigNumber.from("1000000000000000000000000000")
         );
-      expect(await instanceERC20.balanceOf(owner.address)).to.equal(
-        BigNumber.from("0")
-      );
+      expect(await instanceERC20.balanceOf(owner.address)).to.equal(0);
       expect(await instanceERC20.balanceOf(addr2.address)).to.equal(
         BigNumber.from("1000000000000000000000000000")
       );
