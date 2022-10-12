@@ -567,14 +567,14 @@ contract StartonERC721AuctionSale is Ownable {
         uint256 initialStartTime,
         uint256 initialEndTime
     ) {
-        // Check if the address of the feeReceiver is correct
+        // Check if the end time is after the starting time
         require(
-            definitiveFeeReceiver != address(0),
-            "Fee receiver address is not valid"
+            initialStartTime < initialEndTime,
+            "Start time must be before end time"
         );
-        _feeReceiver = definitiveFeeReceiver;
 
         token = IStartonERC721(definitiveTokenAddress);
+        _feeReceiver = definitiveFeeReceiver;
         currentPrice = initialStartingPrice;
         minPriceDifference = initialMinPriceDifference;
         startTime = initialStartTime;
@@ -644,6 +644,10 @@ contract StartonERC721AuctionSale is Ownable {
         uint256 newEndTime
     ) public onlyOwner {
         require(_claimed, "The auction hasn't been claimed yet");
+        require(
+            newStartTime < newEndTime,
+            "Start time must be before end time"
+        );
 
         // Reset the state variables for a new auction to begin
         _claimed = false;

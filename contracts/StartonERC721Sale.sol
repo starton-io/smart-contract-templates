@@ -60,10 +60,7 @@ contract StartonERC721Sale {
      * @param to The address to mint the token to
      * @param tokenURIs The token metadata URI array
      */
-    function mintBatch(
-        address to,
-        string[] memory tokenURIs
-    ) public payable {
+    function mintBatch(address to, string[] memory tokenURIs) public payable {
         uint256 _amount = tokenURIs.length;
 
         require(msg.value >= price.mul(_amount), "Insufficient funds");

@@ -673,14 +673,8 @@ contract StartonERC1155WhitelistSale {
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
-        // Check if the address of the feeReceiver is correct
-        require(
-            definitiveFeeReceiver != address(0),
-            "Fee receiver address is not valid"
-        );
-        _feeReceiver = definitiveFeeReceiver;
-
         token = IStartonERC1155(definitiveTokenAddress);
+        _feeReceiver = definitiveFeeReceiver;
         _merkleRoot = definitiveMerkleRoot;
         price = definitivePrice;
         startTime = definitiveStartTime;

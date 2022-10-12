@@ -667,14 +667,8 @@ contract StartonERC721WhitelistSale {
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
-        // Check if the address of the feeReceiver correct
-        require(
-            definitiveFeeReceiver != address(0),
-            "Fee receiver address is not valid"
-        );
-        _feeReceiver = definitiveFeeReceiver;
-
         token = IStartonERC721(definitiveTokenAddress);
+        _feeReceiver = definitiveFeeReceiver;
         _merkleRoot = definitiveMerkleRoot;
         price = definitivePrice;
         startTime = definitiveStartTime;
@@ -715,7 +709,6 @@ contract StartonERC721WhitelistSale {
      */
     function mintBatch(
         address to,
-        uint256 amount,
         string[] memory tokenURIs,
         bytes32[] calldata merkleProof
     ) public payable {
@@ -724,12 +717,13 @@ contract StartonERC721WhitelistSale {
             MerkleProof.verify(merkleProof, _merkleRoot, leaf),
             "Invalid proof"
         );
+        uint256 _amount = tokenURIs.length;
 
-        require(msg.value >= price.mul(amount), "Insufficient funds");
+        require(msg.value >= price.mul(_amount), "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
-        for (uint256 i = 0; i < amount; ++i) {
+        for (uint256 i = 0; i < _amount; ++i) {
             _mint(to, tokenURIs[i]);
         }
     }
