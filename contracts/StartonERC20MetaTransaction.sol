@@ -19,7 +19,6 @@ contract StartonERC20MetaTransaction is
     NativeMetaTransaction
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     constructor(
         string memory definitiveName,
@@ -30,7 +29,6 @@ contract StartonERC20MetaTransaction is
         // Set all default roles for initialOwnerOrMultiSigContract
         _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
-        _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
 
         // Mint initialSupply to initialOwnerOrMultiSigContract
         _mint(initialOwnerOrMultiSigContract, initialSupply);
