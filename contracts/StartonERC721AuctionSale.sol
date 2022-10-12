@@ -42,6 +42,11 @@ contract StartonERC721AuctionSale is Ownable {
         uint256 initialStartTime,
         uint256 initialEndTime
     ) {
+        // Check if the end time is after the starting time
+        require(
+            initialStartTime < initialEndTime,
+            "Start time must be before end time"
+        );
         // Check if the address of the feeReceiver is correct
         require(
             definitiveFeeReceiver != address(0),
@@ -119,6 +124,10 @@ contract StartonERC721AuctionSale is Ownable {
         uint256 newEndTime
     ) public onlyOwner {
         require(_claimed, "The auction hasn't been claimed yet");
+        require(
+            newStartTime < newEndTime,
+            "Start time must be before end time"
+        );
 
         // Reset the state variables for a new auction to begin
         _claimed = false;

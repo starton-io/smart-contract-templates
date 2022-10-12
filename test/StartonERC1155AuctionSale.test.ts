@@ -264,6 +264,28 @@ describe("StartonERC1155AuctionSale", () => {
       ).to.be.revertedWith("The auction hasn't been claimed yet");
     });
 
+    it("Shouldn't start a new auction if the end time is before the start time", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
+
+      await instanceSale
+        .connect(addr2)
+        .bid({ value: ethers.utils.parseEther("0.11") });
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [
+        now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
+      ]);
+      await instanceSale.mint(addr2.address, 10, 1);
+
+      await expect(
+        instanceSale.startNewAuction(
+          BigNumber.from("1000"),
+          BigNumber.from("100"),
+          now.valueOf(),
+          now.valueOf() - 10
+        )
+      ).to.be.revertedWith("Start time must be before end time");
+    });
+
     it("Should start a new auction if everything is correct", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
