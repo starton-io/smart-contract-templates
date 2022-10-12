@@ -547,6 +547,9 @@ contract StartonERC721AuctionSale is Ownable {
     uint256 public startTime;
     uint256 public endTime;
 
+    // Information of the token to be sold
+    string public tokenURI;
+
     // If the token as been claimed or not yet
     bool private _claimed;
 
@@ -565,7 +568,8 @@ contract StartonERC721AuctionSale is Ownable {
         uint256 initialStartingPrice,
         uint256 initialMinPriceDifference,
         uint256 initialStartTime,
-        uint256 initialEndTime
+        uint256 initialEndTime,
+        string memory initialTokenURI
     ) {
         // Check if the end time is after the starting time
         require(
@@ -579,6 +583,7 @@ contract StartonERC721AuctionSale is Ownable {
         minPriceDifference = initialMinPriceDifference;
         startTime = initialStartTime;
         endTime = initialEndTime;
+        tokenURI = initialTokenURI;
 
         // Set inititial states of the auction to no winner and not claimed
         currentAuctionWinner = address(0);
@@ -616,9 +621,8 @@ contract StartonERC721AuctionSale is Ownable {
     /**
      * @notice Claim the prize of the current auction
      * @param to The address to send the prize to
-     * @param tokenURI The tokenURI of the token to be sent
      */
-    function mint(address to, string memory tokenURI) public {
+    function mint(address to) public {
         require(
             to == currentAuctionWinner,
             "Destination address isn't the current auction winner"
@@ -636,12 +640,14 @@ contract StartonERC721AuctionSale is Ownable {
      * @param newStartingPrice the starting price of the new auction
      * @param newStartTime the time when the auction starts
      * @param newEndTime the time when the auction ends
+     * @param newTokenURI the token URI of the new NFT
      */
     function startNewAuction(
         uint256 newStartingPrice,
         uint256 newMinPriceDifference,
         uint256 newStartTime,
-        uint256 newEndTime
+        uint256 newEndTime,
+        string memory newTokenURI
     ) public onlyOwner {
         require(_claimed, "The auction hasn't been claimed yet");
         require(
@@ -656,6 +662,7 @@ contract StartonERC721AuctionSale is Ownable {
         currentAuctionWinner = address(0);
         startTime = newStartTime;
         endTime = newEndTime;
+        tokenURI = newTokenURI;
 
         emit AuctionStarted(startTime, endTime);
     }
