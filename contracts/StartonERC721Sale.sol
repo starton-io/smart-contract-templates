@@ -68,14 +68,15 @@ contract StartonERC721Sale {
      */
     function mintBatch(
         address to,
-        uint256 amount,
         string[] memory tokenURIs
     ) public payable {
-        require(msg.value >= price.mul(amount), "Insufficient funds");
+        uint256 _amount = tokenURIs.length;
+
+        require(msg.value >= price.mul(_amount), "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
-        for (uint256 i = 0; i < amount; ++i) {
+        for (uint256 i = 0; i < _amount; ++i) {
             _mint(to, tokenURIs[i]);
         }
     }

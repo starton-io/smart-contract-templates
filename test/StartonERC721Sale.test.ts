@@ -213,14 +213,9 @@ describe("StartonERC721Sale", () => {
       ]);
 
       await expect(
-        instanceSale.mintBatch(
-          addr1.address,
-          3,
-          ["wow", "ijbib", "iubibubiu"],
-          {
-            value: BigNumber.from("3000"),
-          }
-        )
+        instanceSale.mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Minting not started");
     });
 
@@ -230,14 +225,9 @@ describe("StartonERC721Sale", () => {
       ]);
 
       await expect(
-        instanceSale.mintBatch(
-          addr1.address,
-          3,
-          ["wow", "ijbib", "iubibubiu"],
-          {
-            value: BigNumber.from("3000"),
-          }
-        )
+        instanceSale.mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Minting finished");
     });
 
@@ -245,14 +235,9 @@ describe("StartonERC721Sale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
-        instanceSale.mintBatch(
-          addr1.address,
-          3,
-          ["wow", "ijbib", "iubibubiu"],
-          {
-            value: BigNumber.from("2999"),
-          }
-        )
+        instanceSale.mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], {
+          value: BigNumber.from("2999"),
+        })
       ).to.be.revertedWith("Insufficient funds");
     });
 
@@ -262,7 +247,6 @@ describe("StartonERC721Sale", () => {
       await expect(
         instanceSale.mintBatch(
           addr1.address,
-          4,
           ["wow", "ijbib", "iubibubiu", "ibuvib"],
           {
             value: BigNumber.from("4000"),
@@ -274,24 +258,24 @@ describe("StartonERC721Sale", () => {
     it("Shouldn't batch mint more than total supply", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      instanceSale.mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
+      instanceSale.mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], {
         value: BigNumber.from("3000"),
       });
       instanceSale
         .connect(addr1)
-        .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
+        .mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], {
           value: BigNumber.from("3000"),
         });
       instanceSale
         .connect(addr2)
-        .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], {
+        .mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], {
           value: BigNumber.from("3000"),
         });
-      instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, ["wow"], {
+      instanceSale.connect(addrs[3]).mintBatch(addr1.address, ["wow"], {
         value: BigNumber.from("3000"),
       });
       await expect(
-        instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, ["wow"], {
+        instanceSale.connect(addrs[3]).mintBatch(addr1.address, ["wow"], {
           value: BigNumber.from("3000"),
         })
       ).to.be.revertedWith("Max supply reached");
@@ -302,7 +286,6 @@ describe("StartonERC721Sale", () => {
 
       await instanceSale.mintBatch(
         addr1.address,
-        3,
         ["wow", "ijbib", "iubibubiu"],
         {
           value: BigNumber.from("3000"),

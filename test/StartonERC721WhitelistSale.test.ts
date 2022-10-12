@@ -271,7 +271,6 @@ describe("StartonERC721WhitelistSale", () => {
       await expect(
         instanceSale.mintBatch(
           addr1.address,
-          3,
           ["wow", "ijbib", "iubibubiu"],
           proof,
           {
@@ -291,7 +290,6 @@ describe("StartonERC721WhitelistSale", () => {
       await expect(
         instanceSale.mintBatch(
           addr1.address,
-          3,
           ["wow", "ijbib", "iubibubiu"],
           proof,
           {
@@ -309,7 +307,6 @@ describe("StartonERC721WhitelistSale", () => {
       await expect(
         instanceSale.mintBatch(
           addr1.address,
-          3,
           ["wow", "ijbib", "iubibubiu"],
           proof,
           {
@@ -327,7 +324,6 @@ describe("StartonERC721WhitelistSale", () => {
       await expect(
         instanceSale.mintBatch(
           addr1.address,
-          4,
           ["wow", "ijbib", "iubibubiu", "ibuvib"],
           proof,
           {
@@ -347,7 +343,6 @@ describe("StartonERC721WhitelistSale", () => {
 
       instanceSale.mintBatch(
         addr1.address,
-        3,
         ["wow", "ijbib", "iubibubiu"],
         proof,
         {
@@ -356,23 +351,21 @@ describe("StartonERC721WhitelistSale", () => {
       );
       instanceSale
         .connect(addr1)
-        .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], proof2, {
+        .mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], proof2, {
           value: BigNumber.from("3000"),
         });
       instanceSale
         .connect(addr2)
-        .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], proof3, {
+        .mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], proof3, {
           value: BigNumber.from("3000"),
         });
-      instanceSale
-        .connect(addrs[3])
-        .mintBatch(addr1.address, 1, ["wow"], proof4, {
-          value: BigNumber.from("3000"),
-        });
+      instanceSale.connect(addrs[3]).mintBatch(addr1.address, ["wow"], proof4, {
+        value: BigNumber.from("3000"),
+      });
       await expect(
         instanceSale
           .connect(addrs[3])
-          .mintBatch(addr1.address, 1, ["wow"], proof4, {
+          .mintBatch(addr1.address, ["wow"], proof4, {
             value: BigNumber.from("3000"),
           })
       ).to.be.revertedWith("Max supply reached");
@@ -386,7 +379,7 @@ describe("StartonERC721WhitelistSale", () => {
       await expect(
         instanceSale
           .connect(addrs[4])
-          .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], proof, {
+          .mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], proof, {
             value: BigNumber.from("3000"),
           })
       ).to.be.revertedWith("Invalid proof");
@@ -400,7 +393,7 @@ describe("StartonERC721WhitelistSale", () => {
       await expect(
         instanceSale
           .connect(addrs[4])
-          .mintBatch(addr1.address, 3, ["wow", "ijbib", "iubibubiu"], proof, {
+          .mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], proof, {
             value: BigNumber.from("3000"),
           })
       ).to.be.revertedWith("Invalid proof");
@@ -413,7 +406,6 @@ describe("StartonERC721WhitelistSale", () => {
 
       await instanceSale.mintBatch(
         addr1.address,
-        3,
         ["wow", "ijbib", "iubibubiu"],
         proof,
         {
