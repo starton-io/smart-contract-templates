@@ -89,6 +89,24 @@ contract StartonERC721CappedMetaTransaction is
     }
 
     /**
+     * @notice Mint a new token to the given address and set the token metadata while minting is not locked
+     * @param to The address that will receive the token
+     * @param uri The URI of the token metadata
+     * @custom:requires MINTER_ROLE
+     */
+    function mint(address to, string memory uri)
+        public
+        mintingNotLocked
+        onlyRole(MINTER_ROLE)
+    {
+        require(_tokenIdCounter.current() < maxSupply, "Max supply reached");
+
+        _safeMint(to, _tokenIdCounter.current());
+        _setTokenURI(_tokenIdCounter.current(), uri);
+        _tokenIdCounter.increment();
+    }
+
+    /**
      * @notice Set the URI of the contract if the metadata are not locked and the contract is not paused
      * @param newContractURI The new URI of the contract
      * @custom:requires METADATA_ROLE
@@ -114,23 +132,6 @@ contract StartonERC721CappedMetaTransaction is
         onlyRole(METADATA_ROLE)
     {
         _baseTokenURI = newBaseTokenURI;
-    }
-
-    /**
-     * @notice Mint a new token to the given address and set the token metadata while minting is not locked
-     * @param to The address that will receive the token
-     * @param uri The URI of the token metadata
-     * @custom:requires MINTER_ROLE
-     */
-    function mint(address to, string memory uri)
-        public
-        mintingNotLocked
-        onlyRole(MINTER_ROLE)
-    {
-        require(_tokenIdCounter.current() < maxSupply, "Max supply reached");
-        _safeMint(to, _tokenIdCounter.current());
-        _setTokenURI(_tokenIdCounter.current(), uri);
-        _tokenIdCounter.increment();
     }
 
     /**

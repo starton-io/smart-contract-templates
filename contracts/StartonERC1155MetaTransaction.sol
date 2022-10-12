@@ -73,6 +73,70 @@ contract StartonERC1155MetaTransaction is
         _initializeEIP712(definitiveName);
     }
 
+     /**
+     * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param id The id of the token to mint
+     * @param amount The amount of tokens to mint
+     * @param data Extra data if necessary
+     * @custom:requires MINTER_ROLE
+     */
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+        _mint(to, id, amount, data);
+    }
+
+    /**
+     * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param id The id of the token to mint
+     * @param amount The amount of tokens to mint
+     * @custom:requires MINTER_ROLE
+     */
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount
+    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+        _mint(to, id, amount, "");
+    }
+
+    /**
+     * @notice Batch mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param ids The ids of the token to mint
+     * @param amounts The amounts of tokens to mint
+     * @param data Extra data if necessary
+     * @custom:requires MINTER_ROLE
+     */
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+        _mintBatch(to, ids, amounts, data);
+    }
+
+    /**
+     * @notice Batch mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param ids The ids of the token to mint
+     * @param amounts The amounts of tokens to mint
+     * @custom:requires MINTER_ROLE
+     */
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+        _mintBatch(to, ids, amounts, "");
+    }
+
     /**
      * @notice Set the URI if the token if the metadata are not locked and the contract is not paused
      * @param newTokenURI The new URI of the token
@@ -135,70 +199,6 @@ contract StartonERC1155MetaTransaction is
     function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMetatadataChangingAllowed = false;
         emit MetadataLocked(_msgSender());
-    }
-
-    /**
-     * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
-     * @param to The address to mint the tokens to
-     * @param id The id of the token to mint
-     * @param amount The amount of tokens to mint
-     * @param data Extra data if necessary
-     * @custom:requires MINTER_ROLE
-     */
-    function mint(
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
-        _mint(to, id, amount, data);
-    }
-
-    /**
-     * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
-     * @param to The address to mint the tokens to
-     * @param id The id of the token to mint
-     * @param amount The amount of tokens to mint
-     * @custom:requires MINTER_ROLE
-     */
-    function mint(
-        address to,
-        uint256 id,
-        uint256 amount
-    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
-        _mint(to, id, amount, "");
-    }
-
-    /**
-     * @notice Batch mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
-     * @param to The address to mint the tokens to
-     * @param ids The ids of the token to mint
-     * @param amounts The amounts of tokens to mint
-     * @param data Extra data if necessary
-     * @custom:requires MINTER_ROLE
-     */
-    function mintBatch(
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
-        _mintBatch(to, ids, amounts, data);
-    }
-
-    /**
-     * @notice Batch mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
-     * @param to The address to mint the tokens to
-     * @param ids The ids of the token to mint
-     * @param amounts The amounts of tokens to mint
-     * @custom:requires MINTER_ROLE
-     */
-    function mintBatch(
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts
-    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
-        _mintBatch(to, ids, amounts, "");
     }
 
     /**
