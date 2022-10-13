@@ -4,6 +4,7 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721WhitelistSale
@@ -51,14 +52,9 @@ contract StartonERC721WhitelistSale {
     /**
      * @notice Mint a token to a given address for a price if the given address is whitelisted
      * @param to The address to mint the token to
-     * @param tokenURI The token metadata URI
      * @param merkleProof The merkle proof of the address in the whitelist
      */
-    function mint(
-        address to,
-        string memory tokenURI,
-        bytes32[] calldata merkleProof
-    ) public payable {
+    function mint(address to, bytes32[] calldata merkleProof) public payable {
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
         require(
             MerkleProof.verify(merkleProof, _merkleRoot, leaf),
@@ -69,18 +65,17 @@ contract StartonERC721WhitelistSale {
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
-        _mint(to, tokenURI);
+        _mint(to, Strings.toString(token.totalSupply()));
     }
 
     /**
      * @notice Mint multiple tokens to a given address for a price if the given address is whitelisted
      * @param to The address to mint the token to
-     * @param tokenURIs The token metadata URI array
      * @param merkleProof The merkle proof of the address in the whitelist
      */
     function mintBatch(
         address to,
-        string[] memory tokenURIs,
+        uint256 amount,
         bytes32[] calldata merkleProof
     ) public payable {
         bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
@@ -88,14 +83,13 @@ contract StartonERC721WhitelistSale {
             MerkleProof.verify(merkleProof, _merkleRoot, leaf),
             "Invalid proof"
         );
-        uint256 _amount = tokenURIs.length;
 
-        require(msg.value >= price.mul(_amount), "Insufficient funds");
+        require(msg.value >= price.mul(amount), "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
-        for (uint256 i = 0; i < _amount; ++i) {
-            _mint(to, tokenURIs[i]);
+        for (uint256 i = 0; i < amount; ++i) {
+            _mint(to, Strings.toString(token.totalSupply()));
         }
     }
 

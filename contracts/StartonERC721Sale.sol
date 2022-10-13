@@ -3,6 +3,7 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721Sale
@@ -45,30 +46,26 @@ contract StartonERC721Sale {
     /**
      * @notice Mint a token to a given address for a price
      * @param to The address to mint the token to
-     * @param tokenURI The token metadata URI
      */
-    function mint(address to, string memory tokenURI) public payable {
+    function mint(address to) public payable {
         require(msg.value >= price, "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
-        _mint(to, tokenURI);
+        _mint(to, Strings.toString(token.totalSupply()));
     }
 
     /**
      * @notice Mint multiple tokens to a given address for a price
      * @param to The address to mint the token to
-     * @param tokenURIs The token metadata URI array
      */
-    function mintBatch(address to, string[] memory tokenURIs) public payable {
-        uint256 _amount = tokenURIs.length;
-
-        require(msg.value >= price.mul(_amount), "Insufficient funds");
+    function mintBatch(address to, uint256 amount) public payable {
+        require(msg.value >= price.mul(amount), "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
-        for (uint256 i = 0; i < _amount; ++i) {
-            _mint(to, tokenURIs[i]);
+        for (uint256 i = 0; i < amount; ++i) {
+            _mint(to, Strings.toString(token.totalSupply()));
         }
     }
 

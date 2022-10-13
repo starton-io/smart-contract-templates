@@ -231,6 +231,84 @@ library SafeMath {
 }
 
 
+// File @openzeppelin/contracts/utils/Strings.sol@v4.7.1
+
+// OpenZeppelin Contracts (last updated v4.7.0) (utils/Strings.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev String operations.
+ */
+library Strings {
+    bytes16 private constant _HEX_SYMBOLS = "0123456789abcdef";
+    uint8 private constant _ADDRESS_LENGTH = 20;
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` decimal representation.
+     */
+    function toString(uint256 value) internal pure returns (string memory) {
+        // Inspired by OraclizeAPI's implementation - MIT licence
+        // https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
+
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
+    }
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
+     */
+    function toHexString(uint256 value) internal pure returns (string memory) {
+        if (value == 0) {
+            return "0x00";
+        }
+        uint256 temp = value;
+        uint256 length = 0;
+        while (temp != 0) {
+            length++;
+            temp >>= 8;
+        }
+        return toHexString(value, length);
+    }
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
+     */
+    function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
+        bytes memory buffer = new bytes(2 * length + 2);
+        buffer[0] = "0";
+        buffer[1] = "x";
+        for (uint256 i = 2 * length + 1; i > 1; --i) {
+            buffer[i] = _HEX_SYMBOLS[value & 0xf];
+            value >>= 4;
+        }
+        require(value == 0, "Strings: hex length insufficient");
+        return string(buffer);
+    }
+
+    /**
+     * @dev Converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal representation.
+     */
+    function toHexString(address addr) internal pure returns (string memory) {
+        return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);
+    }
+}
+
+
 // File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.7.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
@@ -403,12 +481,42 @@ interface IERC721 is IERC165 {
 }
 
 
+// File @openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol@v4.7.1
+
+// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC721/extensions/IERC721Enumerable.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @title ERC-721 Non-Fungible Token Standard, optional enumeration extension
+ * @dev See https://eips.ethereum.org/EIPS/eip-721
+ */
+interface IERC721Enumerable is IERC721 {
+    /**
+     * @dev Returns the total amount of tokens stored by the contract.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns a token ID owned by `owner` at a given `index` of its token list.
+     * Use along with {balanceOf} to enumerate all of ``owner``'s tokens.
+     */
+    function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256);
+
+    /**
+     * @dev Returns a token ID at a given `index` of all the tokens stored by the contract.
+     * Use along with {totalSupply} to enumerate all tokens.
+     */
+    function tokenByIndex(uint256 index) external view returns (uint256);
+}
+
+
 // File contracts/interfaces/IStartonERC721.sol
 
 
 pragma solidity 0.8.9;
 
-interface IStartonERC721 is IERC721 {
+interface IStartonERC721 is IERC721Enumerable {
     function mint(address to, string memory uri) external;
 }
 
@@ -417,6 +525,7 @@ interface IStartonERC721 is IERC721 {
 
 
 pragma solidity 0.8.9;
+
 
 
 /// @title StartonERC721Sale
@@ -459,30 +568,26 @@ contract StartonERC721Sale {
     /**
      * @notice Mint a token to a given address for a price
      * @param to The address to mint the token to
-     * @param tokenURI The token metadata URI
      */
-    function mint(address to, string memory tokenURI) public payable {
+    function mint(address to) public payable {
         require(msg.value >= price, "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
-        _mint(to, tokenURI);
+        _mint(to, Strings.toString(token.totalSupply()));
     }
 
     /**
      * @notice Mint multiple tokens to a given address for a price
      * @param to The address to mint the token to
-     * @param tokenURIs The token metadata URI array
      */
-    function mintBatch(address to, string[] memory tokenURIs) public payable {
-        uint256 _amount = tokenURIs.length;
-
-        require(msg.value >= price.mul(_amount), "Insufficient funds");
+    function mintBatch(address to, uint256 amount) public payable {
+        require(msg.value >= price.mul(amount), "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
-        for (uint256 i = 0; i < _amount; ++i) {
-            _mint(to, tokenURIs[i]);
+        for (uint256 i = 0; i < amount; ++i) {
+            _mint(to, Strings.toString(token.totalSupply()));
         }
     }
 

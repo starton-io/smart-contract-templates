@@ -2010,70 +2010,6 @@ contract StartonERC1155MetaTransaction is
     }
 
     /**
-     * @notice Set the URI if the token if the metadata are not locked and the contract is not paused
-     * @param newTokenURI The new URI of the token
-     * For ERC1155 there isn't any base uri so it's the whole uri with {id} in it
-     * example: ipfs://QmW77ZQQ7Jm9q8WuLbH8YZg2K7T9Qnjbzm7jYVQQrJY5Y/{id}
-     * @custom:requires METADATA_ROLE
-     */
-    function setTokenURI(string memory newTokenURI)
-        public
-        whenNotPaused
-        metadataNotLocked
-        onlyRole(METADATA_ROLE)
-    {
-        _setURI(newTokenURI);
-    }
-
-    /**
-     * @notice Set the URI of the contract if the metadata are not locked and the contract is not paused
-     * @param newContractURI The new URI of the contract
-     * @custom:requires METADATA_ROLE
-     */
-    function setContractURI(string memory newContractURI)
-        public
-        whenNotPaused
-        metadataNotLocked
-        onlyRole(METADATA_ROLE)
-    {
-        _contractURI = newContractURI;
-    }
-
-    /**
-     * @notice Pause the contract which stop any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function pause() public onlyRole(PAUSER_ROLE) {
-        _pause();
-    }
-
-    /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function unpause() public onlyRole(PAUSER_ROLE) {
-        _unpause();
-    }
-
-    /**
-     * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
-     * @custom:requires LOCKER_ROLE
-     */
-    function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
-        _isMintAllowed = false;
-        emit MintingLocked(_msgSender());
-    }
-
-    /**
-     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
-     * @custom:requires LOCKER_ROLE
-     */
-    function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
-        _isMetatadataChangingAllowed = false;
-        emit MetadataLocked(_msgSender());
-    }
-
-    /**
      * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
      * @param to The address to mint the tokens to
      * @param id The id of the token to mint
@@ -2135,6 +2071,70 @@ contract StartonERC1155MetaTransaction is
         uint256[] memory amounts
     ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
         _mintBatch(to, ids, amounts, "");
+    }
+
+    /**
+     * @notice Set the URI if the token if the metadata are not locked and the contract is not paused
+     * @param newTokenURI The new URI of the token
+     * For ERC1155 there isn't any base uri so it's the whole uri with {id} in it
+     * example: ipfs://QmW77ZQQ7Jm9q8WuLbH8YZg2K7T9Qnjbzm7jYVQQrJY5Y/{id}
+     * @custom:requires METADATA_ROLE
+     */
+    function setTokenURI(string memory newTokenURI)
+        public
+        whenNotPaused
+        metadataNotLocked
+        onlyRole(METADATA_ROLE)
+    {
+        _setURI(newTokenURI);
+    }
+
+    /**
+     * @notice Set the URI of the contract if the metadata are not locked and the contract is not paused
+     * @param newContractURI The new URI of the contract
+     * @custom:requires METADATA_ROLE
+     */
+    function setContractURI(string memory newContractURI)
+        public
+        whenNotPaused
+        metadataNotLocked
+        onlyRole(METADATA_ROLE)
+    {
+        _contractURI = newContractURI;
+    }
+
+    /**
+     * @notice Pause the contract which stop any changes regarding the ERC721 and minting
+     * @custom:requires PAUSER_ROLE
+     */
+    function pause() public onlyRole(PAUSER_ROLE) {
+        _pause();
+    }
+
+    /**
+     * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
+     * @custom:requires PAUSER_ROLE
+     */
+    function unpause() public onlyRole(PAUSER_ROLE) {
+        _unpause();
+    }
+
+    /**
+     * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
+     */
+    function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
+        _isMintAllowed = false;
+        emit MintingLocked(_msgSender());
+    }
+
+    /**
+     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
+     */
+    function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
+        _isMetatadataChangingAllowed = false;
+        emit MetadataLocked(_msgSender());
     }
 
     /**

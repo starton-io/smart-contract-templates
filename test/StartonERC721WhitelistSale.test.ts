@@ -115,7 +115,7 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mint(addr1.address, "wow", proof, {
+        instanceSale.mint(addr1.address, proof, {
           value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Minting not started");
@@ -129,7 +129,7 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mint(addr1.address, "wow", proof, {
+        instanceSale.mint(addr1.address, proof, {
           value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Minting finished");
@@ -141,7 +141,7 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mint(addr1.address, "wow", proof, {
+        instanceSale.mint(addr1.address, proof, {
           value: BigNumber.from("999"),
         })
       ).to.be.revertedWith("Insufficient funds");
@@ -152,17 +152,17 @@ describe("StartonERC721WhitelistSale", () => {
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
-      await instanceSale.mint(addr1.address, "wow", proof, {
+      await instanceSale.mint(addr1.address, proof, {
         value: BigNumber.from("1000"),
       });
-      await instanceSale.mint(addr1.address, "wow", proof, {
+      await instanceSale.mint(addr1.address, proof, {
         value: BigNumber.from("1000"),
       });
-      await instanceSale.mint(addr1.address, "wow", proof, {
+      await instanceSale.mint(addr1.address, proof, {
         value: BigNumber.from("1000"),
       });
       await expect(
-        instanceSale.mint(addr1.address, "wow", proof, {
+        instanceSale.mint(addr1.address, proof, {
           value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Max tokens reached");
@@ -176,38 +176,38 @@ describe("StartonERC721WhitelistSale", () => {
       const proof3 = merkleTree.getHexProof(keccak256(addr2.address));
       const proof4 = merkleTree.getHexProof(keccak256(addrs[3].address));
 
-      await instanceSale.mint(addr1.address, "wow", proof, {
+      await instanceSale.mint(addr1.address, proof, {
         value: BigNumber.from("1000"),
       });
-      await instanceSale.mint(addr1.address, "wow", proof, {
+      await instanceSale.mint(addr1.address, proof, {
         value: BigNumber.from("1000"),
       });
-      await instanceSale.mint(addr1.address, "wow", proof, {
+      await instanceSale.mint(addr1.address, proof, {
         value: BigNumber.from("1000"),
       });
-      await instanceSale.connect(addr1).mint(addr1.address, "wow", proof2, {
+      await instanceSale.connect(addr1).mint(addr1.address, proof2, {
         value: BigNumber.from("1000"),
       });
-      await instanceSale.connect(addr1).mint(addr1.address, "wow", proof2, {
+      await instanceSale.connect(addr1).mint(addr1.address, proof2, {
         value: BigNumber.from("1000"),
       });
-      await instanceSale.connect(addr1).mint(addr1.address, "wow", proof2, {
+      await instanceSale.connect(addr1).mint(addr1.address, proof2, {
         value: BigNumber.from("1000"),
       });
-      await instanceSale.connect(addr2).mint(addr1.address, "wow", proof3, {
+      await instanceSale.connect(addr2).mint(addr1.address, proof3, {
         value: BigNumber.from("1000"),
       });
-      await instanceSale.connect(addr2).mint(addr1.address, "wow", proof3, {
+      await instanceSale.connect(addr2).mint(addr1.address, proof3, {
         value: BigNumber.from("1000"),
       });
-      await instanceSale.connect(addr2).mint(addr1.address, "wow", proof3, {
+      await instanceSale.connect(addr2).mint(addr1.address, proof3, {
         value: BigNumber.from("1000"),
       });
-      await instanceSale.connect(addrs[3]).mint(addr1.address, "wow", proof4, {
+      await instanceSale.connect(addrs[3]).mint(addr1.address, proof4, {
         value: BigNumber.from("1000"),
       });
       await expect(
-        instanceSale.connect(addrs[3]).mint(addr1.address, "wow", proof4, {
+        instanceSale.connect(addrs[3]).mint(addr1.address, proof4, {
           value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Max supply reached");
@@ -219,7 +219,7 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(addrs[4].address));
 
       await expect(
-        instanceSale.connect(addrs[4]).mint(addr1.address, "wow", proof, {
+        instanceSale.connect(addrs[4]).mint(addr1.address, proof, {
           value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Invalid proof");
@@ -231,7 +231,7 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.connect(addrs[4]).mint(addr1.address, "wow", proof, {
+        instanceSale.connect(addrs[4]).mint(addr1.address, proof, {
           value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Invalid proof");
@@ -242,7 +242,7 @@ describe("StartonERC721WhitelistSale", () => {
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
-      await instanceSale.mint(addr1.address, "wow", proof, {
+      await instanceSale.mint(addr1.address, proof, {
         value: BigNumber.from("1000"),
       });
 
@@ -252,11 +252,13 @@ describe("StartonERC721WhitelistSale", () => {
         now.valueOf() + 1000 * 60 * 60 * 24 * 7,
       ]);
 
-      await instanceSale.mint(addr1.address, "wow", proof, {
+      await instanceSale.mint(addr1.address, proof, {
         value: BigNumber.from("1000"),
       });
 
       expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(2);
+      expect(await instanceERC721.tokenURI(0)).to.be.equal("rnd10");
+      expect(await instanceERC721.tokenURI(1)).to.be.equal("rnd11");
     });
   });
 
@@ -269,14 +271,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mintBatch(
-          addr1.address,
-          ["wow", "ijbib", "iubibubiu"],
-          proof,
-          {
-            value: BigNumber.from("3000"),
-          }
-        )
+        instanceSale.mintBatch(addr1.address, 3, proof, {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Minting not started");
     });
 
@@ -288,14 +285,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mintBatch(
-          addr1.address,
-          ["wow", "ijbib", "iubibubiu"],
-          proof,
-          {
-            value: BigNumber.from("3000"),
-          }
-        )
+        instanceSale.mintBatch(addr1.address, 3, proof, {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Minting finished");
     });
 
@@ -305,14 +297,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mintBatch(
-          addr1.address,
-          ["wow", "ijbib", "iubibubiu"],
-          proof,
-          {
-            value: BigNumber.from("2999"),
-          }
-        )
+        instanceSale.mintBatch(addr1.address, 3, proof, {
+          value: BigNumber.from("2999"),
+        })
       ).to.be.revertedWith("Insufficient funds");
     });
 
@@ -322,14 +309,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mintBatch(
-          addr1.address,
-          ["wow", "ijbib", "iubibubiu", "ibuvib"],
-          proof,
-          {
-            value: BigNumber.from("4000"),
-          }
-        )
+        instanceSale.mintBatch(addr1.address, 4, proof, {
+          value: BigNumber.from("4000"),
+        })
       ).to.be.revertedWith("Max tokens reached");
     });
 
@@ -341,33 +323,22 @@ describe("StartonERC721WhitelistSale", () => {
       const proof3 = merkleTree.getHexProof(keccak256(addr2.address));
       const proof4 = merkleTree.getHexProof(keccak256(addrs[3].address));
 
-      instanceSale.mintBatch(
-        addr1.address,
-        ["wow", "ijbib", "iubibubiu"],
-        proof,
-        {
-          value: BigNumber.from("3000"),
-        }
-      );
-      instanceSale
-        .connect(addr1)
-        .mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], proof2, {
-          value: BigNumber.from("3000"),
-        });
-      instanceSale
-        .connect(addr2)
-        .mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], proof3, {
-          value: BigNumber.from("3000"),
-        });
-      instanceSale.connect(addrs[3]).mintBatch(addr1.address, ["wow"], proof4, {
+      instanceSale.mintBatch(addr1.address, 3, proof, {
+        value: BigNumber.from("3000"),
+      });
+      instanceSale.connect(addr1).mintBatch(addr1.address, 3, proof2, {
+        value: BigNumber.from("3000"),
+      });
+      instanceSale.connect(addr2).mintBatch(addr1.address, 3, proof3, {
+        value: BigNumber.from("3000"),
+      });
+      instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, proof4, {
         value: BigNumber.from("3000"),
       });
       await expect(
-        instanceSale
-          .connect(addrs[3])
-          .mintBatch(addr1.address, ["wow"], proof4, {
-            value: BigNumber.from("3000"),
-          })
+        instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, proof4, {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Max supply reached");
     });
 
@@ -377,11 +348,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(addrs[4].address));
 
       await expect(
-        instanceSale
-          .connect(addrs[4])
-          .mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], proof, {
-            value: BigNumber.from("3000"),
-          })
+        instanceSale.connect(addrs[4]).mintBatch(addr1.address, 3, proof, {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Invalid proof");
     });
 
@@ -391,11 +360,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale
-          .connect(addrs[4])
-          .mintBatch(addr1.address, ["wow", "ijbib", "iubibubiu"], proof, {
-            value: BigNumber.from("3000"),
-          })
+        instanceSale.connect(addrs[4]).mintBatch(addr1.address, 3, proof, {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Invalid proof");
     });
 
@@ -404,16 +371,14 @@ describe("StartonERC721WhitelistSale", () => {
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
-      await instanceSale.mintBatch(
-        addr1.address,
-        ["wow", "ijbib", "iubibubiu"],
-        proof,
-        {
-          value: BigNumber.from("3000"),
-        }
-      );
+      await instanceSale.mintBatch(addr1.address, 3, proof, {
+        value: BigNumber.from("3000"),
+      });
 
       expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(3);
+      expect(await instanceERC721.tokenURI(0)).to.be.equal("rnd10");
+      expect(await instanceERC721.tokenURI(1)).to.be.equal("rnd11");
+      expect(await instanceERC721.tokenURI(2)).to.be.equal("rnd12");
     });
   });
 
@@ -425,11 +390,11 @@ describe("StartonERC721WhitelistSale", () => {
 
       const proof = merkleTree.getHexProof(keccak256(addr1.address));
 
-      await instanceSale.connect(addr1).mint(addr1.address, "wow", proof, {
+      await instanceSale.connect(addr1).mint(addr1.address, proof, {
         value: ethers.utils.parseEther("0.26"),
       });
 
-      await instanceSale.connect(addr1).mint(addr1.address, "wow", proof, {
+      await instanceSale.connect(addr1).mint(addr1.address, proof, {
         value: ethers.utils.parseEther("0.4"),
       });
 

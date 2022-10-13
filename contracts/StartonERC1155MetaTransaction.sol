@@ -73,7 +73,7 @@ contract StartonERC1155MetaTransaction is
         _initializeEIP712(definitiveName);
     }
 
-     /**
+    /**
      * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
      * @param to The address to mint the tokens to
      * @param id The id of the token to mint
