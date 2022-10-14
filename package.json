@@ -1,5 +1,5 @@
 {
-  "name": "startonsmartcontracts",
+  "name": "smart-contract-templates",
   "version": "1.0.0",
   "description": "This is templates being used and created by starton",
   "main": "hardhat.config.ts",
@@ -20,7 +20,7 @@
   },
   "keywords": [],
   "author": "starton",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@ethersproject/abi": "^5.6.4",
     "@ethersproject/contracts": "^5.6.2",
