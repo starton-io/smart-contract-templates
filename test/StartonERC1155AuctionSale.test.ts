@@ -50,7 +50,9 @@ describe("StartonERC1155AuctionSale", () => {
       BigNumber.from("1000"),
       BigNumber.from("100"),
       now.valueOf(),
-      now.valueOf() + 1000 * 60 * 60 * 24 * 7
+      now.valueOf() + 1000 * 60 * 60 * 24 * 7,
+      10,
+      1
     )) as StartonERC1155AuctionSale;
     await instanceSale.deployed();
 
@@ -175,7 +177,7 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7,
       ]);
-      await expect(instanceSale.mint(addr2.address, 10, 1)).to.be.revertedWith(
+      await expect(instanceSale.mint(addr2.address)).to.be.revertedWith(
         "Minting hasn't finished yet"
       );
     });
@@ -190,7 +192,7 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await expect(instanceSale.mint(addr1.address, 10, 1)).to.be.revertedWith(
+      await expect(instanceSale.mint(addr1.address)).to.be.revertedWith(
         "Destination address isn't the current auction winner"
       );
     });
@@ -205,8 +207,8 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, 10, 1);
-      await expect(instanceSale.mint(addr2.address, 10, 1)).to.be.revertedWith(
+      await instanceSale.mint(addr2.address);
+      await expect(instanceSale.mint(addr2.address)).to.be.revertedWith(
         "Token has already been claimed"
       );
     });
@@ -221,7 +223,7 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, 10, 1);
+      await instanceSale.mint(addr2.address);
       expect(await instanceERC1155.balanceOf(addr2.address, 10)).to.be.equal(1);
     });
   });
@@ -243,7 +245,7 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, 10, 1);
+      await instanceSale.mint(addr2.address);
 
       const oldBalance = await owner.getBalance();
       await instanceSale.connect(addr1).withdraw();
@@ -261,9 +263,35 @@ describe("StartonERC1155AuctionSale", () => {
           BigNumber.from("1000"),
           BigNumber.from("100"),
           now.valueOf(),
-          now.valueOf() + 1000 * 60 * 60 * 24 * 7
+          now.valueOf() + 1000 * 60 * 60 * 24 * 7,
+          10,
+          1
         )
       ).to.be.revertedWith("The auction hasn't been claimed yet");
+    });
+
+    it("Shouldn't start a new auction if the end time is before the start time", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
+
+      await instanceSale
+        .connect(addr2)
+        .bid({ value: ethers.utils.parseEther("0.11") });
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [
+        now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
+      ]);
+      await instanceSale.mint(addr2.address);
+
+      await expect(
+        instanceSale.startNewAuction(
+          BigNumber.from("1000"),
+          BigNumber.from("100"),
+          now.valueOf(),
+          now.valueOf() - 10,
+          10,
+          1
+        )
+      ).to.be.revertedWith("Start time must be before end time");
     });
 
     it("Should start a new auction if everything is correct", async () => {
@@ -276,13 +304,15 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, 10, 1);
+      await instanceSale.mint(addr2.address);
 
       await instanceSale.startNewAuction(
         BigNumber.from("10000"),
         BigNumber.from("1000"),
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
-        now.valueOf() + 1000 * 60 * 60 * 24 * 7 * 2 + 1
+        now.valueOf() + 1000 * 60 * 60 * 24 * 7 * 2 + 1,
+        10,
+        1
       );
 
       expect(await instanceSale.minPriceDifference()).to.be.equal(
@@ -300,6 +330,8 @@ describe("StartonERC1155AuctionSale", () => {
       expect(await instanceSale.currentAuctionWinner()).to.be.equal(
         "0x0000000000000000000000000000000000000000"
       );
+      expect(await instanceSale.tokenAmount()).to.be.equal(1);
+      expect(await instanceSale.tokenId()).to.be.equal(10);
     });
   });
 });

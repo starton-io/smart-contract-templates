@@ -8,7 +8,7 @@ import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721AuctionSale
 /// @author Starton
-/// @notice Contract that can sell ERC721 tokens through a auction
+/// @notice Can sell ERC721 tokens through a auction
 contract StartonERC721AuctionSale is Ownable {
     using SafeMath for uint256;
 
@@ -21,6 +21,9 @@ contract StartonERC721AuctionSale is Ownable {
     address public currentAuctionWinner;
     uint256 public startTime;
     uint256 public endTime;
+
+    // Information of the token to be sold
+    string public tokenURI;
 
     // If the token as been claimed or not yet
     bool private _claimed;
@@ -40,20 +43,22 @@ contract StartonERC721AuctionSale is Ownable {
         uint256 initialStartingPrice,
         uint256 initialMinPriceDifference,
         uint256 initialStartTime,
-        uint256 initialEndTime
+        uint256 initialEndTime,
+        string memory initialTokenURI
     ) {
-        // Check if the address of the feeReceiver is correct
+        // Check if the end time is after the starting time
         require(
-            definitiveFeeReceiver != address(0),
-            "Fee receiver address is not valid"
+            initialStartTime < initialEndTime,
+            "Start time must be before end time"
         );
-        _feeReceiver = definitiveFeeReceiver;
 
         token = IStartonERC721(definitiveTokenAddress);
+        _feeReceiver = definitiveFeeReceiver;
         currentPrice = initialStartingPrice;
         minPriceDifference = initialMinPriceDifference;
         startTime = initialStartTime;
         endTime = initialEndTime;
+        tokenURI = initialTokenURI;
 
         // Set inititial states of the auction to no winner and not claimed
         currentAuctionWinner = address(0);
@@ -69,7 +74,10 @@ contract StartonERC721AuctionSale is Ownable {
     function bid() public payable {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
-        require(currentPrice.add(minPriceDifference) <= msg.value, "Bid is too low");
+        require(
+            currentPrice.add(minPriceDifference) <= msg.value,
+            "Bid is too low"
+        );
 
         // Store the old auction winner and price
         address oldAuctionWinner = currentAuctionWinner;
@@ -88,9 +96,8 @@ contract StartonERC721AuctionSale is Ownable {
     /**
      * @notice Claim the prize of the current auction
      * @param to The address to send the prize to
-     * @param tokenURI The tokenURI of the token to be sent
      */
-    function mint(address to, string memory tokenURI) public {
+    function mint(address to) public {
         require(
             to == currentAuctionWinner,
             "Destination address isn't the current auction winner"
@@ -108,14 +115,20 @@ contract StartonERC721AuctionSale is Ownable {
      * @param newStartingPrice the starting price of the new auction
      * @param newStartTime the time when the auction starts
      * @param newEndTime the time when the auction ends
+     * @param newTokenURI the token URI of the new NFT
      */
     function startNewAuction(
         uint256 newStartingPrice,
         uint256 newMinPriceDifference,
         uint256 newStartTime,
-        uint256 newEndTime
+        uint256 newEndTime,
+        string memory newTokenURI
     ) public onlyOwner {
         require(_claimed, "The auction hasn't been claimed yet");
+        require(
+            newStartTime < newEndTime,
+            "Start time must be before end time"
+        );
 
         // Reset the state variables for a new auction to begin
         _claimed = false;
@@ -124,6 +137,7 @@ contract StartonERC721AuctionSale is Ownable {
         currentAuctionWinner = address(0);
         startTime = newStartTime;
         endTime = newEndTime;
+        tokenURI = newTokenURI;
 
         emit AuctionStarted(startTime, endTime);
     }

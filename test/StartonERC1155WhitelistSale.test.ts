@@ -64,7 +64,6 @@ describe("StartonERC1155WhitelistSale", () => {
     instanceSale = (await ERC1155WhitelistSale.deploy(
       instanceERC1155.address,
       rootHash,
-      BigNumber.from("1000"),
       now.valueOf(),
       now.valueOf() + 1000 * 60 * 60 * 24 * 7,
       BigNumber.from("3"),
@@ -75,6 +74,8 @@ describe("StartonERC1155WhitelistSale", () => {
 
     const minterRole = await instanceERC1155.MINTER_ROLE();
     await instanceERC1155.grantRole(minterRole, instanceSale.address);
+
+    await instanceSale.setPrices([10, 11], [1000, 1000]);
   });
 
   describe("Deployment", () => {
@@ -85,7 +86,15 @@ describe("StartonERC1155WhitelistSale", () => {
     });
 
     it("Should set the price correctly", async () => {
-      expect(await instanceSale.price()).to.be.equal(BigNumber.from("1000"));
+      // Need to check each element apart of the structure because chai doesn't support deep equal
+      expect((await instanceSale.pricePerToken(10))[0]).to.be.equal(
+        BigNumber.from("1000")
+      );
+      expect((await instanceSale.pricePerToken(10))[1]).to.be.equal(true);
+      expect((await instanceSale.pricePerToken(11))[0]).to.be.equal(
+        BigNumber.from("1000")
+      );
+      expect((await instanceSale.pricePerToken(11))[1]).to.be.equal(true);
     });
 
     it("Should set the startTime correctly", async () => {

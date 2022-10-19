@@ -119,14 +119,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof,
-          {
-            value: BigNumber.from("1000"),
-          }
-        )
+        instanceSale.mint(addr1.address, proof, {
+          value: BigNumber.from("1000"),
+        })
       ).to.be.revertedWith("Minting not started");
     });
 
@@ -138,14 +133,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof,
-          {
-            value: BigNumber.from("1000"),
-          }
-        )
+        instanceSale.mint(addr1.address, proof, {
+          value: BigNumber.from("1000"),
+        })
       ).to.be.revertedWith("Minting finished");
     });
 
@@ -155,14 +145,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof,
-          {
-            value: BigNumber.from("999"),
-          }
-        )
+        instanceSale.mint(addr1.address, proof, {
+          value: BigNumber.from("999"),
+        })
       ).to.be.revertedWith("Insufficient funds");
     });
 
@@ -171,39 +156,19 @@ describe("StartonERC721WhitelistSale", () => {
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
-      await instanceSale.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-        proof,
-        {
-          value: BigNumber.from("1000"),
-        }
-      );
-      await instanceSale.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-        proof,
-        {
-          value: BigNumber.from("1000"),
-        }
-      );
-      await instanceSale.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-        proof,
-        {
-          value: BigNumber.from("1000"),
-        }
-      );
+      await instanceSale.mint(addr1.address, proof, {
+        value: BigNumber.from("1000"),
+      });
+      await instanceSale.mint(addr1.address, proof, {
+        value: BigNumber.from("1000"),
+      });
+      await instanceSale.mint(addr1.address, proof, {
+        value: BigNumber.from("1000"),
+      });
       await expect(
-        instanceSale.mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof,
-          {
-            value: BigNumber.from("1000"),
-          }
-        )
+        instanceSale.mint(addr1.address, proof, {
+          value: BigNumber.from("1000"),
+        })
       ).to.be.revertedWith("Max tokens reached");
     });
 
@@ -215,111 +180,40 @@ describe("StartonERC721WhitelistSale", () => {
       const proof3 = merkleTree.getHexProof(keccak256(addr2.address));
       const proof4 = merkleTree.getHexProof(keccak256(addrs[3].address));
 
-      await instanceSale.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-        proof,
-        {
-          value: BigNumber.from("1000"),
-        }
-      );
-      await instanceSale.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-        proof,
-        {
-          value: BigNumber.from("1000"),
-        }
-      );
-      await instanceSale.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-        proof,
-        {
-          value: BigNumber.from("1000"),
-        }
-      );
-      await instanceSale
-        .connect(addr1)
-        .mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof2,
-          {
-            value: BigNumber.from("1000"),
-          }
-        );
-      await instanceSale
-        .connect(addr1)
-        .mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof2,
-          {
-            value: BigNumber.from("1000"),
-          }
-        );
-      await instanceSale
-        .connect(addr1)
-        .mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof2,
-          {
-            value: BigNumber.from("1000"),
-          }
-        );
-      await instanceSale
-        .connect(addr2)
-        .mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof3,
-          {
-            value: BigNumber.from("1000"),
-          }
-        );
-      await instanceSale
-        .connect(addr2)
-        .mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof3,
-          {
-            value: BigNumber.from("1000"),
-          }
-        );
-      await instanceSale
-        .connect(addr2)
-        .mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof3,
-          {
-            value: BigNumber.from("1000"),
-          }
-        );
-      await instanceSale
-        .connect(addrs[3])
-        .mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof4,
-          {
-            value: BigNumber.from("1000"),
-          }
-        );
+      await instanceSale.mint(addr1.address, proof, {
+        value: BigNumber.from("1000"),
+      });
+      await instanceSale.mint(addr1.address, proof, {
+        value: BigNumber.from("1000"),
+      });
+      await instanceSale.mint(addr1.address, proof, {
+        value: BigNumber.from("1000"),
+      });
+      await instanceSale.connect(addr1).mint(addr1.address, proof2, {
+        value: BigNumber.from("1000"),
+      });
+      await instanceSale.connect(addr1).mint(addr1.address, proof2, {
+        value: BigNumber.from("1000"),
+      });
+      await instanceSale.connect(addr1).mint(addr1.address, proof2, {
+        value: BigNumber.from("1000"),
+      });
+      await instanceSale.connect(addr2).mint(addr1.address, proof3, {
+        value: BigNumber.from("1000"),
+      });
+      await instanceSale.connect(addr2).mint(addr1.address, proof3, {
+        value: BigNumber.from("1000"),
+      });
+      await instanceSale.connect(addr2).mint(addr1.address, proof3, {
+        value: BigNumber.from("1000"),
+      });
+      await instanceSale.connect(addrs[3]).mint(addr1.address, proof4, {
+        value: BigNumber.from("1000"),
+      });
       await expect(
-        instanceSale
-          .connect(addrs[3])
-          .mint(
-            addr1.address,
-            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-            proof4,
-            {
-              value: BigNumber.from("1000"),
-            }
-          )
+        instanceSale.connect(addrs[3]).mint(addr1.address, proof4, {
+          value: BigNumber.from("1000"),
+        })
       ).to.be.revertedWith("Max supply reached");
     });
 
@@ -329,16 +223,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(addrs[4].address));
 
       await expect(
-        instanceSale
-          .connect(addrs[4])
-          .mint(
-            addr1.address,
-            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-            proof,
-            {
-              value: BigNumber.from("1000"),
-            }
-          )
+        instanceSale.connect(addrs[4]).mint(addr1.address, proof, {
+          value: BigNumber.from("1000"),
+        })
       ).to.be.revertedWith("Invalid proof");
     });
 
@@ -348,16 +235,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale
-          .connect(addrs[4])
-          .mint(
-            addr1.address,
-            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-            proof,
-            {
-              value: BigNumber.from("1000"),
-            }
-          )
+        instanceSale.connect(addrs[4]).mint(addr1.address, proof, {
+          value: BigNumber.from("1000"),
+        })
       ).to.be.revertedWith("Invalid proof");
     });
 
@@ -366,14 +246,9 @@ describe("StartonERC721WhitelistSale", () => {
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
-      await instanceSale.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-        proof,
-        {
-          value: BigNumber.from("1000"),
-        }
-      );
+      await instanceSale.mint(addr1.address, proof, {
+        value: BigNumber.from("1000"),
+      });
 
       expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(1);
 
@@ -381,16 +256,13 @@ describe("StartonERC721WhitelistSale", () => {
         now.valueOf() + 1000 * 60 * 60 * 24 * 7,
       ]);
 
-      await instanceSale.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-        proof,
-        {
-          value: BigNumber.from("1000"),
-        }
-      );
+      await instanceSale.mint(addr1.address, proof, {
+        value: BigNumber.from("1000"),
+      });
 
       expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(2);
+      expect(await instanceERC721.tokenURI(0)).to.be.equal("https://ipfs.io/0");
+      expect(await instanceERC721.tokenURI(1)).to.be.equal("https://ipfs.io/1");
     });
   });
 
@@ -403,19 +275,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mintBatch(
-          addr1.address,
-          3,
-          [
-            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
-            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
-          ],
-          proof,
-          {
-            value: BigNumber.from("3000"),
-          }
-        )
+        instanceSale.mintBatch(addr1.address, 3, proof, {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Minting not started");
     });
 
@@ -427,19 +289,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mintBatch(
-          addr1.address,
-          3,
-          [
-            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
-            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
-          ],
-          proof,
-          {
-            value: BigNumber.from("3000"),
-          }
-        )
+        instanceSale.mintBatch(addr1.address, 3, proof, {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Minting finished");
     });
 
@@ -449,19 +301,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mintBatch(
-          addr1.address,
-          3,
-          [
-            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
-            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
-          ],
-          proof,
-          {
-            value: BigNumber.from("2999"),
-          }
-        )
+        instanceSale.mintBatch(addr1.address, 3, proof, {
+          value: BigNumber.from("2999"),
+        })
       ).to.be.revertedWith("Insufficient funds");
     });
 
@@ -471,20 +313,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale.mintBatch(
-          addr1.address,
-          4,
-          [
-            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
-            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
-            "QmeSjSinHpPnmXmspMjwiXyN6zS4E18bcariGR3jxcaWtQ",
-          ],
-          proof,
-          {
-            value: BigNumber.from("4000"),
-          }
-        )
+        instanceSale.mintBatch(addr1.address, 4, proof, {
+          value: BigNumber.from("4000"),
+        })
       ).to.be.revertedWith("Max tokens reached");
     });
 
@@ -496,72 +327,22 @@ describe("StartonERC721WhitelistSale", () => {
       const proof3 = merkleTree.getHexProof(keccak256(addr2.address));
       const proof4 = merkleTree.getHexProof(keccak256(addrs[3].address));
 
-      instanceSale.mintBatch(
-        addr1.address,
-        3,
-        [
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
-          "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
-        ],
-        proof,
-        {
-          value: BigNumber.from("3000"),
-        }
-      );
-      instanceSale
-        .connect(addr1)
-        .mintBatch(
-          addr1.address,
-          3,
-          [
-            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
-            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
-          ],
-          proof2,
-          {
-            value: BigNumber.from("3000"),
-          }
-        );
-      instanceSale
-        .connect(addr2)
-        .mintBatch(
-          addr1.address,
-          3,
-          [
-            "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-            "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
-            "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
-          ],
-          proof3,
-          {
-            value: BigNumber.from("3000"),
-          }
-        );
-      instanceSale
-        .connect(addrs[3])
-        .mintBatch(
-          addr1.address,
-          1,
-          ["QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"],
-          proof4,
-          {
-            value: BigNumber.from("3000"),
-          }
-        );
+      instanceSale.mintBatch(addr1.address, 3, proof, {
+        value: BigNumber.from("3000"),
+      });
+      instanceSale.connect(addr1).mintBatch(addr1.address, 3, proof2, {
+        value: BigNumber.from("3000"),
+      });
+      instanceSale.connect(addr2).mintBatch(addr1.address, 3, proof3, {
+        value: BigNumber.from("3000"),
+      });
+      instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, proof4, {
+        value: BigNumber.from("3000"),
+      });
       await expect(
-        instanceSale
-          .connect(addrs[3])
-          .mintBatch(
-            addr1.address,
-            1,
-            ["QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"],
-            proof4,
-            {
-              value: BigNumber.from("3000"),
-            }
-          )
+        instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, proof4, {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Max supply reached");
     });
 
@@ -571,21 +352,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(addrs[4].address));
 
       await expect(
-        instanceSale
-          .connect(addrs[4])
-          .mintBatch(
-            addr1.address,
-            3,
-            [
-              "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-              "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
-              "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
-            ],
-            proof,
-            {
-              value: BigNumber.from("3000"),
-            }
-          )
+        instanceSale.connect(addrs[4]).mintBatch(addr1.address, 3, proof, {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Invalid proof");
     });
 
@@ -595,21 +364,9 @@ describe("StartonERC721WhitelistSale", () => {
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
       await expect(
-        instanceSale
-          .connect(addrs[4])
-          .mintBatch(
-            addr1.address,
-            3,
-            [
-              "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-              "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
-              "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
-            ],
-            proof,
-            {
-              value: BigNumber.from("3000"),
-            }
-          )
+        instanceSale.connect(addrs[4]).mintBatch(addr1.address, 3, proof, {
+          value: BigNumber.from("3000"),
+        })
       ).to.be.revertedWith("Invalid proof");
     });
 
@@ -618,21 +375,14 @@ describe("StartonERC721WhitelistSale", () => {
 
       const proof = merkleTree.getHexProof(keccak256(owner.address));
 
-      await instanceSale.mintBatch(
-        addr1.address,
-        3,
-        [
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          "QmQT4UP2647bFHBI3HBBUVUHV4HVBKbhhb2hv3VUVV3v3h",
-          "QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtQ",
-        ],
-        proof,
-        {
-          value: BigNumber.from("3000"),
-        }
-      );
+      await instanceSale.mintBatch(addr1.address, 3, proof, {
+        value: BigNumber.from("3000"),
+      });
 
       expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(3);
+      expect(await instanceERC721.tokenURI(0)).to.be.equal("https://ipfs.io/0");
+      expect(await instanceERC721.tokenURI(1)).to.be.equal("https://ipfs.io/1");
+      expect(await instanceERC721.tokenURI(2)).to.be.equal("https://ipfs.io/2");
     });
   });
 
@@ -644,27 +394,13 @@ describe("StartonERC721WhitelistSale", () => {
 
       const proof = merkleTree.getHexProof(keccak256(addr1.address));
 
-      await instanceSale
-        .connect(addr1)
-        .mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof,
-          {
-            value: ethers.utils.parseEther("0.26"),
-          }
-        );
+      await instanceSale.connect(addr1).mint(addr1.address, proof, {
+        value: ethers.utils.parseEther("0.26"),
+      });
 
-      await instanceSale
-        .connect(addr1)
-        .mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1",
-          proof,
-          {
-            value: ethers.utils.parseEther("0.4"),
-          }
-        );
+      await instanceSale.connect(addr1).mint(addr1.address, proof, {
+        value: ethers.utils.parseEther("0.4"),
+      });
 
       await instanceSale.connect(addr1).withdraw();
       expect(await owner.getBalance()).to.be.equal(

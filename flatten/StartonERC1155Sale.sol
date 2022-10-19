@@ -427,7 +427,7 @@ pragma solidity 0.8.9;
 
 /// @title StartonERC1155Sale
 /// @author Starton
-/// @notice Contract that can sell ERC1155 tokens through a public sale with a limited avaible supply, start and end time as well as max tokens per address
+/// @notice Can sell ERC1155 tokens through a public sale with a limited avaible supply, start and end time as well as max tokens per address
 contract StartonERC1155Sale {
     using SafeMath for uint256;
 
@@ -435,7 +435,13 @@ contract StartonERC1155Sale {
 
     IStartonERC1155 public immutable token;
 
-    uint256 public immutable price;
+    struct TokenInformations {
+        uint256 price;
+        bool isSet;
+    }
+
+    mapping(uint256 => TokenInformations) public pricePerToken;
+
     uint256 public immutable startTime;
     uint256 public immutable endTime;
     uint256 public immutable maxTokensPerAddress;
@@ -446,22 +452,14 @@ contract StartonERC1155Sale {
 
     constructor(
         address definitiveTokenAddress,
-        uint256 definitivePrice,
         uint256 definitiveStartTime,
         uint256 definitiveEndTime,
         uint256 definitiveMaxTokensPerAddress,
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
-        // Check if the address of the feeReceiver is correct
-        require(
-            definitiveFeeReceiver != address(0),
-            "Fee receiver address is not valid"
-        );
-        _feeReceiver = definitiveFeeReceiver;
-
         token = IStartonERC1155(definitiveTokenAddress);
-        price = definitivePrice;
+        _feeReceiver = definitiveFeeReceiver;
         startTime = definitiveStartTime;
         endTime = definitiveEndTime;
         maxTokensPerAddress = definitiveMaxTokensPerAddress;
@@ -479,7 +477,11 @@ contract StartonERC1155Sale {
         uint256 id,
         uint256 amount
     ) public payable {
-        require(msg.value >= price.mul(amount), "Insufficient funds");
+        require(pricePerToken[id].isSet, "Price not set");
+        require(
+            msg.value >= pricePerToken[id].price.mul(amount),
+            "Insufficient funds"
+        );
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
@@ -502,10 +504,27 @@ contract StartonERC1155Sale {
 
         uint256 totalAmount = 0;
         for (uint256 i = 0; i < ids.length; ++i) {
-            totalAmount = totalAmount.add(price.mul(amounts[i]));
+            require(pricePerToken[ids[i]].isSet, "Price not set");
+
+            totalAmount = totalAmount.add(
+                pricePerToken[ids[i]].price.mul(amounts[i])
+            );
             require(msg.value >= totalAmount, "Insufficient funds");
 
             _mint(to, ids[i], amounts[i]);
+        }
+    }
+
+    /**
+     * @notice Set the price of a batch of tokens
+     * @param ids The ids of the tokens
+     * @param prices The prices of the tokens
+     */
+    function setPrices(uint256[] memory ids, uint256[] memory prices) public {
+        require(ids.length == prices.length, "Ids and prices length mismatch");
+
+        for (uint256 i = 0; i < ids.length; ++i) {
+            pricePerToken[ids[i]] = TokenInformations(prices[i], true);
         }
     }
 
