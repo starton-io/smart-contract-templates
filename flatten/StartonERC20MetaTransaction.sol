@@ -1400,15 +1400,15 @@ contract StartonERC20MetaTransaction is
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
-        uint256 initialSupply,
+        uint256 definitiveSupply,
         address initialOwnerOrMultiSigContract
     ) ERC20(definitiveName, definitiveSymbol) {
         // Set all default roles for initialOwnerOrMultiSigContract
         _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
 
-        // Mint initialSupply to initialOwnerOrMultiSigContract
-        _mint(initialOwnerOrMultiSigContract, initialSupply);
+        // Mint definitiveSupply to initialOwnerOrMultiSigContract
+        _mint(initialOwnerOrMultiSigContract, definitiveSupply);
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(definitiveName);
