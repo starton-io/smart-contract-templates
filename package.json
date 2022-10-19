@@ -1,14 +1,16 @@
 {
-  "name": "startonsmartcontracts",
+  "name": "smart-contract-templates",
   "version": "1.0.0",
   "description": "This is templates being used and created by starton",
   "main": "hardhat.config.ts",
   "scripts": {
     "test": "hardhat compile && hardhat test",
-    "compile": "hardhat compile",
+    "compile": "hardhat compile && hardhat compile",
     "clean": "hardhat clean",
     "coverage": "hardhat coverage",
     "flatten": "ts-node scripts/flatten-contracts-folder.ts",
+    "lint": "yarn prettier ; yarn eslint ; yarn solhint",
+    "lint:fix": "yarn prettier:fix ; yarn eslint:fix ; yarn solhint:fix",
     "prettier": "prettier '**/*.{json,sol,md}' --check",
     "prettier:fix": "prettier '**/*.{json,sol,md}' --write",
     "solhint": "solhint 'contracts/**/*.sol'",
@@ -18,7 +20,7 @@
   },
   "keywords": [],
   "author": "starton",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@ethersproject/abi": "^5.6.4",
     "@ethersproject/contracts": "^5.6.2",
