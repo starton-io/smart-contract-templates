@@ -8,7 +8,7 @@ import "./interfaces/IStartonERC1155.sol";
 
 /// @title StartonERC1155AuctionSale
 /// @author Starton
-/// @notice Contract that can sell ERC1155 tokens through a auction
+/// @notice Can sell ERC1155 tokens through a auction
 contract StartonERC1155AuctionSale is Ownable {
     using SafeMath for uint256;
 
@@ -21,6 +21,10 @@ contract StartonERC1155AuctionSale is Ownable {
     address public currentAuctionWinner;
     uint256 public startTime;
     uint256 public endTime;
+
+    // Informations of the token to be sold
+    uint256 public tokenId;
+    uint256 public tokenAmount;
 
     // If the token as been claimed or not yet
     bool private _claimed;
@@ -40,20 +44,24 @@ contract StartonERC1155AuctionSale is Ownable {
         uint256 initialStartingPrice,
         uint256 initialMinPriceDifference,
         uint256 initialStartTime,
-        uint256 initialEndTime
+        uint256 initialEndTime,
+        uint256 initialTokenId,
+        uint256 initialTokenAmount
     ) {
-        // Check if the address of the feeReceiver is correct
+        // Check if the end time is after the starting time
         require(
-            definitiveFeeReceiver != address(0),
-            "Fee receiver address is not valid"
+            initialStartTime < initialEndTime,
+            "Start time must be before end time"
         );
-        _feeReceiver = definitiveFeeReceiver;
 
         token = IStartonERC1155(definitiveTokenAddress);
+        _feeReceiver = definitiveFeeReceiver;
         currentPrice = initialStartingPrice;
         minPriceDifference = initialMinPriceDifference;
         startTime = initialStartTime;
         endTime = initialEndTime;
+        tokenId = initialTokenId;
+        tokenAmount = initialTokenAmount;
 
         // Set inititial states of the auction to no winner and not claimed
         currentAuctionWinner = address(0);
@@ -69,7 +77,10 @@ contract StartonERC1155AuctionSale is Ownable {
     function bid() public payable {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
-        require(currentPrice.add(minPriceDifference) <= msg.value, "Bid is too low");
+        require(
+            currentPrice.add(minPriceDifference) <= msg.value,
+            "Bid is too low"
+        );
 
         // Store the old auction winner and price
         address oldAuctionWinner = currentAuctionWinner;
@@ -88,14 +99,8 @@ contract StartonERC1155AuctionSale is Ownable {
     /**
      * @notice Claim the prize of the current auction
      * @param to The address to send the prize to
-     * @param id The id of the token
-     * @param amount The amount of tokens to mint
      */
-    function mint(
-        address to,
-        uint256 id,
-        uint256 amount
-    ) public {
+    function mint(address to) public {
         require(
             to == currentAuctionWinner,
             "Destination address isn't the current auction winner"
@@ -103,7 +108,7 @@ contract StartonERC1155AuctionSale is Ownable {
         require(endTime < block.timestamp, "Minting hasn't finished yet");
         require(!_claimed, "Token has already been claimed");
 
-        token.mint(to, id, amount);
+        token.mint(to, tokenId, tokenAmount);
         _claimed = true;
         emit AuctionClaimed(to, currentPrice);
     }
@@ -113,14 +118,22 @@ contract StartonERC1155AuctionSale is Ownable {
      * @param newStartingPrice the starting price of the new auction
      * @param newStartTime the time when the auction starts
      * @param newEndTime the time when the auction ends
+     * @param newTokenId the id of the token to be sold
+     * @param newTokenAmount the amount of the token to be sold
      */
     function startNewAuction(
         uint256 newStartingPrice,
         uint256 newMinPriceDifference,
         uint256 newStartTime,
-        uint256 newEndTime
+        uint256 newEndTime,
+        uint256 newTokenId,
+        uint256 newTokenAmount
     ) public onlyOwner {
         require(_claimed, "The auction hasn't been claimed yet");
+        require(
+            newStartTime < newEndTime,
+            "Start time must be before end time"
+        );
 
         // Reset the state variables for a new auction to begin
         _claimed = false;
@@ -129,6 +142,8 @@ contract StartonERC1155AuctionSale is Ownable {
         currentAuctionWinner = address(0);
         startTime = newStartTime;
         endTime = newEndTime;
+        tokenId = newTokenId;
+        tokenAmount = newTokenAmount;
 
         emit AuctionStarted(startTime, endTime);
     }

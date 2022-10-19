@@ -49,7 +49,8 @@ describe("StartonERC721AuctionSale", () => {
       BigNumber.from("1000"),
       BigNumber.from("100"),
       now.valueOf(),
-      now.valueOf() + 1000 * 60 * 60 * 24 * 7
+      now.valueOf() + 1000 * 60 * 60 * 24 * 7,
+      "gvygvy"
     )) as StartonERC721AuctionSale;
     await instanceSale.deployed();
 
@@ -174,9 +175,9 @@ describe("StartonERC721AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7,
       ]);
-      await expect(
-        instanceSale.mint(addr2.address, "gvygvy")
-      ).to.be.revertedWith("Minting hasn't finished yet");
+      await expect(instanceSale.mint(addr2.address)).to.be.revertedWith(
+        "Minting hasn't finished yet"
+      );
     });
 
     it("Shouldn't mint if the destination address isn't the winner", async () => {
@@ -189,9 +190,7 @@ describe("StartonERC721AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await expect(
-        instanceSale.mint(addr1.address, "gvygvy")
-      ).to.be.revertedWith(
+      await expect(instanceSale.mint(addr1.address)).to.be.revertedWith(
         "Destination address isn't the current auction winner"
       );
     });
@@ -206,10 +205,10 @@ describe("StartonERC721AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, "gvygvy");
-      await expect(
-        instanceSale.mint(addr2.address, "gvygvy")
-      ).to.be.revertedWith("Token has already been claimed");
+      await instanceSale.mint(addr2.address);
+      await expect(instanceSale.mint(addr2.address)).to.be.revertedWith(
+        "Token has already been claimed"
+      );
     });
 
     it("Should mint if everything is correct", async () => {
@@ -222,7 +221,7 @@ describe("StartonERC721AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, "gvygvy");
+      await instanceSale.mint(addr2.address);
       expect(await instanceERC721.ownerOf(0)).to.be.equal(addr2.address);
     });
   });
@@ -244,7 +243,7 @@ describe("StartonERC721AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, "gvygvy");
+      await instanceSale.mint(addr2.address);
 
       const oldBalance = await owner.getBalance();
       await instanceSale.connect(addr1).withdraw();
@@ -262,9 +261,33 @@ describe("StartonERC721AuctionSale", () => {
           BigNumber.from("1000"),
           BigNumber.from("100"),
           now.valueOf(),
-          now.valueOf() + 1000 * 60 * 60 * 24 * 7
+          now.valueOf() + 1000 * 60 * 60 * 24 * 7,
+          "ibuibibib"
         )
       ).to.be.revertedWith("The auction hasn't been claimed yet");
+    });
+
+    it("Shouldn't start a new auction if the end time is before the start time", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
+
+      await instanceSale
+        .connect(addr2)
+        .bid({ value: ethers.utils.parseEther("0.11") });
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [
+        now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
+      ]);
+      await instanceSale.mint(addr2.address);
+
+      await expect(
+        instanceSale.startNewAuction(
+          BigNumber.from("1000"),
+          BigNumber.from("100"),
+          now.valueOf(),
+          now.valueOf() - 10,
+          "ibuibibib"
+        )
+      ).to.be.revertedWith("Start time must be before end time");
     });
 
     it("Should start a new auction if everything is correct", async () => {
@@ -277,13 +300,14 @@ describe("StartonERC721AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address, "gvygvy");
+      await instanceSale.mint(addr2.address);
 
       await instanceSale.startNewAuction(
         BigNumber.from("10000"),
         BigNumber.from("1000"),
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
-        now.valueOf() + 1000 * 60 * 60 * 24 * 7 * 2 + 1
+        now.valueOf() + 1000 * 60 * 60 * 24 * 7 * 2 + 1,
+        "ibuibibib"
       );
 
       expect(await instanceSale.minPriceDifference()).to.be.equal(
@@ -301,6 +325,7 @@ describe("StartonERC721AuctionSale", () => {
       expect(await instanceSale.currentAuctionWinner()).to.be.equal(
         "0x0000000000000000000000000000000000000000"
       );
+      expect(await instanceSale.tokenURI()).to.be.equal("ibuibibib");
     });
   });
 });

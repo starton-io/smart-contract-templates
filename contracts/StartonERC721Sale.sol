@@ -3,11 +3,12 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721Sale
 /// @author Starton
-/// @notice Contract that can sell ERC721 tokens through a public sale with a limited avaible supply, start and end time as well as max tokens per address
+/// @notice Can sell ERC721 tokens through a public sale with a limited avaible supply, start and end time as well as max tokens per address
 contract StartonERC721Sale {
     using SafeMath for uint256;
 
@@ -33,14 +34,8 @@ contract StartonERC721Sale {
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
-        // Check if the address of the feeReceiver is correct
-        require(
-            definitiveFeeReceiver != address(0),
-            "Fee receiver address is not valid"
-        );
-        _feeReceiver = definitiveFeeReceiver;
-
         token = IStartonERC721(definitiveTokenAddress);
+        _feeReceiver = definitiveFeeReceiver;
         price = definitivePrice;
         startTime = definitiveStartTime;
         endTime = definitiveEndTime;
@@ -51,32 +46,26 @@ contract StartonERC721Sale {
     /**
      * @notice Mint a token to a given address for a price
      * @param to The address to mint the token to
-     * @param tokenURI The token metadata URI
      */
-    function mint(address to, string memory tokenURI) public payable {
+    function mint(address to) public payable {
         require(msg.value >= price, "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
-        _mint(to, tokenURI);
+        _mint(to, Strings.toString(token.totalSupply()));
     }
 
     /**
      * @notice Mint multiple tokens to a given address for a price
      * @param to The address to mint the token to
-     * @param tokenURIs The token metadata URI array
      */
-    function mintBatch(
-        address to,
-        uint256 amount,
-        string[] memory tokenURIs
-    ) public payable {
+    function mintBatch(address to, uint256 amount) public payable {
         require(msg.value >= price.mul(amount), "Insufficient funds");
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
         for (uint256 i = 0; i < amount; ++i) {
-            _mint(to, tokenURIs[i]);
+            _mint(to, Strings.toString(token.totalSupply()));
         }
     }
 
