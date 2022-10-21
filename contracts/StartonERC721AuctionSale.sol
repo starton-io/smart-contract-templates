@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.9;
 
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IStartonERC721.sol";
@@ -9,7 +10,7 @@ import "./interfaces/IStartonERC721.sol";
 /// @title StartonERC721AuctionSale
 /// @author Starton
 /// @notice Can sell ERC721 tokens through a auction
-contract StartonERC721AuctionSale is Ownable {
+contract StartonERC721AuctionSale is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     address private immutable _feeReceiver;
@@ -71,7 +72,7 @@ contract StartonERC721AuctionSale is Ownable {
     /**
      * @notice Bid for the current auction
      */
-    function bid() public payable {
+    function bid() public payable nonReentrant {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
         require(
@@ -89,7 +90,7 @@ contract StartonERC721AuctionSale is Ownable {
 
         // If there is a current winner, send the money back
         if (oldAuctionWinner != address(0)) {
-            payable(oldAuctionWinner).send(oldPrice);
+            payable(oldAuctionWinner).call{value: oldPrice}("");
         }
     }
 
@@ -105,9 +106,9 @@ contract StartonERC721AuctionSale is Ownable {
         require(endTime < block.timestamp, "Minting hasn't finished yet");
         require(!_claimed, "Token has already been claimed");
 
-        token.mint(to, tokenURI);
         _claimed = true;
         emit AuctionClaimed(to, currentPrice);
+        token.mint(to, tokenURI);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.9;
 
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IStartonERC1155.sol";
@@ -9,7 +10,7 @@ import "./interfaces/IStartonERC1155.sol";
 /// @title StartonERC1155AuctionSale
 /// @author Starton
 /// @notice Can sell ERC1155 tokens through a auction
-contract StartonERC1155AuctionSale is Ownable {
+contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     address private immutable _feeReceiver;
@@ -74,7 +75,7 @@ contract StartonERC1155AuctionSale is Ownable {
     /**
      * @notice Bid for the current auction
      */
-    function bid() public payable {
+    function bid() public payable nonReentrant {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
         require(
@@ -108,9 +109,9 @@ contract StartonERC1155AuctionSale is Ownable {
         require(endTime < block.timestamp, "Minting hasn't finished yet");
         require(!_claimed, "Token has already been claimed");
 
-        token.mint(to, tokenId, tokenAmount);
         _claimed = true;
         emit AuctionClaimed(to, currentPrice);
+        token.mint(to, tokenId, tokenAmount);
     }
 
     /**
