@@ -89,7 +89,7 @@ contract StartonERC721AuctionSale is Ownable {
 
         // If there is a current winner, send the money back
         if (oldAuctionWinner != address(0)) {
-            payable(oldAuctionWinner).transfer(oldPrice);
+            payable(oldAuctionWinner).send(oldPrice);
         }
     }
 
