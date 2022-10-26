@@ -1387,7 +1387,7 @@ pragma solidity 0.8.9;
 
 /// @title StartonERC20MetaTransaction
 /// @author Starton
-/// @notice ERC20 token that can be paused, locked, burned, have a access management and handle meta transactions
+/// @notice ERC20 tokens that can be paused, locked, burned, have a access management and handle meta transactions
 contract StartonERC20MintMetaTransaction is
     ERC20Burnable,
     Pausable,
