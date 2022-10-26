@@ -696,19 +696,14 @@ contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
 
     /**
      * @notice Claim the prize of the current auction
-     * @param to The address to send the prize to
      */
-    function mint(address to) public {
-        require(
-            to == currentAuctionWinner,
-            "Destination address isn't the current auction winner"
-        );
+    function claim() public {
         require(endTime < block.timestamp, "Minting hasn't finished yet");
         require(!_claimed, "Token has already been claimed");
 
         _claimed = true;
-        emit AuctionClaimed(to, currentPrice);
-        token.mint(to, tokenId, tokenAmount);
+        emit AuctionClaimed(currentAuctionWinner, currentPrice);
+        token.mint(currentAuctionWinner, tokenId, tokenAmount);
     }
 
     /**
