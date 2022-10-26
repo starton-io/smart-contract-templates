@@ -514,7 +514,7 @@ interface IERC721Enumerable is IERC721 {
 // File contracts/interfaces/IStartonERC721.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 interface IStartonERC721 is IERC721Enumerable {
     function mint(address to, string memory uri) external;

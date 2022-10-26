@@ -565,7 +565,7 @@ interface IERC1155 is IERC165 {
 // File contracts/interfaces/IStartonERC1155.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 interface IStartonERC1155 is IERC1155 {
     function mint(
