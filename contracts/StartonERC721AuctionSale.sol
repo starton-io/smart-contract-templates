@@ -9,7 +9,7 @@ import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721AuctionSale
 /// @author Starton
-/// @notice Can sell ERC721 tokens through a auction
+/// @notice Sell ERC721 tokens through an auction
 contract StartonERC721AuctionSale is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
@@ -29,13 +29,13 @@ contract StartonERC721AuctionSale is Ownable, ReentrancyGuard {
     // If the token as been claimed or not yet
     bool private _claimed;
 
-    /** @notice Event when a auction started */
+    /** @notice Event when an auction started */
     event AuctionStarted(uint256 startTime, uint256 endTime);
 
-    /** @notice Event when a auction winner has claimed his prize */
+    /** @notice Event when an auction winner has claimed his prize */
     event AuctionClaimed(address indexed winner, uint256 price);
 
-    /** @notice Event when a account bided on a auction */
+    /** @notice Event when an account bided on an auction */
     event Bided(address indexed bidder, uint256 amount);
 
     constructor(
@@ -145,6 +145,7 @@ contract StartonERC721AuctionSale is Ownable, ReentrancyGuard {
 
     /**
      * @notice Withdraw funds from the smart contract to the feeReceiver
+     * @dev send everything except the current price if there is an auction ongoing
      */
     function withdraw() public {
         if (currentAuctionWinner != address(0) && !_claimed) {

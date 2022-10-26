@@ -11,7 +11,7 @@ import "./utils/ContextMixin.sol";
 
 /// @title StartonERC1155MetaTransaction
 /// @author Starton
-/// @notice ERC1155 token that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
+/// @notice ERC1155 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
 contract StartonERC1155MetaTransaction is
     ERC1155Burnable,
     AccessControl,

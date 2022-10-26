@@ -643,7 +643,7 @@ pragma solidity 0.8.9;
 
 /// @title StartonERC1155WhitelistSale
 /// @author Starton
-/// @notice Can sell ERC721 tokens through a whitelist sale with a limited avaible supply, start and end time as well as max tokens per address
+/// @notice Sell ERC721 tokens through a whitelist sale with a limited available supply, start and end time as well as max tokens per address
 contract StartonERC1155WhitelistSale {
     using SafeMath for uint256;
 
