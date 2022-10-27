@@ -17,7 +17,7 @@ contract StartonERC1155Sale is Context {
     IStartonERC1155 public immutable token;
 
     struct TokenInformations {
-        uint256 price;
+        uint256 data;
         bool isSet;
     }
 
@@ -60,7 +60,7 @@ contract StartonERC1155Sale is Context {
     ) public payable {
         require(pricePerToken[id].isSet, "Price not set");
         require(
-            msg.value >= pricePerToken[id].price.mul(amount),
+            msg.value >= pricePerToken[id].data.mul(amount),
             "Insufficient funds"
         );
         require(startTime <= block.timestamp, "Minting not started");
@@ -93,7 +93,7 @@ contract StartonERC1155Sale is Context {
             require(pricePerToken[ids[i]].isSet, "Price not set");
 
             totalAmount = totalAmount.add(
-                pricePerToken[ids[i]].price.mul(amounts[i])
+                pricePerToken[ids[i]].data.mul(amounts[i])
             );
             require(value >= totalAmount, "Insufficient funds");
 

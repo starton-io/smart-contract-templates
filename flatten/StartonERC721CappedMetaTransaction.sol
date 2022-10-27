@@ -2372,7 +2372,7 @@ contract StartonERC721CappedMetaTransaction is
         address owner,
         address operator,
         bool approved
-    ) internal override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused notBlacklisted(operator) {
         super._setApprovalForAll(owner, operator, approved);
     }
 
@@ -2388,6 +2388,7 @@ contract StartonERC721CappedMetaTransaction is
         uint256 tokenId
     )
         internal
+        virtual
         override(ERC721, ERC721Enumerable)
         whenNotPaused
         notBlacklisted(_msgSender())
@@ -2396,11 +2397,12 @@ contract StartonERC721CappedMetaTransaction is
     }
 
     /**
-     * @dev Fix the inheritence problem for the _burn between ERC721 and erc721URIStorage
+     * @dev Fix the inheritence problem for the _burn between ERC721 and ERC721URIStorage
      * @param tokenId Id of the token that will be burnt
      */
     function _burn(uint256 tokenId)
         internal
+        virtual
         override(ERC721, ERC721URIStorage)
     {
         super._burn(tokenId);
@@ -2410,7 +2412,7 @@ contract StartonERC721CappedMetaTransaction is
      * @notice Returns the first part of the uri being used for the token metadata
      * @return Base URI of the token
      */
-    function _baseURI() internal view override returns (string memory) {
+    function _baseURI() internal view virtual override returns (string memory) {
         return _baseTokenURI;
     }
 

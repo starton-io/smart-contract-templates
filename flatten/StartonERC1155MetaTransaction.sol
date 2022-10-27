@@ -2171,7 +2171,7 @@ contract StartonERC1155MetaTransaction is
         address owner,
         address operator,
         bool approved
-    ) internal override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused notBlacklisted(operator) {
         super._setApprovalForAll(owner, operator, approved);
     }
 
@@ -2191,7 +2191,7 @@ contract StartonERC1155MetaTransaction is
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused notBlacklisted(operator) {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
