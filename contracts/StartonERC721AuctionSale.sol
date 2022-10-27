@@ -145,7 +145,7 @@ contract StartonERC721AuctionSale is Ownable, ReentrancyGuard {
     function withdraw() public {
         if (currentAuctionWinner != address(0) && !_claimed) {
             payable(_feeReceiver).transfer(
-                address(this).balance - currentPrice
+                address(this).balance.sub(currentPrice)
             );
         } else {
             payable(_feeReceiver).transfer(address(this).balance);
