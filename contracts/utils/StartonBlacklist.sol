@@ -6,6 +6,9 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
+/// @title StartonBlacklist
+/// @author Starton
+/// @notice Utility smart contract that can blacklist addresses
 contract StartonBlacklist is AccessControl {
     bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
 
