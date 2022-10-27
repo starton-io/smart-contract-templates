@@ -66,7 +66,16 @@ contract StartonERC721WhitelistSale is Context {
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
-        _mint(to, Strings.toString(token.totalSupply()));
+        if (token.totalSupply() == 0) {
+            _mint(to, Strings.toString(0));
+        } else {
+            _mint(
+                to,
+                Strings.toString(
+                    token.tokenByIndex(token.totalSupply().sub(1)).add(1)
+                )
+            );
+        }
     }
 
     /**
@@ -89,8 +98,14 @@ contract StartonERC721WhitelistSale is Context {
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
+        // Compute the next token id
+        uint256 tokenId;
+        if (token.totalSupply() == 0) tokenId = 0;
+        else tokenId = token.tokenByIndex(token.totalSupply().sub(1)).add(1);
+
         for (uint256 i = 0; i < amount; ++i) {
-            _mint(to, Strings.toString(token.totalSupply()));
+            _mint(to, Strings.toString(tokenId));
+            tokenId += 1;
         }
     }
 
