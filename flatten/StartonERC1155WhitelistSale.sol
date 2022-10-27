@@ -446,6 +446,33 @@ library SafeMath {
 }
 
 
+// File @openzeppelin/contracts/utils/Context.sol@v4.7.1
+
+// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
+    }
+}
+
+
 // File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.7.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
@@ -641,10 +668,11 @@ pragma solidity 0.8.9;
 
 
 
+
 /// @title StartonERC1155WhitelistSale
 /// @author Starton
 /// @notice Sell ERC721 tokens through a whitelist sale with a limited available supply, start and end time as well as max tokens per address
-contract StartonERC1155WhitelistSale {
+contract StartonERC1155WhitelistSale is Context {
     using SafeMath for uint256;
 
     address private immutable _feeReceiver;
@@ -700,7 +728,7 @@ contract StartonERC1155WhitelistSale {
         uint256 amount,
         bytes32[] calldata merkleProof
     ) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
+        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
         require(
             MerkleProof.verify(merkleProof, _merkleRoot, leaf),
             "Invalid proof"
@@ -730,7 +758,7 @@ contract StartonERC1155WhitelistSale {
         uint256[] memory amounts,
         bytes32[] calldata merkleProof
     ) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
+        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
         require(
             MerkleProof.verify(merkleProof, _merkleRoot, leaf),
             "Invalid proof"
@@ -785,13 +813,13 @@ contract StartonERC1155WhitelistSale {
         uint256 amount
     ) internal {
         require(
-            tokensClaimed[msg.sender].add(amount) <= maxTokensPerAddress,
+            tokensClaimed[_msgSender()].add(amount) <= maxTokensPerAddress,
             "Max tokens reached"
         );
         require(leftSupply >= amount, "Max supply reached");
 
         leftSupply = leftSupply.sub(amount);
-        tokensClaimed[msg.sender] = tokensClaimed[msg.sender].add(amount);
+        tokensClaimed[_msgSender()] = tokensClaimed[_msgSender()].add(amount);
         token.mint(to, id, amount);
     }
 }

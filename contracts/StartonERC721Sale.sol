@@ -4,12 +4,13 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721Sale
 /// @author Starton
 /// @notice Sell ERC721 tokens through a public sale with a limited available supply, start and end time as well as max tokens per address
-contract StartonERC721Sale {
+contract StartonERC721Sale is Context {
     using SafeMath for uint256;
 
     address private immutable _feeReceiver;
@@ -83,13 +84,13 @@ contract StartonERC721Sale {
      */
     function _mint(address to, string memory tokenURI) internal {
         require(
-            tokensClaimed[msg.sender] < maxTokensPerAddress,
+            tokensClaimed[_msgSender()] < maxTokensPerAddress,
             "Max tokens reached"
         );
         require(leftSupply != 0, "Max supply reached");
 
         leftSupply = leftSupply.sub(1);
-        tokensClaimed[msg.sender] = tokensClaimed[msg.sender].add(1);
+        tokensClaimed[_msgSender()] = tokensClaimed[_msgSender()].add(1);
         token.mint(to, tokenURI);
     }
 }
