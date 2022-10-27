@@ -164,8 +164,8 @@ describe("StartonERC1155AuctionSale", () => {
     });
   });
 
-  describe("Mint", () => {
-    it("Shouldn't mint if the auction hasn't finished", async () => {
+  describe("Claim", () => {
+    it("Shouldn't claim if the auction hasn't finished", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale
@@ -175,12 +175,12 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7,
       ]);
-      await expect(instanceSale.mint(addr2.address)).to.be.revertedWith(
+      await expect(instanceSale.claim()).to.be.revertedWith(
         "Minting hasn't finished yet"
       );
     });
 
-    it("Shouldn't mint if the destination address isn't the winner", async () => {
+    it("Shouldn't claim twice to the winner", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale
@@ -190,28 +190,13 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await expect(instanceSale.mint(addr1.address)).to.be.revertedWith(
-        "Destination address isn't the current auction winner"
-      );
-    });
-
-    it("Shouldn't mint twice to the winner", async () => {
-      await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
-
-      await instanceSale
-        .connect(addr2)
-        .bid({ value: ethers.utils.parseEther("0.11") });
-
-      await ethers.provider.send("evm_setNextBlockTimestamp", [
-        now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
-      ]);
-      await instanceSale.mint(addr2.address);
-      await expect(instanceSale.mint(addr2.address)).to.be.revertedWith(
+      await instanceSale.claim();
+      await expect(instanceSale.claim()).to.be.revertedWith(
         "Token has already been claimed"
       );
     });
 
-    it("Should mint if everything is correct", async () => {
+    it("Should claim if everything is correct", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale
@@ -221,7 +206,7 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address);
+      await instanceSale.claim();
       expect(await instanceERC1155.balanceOf(addr2.address, 10)).to.be.equal(1);
     });
   });
@@ -243,7 +228,7 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address);
+      await instanceSale.claim();
 
       const oldBalance = await owner.getBalance();
       await instanceSale.connect(addr1).withdraw();
@@ -278,7 +263,7 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address);
+      await instanceSale.claim();
 
       await expect(
         instanceSale.startNewAuction(
@@ -302,7 +287,7 @@ describe("StartonERC1155AuctionSale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
-      await instanceSale.mint(addr2.address);
+      await instanceSale.claim();
 
       await instanceSale.startNewAuction(
         BigNumber.from("10000"),
