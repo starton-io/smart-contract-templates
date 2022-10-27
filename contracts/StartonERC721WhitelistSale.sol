@@ -112,8 +112,8 @@ contract StartonERC721WhitelistSale {
         );
         require(leftSupply != 0, "Max supply reached");
 
-        token.mint(to, tokenURI);
         leftSupply = leftSupply.sub(1);
         tokensClaimed[msg.sender] = tokensClaimed[msg.sender].add(1);
+        token.mint(to, tokenURI);
     }
 }

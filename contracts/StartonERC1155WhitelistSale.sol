@@ -104,6 +104,7 @@ contract StartonERC1155WhitelistSale {
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 
+        uint256 value = msg.value;
         uint256 totalAmount = 0;
         for (uint256 i = 0; i < ids.length; ++i) {
             require(pricePerToken[ids[i]].isSet, "Price not set");
@@ -111,7 +112,7 @@ contract StartonERC1155WhitelistSale {
             totalAmount = totalAmount.add(
                 pricePerToken[ids[i]].price.mul(amounts[i])
             );
-            require(msg.value >= totalAmount, "Insufficient funds");
+            require(value >= totalAmount, "Insufficient funds");
 
             _mint(to, ids[i], amounts[i]);
         }
@@ -154,8 +155,8 @@ contract StartonERC1155WhitelistSale {
         );
         require(leftSupply >= amount, "Max supply reached");
 
-        token.mint(to, id, amount);
         leftSupply = leftSupply.sub(amount);
         tokensClaimed[msg.sender] = tokensClaimed[msg.sender].add(amount);
+        token.mint(to, id, amount);
     }
 }
