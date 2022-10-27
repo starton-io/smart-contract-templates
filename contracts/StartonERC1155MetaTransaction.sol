@@ -267,6 +267,6 @@ contract StartonERC1155MetaTransaction is
         override(Context, StartonContextMixin)
         returns (address)
     {
-        return StartonContextMixin._msgSender();
+        return super._msgSender();
     }
 }
