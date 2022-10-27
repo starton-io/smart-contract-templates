@@ -5,9 +5,9 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "./utils/NativeMetaTransaction.sol";
+import "./utils/StartonNativeMetaTransaction.sol";
+import "./utils/StartonContextMixin.sol";
 import "./utils/StartonBlacklist.sol";
-import "./utils/ContextMixin.sol";
 
 /// @title StartonERC1155MetaTransaction
 /// @author Starton
@@ -16,9 +16,9 @@ contract StartonERC1155MetaTransaction is
     ERC1155Burnable,
     AccessControl,
     Pausable,
+    StartonContextMixin,
     StartonBlacklist,
-    ContextMixin,
-    NativeMetaTransaction
+    StartonNativeMetaTransaction
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -264,9 +264,9 @@ contract StartonERC1155MetaTransaction is
         internal
         view
         virtual
-        override(Context, ContextMixin)
+        override(Context, StartonContextMixin)
         returns (address)
     {
-        return ContextMixin._msgSender();
+        return StartonContextMixin._msgSender();
     }
 }

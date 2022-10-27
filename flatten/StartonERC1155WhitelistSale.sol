@@ -758,6 +758,11 @@ contract StartonERC1155WhitelistSale is Context {
         uint256[] memory amounts,
         bytes32[] calldata merkleProof
     ) public payable {
+        require(
+            ids.length == amounts.length,
+            "ids and amounts length mismatch"
+        );
+
         bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
         require(
             MerkleProof.verify(merkleProof, _merkleRoot, leaf),

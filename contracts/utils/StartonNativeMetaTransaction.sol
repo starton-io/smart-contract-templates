@@ -4,9 +4,9 @@
 
 pragma solidity 0.8.9;
 
-import "./EIP712Base.sol";
+import "./StartonEIP712Base.sol";
 
-contract NativeMetaTransaction is EIP712Base {
+contract StartonNativeMetaTransaction is StartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
         keccak256(
             bytes(

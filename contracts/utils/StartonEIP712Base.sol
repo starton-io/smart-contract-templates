@@ -4,9 +4,9 @@
 
 pragma solidity 0.8.9;
 
-import "./Initializable.sol";
+import "./StartonInitializable.sol";
 
-contract EIP712Base is Initializable {
+contract StartonEIP712Base is StartonInitializable {
     struct EIP712Domain {
         string name;
         string version;

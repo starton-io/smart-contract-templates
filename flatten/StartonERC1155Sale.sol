@@ -527,6 +527,10 @@ contract StartonERC1155Sale is Context {
         uint256[] memory ids,
         uint256[] memory amounts
     ) public payable {
+        require(
+            ids.length == amounts.length,
+            "ids and amounts length mismatch"
+        );
         require(startTime <= block.timestamp, "Minting not started");
         require(endTime >= block.timestamp, "Minting finished");
 

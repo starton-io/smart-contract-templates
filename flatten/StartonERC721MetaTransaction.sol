@@ -1821,14 +1821,14 @@ library Counters {
 }
 
 
-// File contracts/utils/Initializable.sol
+// File contracts/utils/StartonInitializable.sol
 
 // Initializable contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract Initializable {
+contract StartonInitializable {
     bool private _inited = false;
 
     modifier initializer() {
@@ -1839,14 +1839,14 @@ contract Initializable {
 }
 
 
-// File contracts/utils/EIP712Base.sol
+// File contracts/utils/StartonEIP712Base.sol
 
 // EIP712Base contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract EIP712Base is Initializable {
+contract StartonEIP712Base is StartonInitializable {
     struct EIP712Domain {
         string name;
         string version;
@@ -1915,14 +1915,14 @@ contract EIP712Base is Initializable {
 }
 
 
-// File contracts/utils/NativeMetaTransaction.sol
+// File contracts/utils/StartonNativeMetaTransaction.sol
 
 // NativeMetaTransaction contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract NativeMetaTransaction is EIP712Base {
+contract StartonNativeMetaTransaction is StartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
         keccak256(
             bytes(
@@ -2019,6 +2019,33 @@ contract NativeMetaTransaction is EIP712Base {
                 sigR,
                 sigS
             );
+    }
+}
+
+
+// File contracts/utils/StartonContextMixin.sol
+
+// ContextMixin contract: version 0.0.1
+// Creator: https://starton.io
+
+pragma solidity 0.8.9;
+
+abstract contract StartonContextMixin {
+    function _msgSender() internal view virtual returns (address sender) {
+        if (msg.sender == address(this)) {
+            bytes memory array = msg.data;
+            uint256 index = msg.data.length;
+            assembly {
+                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
+                sender := and(
+                    mload(add(array, index)),
+                    0xffffffffffffffffffffffffffffffffffffffff
+                )
+            }
+        } else {
+            sender = msg.sender;
+        }
+        return sender;
     }
 }
 
@@ -2131,33 +2158,6 @@ contract StartonBlacklist is AccessControl {
 }
 
 
-// File contracts/utils/ContextMixin.sol
-
-// ContextMixin contract: version 0.0.1
-// Creator: https://starton.io
-
-pragma solidity 0.8.9;
-
-abstract contract ContextMixin {
-    function _msgSender() internal view virtual returns (address sender) {
-        if (msg.sender == address(this)) {
-            bytes memory array = msg.data;
-            uint256 index = msg.data.length;
-            assembly {
-                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
-                sender := and(
-                    mload(add(array, index)),
-                    0xffffffffffffffffffffffffffffffffffffffff
-                )
-            }
-        } else {
-            sender = msg.sender;
-        }
-        return sender;
-    }
-}
-
-
 // File contracts/StartonERC721MetaTransaction.sol
 
 
@@ -2181,8 +2181,8 @@ contract StartonERC721MetaTransaction is
     Pausable,
     AccessControl,
     StartonBlacklist,
-    ContextMixin,
-    NativeMetaTransaction
+    StartonContextMixin,
+    StartonNativeMetaTransaction
 {
     using Counters for Counters.Counter;
 
@@ -2414,9 +2414,9 @@ contract StartonERC721MetaTransaction is
         internal
         view
         virtual
-        override(Context, ContextMixin)
+        override(Context, StartonContextMixin)
         returns (address)
     {
-        return ContextMixin._msgSender();
+        return StartonContextMixin._msgSender();
     }
 }
