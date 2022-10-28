@@ -4,17 +4,17 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 
 import {
-  StartonVestingLinear,
-  StartonVestingLinear__factory, // eslint-disable-line camelcase
+  StartonLinearVesting,
+  StartonLinearVesting__factory, // eslint-disable-line camelcase
   StartonERC20Pause,
   StartonERC20Pause__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let Vesting: StartonVestingLinear__factory; // eslint-disable-line camelcase
+let Vesting: StartonLinearVesting__factory; // eslint-disable-line camelcase
 let Token: StartonERC20Pause__factory; // eslint-disable-line camelcase
 
-describe("StartonVestingLinear", () => {
-  let instanceVesting: StartonVestingLinear;
+describe("StartonLinearVesting", () => {
+  let instanceVesting: StartonLinearVesting;
   let instanceToken: StartonERC20Pause;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
@@ -22,7 +22,7 @@ describe("StartonVestingLinear", () => {
   let now: Date;
 
   enum TypeOfToken {
-    ERC20,
+    TOKEN,
     NATIVE,
   }
 
@@ -30,14 +30,14 @@ describe("StartonVestingLinear", () => {
     // Get the Signers here
     [owner, addr1, addr2] = await ethers.getSigners();
 
-    Vesting = new StartonVestingLinear__factory(owner);
+    Vesting = new StartonLinearVesting__factory(owner);
   });
 
   beforeEach(async () => {
     // Reset the whole waffle for each test
     await ethers.provider.send("hardhat_reset", []);
 
-    instanceVesting = (await Vesting.deploy()) as StartonVestingLinear;
+    instanceVesting = (await Vesting.deploy()) as StartonLinearVesting;
     await instanceVesting.deployed();
 
     now = new Date();
@@ -432,7 +432,7 @@ describe("StartonVestingLinear", () => {
           await instanceVesting.getVestingsBeneficiaries();
         const awaitedVesting1 = [
           amount1,
-          TypeOfToken.ERC20,
+          TypeOfToken.TOKEN,
           instanceToken.address,
           start1,
           endTimestamp1,
@@ -440,7 +440,7 @@ describe("StartonVestingLinear", () => {
         ];
         const awaitedVesting2 = [
           amount2,
-          TypeOfToken.ERC20,
+          TypeOfToken.TOKEN,
           instanceToken.address,
           start2,
           endTimestamp2,
@@ -448,7 +448,7 @@ describe("StartonVestingLinear", () => {
         ];
         const awaitedVesting3 = [
           amount3,
-          TypeOfToken.ERC20,
+          TypeOfToken.TOKEN,
           instanceToken.address,
           start3,
           endTimestamp3,
@@ -527,7 +527,7 @@ describe("StartonVestingLinear", () => {
           await instanceVesting.getVesting(addr1.address, 0)
         ).to.deep.equal([
           amount,
-          TypeOfToken.ERC20,
+          TypeOfToken.TOKEN,
           instanceToken.address,
           start,
           endTimestamp,
@@ -562,7 +562,7 @@ describe("StartonVestingLinear", () => {
           await instanceVesting.getVesting(addr1.address, 0)
         ).to.deep.equal([
           amount,
-          TypeOfToken.ERC20,
+          TypeOfToken.TOKEN,
           instanceToken.address,
           start,
           endTimestamp,
@@ -580,7 +580,7 @@ describe("StartonVestingLinear", () => {
           await instanceVesting.getVesting(addr1.address, 0)
         ).to.deep.equal([
           amount,
-          TypeOfToken.ERC20,
+          TypeOfToken.TOKEN,
           instanceToken.address,
           start,
           endTimestamp,

@@ -568,7 +568,7 @@ abstract contract Context {
 }
 
 
-// File contracts/StartonFlexibleVesting.sol
+// File contracts/StartonLinearVesting.sol
 
 
 pragma solidity 0.8.9;
@@ -576,11 +576,11 @@ pragma solidity 0.8.9;
 
 
 
-contract StartonVestingLinear is Context {
+contract StartonLinearVesting is Context {
     using SafeMath for uint256;
 
     enum TypeOfToken {
-        ERC20,
+        TOKEN,
         NATIVE
     }
 
@@ -591,6 +591,35 @@ contract StartonVestingLinear is Context {
         uint64 startTimestamp;
         uint64 endTimestamp;
         uint256 amountClaimed;
+    }
+
+    event AddedVesting(
+        address indexed account,
+        address indexed token,
+        uint256 amount,
+        uint64 startTimestamp,
+        uint64 endTimestamp
+    );
+
+    event ClaimedVesting(
+        address indexed account,
+        address indexed token,
+        uint256 amount
+    );
+
+    event RemovedVesting(
+        address indexed account,
+        address indexed token,
+        uint256 amount
+    );
+
+    modifier PoggiDiGiovanni(uint256 amount, uint64 endTimestamp) {
+        require(amount != 0, "Amount is zero");
+        require(
+            endTimestamp >= block.timestamp,
+            "End timestamp is in the past"
+        );
+        _;
     }
 
     address[] private _vestingBeneficiaries;
@@ -634,13 +663,11 @@ contract StartonVestingLinear is Context {
         uint64 endTimestamp,
         uint256 amount,
         address token
-    ) public payable {
-        require(amount != 0, "Amount is zero");
-
+    ) public payable PoggiDiGiovanni(amount, endTimestamp) {
         IERC20 erc20Token = IERC20(token);
         require(
             erc20Token.balanceOf(_msgSender()) >= amount,
-            "Not enough tokens"
+            "Not enough balance"
         );
         require(
             erc20Token.allowance(_msgSender(), address(this)) >= amount,
@@ -657,7 +684,7 @@ contract StartonVestingLinear is Context {
         _vestings[beneficiary].push(
             VestingData({
                 amount: amount,
-                tokenType: TypeOfToken.ERC20,
+                tokenType: TypeOfToken.TOKEN,
                 token: erc20Token,
                 startTimestamp: uint64(block.timestamp),
                 amountClaimed: 0,
@@ -667,18 +694,20 @@ contract StartonVestingLinear is Context {
         if (!_isBeneficiary(beneficiary)) {
             _vestingBeneficiaries.push(beneficiary);
         }
+        emit AddedVesting(
+            beneficiary,
+            token,
+            amount,
+            uint64(block.timestamp),
+            endTimestamp
+        );
     }
 
     function addNativeVesting(address beneficiary, uint64 endTimestamp)
         public
         payable
+        PoggiDiGiovanni(msg.value, endTimestamp)
     {
-        require(msg.value != 0, "Amount is zero");
-        require(
-            endTimestamp >= block.timestamp,
-            "End timestamp is in the past"
-        );
-
         _vestings[beneficiary].push(
             VestingData({
                 amount: msg.value,
@@ -692,6 +721,13 @@ contract StartonVestingLinear is Context {
         if (!_isBeneficiary(beneficiary)) {
             _vestingBeneficiaries.push(beneficiary);
         }
+        emit AddedVesting(
+            beneficiary,
+            address(0),
+            msg.value,
+            uint64(block.timestamp),
+            endTimestamp
+        );
     }
 
     function getClaimValue(VestingData memory vesting)
@@ -716,12 +752,13 @@ contract StartonVestingLinear is Context {
         VestingData memory vesting = getVesting(beneficiary, index);
         uint256 value = getClaimValue(vesting);
 
-        if (vesting.tokenType == TypeOfToken.ERC20) {
+        if (vesting.tokenType == TypeOfToken.TOKEN) {
             bool success = vesting.token.transfer(beneficiary, value);
             require(success, "Transfer failed");
         } else {
             Address.sendValue(payable(beneficiary), value);
         }
+        emit ClaimedVesting(beneficiary, address(vesting.token), value);
         if (vesting.endTimestamp > block.timestamp) {
             _vestings[beneficiary][index].amountClaimed = vesting
                 .amountClaimed
@@ -730,6 +767,7 @@ contract StartonVestingLinear is Context {
             VestingData[] storage vestings = _vestings[beneficiary];
             vestings[index] = vestings[vestings.length - 1];
             vestings.pop();
+            emit RemovedVesting(beneficiary, address(vesting.token), value);
 
             if (vestings.length == 0) {
                 uint256 nbBeneficiaries = _vestingBeneficiaries.length;
