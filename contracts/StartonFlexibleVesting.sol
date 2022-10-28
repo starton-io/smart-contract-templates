@@ -67,11 +67,15 @@ contract StartonVestingLinear is Context {
         address token
     ) public payable {
         require(amount != 0, "Amount is zero");
+        require(
+            endTimestamp >= block.timestamp,
+            "End timestamp is in the past"
+        );
 
         IERC20 erc20Token = IERC20(token);
         require(
             erc20Token.balanceOf(_msgSender()) >= amount,
-            "Not enough tokens"
+            "Not enough balance"
         );
         require(
             erc20Token.allowance(_msgSender(), address(this)) >= amount,
