@@ -590,7 +590,6 @@ contract StartonVestingLinear is Context {
         IERC20 token;
         uint64 startTimestamp;
         uint64 endTimestamp;
-        address beneficiary;
         uint256 amountClaimed;
     }
 
@@ -604,15 +603,33 @@ contract StartonVestingLinear is Context {
         view
         returns (VestingData memory)
     {
-        require(index < _vestings[beneficiary].length, "Index out of bounds");
+        require(index < _vestings[beneficiary].length, "Vesting doesn't exist");
         return _vestings[beneficiary][index];
     }
 
-    function getVestingsBeneficiary() public view returns (address[] memory) {
+    function getVestingsBeneficiaries() public view returns (address[] memory) {
         return _vestingBeneficiaries;
     }
 
-    function addVesting(
+    function getVestings(address beneficiary)
+        public
+        view
+        returns (VestingData[] memory)
+    {
+        return _vestings[beneficiary];
+    }
+
+    function _isBeneficiary(address beneficiary) internal view returns (bool) {
+        uint256 nbBeneficiaries = _vestingBeneficiaries.length;
+        for (uint256 i = 0; i < nbBeneficiaries; ++i) {
+            if (_vestingBeneficiaries[i] == beneficiary) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function addTokenVesting(
         address beneficiary,
         uint64 endTimestamp,
         uint256 amount,
@@ -637,18 +654,19 @@ contract StartonVestingLinear is Context {
         );
         require(success, "Transfer failed");
 
-        _vestings[_msgSender()].push(
+        _vestings[beneficiary].push(
             VestingData({
                 amount: amount,
                 tokenType: TypeOfToken.ERC20,
                 token: erc20Token,
                 startTimestamp: uint64(block.timestamp),
                 amountClaimed: 0,
-                endTimestamp: endTimestamp,
-                beneficiary: beneficiary
+                endTimestamp: endTimestamp
             })
         );
-        _vestingBeneficiaries.push(beneficiary);
+        if (!_isBeneficiary(beneficiary)) {
+            _vestingBeneficiaries.push(beneficiary);
+        }
     }
 
     function addNativeVesting(address beneficiary, uint64 endTimestamp)
@@ -656,29 +674,33 @@ contract StartonVestingLinear is Context {
         payable
     {
         require(msg.value != 0, "Amount is zero");
-        require(endTimestamp > block.timestamp, "End timestamp is in the past");
+        require(
+            endTimestamp >= block.timestamp,
+            "End timestamp is in the past"
+        );
 
-        _vestings[_msgSender()].push(
+        _vestings[beneficiary].push(
             VestingData({
                 amount: msg.value,
                 tokenType: TypeOfToken.NATIVE,
                 token: IERC20(address(0)),
                 startTimestamp: uint64(block.timestamp),
                 amountClaimed: 0,
-                endTimestamp: endTimestamp,
-                beneficiary: beneficiary
+                endTimestamp: endTimestamp
             })
         );
-        _vestingBeneficiaries.push(beneficiary);
+        if (!_isBeneficiary(beneficiary)) {
+            _vestingBeneficiaries.push(beneficiary);
+        }
     }
 
-    function claimVesting(uint256 index) public {
-        require(index < _vestings[_msgSender()].length, "Index out of bounds");
-
-        VestingData memory vesting = _vestings[_msgSender()][index];
-
+    function getClaimValue(VestingData memory vesting)
+        public
+        view
+        returns (uint256)
+    {
         uint256 value;
-        if (vesting.endTimestamp < block.timestamp) {
+        if (vesting.endTimestamp > block.timestamp) {
             value = vesting
                 .amount
                 .mul(block.timestamp.sub(vesting.startTimestamp))
@@ -687,19 +709,46 @@ contract StartonVestingLinear is Context {
         } else {
             value = vesting.amount - vesting.amountClaimed;
         }
-
-        if (vesting.tokenType == TypeOfToken.ERC20) {
-            bool success = vesting.token.transfer(vesting.beneficiary, value);
-            require(success, "Transfer failed");
-        } else {
-            Address.sendValue(payable(vesting.beneficiary), value);
-        }
-        vesting.amountClaimed = vesting.amountClaimed.add(value);
+        return value;
     }
 
-    function claimAllVestings() public {
-        for (uint256 i = 0; i < _vestings[_msgSender()].length; ++i) {
-            claimVesting(i);
+    function claimVesting(address beneficiary, uint256 index) public {
+        VestingData memory vesting = getVesting(beneficiary, index);
+        uint256 value = getClaimValue(vesting);
+
+        if (vesting.tokenType == TypeOfToken.ERC20) {
+            bool success = vesting.token.transfer(beneficiary, value);
+            require(success, "Transfer failed");
+        } else {
+            Address.sendValue(payable(beneficiary), value);
+        }
+        if (vesting.endTimestamp > block.timestamp) {
+            _vestings[beneficiary][index].amountClaimed = vesting
+                .amountClaimed
+                .add(value);
+        } else {
+            VestingData[] storage vestings = _vestings[beneficiary];
+            vestings[index] = vestings[vestings.length - 1];
+            vestings.pop();
+
+            if (vestings.length == 0) {
+                uint256 nbBeneficiaries = _vestingBeneficiaries.length;
+                for (uint256 i = 0; i < nbBeneficiaries; ++i) {
+                    if (_vestingBeneficiaries[i] == beneficiary) {
+                        _vestingBeneficiaries[i] = _vestingBeneficiaries[
+                            nbBeneficiaries - 1
+                        ];
+                        _vestingBeneficiaries.pop();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    function claimAllVestings(address beneficiary) public {
+        for (uint256 i = 0; i < _vestings[beneficiary].length; ++i) {
+            claimVesting(beneficiary, i);
         }
     }
 }
