@@ -110,6 +110,8 @@ describe("StartonLinearVesting", () => {
           value: amount3,
         });
 
+        const vestingNb1 = await instanceVesting.getVestingsNumber(addr1.address);
+        const vestingNb2 = await instanceVesting.getVestingsNumber(addr2.address);
         const vesting1 = await instanceVesting.getVesting(addr1.address, 0);
         const vesting2 = await instanceVesting.getVesting(addr1.address, 1);
         const vesting3 = await instanceVesting.getVesting(addr2.address, 0);
@@ -142,6 +144,8 @@ describe("StartonLinearVesting", () => {
           0,
         ];
 
+        expect(vestingNb1).to.deep.equal(2);
+        expect(vestingNb2).to.deep.equal(1);
         expect(vesting1).to.deep.equal(awaitedVesting1);
         expect(vesting2).to.deep.equal(awaitedVesting2);
         expect(vesting3).to.deep.equal(awaitedVesting3);
