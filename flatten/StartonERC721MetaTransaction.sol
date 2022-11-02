@@ -2065,7 +2065,7 @@ contract StartonBlacklist is AccessControl {
 
     mapping(address => bool) private _blacklisted;
 
-    /** @notice Event when a new address is blacklisted */
+    /** @notice Event emitted when a new address is blacklisted */
     event Blacklisted(address indexed account, bool indexed isBlacklisted);
 
     /** @dev Modifier that reverts when the address is blacklisted */
@@ -2199,10 +2199,10 @@ contract StartonERC721MetaTransaction is
     bool private _isMintAllowed;
     bool private _isMetatadataChangingAllowed;
 
-    /** @notice Event when the minting is locked */
+    /** @notice Event emitted when the minting is locked */
     event MintingLocked(address indexed account);
 
-    /** @notice Event when the metadata are locked */
+    /** @notice Event emitted when the metadata are locked */
     event MetadataLocked(address indexed account);
 
     /** @dev Modifier that reverts when the minting is locked */

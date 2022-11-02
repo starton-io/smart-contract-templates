@@ -29,13 +29,13 @@ contract StartonERC721AuctionSale is Ownable, ReentrancyGuard {
     // If the token as been claimed or not yet
     bool private _claimed;
 
-    /** @notice Event when an auction started */
+    /** @notice Event emitted when an auction started */
     event AuctionStarted(uint256 startTime, uint256 endTime);
 
-    /** @notice Event when an auction winner has claimed his prize */
+    /** @notice Event emitted when an auction winner has claimed his prize */
     event AuctionClaimed(address indexed winner, uint256 price);
 
-    /** @notice Event when an account bided on an auction */
+    /** @notice Event emitted when an account bided on an auction */
     event Bided(address indexed bidder, uint256 amount);
 
     constructor(

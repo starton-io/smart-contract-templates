@@ -32,10 +32,10 @@ contract StartonERC1155MetaTransaction is
     bool private _isMintAllowed;
     bool private _isMetatadataChangingAllowed;
 
-    /** @notice Event when the minting is locked */
+    /** @notice Event emitted when the minting is locked */
     event MintingLocked(address indexed account);
 
-    /** @notice Event when the metadata are locked */
+    /** @notice Event emitted when the metadata are locked */
     event MetadataLocked(address indexed account);
 
     /** @dev Modifier that reverts when the minting is locked */

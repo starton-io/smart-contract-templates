@@ -14,7 +14,7 @@ contract StartonBlacklist is AccessControl {
 
     mapping(address => bool) private _blacklisted;
 
-    /** @notice Event when a new address is blacklisted */
+    /** @notice Event emitted when a new address is blacklisted */
     event Blacklisted(address indexed account, bool indexed isBlacklisted);
 
     /** @dev Modifier that reverts when the address is blacklisted */
