@@ -110,8 +110,12 @@ describe("StartonLinearVesting", () => {
           value: amount3,
         });
 
-        const vestingNb1 = await instanceVesting.getVestingsNumber(addr1.address);
-        const vestingNb2 = await instanceVesting.getVestingsNumber(addr2.address);
+        const vestingNb1 = await instanceVesting.getVestingsNumber(
+          addr1.address
+        );
+        const vestingNb2 = await instanceVesting.getVestingsNumber(
+          addr2.address
+        );
         const vesting1 = await instanceVesting.getVesting(addr1.address, 0);
         const vesting2 = await instanceVesting.getVesting(addr1.address, 1);
         const vesting3 = await instanceVesting.getVesting(addr2.address, 0);
@@ -161,7 +165,7 @@ describe("StartonLinearVesting", () => {
     describe("Claim a native vesting", () => {
       it("Shouldn't claim a native vesting if the vesting doesn't exist", async () => {
         await expect(
-          instanceVesting.claimVesting(addr1.address, 0)
+          instanceVesting.connect(addr1).claimVesting(0)
         ).to.be.revertedWith("Vesting doesn't exist");
       });
 
@@ -177,10 +181,10 @@ describe("StartonLinearVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
-        await instanceVesting.claimVesting(addr1.address, 0);
+        await instanceVesting.connect(addr1).claimVesting(0);
 
         await expect(
-          instanceVesting.claimVesting(addr1.address, 0)
+          instanceVesting.connect(addr1).claimVesting(0)
         ).to.be.revertedWith("Vesting doesn't exist");
       });
 
@@ -198,9 +202,13 @@ describe("StartonLinearVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start + 50]);
 
         const beforeBalance = await addr1.getBalance();
-        await instanceVesting.claimVesting(addr1.address, 0);
+        const op = await instanceVesting.connect(addr1).claimVesting(0);
         expect(await addr1.getBalance()).to.be.equal(
-          beforeBalance.add(amount.div(2))
+          beforeBalance
+            .add(amount.div(2))
+            .sub(
+              (await op.wait()).gasUsed.mul((await op.wait()).effectiveGasPrice)
+            )
         );
         expect(
           await instanceVesting.getVesting(addr1.address, 0)
@@ -228,9 +236,15 @@ describe("StartonLinearVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start + 50]);
 
         let beforeBalance = await addr1.getBalance();
-        await instanceVesting.claimVesting(addr1.address, 0);
+        const op1 = await instanceVesting.connect(addr1).claimVesting(0);
         expect(await addr1.getBalance()).to.be.equal(
-          beforeBalance.add(amount.div(10).mul(5))
+          beforeBalance
+            .add(amount.div(10).mul(5))
+            .sub(
+              (await op1.wait()).gasUsed.mul(
+                (await op1.wait()).effectiveGasPrice
+              )
+            )
         );
         expect(
           await instanceVesting.getVesting(addr1.address, 0)
@@ -246,9 +260,15 @@ describe("StartonLinearVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start + 70]);
 
         beforeBalance = await addr1.getBalance();
-        await instanceVesting.claimVesting(addr1.address, 0);
+        const op2 = await instanceVesting.connect(addr1).claimVesting(0);
         expect(await addr1.getBalance()).to.be.equal(
-          beforeBalance.add(amount.div(10).mul(2))
+          beforeBalance
+            .add(amount.div(10).mul(2))
+            .sub(
+              (await op2.wait()).gasUsed.mul(
+                (await op2.wait()).effectiveGasPrice
+              )
+            )
         );
         expect(
           await instanceVesting.getVesting(addr1.address, 0)
@@ -264,9 +284,15 @@ describe("StartonLinearVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
         beforeBalance = await addr1.getBalance();
-        await instanceVesting.claimVesting(addr1.address, 0);
+        const op3 = await instanceVesting.connect(addr1).claimVesting(0);
         expect(await addr1.getBalance()).to.be.equal(
-          beforeBalance.add(amount.div(10).mul(3))
+          beforeBalance
+            .add(amount.div(10).mul(3))
+            .sub(
+              (await op3.wait()).gasUsed.mul(
+                (await op3.wait()).effectiveGasPrice
+              )
+            )
         );
         await expect(
           instanceVesting.getVesting(addr1.address, 0)
@@ -287,8 +313,14 @@ describe("StartonLinearVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
         const beforeBalance = await addr1.getBalance();
-        await instanceVesting.claimVesting(addr1.address, 0);
-        expect(await addr1.getBalance()).to.be.equal(beforeBalance.add(amount));
+        const op = await instanceVesting.connect(addr1).claimVesting(0);
+        expect(await addr1.getBalance()).to.be.equal(
+          beforeBalance
+            .add(amount)
+            .sub(
+              (await op.wait()).gasUsed.mul((await op.wait()).effectiveGasPrice)
+            )
+        );
         await expect(
           instanceVesting.getVesting(addr1.address, 0)
         ).to.be.revertedWith("Vesting doesn't exist");
@@ -475,7 +507,7 @@ describe("StartonLinearVesting", () => {
     describe("Claim a token vesting", () => {
       it("Shouldn't claim a token vesting if the vesting doesn't exist", async () => {
         await expect(
-          instanceVesting.claimVesting(addr1.address, 0)
+          instanceVesting.connect(addr1).claimVesting(0)
         ).to.be.revertedWith("Vesting doesn't exist");
       });
 
@@ -496,12 +528,10 @@ describe("StartonLinearVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
-        await instanceVesting.claimVesting(addr1.address, 0, {
-          gasLimit: 1000000,
-        });
+        await instanceVesting.connect(addr1).claimVesting(0);
 
         await expect(
-          instanceVesting.claimVesting(addr1.address, 0)
+          instanceVesting.connect(addr1).claimVesting(0)
         ).to.be.revertedWith("Vesting doesn't exist");
       });
 
@@ -524,7 +554,7 @@ describe("StartonLinearVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start + 50]);
 
         const beforeBalance = await instanceToken.balanceOf(addr1.address);
-        await instanceVesting.claimVesting(addr1.address, 0);
+        await instanceVesting.connect(addr1).claimVesting(0);
         expect(await instanceToken.balanceOf(addr1.address)).to.be.equal(
           beforeBalance.add(amount.div(2))
         );
@@ -559,7 +589,7 @@ describe("StartonLinearVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start + 50]);
 
         let beforeBalance = await instanceToken.balanceOf(addr1.address);
-        await instanceVesting.claimVesting(addr1.address, 0);
+        await instanceVesting.connect(addr1).claimVesting(0);
         expect(await instanceToken.balanceOf(addr1.address)).to.be.equal(
           beforeBalance.add(amount.div(10).mul(5))
         );
@@ -577,7 +607,7 @@ describe("StartonLinearVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start + 70]);
 
         beforeBalance = await instanceToken.balanceOf(addr1.address);
-        await instanceVesting.claimVesting(addr1.address, 0);
+        await instanceVesting.connect(addr1).claimVesting(0);
         expect(await instanceToken.balanceOf(addr1.address)).to.be.equal(
           beforeBalance.add(amount.div(10).mul(2))
         );
@@ -595,7 +625,7 @@ describe("StartonLinearVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
         beforeBalance = await instanceToken.balanceOf(addr1.address);
-        await instanceVesting.claimVesting(addr1.address, 0);
+        await instanceVesting.connect(addr1).claimVesting(0);
         expect(await instanceToken.balanceOf(addr1.address)).to.be.equal(
           beforeBalance.add(amount.div(10).mul(3))
         );
@@ -623,7 +653,7 @@ describe("StartonLinearVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
         const beforeBalance = await instanceToken.balanceOf(addr1.address);
-        await instanceVesting.claimVesting(addr1.address, 0);
+        await instanceVesting.connect(addr1).claimVesting(0);
         expect(await instanceToken.balanceOf(addr1.address)).to.be.equal(
           beforeBalance.add(amount)
         );

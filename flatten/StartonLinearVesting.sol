@@ -757,31 +757,30 @@ contract StartonLinearVesting is Context {
 
     /**
      * @notice Claim a vesting
-     * @param beneficiary The account that have the vesting
      * @param index The index of the vesting
      */
-    function claimVesting(address beneficiary, uint256 index) public {
-        VestingData memory vesting = getVesting(beneficiary, index);
+    function claimVesting(uint256 index) public {
+        VestingData memory vesting = getVesting(_msgSender(), index);
         uint256 value = getClaimValue(vesting);
 
-        emit ClaimedVesting(beneficiary, index, address(vesting.token), value);
+        emit ClaimedVesting(_msgSender(), index, address(vesting.token), value);
 
         // If the vesting is finished, remove it from the list else update the amount claimed
         if (vesting.endTimestamp > block.timestamp) {
-            _vestings[beneficiary][index].amountClaimed = vesting
+            _vestings[_msgSender()][index].amountClaimed = vesting
                 .amountClaimed
                 .add(value);
         } else {
             // remove the vesting from the list
-            VestingData[] storage vestings = _vestings[beneficiary];
+            VestingData[] storage vestings = _vestings[_msgSender()];
             vestings[index] = vestings[vestings.length - 1];
             vestings.pop();
 
-            // If the beneficiary doesn't have any vesting, remove it from the list
+            // If the sender doesn't have any vesting, remove it from the list
             if (vestings.length == 0) {
                 uint256 nbBeneficiaries = _vestingBeneficiaries.length;
                 for (uint256 i = 0; i < nbBeneficiaries; ++i) {
-                    if (_vestingBeneficiaries[i] == beneficiary) {
+                    if (_vestingBeneficiaries[i] == _msgSender()) {
                         _vestingBeneficiaries[i] = _vestingBeneficiaries[
                             nbBeneficiaries - 1
                         ];
@@ -790,25 +789,24 @@ contract StartonLinearVesting is Context {
                     }
                 }
             }
-            emit FinishedVesting(beneficiary, index, address(vesting.token), vesting.amount);
+            emit FinishedVesting(_msgSender(), index, address(vesting.token), vesting.amount);
         }
 
-        // Send the tokens to the beneficiary
+        // Send the tokens to the sender
         if (vesting.tokenType == TypeOfToken.TOKEN) {
-            bool success = vesting.token.transfer(beneficiary, value);
+            bool success = vesting.token.transfer(_msgSender(), value);
             require(success, "Transfer failed");
         } else {
-            Address.sendValue(payable(beneficiary), value);
+            Address.sendValue(payable(_msgSender()), value);
         }
     }
 
     /**
-     * @notice Claim all the vestings of a beneficiary
-     * @param beneficiary The account that have the vestings
+     * @notice Claim all the vestings of the sender
      */
-    function claimAllVestings(address beneficiary) public {
-        uint256 length = _vestings[beneficiary].length;
-        for (uint256 i = 0; i < length; ++i) claimVesting(beneficiary, i);
+    function claimAllVestings() public {
+        uint256 length = _vestings[_msgSender()].length;
+        for (uint256 i = 0; i < length; ++i) claimVesting(i);
     }
 
     /**
