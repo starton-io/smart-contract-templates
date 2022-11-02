@@ -21,9 +21,10 @@ describe("StartonLinearVesting", () => {
   let addr2: SignerWithAddress;
   let now: Date;
 
+  // eslint-disable-next-line no-unused-vars
   enum TypeOfToken {
-    TOKEN,
-    NATIVE,
+    TOKEN, // eslint-disable-line no-unused-vars
+    NATIVE, // eslint-disable-line no-unused-vars
   }
 
   before(async () => {
