@@ -613,25 +613,28 @@ contract StartonLinearVesting is Context {
 
     /** @notice Event emitted when a new vesting has been added */
     event AddedVesting(
-        address indexed account,
-        address indexed token,
-        uint256 amount,
+        address indexed beneficiary,
+        uint256 indexed index,
+        address token,
+        uint256 totalAmount,
         uint64 startTimestamp,
         uint64 endTimestamp
     );
 
     /** @notice Event emitted when a vesting has been claimed */
     event ClaimedVesting(
-        address indexed account,
-        address indexed token,
-        uint256 amount
+        address indexed beneficiary,
+        uint256 indexed index,
+        address token,
+        uint256 amountClaimed
     );
 
     /** @notice Event emitted when a vesting has been fully claimed */
     event FinishedVesting(
-        address indexed account,
-        address indexed token,
-        uint256 amount
+        address indexed beneficiary,
+        uint256 indexed index,
+        address token,
+        uint256 totalAmount
     );
 
     constructor() {}
@@ -660,13 +663,6 @@ contract StartonLinearVesting is Context {
             "Not enough allowance"
         );
 
-        bool success = erc20Token.transferFrom(
-            _msgSender(),
-            address(this),
-            amount
-        );
-        require(success, "Transfer failed");
-
         _vestings[beneficiary].push(
             VestingData({
                 amount: amount,
@@ -684,11 +680,19 @@ contract StartonLinearVesting is Context {
 
         emit AddedVesting(
             beneficiary,
+            getVestingsNumber(beneficiary) - 1,
             token,
             amount,
             uint64(block.timestamp),
             endTimestamp
         );
+
+        bool success = erc20Token.transferFrom(
+            _msgSender(),
+            address(this),
+            amount
+        );
+        require(success, "Transfer failed");
     }
 
     /**
@@ -718,6 +722,7 @@ contract StartonLinearVesting is Context {
 
         emit AddedVesting(
             beneficiary,
+            getVestingsNumber(beneficiary) - 1,
             address(0),
             msg.value,
             uint64(block.timestamp),
@@ -759,14 +764,7 @@ contract StartonLinearVesting is Context {
         VestingData memory vesting = getVesting(beneficiary, index);
         uint256 value = getClaimValue(vesting);
 
-        // Send the tokens to the beneficiary
-        if (vesting.tokenType == TypeOfToken.TOKEN) {
-            bool success = vesting.token.transfer(beneficiary, value);
-            require(success, "Transfer failed");
-        } else {
-            Address.sendValue(payable(beneficiary), value);
-        }
-        emit ClaimedVesting(beneficiary, address(vesting.token), value);
+        emit ClaimedVesting(beneficiary, index, address(vesting.token), value);
 
         // If the vesting is finished, remove it from the list else update the amount claimed
         if (vesting.endTimestamp > block.timestamp) {
@@ -792,7 +790,15 @@ contract StartonLinearVesting is Context {
                     }
                 }
             }
-            emit FinishedVesting(beneficiary, address(vesting.token), value);
+            emit FinishedVesting(beneficiary, index, address(vesting.token), vesting.amount);
+        }
+
+        // Send the tokens to the beneficiary
+        if (vesting.tokenType == TypeOfToken.TOKEN) {
+            bool success = vesting.token.transfer(beneficiary, value);
+            require(success, "Transfer failed");
+        } else {
+            Address.sendValue(payable(beneficiary), value);
         }
     }
 
@@ -801,8 +807,8 @@ contract StartonLinearVesting is Context {
      * @param beneficiary The account that have the vestings
      */
     function claimAllVestings(address beneficiary) public {
-        for (uint256 i = 0; i < _vestings[beneficiary].length; ++i)
-            claimVesting(beneficiary, i);
+        uint256 length = _vestings[beneficiary].length;
+        for (uint256 i = 0; i < length; ++i) claimVesting(beneficiary, i);
     }
 
     /**
@@ -860,11 +866,8 @@ contract StartonLinearVesting is Context {
      */
     function _isBeneficiary(address beneficiary) internal view returns (bool) {
         uint256 nbBeneficiaries = _vestingBeneficiaries.length;
-        for (uint256 i = 0; i < nbBeneficiaries; ++i) {
-            if (_vestingBeneficiaries[i] == beneficiary) {
-                return true;
-            }
-        }
+        for (uint256 i = 0; i < nbBeneficiaries; ++i)
+            if (_vestingBeneficiaries[i] == beneficiary) return true;
         return false;
     }
 }
