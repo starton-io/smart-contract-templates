@@ -24,7 +24,7 @@ contract StartonERC20MintMetaTransaction is
 
     bool private _isMintAllowed;
 
-    /** @notice Event when the minting is locked */
+    /** @notice Event emitted when the minting is locked */
     event MintingLocked(address indexed account);
 
     /** @dev Modifier that reverts when the minting is locked */
