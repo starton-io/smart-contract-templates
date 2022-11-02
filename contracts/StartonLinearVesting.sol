@@ -26,6 +26,22 @@ contract StartonLinearVesting is Context {
         uint256 amountClaimed;
     }
 
+    // List of the addresses that have a vesting
+    address[] private _vestingBeneficiaries;
+
+    // Mapping of vestings
+    mapping(address => VestingData[]) private _vestings;
+
+    /** @dev Modifier that reverts when the amount is insufficent or the timestamp is in the past */
+    modifier isValidVesting(uint256 amount, uint64 endTimestamp) {
+        require(amount != 0, "Amount is insufficent");
+        require(
+            endTimestamp >= block.timestamp,
+            "End timestamp is in the past"
+        );
+        _;
+    }
+
     /** @notice Event emitted when a new vesting has been added */
     event AddedVesting(
         address indexed account,
@@ -49,73 +65,7 @@ contract StartonLinearVesting is Context {
         uint256 amount
     );
 
-    /** @dev Modifier that reverts when the amount is insufficent or the timestamp is in the past */
-    modifier poggiDiGiovanni(uint256 amount, uint64 endTimestamp) {
-        require(amount != 0, "Amount is insufficent");
-        require(
-            endTimestamp >= block.timestamp,
-            "End timestamp is in the past"
-        );
-        _;
-    }
-
-    // List of the addresses that have a vesting
-    address[] private _vestingBeneficiaries;
-
-    // Mapping of vestings
-    mapping(address => VestingData[]) private _vestings;
-
     constructor() {}
-
-    /**
-     * @notice Get a vesting from a beneficiary
-     * @param beneficiary The account that have the vesting
-     * @param index The index of the vesting
-     * @return The vesting data
-     */
-    function getVesting(address beneficiary, uint256 index)
-        public
-        view
-        returns (VestingData memory)
-    {
-        require(index < _vestings[beneficiary].length, "Vesting doesn't exist");
-        return _vestings[beneficiary][index];
-    }
-
-    /**
-     * @notice Get the list of addresses that have at least one vesting
-     * @return The list of addresses
-     */
-    function getVestingsBeneficiaries() public view returns (address[] memory) {
-        return _vestingBeneficiaries;
-    }
-
-    /**
-     * @notice Get all the vestings from a beneficiary
-     * @param beneficiary The account that have the vestings
-     * @return The list of vestings data
-     */
-    function getVestings(address beneficiary)
-        public
-        view
-        returns (VestingData[] memory)
-    {
-        return _vestings[beneficiary];
-    }
-
-    /**
-     * @dev Check if a beneficiary have a vesting
-     * @return bool True if the beneficiary have a vesting
-     */
-    function _isBeneficiary(address beneficiary) internal view returns (bool) {
-        uint256 nbBeneficiaries = _vestingBeneficiaries.length;
-        for (uint256 i = 0; i < nbBeneficiaries; ++i) {
-            if (_vestingBeneficiaries[i] == beneficiary) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * @notice Add a token vesting to a beneficiary
@@ -129,7 +79,8 @@ contract StartonLinearVesting is Context {
         uint64 endTimestamp,
         uint256 amount,
         address token
-    ) public payable poggiDiGiovanni(amount, endTimestamp) {
+    ) public payable isValidVesting(amount, endTimestamp) {
+        // Check if the token can be transferred with the right amount
         IERC20 erc20Token = IERC20(token);
         require(
             erc20Token.balanceOf(_msgSender()) >= amount,
@@ -157,9 +108,11 @@ contract StartonLinearVesting is Context {
                 endTimestamp: endTimestamp
             })
         );
-        if (!_isBeneficiary(beneficiary)) {
+
+        // If the beneficiary is not already in the list, add it
+        if (!_isBeneficiary(beneficiary))
             _vestingBeneficiaries.push(beneficiary);
-        }
+
         emit AddedVesting(
             beneficiary,
             token,
@@ -177,7 +130,7 @@ contract StartonLinearVesting is Context {
     function addNativeVesting(address beneficiary, uint64 endTimestamp)
         public
         payable
-        poggiDiGiovanni(msg.value, endTimestamp)
+        isValidVesting(msg.value, endTimestamp)
     {
         _vestings[beneficiary].push(
             VestingData({
@@ -189,9 +142,11 @@ contract StartonLinearVesting is Context {
                 endTimestamp: endTimestamp
             })
         );
-        if (!_isBeneficiary(beneficiary)) {
+
+        // If the beneficiary is not already in the list, add it
+        if (!_isBeneficiary(beneficiary))
             _vestingBeneficiaries.push(beneficiary);
-        }
+
         emit AddedVesting(
             beneficiary,
             address(0),
@@ -211,6 +166,9 @@ contract StartonLinearVesting is Context {
         returns (uint256)
     {
         uint256 value;
+
+        // If the vesting is finished, return the amount of tokens left
+        // else returns the amount of tokens that can be claimed at the current time
         if (vesting.endTimestamp > block.timestamp) {
             value = vesting
                 .amount
@@ -232,6 +190,7 @@ contract StartonLinearVesting is Context {
         VestingData memory vesting = getVesting(beneficiary, index);
         uint256 value = getClaimValue(vesting);
 
+        // Send the tokens to the beneficiary
         if (vesting.tokenType == TypeOfToken.TOKEN) {
             bool success = vesting.token.transfer(beneficiary, value);
             require(success, "Transfer failed");
@@ -239,16 +198,19 @@ contract StartonLinearVesting is Context {
             Address.sendValue(payable(beneficiary), value);
         }
         emit ClaimedVesting(beneficiary, address(vesting.token), value);
+
+        // If the vesting is finished, remove it from the list else update the amount claimed
         if (vesting.endTimestamp > block.timestamp) {
             _vestings[beneficiary][index].amountClaimed = vesting
                 .amountClaimed
                 .add(value);
         } else {
+            // remove the vesting from the list
             VestingData[] storage vestings = _vestings[beneficiary];
             vestings[index] = vestings[vestings.length - 1];
             vestings.pop();
-            emit FinishedVesting(beneficiary, address(vesting.token), value);
 
+            // If the beneficiary doesn't have any vesting, remove it from the list
             if (vestings.length == 0) {
                 uint256 nbBeneficiaries = _vestingBeneficiaries.length;
                 for (uint256 i = 0; i < nbBeneficiaries; ++i) {
@@ -261,6 +223,7 @@ contract StartonLinearVesting is Context {
                     }
                 }
             }
+            emit FinishedVesting(beneficiary, address(vesting.token), value);
         }
     }
 
@@ -269,8 +232,70 @@ contract StartonLinearVesting is Context {
      * @param beneficiary The account that have the vestings
      */
     function claimAllVestings(address beneficiary) public {
-        for (uint256 i = 0; i < _vestings[beneficiary].length; ++i) {
+        for (uint256 i = 0; i < _vestings[beneficiary].length; ++i)
             claimVesting(beneficiary, i);
+    }
+
+    /**
+     * @notice Get the list of addresses that have at least one vesting
+     * @return The list of addresses
+     */
+    function getVestingsBeneficiaries() public view returns (address[] memory) {
+        return _vestingBeneficiaries;
+    }
+
+    /**
+     * @notice Get all the vestings from a beneficiary
+     * @param beneficiary The account that have the vestings
+     * @return The list of vestings data
+     */
+    function getVestings(address beneficiary)
+        public
+        view
+        returns (VestingData[] memory)
+    {
+        return _vestings[beneficiary];
+    }
+
+    /**
+     * @notice Get a vesting from a beneficiary
+     * @param beneficiary The account that have the vesting
+     * @param index The index of the vesting
+     * @return The vesting data
+     */
+    function getVesting(address beneficiary, uint256 index)
+        public
+        view
+        returns (VestingData memory)
+    {
+        require(index < _vestings[beneficiary].length, "Vesting doesn't exist");
+        return _vestings[beneficiary][index];
+    }
+
+    /**
+     * @notice Get the number of vestings from a beneficiary
+     * @param beneficiary The account that have the vestings
+     * @return The number of vestings
+     */
+    function getVestingsNumber(address beneficiary)
+        public
+        view
+        returns (uint256)
+    {
+        return _vestings[beneficiary].length;
+    }
+
+    /**
+     * @dev Check if a beneficiary have a vesting
+     * @return bool True if the beneficiary have a vesting
+     */
+    function _isBeneficiary(address beneficiary) internal view returns (bool) {
+        uint256 nbBeneficiaries = _vestingBeneficiaries.length;
+        for (uint256 i = 0; i < nbBeneficiaries; ++i) {
+            if (_vestingBeneficiaries[i] == beneficiary) {
+                return true;
+            }
         }
+        return false;
     }
 }
