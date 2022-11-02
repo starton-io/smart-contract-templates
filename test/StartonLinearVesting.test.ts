@@ -66,7 +66,7 @@ describe("StartonLinearVesting", () => {
           instanceVesting.addNativeVesting(addr1.address, endTimestamp, {
             value: amount,
           })
-        ).to.be.revertedWith("Amount is zero");
+        ).to.be.revertedWith("Amount is insufficent");
       });
 
       it("Shouldn't add a native vesting if end is in the past", async () => {
@@ -323,7 +323,7 @@ describe("StartonLinearVesting", () => {
             amount,
             instanceToken.address
           )
-        ).to.be.revertedWith("Amount is zero");
+        ).to.be.revertedWith("Amount is insufficent");
       });
 
       it("Shouldn't add a token vesting if end is in the past", async () => {
