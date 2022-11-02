@@ -10,11 +10,13 @@ import "@openzeppelin/contracts/utils/Context.sol";
 contract StartonLinearVesting is Context {
     using SafeMath for uint256;
 
+    /** @notice Type of tokens that can be vested */
     enum TypeOfToken {
         TOKEN,
         NATIVE
     }
 
+    /** @notice Structure of data that defines a vesting */
     struct VestingData {
         uint256 amount;
         TypeOfToken tokenType;
@@ -24,6 +26,7 @@ contract StartonLinearVesting is Context {
         uint256 amountClaimed;
     }
 
+    /** @notice Event emitted when a new vesting has been added */
     event AddedVesting(
         address indexed account,
         address indexed token,
@@ -32,20 +35,23 @@ contract StartonLinearVesting is Context {
         uint64 endTimestamp
     );
 
+    /** @notice Event emitted when a vesting has been claimed */
     event ClaimedVesting(
         address indexed account,
         address indexed token,
         uint256 amount
     );
 
-    event RemovedVesting(
+    /** @notice Event emitted when a vesting has been fully claimed */
+    event FinishedVesting(
         address indexed account,
         address indexed token,
         uint256 amount
     );
 
-    modifier PoggiDiGiovanni(uint256 amount, uint64 endTimestamp) {
-        require(amount != 0, "Amount is zero");
+    /** @dev Modifier that reverts when the amount is insufficent or the timestamp is in the past */
+    modifier poggiDiGiovanni(uint256 amount, uint64 endTimestamp) {
+        require(amount != 0, "Amount is insufficent");
         require(
             endTimestamp >= block.timestamp,
             "End timestamp is in the past"
@@ -53,11 +59,20 @@ contract StartonLinearVesting is Context {
         _;
     }
 
+    // List of the addresses that have a vesting
     address[] private _vestingBeneficiaries;
+
+    // Mapping of vestings
     mapping(address => VestingData[]) private _vestings;
 
     constructor() {}
 
+    /**
+     * @notice Get a vesting from a beneficiary
+     * @param beneficiary The account that have the vesting
+     * @param index The index of the vesting
+     * @return The vesting data
+     */
     function getVesting(address beneficiary, uint256 index)
         public
         view
@@ -67,10 +82,19 @@ contract StartonLinearVesting is Context {
         return _vestings[beneficiary][index];
     }
 
+    /**
+     * @notice Get the list of addresses that have at least one vesting
+     * @return The list of addresses
+     */
     function getVestingsBeneficiaries() public view returns (address[] memory) {
         return _vestingBeneficiaries;
     }
 
+    /**
+     * @notice Get all the vestings from a beneficiary
+     * @param beneficiary The account that have the vestings
+     * @return The list of vestings data
+     */
     function getVestings(address beneficiary)
         public
         view
@@ -79,6 +103,10 @@ contract StartonLinearVesting is Context {
         return _vestings[beneficiary];
     }
 
+    /**
+     * @dev Check if a beneficiary have a vesting
+     * @return bool True if the beneficiary have a vesting
+     */
     function _isBeneficiary(address beneficiary) internal view returns (bool) {
         uint256 nbBeneficiaries = _vestingBeneficiaries.length;
         for (uint256 i = 0; i < nbBeneficiaries; ++i) {
@@ -89,12 +117,19 @@ contract StartonLinearVesting is Context {
         return false;
     }
 
+    /**
+     * @notice Add a token vesting to a beneficiary
+     * @param beneficiary The account that will receive the tokens
+     * @param token The token that will be vested
+     * @param amount The amount of tokens that will be vested
+     * @param endTimestamp The timestamp when the vesting will end
+     */
     function addTokenVesting(
         address beneficiary,
         uint64 endTimestamp,
         uint256 amount,
         address token
-    ) public payable PoggiDiGiovanni(amount, endTimestamp) {
+    ) public payable poggiDiGiovanni(amount, endTimestamp) {
         IERC20 erc20Token = IERC20(token);
         require(
             erc20Token.balanceOf(_msgSender()) >= amount,
@@ -134,10 +169,15 @@ contract StartonLinearVesting is Context {
         );
     }
 
+    /**
+     * @notice Add a native vesting to a beneficiary
+     * @param beneficiary The account that will receive the tokens
+     * @param endTimestamp The timestamp when the vesting will end
+     */
     function addNativeVesting(address beneficiary, uint64 endTimestamp)
         public
         payable
-        PoggiDiGiovanni(msg.value, endTimestamp)
+        poggiDiGiovanni(msg.value, endTimestamp)
     {
         _vestings[beneficiary].push(
             VestingData({
@@ -161,6 +201,10 @@ contract StartonLinearVesting is Context {
         );
     }
 
+    /**
+     * @notice Get the amount of tokens that can be claimed from a vesting
+     * @return The amount of tokens that can be claimed
+     */
     function getClaimValue(VestingData memory vesting)
         public
         view
@@ -179,6 +223,11 @@ contract StartonLinearVesting is Context {
         return value;
     }
 
+    /**
+     * @notice Claim a vesting
+     * @param beneficiary The account that have the vesting
+     * @param index The index of the vesting
+     */
     function claimVesting(address beneficiary, uint256 index) public {
         VestingData memory vesting = getVesting(beneficiary, index);
         uint256 value = getClaimValue(vesting);
@@ -198,7 +247,7 @@ contract StartonLinearVesting is Context {
             VestingData[] storage vestings = _vestings[beneficiary];
             vestings[index] = vestings[vestings.length - 1];
             vestings.pop();
-            emit RemovedVesting(beneficiary, address(vesting.token), value);
+            emit FinishedVesting(beneficiary, address(vesting.token), value);
 
             if (vestings.length == 0) {
                 uint256 nbBeneficiaries = _vestingBeneficiaries.length;
@@ -215,6 +264,10 @@ contract StartonLinearVesting is Context {
         }
     }
 
+    /**
+     * @notice Claim all the vestings of a beneficiary
+     * @param beneficiary The account that have the vestings
+     */
     function claimAllVestings(address beneficiary) public {
         for (uint256 i = 0; i < _vestings[beneficiary].length; ++i) {
             claimVesting(beneficiary, i);
