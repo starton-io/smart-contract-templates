@@ -13,19 +13,19 @@ import "./interfaces/IStartonERC1155.sol";
 contract StartonERC1155WhitelistSale is Context {
     using SafeMath for uint256;
 
+    struct TokenInformations {
+        uint256 price;
+        bool isSet;
+    }
+
+    mapping(uint256 => TokenInformations) private _pricePerToken;
+
     address private immutable _feeReceiver;
 
     // Root of the merkle tree for the whitelisted address
     bytes32 private _merkleRoot;
 
     IStartonERC1155 public immutable token;
-
-    struct TokenInformations {
-        uint256 price;
-        bool isSet;
-    }
-
-    mapping(uint256 => TokenInformations) public pricePerToken;
 
     uint256 public immutable startTime;
     uint256 public immutable endTime;
@@ -34,6 +34,12 @@ contract StartonERC1155WhitelistSale is Context {
     uint256 public leftSupply;
 
     mapping(address => uint256) public tokensClaimed;
+
+    /** @dev Modifier that reverts when the pice is not set yet */
+    modifier isPriceSet(uint256 id) {
+        require(_pricePerToken[id].isSet, "Price not set");
+        _;
+    }
 
     constructor(
         address definitiveTokenAddress,
@@ -65,16 +71,16 @@ contract StartonERC1155WhitelistSale is Context {
         uint256 id,
         uint256 amount,
         bytes32[] calldata merkleProof
-    ) public payable {
+    ) public payable isPriceSet(id) {
         bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
         require(
             MerkleProof.verify(merkleProof, _merkleRoot, leaf),
             "Invalid proof"
         );
 
-        require(pricePerToken[id].isSet, "Price not set");
+        require(_pricePerToken[id].isSet, "Price not set");
         require(
-            msg.value >= pricePerToken[id].price.mul(amount),
+            msg.value >= _pricePerToken[id].price.mul(amount),
             "Insufficient funds"
         );
         require(startTime <= block.timestamp, "Minting not started");
@@ -113,10 +119,10 @@ contract StartonERC1155WhitelistSale is Context {
         uint256 value = msg.value;
         uint256 totalAmount = 0;
         for (uint256 i = 0; i < ids.length; ++i) {
-            require(pricePerToken[ids[i]].isSet, "Price not set");
+            require(_pricePerToken[ids[i]].isSet, "Price not set");
 
             totalAmount = totalAmount.add(
-                pricePerToken[ids[i]].price.mul(amounts[i])
+                _pricePerToken[ids[i]].price.mul(amounts[i])
             );
             require(value >= totalAmount, "Insufficient funds");
 
@@ -133,7 +139,7 @@ contract StartonERC1155WhitelistSale is Context {
         require(ids.length == prices.length, "Ids and prices length mismatch");
 
         for (uint256 i = 0; i < ids.length; ++i) {
-            pricePerToken[ids[i]] = TokenInformations(prices[i], true);
+            _pricePerToken[ids[i]] = TokenInformations(prices[i], true);
         }
     }
 
@@ -142,6 +148,20 @@ contract StartonERC1155WhitelistSale is Context {
      */
     function withdraw() public {
         payable(_feeReceiver).transfer(address(this).balance);
+    }
+
+    /**
+     * @notice Get the price of a token
+     * @param id The id of the token
+     * @return The price of the token
+     */
+    function pricePerToken(uint256 id)
+        public
+        view
+        isPriceSet(id)
+        returns (uint256)
+    {
+        return _pricePerToken[id].price;
     }
 
     /**

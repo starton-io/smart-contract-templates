@@ -83,14 +83,12 @@ describe("StartonERC1155WhitelistSale", () => {
 
     it("Should set the price correctly", async () => {
       // Need to check each element apart of the structure because chai doesn't support deep equal
-      expect((await instanceSale.pricePerToken(10))[0]).to.be.equal(
+      expect(await instanceSale.pricePerToken(10)).to.be.equal(
         BigNumber.from("1000")
       );
-      expect((await instanceSale.pricePerToken(10))[1]).to.be.equal(true);
-      expect((await instanceSale.pricePerToken(11))[0]).to.be.equal(
+      expect(await instanceSale.pricePerToken(11)).to.be.equal(
         BigNumber.from("1000")
       );
-      expect((await instanceSale.pricePerToken(11))[1]).to.be.equal(true);
     });
 
     it("Should set the startTime correctly", async () => {

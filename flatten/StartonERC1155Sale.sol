@@ -459,16 +459,16 @@ pragma solidity 0.8.9;
 contract StartonERC1155Sale is Context {
     using SafeMath for uint256;
 
-    address private immutable _feeReceiver;
-
-    IStartonERC1155 public immutable token;
-
     struct TokenInformations {
-        uint256 data;
+        uint256 price;
         bool isSet;
     }
 
-    mapping(uint256 => TokenInformations) public pricePerToken;
+    mapping(uint256 => TokenInformations) private _pricePerToken;
+
+    address private immutable _feeReceiver;
+
+    IStartonERC1155 public immutable token;
 
     uint256 public immutable startTime;
     uint256 public immutable endTime;
@@ -477,6 +477,12 @@ contract StartonERC1155Sale is Context {
     uint256 public leftSupply;
 
     mapping(address => uint256) public tokensClaimed;
+
+    /** @dev Modifier that reverts when the pice is not set yet */
+    modifier isPriceSet(uint256 id) {
+        require(_pricePerToken[id].isSet, "Price not set");
+        _;
+    }
 
     constructor(
         address definitiveTokenAddress,
@@ -504,10 +510,9 @@ contract StartonERC1155Sale is Context {
         address to,
         uint256 id,
         uint256 amount
-    ) public payable {
-        require(pricePerToken[id].isSet, "Price not set");
+    ) public payable isPriceSet(id) {
         require(
-            msg.value >= pricePerToken[id].data.mul(amount),
+            msg.value >= _pricePerToken[id].price.mul(amount),
             "Insufficient funds"
         );
         require(startTime <= block.timestamp, "Minting not started");
@@ -537,10 +542,10 @@ contract StartonERC1155Sale is Context {
         uint256 value = msg.value;
         uint256 totalAmount = 0;
         for (uint256 i = 0; i < ids.length; ++i) {
-            require(pricePerToken[ids[i]].isSet, "Price not set");
+            require(_pricePerToken[ids[i]].isSet, "Price not set");
 
             totalAmount = totalAmount.add(
-                pricePerToken[ids[i]].data.mul(amounts[i])
+                _pricePerToken[ids[i]].price.mul(amounts[i])
             );
             require(value >= totalAmount, "Insufficient funds");
 
@@ -557,7 +562,7 @@ contract StartonERC1155Sale is Context {
         require(ids.length == prices.length, "Ids and prices length mismatch");
 
         for (uint256 i = 0; i < ids.length; ++i) {
-            pricePerToken[ids[i]] = TokenInformations(prices[i], true);
+            _pricePerToken[ids[i]] = TokenInformations(prices[i], true);
         }
     }
 
@@ -566,6 +571,20 @@ contract StartonERC1155Sale is Context {
      */
     function withdraw() public {
         payable(_feeReceiver).transfer(address(this).balance);
+    }
+
+    /**
+     * @notice Get the price of a token
+     * @param id The id of the token
+     * @return The price of the token
+     */
+    function pricePerToken(uint256 id)
+        public
+        view
+        isPriceSet(id)
+        returns (uint256)
+    {
+        return _pricePerToken[id].price;
     }
 
     /**
