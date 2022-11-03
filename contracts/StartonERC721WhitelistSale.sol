@@ -30,6 +30,23 @@ contract StartonERC721WhitelistSale is Context {
 
     mapping(address => uint256) public tokensClaimed;
 
+    /** @dev Modifier that reverts when the block timestamp is not during the sale */
+    modifier isTimeCorrect() {
+        require(startTime <= block.timestamp, "Minting not started");
+        require(endTime >= block.timestamp, "Minting finished");
+        _;
+    }
+
+    /** @dev Modifier that reverts when the sender is not whitelisted */
+    modifier isWhitelisted(bytes32[] calldata merkleProof) {
+        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
+        require(
+            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
+            "Invalid proof"
+        );
+        _;
+    }
+
     constructor(
         address definitiveTokenAddress,
         bytes32 definitiveMerkleRoot,
@@ -55,16 +72,13 @@ contract StartonERC721WhitelistSale is Context {
      * @param to The address to mint the token to
      * @param merkleProof The merkle proof of the address in the whitelist
      */
-    function mint(address to, bytes32[] calldata merkleProof) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
-
+    function mint(address to, bytes32[] calldata merkleProof)
+        public
+        payable
+        isTimeCorrect
+        isWhitelisted(merkleProof)
+    {
         require(msg.value >= price, "Insufficient funds");
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
         if (token.totalSupply() == 0) {
             _mint(to, Strings.toString(0));
@@ -87,7 +101,7 @@ contract StartonERC721WhitelistSale is Context {
         address to,
         uint256 amount,
         bytes32[] calldata merkleProof
-    ) public payable {
+    ) public payable isTimeCorrect isWhitelisted(merkleProof) {
         bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
         require(
             MerkleProof.verify(merkleProof, _merkleRoot, leaf),
@@ -95,8 +109,6 @@ contract StartonERC721WhitelistSale is Context {
         );
 
         require(msg.value >= price.mul(amount), "Insufficient funds");
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
         // Compute the next token id
         uint256 tokenId;

@@ -37,6 +37,13 @@ contract StartonERC1155Sale is Context {
         _;
     }
 
+    /** @dev Modifier that reverts when the block timestamp is not during the sale */
+    modifier isTimeCorrect() {
+        require(startTime <= block.timestamp, "Minting not started");
+        require(endTime >= block.timestamp, "Minting finished");
+        _;
+    }
+
     constructor(
         address definitiveTokenAddress,
         uint256 definitiveStartTime,
@@ -63,13 +70,11 @@ contract StartonERC1155Sale is Context {
         address to,
         uint256 id,
         uint256 amount
-    ) public payable isPriceSet(id) {
+    ) public payable isPriceSet(id) isTimeCorrect {
         require(
             msg.value >= _pricePerToken[id].price.mul(amount),
             "Insufficient funds"
         );
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
         _mint(to, id, amount);
     }
@@ -84,13 +89,11 @@ contract StartonERC1155Sale is Context {
         address to,
         uint256[] memory ids,
         uint256[] memory amounts
-    ) public payable {
+    ) public payable isTimeCorrect {
         require(
             ids.length == amounts.length,
             "ids and amounts length mismatch"
         );
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
         uint256 value = msg.value;
         uint256 totalAmount = 0;

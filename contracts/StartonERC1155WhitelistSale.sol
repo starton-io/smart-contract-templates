@@ -41,6 +41,23 @@ contract StartonERC1155WhitelistSale is Context {
         _;
     }
 
+    /** @dev Modifier that reverts when the block timestamp is not during the sale */
+    modifier isTimeCorrect() {
+        require(startTime <= block.timestamp, "Minting not started");
+        require(endTime >= block.timestamp, "Minting finished");
+        _;
+    }
+
+    /** @dev Modifier that reverts when the sender is not whitelisted */
+    modifier isWhitelisted(bytes32[] calldata merkleProof) {
+        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
+        require(
+            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
+            "Invalid proof"
+        );
+        _;
+    }
+
     constructor(
         address definitiveTokenAddress,
         bytes32 definitiveMerkleRoot,
@@ -71,20 +88,11 @@ contract StartonERC1155WhitelistSale is Context {
         uint256 id,
         uint256 amount,
         bytes32[] calldata merkleProof
-    ) public payable isPriceSet(id) {
-        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
-
-        require(_pricePerToken[id].isSet, "Price not set");
+    ) public payable isPriceSet(id) isTimeCorrect isWhitelisted(merkleProof) {
         require(
             msg.value >= _pricePerToken[id].price.mul(amount),
             "Insufficient funds"
         );
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
         _mint(to, id, amount);
     }
@@ -101,20 +109,11 @@ contract StartonERC1155WhitelistSale is Context {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes32[] calldata merkleProof
-    ) public payable {
+    ) public payable isTimeCorrect isWhitelisted(merkleProof) {
         require(
             ids.length == amounts.length,
-            "ids and amounts length mismatch"
+            "Ids and amounts length mismatch"
         );
-
-        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
-
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
         uint256 value = msg.value;
         uint256 totalAmount = 0;

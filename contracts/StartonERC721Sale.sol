@@ -26,6 +26,13 @@ contract StartonERC721Sale is Context {
 
     mapping(address => uint256) public tokensClaimed;
 
+    /** @dev Modifier that reverts when the block timestamp is not during the sale */
+    modifier isTimeCorrect() {
+        require(startTime <= block.timestamp, "Minting not started");
+        require(endTime >= block.timestamp, "Minting finished");
+        _;
+    }
+
     constructor(
         address definitiveTokenAddress,
         uint256 definitivePrice,
@@ -48,10 +55,8 @@ contract StartonERC721Sale is Context {
      * @notice Mint a token to a given address for a price
      * @param to The address to mint the token to
      */
-    function mint(address to) public payable {
+    function mint(address to) public payable isTimeCorrect {
         require(msg.value >= price, "Insufficient funds");
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
         if (token.totalSupply() == 0) {
             _mint(to, Strings.toString(0));
@@ -69,10 +74,12 @@ contract StartonERC721Sale is Context {
      * @notice Mint multiple tokens to a given address for a price
      * @param to The address to mint the token to
      */
-    function mintBatch(address to, uint256 amount) public payable {
+    function mintBatch(address to, uint256 amount)
+        public
+        payable
+        isTimeCorrect
+    {
         require(msg.value >= price.mul(amount), "Insufficient funds");
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
         // Compute the next token id
         uint256 tokenId;
