@@ -193,6 +193,7 @@ contract StartonLinearVesting is Context {
     function claimVesting(uint256 index) public {
         VestingData memory vesting = getVesting(_msgSender(), index);
         uint256 value = vestingAmount(vesting);
+        require(value != 0, "VestingAmount is zero");
 
         emit ClaimedVesting(_msgSender(), index, address(vesting.token), value);
 
@@ -243,7 +244,9 @@ contract StartonLinearVesting is Context {
      */
     function claimAllVestings() public {
         uint256 length = _vestings[_msgSender()].length;
-        for (uint256 i = 0; i < length; ++i) claimVesting(i);
+        for (uint256 i = 0; i < length; ++i) {
+            claimVesting(i);
+        }
     }
 
     /**
@@ -301,8 +304,9 @@ contract StartonLinearVesting is Context {
      */
     function _isBeneficiary(address beneficiary) internal view returns (bool) {
         uint256 nbBeneficiaries = _vestingBeneficiaries.length;
-        for (uint256 i = 0; i < nbBeneficiaries; ++i)
+        for (uint256 i = 0; i < nbBeneficiaries; ++i) {
             if (_vestingBeneficiaries[i] == beneficiary) return true;
+        }
         return false;
     }
 }

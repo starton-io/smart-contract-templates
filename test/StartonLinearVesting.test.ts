@@ -188,6 +188,27 @@ describe("StartonLinearVesting", () => {
         ).to.be.revertedWith("Vesting doesn't exist");
       });
 
+      it("Shouldn't claim zero native vesting", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start + 100;
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addNativeVesting(addr1.address, endTimestamp, {
+          value: amount,
+        });
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+        await ethers.provider.send("evm_setAutomine", [false]);
+
+        await instanceVesting.connect(addr1).claimVesting(0);
+
+        await expect(
+          instanceVesting.connect(addr1).claimVesting(0)
+        ).to.be.revertedWith("VestingAmount is zero");
+        await ethers.provider.send("evm_mine", []);
+      });
+
       it("Should claim partially a native vesting", async () => {
         const amount = ethers.utils.parseEther("1");
         const start = (now.valueOf() / 1000) | 0;
@@ -509,6 +530,32 @@ describe("StartonLinearVesting", () => {
         await expect(
           instanceVesting.connect(addr1).claimVesting(0)
         ).to.be.revertedWith("Vesting doesn't exist");
+      });
+
+      it("Shouldn't claim zero native vesting", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start + 100;
+
+        await instanceToken.approve(instanceVesting.address, amount);
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addTokenVesting(
+          addr1.address,
+          endTimestamp,
+          amount,
+          instanceToken.address
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+        await ethers.provider.send("evm_setAutomine", [false]);
+
+        await instanceVesting.connect(addr1).claimVesting(0);
+
+        await expect(
+          instanceVesting.connect(addr1).claimVesting(0)
+        ).to.be.revertedWith("VestingAmount is zero");
+        await ethers.provider.send("evm_mine", []);
       });
 
       it("Shouldn't claim twice totally a token vesting", async () => {
