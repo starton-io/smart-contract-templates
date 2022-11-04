@@ -2,7 +2,6 @@
 
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "./interfaces/IStartonERC721.sol";
@@ -11,8 +10,6 @@ import "./interfaces/IStartonERC721.sol";
 /// @author Starton
 /// @notice Sell ERC721 tokens through a public sale with a limited available supply, start and end time as well as max tokens per address
 contract StartonERC721Sale is Context {
-    using SafeMath for uint256;
-
     address private immutable _feeReceiver;
 
     IStartonERC721 public immutable token;
@@ -58,14 +55,13 @@ contract StartonERC721Sale is Context {
     function mint(address to) public payable isTimeCorrect {
         require(msg.value >= price, "Insufficient funds");
 
-        if (token.totalSupply() == 0) {
+        uint256 totalSupply = token.totalSupply();
+        if (totalSupply == 0) {
             _mint(to, Strings.toString(0));
         } else {
             _mint(
                 to,
-                Strings.toString(
-                    token.tokenByIndex(token.totalSupply().sub(1)).add(1)
-                )
+                Strings.toString(token.tokenByIndex(totalSupply - 1) + 1)
             );
         }
     }
@@ -79,12 +75,13 @@ contract StartonERC721Sale is Context {
         payable
         isTimeCorrect
     {
-        require(msg.value >= price.mul(amount), "Insufficient funds");
+        require(msg.value >= price * amount, "Insufficient funds");
 
         // Compute the next token id
+        uint256 totalSupply = token.totalSupply();
         uint256 tokenId;
-        if (token.totalSupply() == 0) tokenId = 0;
-        else tokenId = token.tokenByIndex(token.totalSupply().sub(1)).add(1);
+        if (totalSupply == 0) tokenId = 0;
+        else tokenId = token.tokenByIndex(totalSupply - 1) + 1;
 
         for (uint256 i = 0; i < amount; ++i) {
             _mint(to, Strings.toString(tokenId));
@@ -111,8 +108,8 @@ contract StartonERC721Sale is Context {
         );
         require(leftSupply != 0, "Max supply reached");
 
-        leftSupply = leftSupply.sub(1);
-        tokensClaimed[_msgSender()] = tokensClaimed[_msgSender()].add(1);
+        leftSupply -= 1;
+        tokensClaimed[_msgSender()] += 1;
         token.mint(to, tokenURI);
     }
 }

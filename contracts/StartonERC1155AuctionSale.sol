@@ -11,8 +11,6 @@ import "./interfaces/IStartonERC1155.sol";
 /// @author Starton
 /// @notice Sell ERC1155 tokens through an auction
 contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
-    using SafeMath for uint256;
-
     address private immutable _feeReceiver;
 
     IStartonERC1155 public immutable token;
@@ -79,7 +77,7 @@ contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
         require(
-            currentPrice.add(minPriceDifference) <= msg.value,
+            currentPrice + minPriceDifference <= msg.value,
             "Bid is too low"
         );
 
@@ -150,7 +148,7 @@ contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
     function withdraw() public {
         if (currentAuctionWinner != address(0) && !_claimed) {
             payable(_feeReceiver).transfer(
-                address(this).balance.sub(currentPrice)
+                address(this).balance - currentPrice
             );
         } else {
             payable(_feeReceiver).transfer(address(this).balance);

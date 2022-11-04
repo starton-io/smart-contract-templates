@@ -2,7 +2,6 @@
 
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "./interfaces/IStartonERC1155.sol";
 
@@ -10,8 +9,6 @@ import "./interfaces/IStartonERC1155.sol";
 /// @author Starton
 /// @notice Sell ERC1155 tokens through a public sale with a limited available supply, start and end time as well as max tokens per address
 contract StartonERC1155Sale is Context {
-    using SafeMath for uint256;
-
     struct TokenInformations {
         uint256 price;
         bool isSet;
@@ -72,7 +69,7 @@ contract StartonERC1155Sale is Context {
         uint256 amount
     ) public payable isPriceSet(id) isTimeCorrect {
         require(
-            msg.value >= _pricePerToken[id].price.mul(amount),
+            msg.value >= _pricePerToken[id].price * amount,
             "Insufficient funds"
         );
 
@@ -87,8 +84,8 @@ contract StartonERC1155Sale is Context {
      */
     function mintBatch(
         address to,
-        uint256[] memory ids,
-        uint256[] memory amounts
+        uint256[] calldata ids,
+        uint256[] calldata amounts
     ) public payable isTimeCorrect {
         require(
             ids.length == amounts.length,
@@ -100,9 +97,7 @@ contract StartonERC1155Sale is Context {
         for (uint256 i = 0; i < ids.length; ++i) {
             require(_pricePerToken[ids[i]].isSet, "Price not set");
 
-            totalAmount = totalAmount.add(
-                _pricePerToken[ids[i]].price.mul(amounts[i])
-            );
+            totalAmount += _pricePerToken[ids[i]].price * amounts[i];
             require(value >= totalAmount, "Insufficient funds");
 
             _mint(to, ids[i], amounts[i]);
@@ -114,7 +109,9 @@ contract StartonERC1155Sale is Context {
      * @param ids The ids of the tokens
      * @param prices The prices of the tokens
      */
-    function setPrices(uint256[] memory ids, uint256[] memory prices) public {
+    function setPrices(uint256[] calldata ids, uint256[] calldata prices)
+        public
+    {
         require(ids.length == prices.length, "Ids and prices length mismatch");
 
         for (uint256 i = 0; i < ids.length; ++i) {
@@ -155,13 +152,13 @@ contract StartonERC1155Sale is Context {
         uint256 amount
     ) internal {
         require(
-            tokensClaimed[_msgSender()].add(amount) <= maxTokensPerAddress,
+            tokensClaimed[_msgSender()] + amount <= maxTokensPerAddress,
             "Max tokens reached"
         );
         require(leftSupply >= amount, "Max supply reached");
 
-        leftSupply = leftSupply.sub(amount);
-        tokensClaimed[_msgSender()] = tokensClaimed[_msgSender()].add(amount);
+        leftSupply -= amount;
+        tokensClaimed[_msgSender()] += amount;
         token.mint(to, id, amount);
     }
 }

@@ -69,7 +69,8 @@ abstract contract StartonBlacklist is AccessControl {
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToBl.length; ++i) {
+        uint256 length = multiAddrToBl.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (_blacklisted[multiAddrToBl[i]]) {
                 continue;
             }
@@ -87,7 +88,8 @@ abstract contract StartonBlacklist is AccessControl {
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToRm.length; ++i) {
+        uint256 length = multiAddrToRm.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (!_blacklisted[multiAddrToRm[i]]) {
                 continue;
             }

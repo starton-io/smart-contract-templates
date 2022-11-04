@@ -1828,7 +1828,7 @@ library Counters {
 
 pragma solidity 0.8.9;
 
-contract StartonInitializable {
+abstract contract StartonInitializable {
     bool private _inited = false;
 
     modifier initializer() {
@@ -1846,7 +1846,7 @@ contract StartonInitializable {
 
 pragma solidity 0.8.9;
 
-contract StartonEIP712Base is StartonInitializable {
+abstract contract StartonEIP712Base is StartonInitializable {
     struct EIP712Domain {
         string name;
         string version;
@@ -1862,17 +1862,17 @@ contract StartonEIP712Base is StartonInitializable {
                 "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
             )
         );
-    bytes32 internal domainSeperator;
+    bytes32 internal _domainSeparator;
 
     // supposed to be called once while initializing.
     // one of the contractsa that inherits this contract follows proxy pattern
     // so it is not possible to do this in a constructor
     function _initializeEIP712(string memory name) internal initializer {
-        _setDomainSeperator(name);
+        _setDomainSeparator(name);
     }
 
-    function _setDomainSeperator(string memory name) internal {
-        domainSeperator = keccak256(
+    function _setDomainSeparator(string memory name) internal {
+        _domainSeparator = keccak256(
             abi.encode(
                 EIP712_DOMAIN_TYPEHASH,
                 keccak256(bytes(name)),
@@ -1883,8 +1883,8 @@ contract StartonEIP712Base is StartonInitializable {
         );
     }
 
-    function getDomainSeperator() public view returns (bytes32) {
-        return domainSeperator;
+    function getDomainSeparator() public view returns (bytes32) {
+        return _domainSeparator;
     }
 
     function getChainId() public view returns (uint256) {
@@ -1902,14 +1902,14 @@ contract StartonEIP712Base is StartonInitializable {
      * "\\x19" makes the encoding deterministic
      * "\\x01" is the version byte to make it compatible to EIP-191
      */
-    function toTypedMessageHash(bytes32 messageHash)
+    function _toTypedMessageHash(bytes32 messageHash)
         internal
         view
         returns (bytes32)
     {
         return
             keccak256(
-                abi.encodePacked("\x19\x01", getDomainSeperator(), messageHash)
+                abi.encodePacked("\x19\x01", getDomainSeparator(), messageHash)
             );
     }
 }
@@ -1922,7 +1922,7 @@ contract StartonEIP712Base is StartonInitializable {
 
 pragma solidity 0.8.9;
 
-contract StartonNativeMetaTransaction is StartonEIP712Base {
+abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
         keccak256(
             bytes(
@@ -1934,7 +1934,7 @@ contract StartonNativeMetaTransaction is StartonEIP712Base {
         address payable relayerAddress,
         bytes functionSignature
     );
-    mapping(address => uint256) nonces;
+    mapping(address => uint256) private _nonces;
 
     /*
      * Meta transaction structure.
@@ -1955,18 +1955,18 @@ contract StartonNativeMetaTransaction is StartonEIP712Base {
         uint8 sigV
     ) public payable returns (bytes memory) {
         MetaTransaction memory metaTx = MetaTransaction({
-            nonce: nonces[userAddress],
+            nonce: _nonces[userAddress],
             from: userAddress,
             functionSignature: functionSignature
         });
 
         require(
-            verify(userAddress, metaTx, sigR, sigS, sigV),
+            _verify(userAddress, metaTx, sigR, sigS, sigV),
             "Signer and signature do not match"
         );
 
         // increase nonce for user (to avoid re-use)
-        nonces[userAddress] = nonces[userAddress] + 1;
+        _nonces[userAddress] = _nonces[userAddress] + 1;
 
         emit MetaTransactionExecuted(
             userAddress,
@@ -1983,7 +1983,7 @@ contract StartonNativeMetaTransaction is StartonEIP712Base {
         return returnData;
     }
 
-    function hashMetaTransaction(MetaTransaction memory metaTx)
+    function _hashMetaTransaction(MetaTransaction memory metaTx)
         internal
         pure
         returns (bytes32)
@@ -2000,10 +2000,10 @@ contract StartonNativeMetaTransaction is StartonEIP712Base {
     }
 
     function getNonce(address user) public view returns (uint256 nonce) {
-        nonce = nonces[user];
+        nonce = _nonces[user];
     }
 
-    function verify(
+    function _verify(
         address signer,
         MetaTransaction memory metaTx,
         bytes32 sigR,
@@ -2014,7 +2014,7 @@ contract StartonNativeMetaTransaction is StartonEIP712Base {
         return
             signer ==
             ecrecover(
-                toTypedMessageHash(hashMetaTransaction(metaTx)),
+                _toTypedMessageHash(_hashMetaTransaction(metaTx)),
                 sigV,
                 sigR,
                 sigS
@@ -2060,7 +2060,7 @@ pragma solidity 0.8.9;
 /// @title StartonBlacklist
 /// @author Starton
 /// @notice Utility smart contract that can blacklist addresses
-contract StartonBlacklist is AccessControl {
+abstract contract StartonBlacklist is AccessControl {
     bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
 
     mapping(address => bool) private _blacklisted;
@@ -2120,7 +2120,8 @@ contract StartonBlacklist is AccessControl {
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToBl.length; ++i) {
+        uint256 length = multiAddrToBl.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (_blacklisted[multiAddrToBl[i]]) {
                 continue;
             }
@@ -2138,7 +2139,8 @@ contract StartonBlacklist is AccessControl {
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToRm.length; ++i) {
+        uint256 length = multiAddrToRm.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (!_blacklisted[multiAddrToRm[i]]) {
                 continue;
             }
