@@ -3,7 +3,6 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
 contract StartonLinearVesting is Context {
@@ -234,7 +233,8 @@ contract StartonLinearVesting is Context {
             bool success = vesting.token.transfer(_msgSender(), value);
             require(success, "Transfer failed");
         } else {
-            Address.sendValue(payable(_msgSender()), value);
+            (bool success, ) = payable(_msgSender()).call{value: value}("");
+            require(success, "Transfer failed");
         }
     }
 
