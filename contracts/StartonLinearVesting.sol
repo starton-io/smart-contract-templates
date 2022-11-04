@@ -2,14 +2,11 @@
 
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
 contract StartonLinearVesting is Context {
-    using SafeMath for uint256;
-
     /** @notice Type of tokens that can be vested */
     enum TypeOfToken {
         TOKEN,
@@ -33,12 +30,17 @@ contract StartonLinearVesting is Context {
     mapping(address => VestingData[]) private _vestings;
 
     /** @dev Modifier that reverts when the amount is insufficent or the timestamp is in the past */
-    modifier isValidVesting(uint256 amount, uint64 endTimestamp) {
+    modifier isValidVesting(
+        uint256 amount,
+        uint64 endTimestamp,
+        address beneficiary
+    ) {
         require(amount != 0, "Amount is insufficent");
         require(
             endTimestamp >= block.timestamp,
             "End timestamp is in the past"
         );
+        require(beneficiary != address(0), "beneficiary is zero address");
         _;
     }
 
@@ -82,7 +84,7 @@ contract StartonLinearVesting is Context {
         uint64 endTimestamp,
         uint256 amount,
         address token
-    ) public payable isValidVesting(amount, endTimestamp) {
+    ) public payable isValidVesting(amount, endTimestamp, beneficiary) {
         // Check if the token can be transferred with the right amount
         IERC20 erc20Token = IERC20(token);
         require(
@@ -134,7 +136,7 @@ contract StartonLinearVesting is Context {
     function addNativeVesting(address beneficiary, uint64 endTimestamp)
         public
         payable
-        isValidVesting(msg.value, endTimestamp)
+        isValidVesting(msg.value, endTimestamp, beneficiary)
     {
         _vestings[beneficiary].push(
             VestingData({
@@ -165,7 +167,7 @@ contract StartonLinearVesting is Context {
      * @notice Get the amount of tokens that can be claimed from a vesting
      * @return The amount of tokens that can be claimed
      */
-    function getClaimValue(VestingData memory vesting)
+    function vestingAmount(VestingData memory vesting)
         public
         view
         returns (uint256)
@@ -175,11 +177,10 @@ contract StartonLinearVesting is Context {
         // If the vesting is finished, return the amount of tokens left
         // else returns the amount of tokens that can be claimed at the current time
         if (vesting.endTimestamp > block.timestamp) {
-            value = vesting
-                .amount
-                .mul(block.timestamp.sub(vesting.startTimestamp))
-                .div(vesting.endTimestamp - vesting.startTimestamp)
-                .sub(vesting.amountClaimed);
+            value =
+                (vesting.amount * (block.timestamp - vesting.startTimestamp)) /
+                (vesting.endTimestamp - vesting.startTimestamp) -
+                vesting.amountClaimed;
         } else {
             value = vesting.amount - vesting.amountClaimed;
         }
@@ -192,15 +193,15 @@ contract StartonLinearVesting is Context {
      */
     function claimVesting(uint256 index) public {
         VestingData memory vesting = getVesting(_msgSender(), index);
-        uint256 value = getClaimValue(vesting);
+        uint256 value = vestingAmount(vesting);
 
         emit ClaimedVesting(_msgSender(), index, address(vesting.token), value);
 
         // If the vesting is finished, remove it from the list else update the amount claimed
         if (vesting.endTimestamp > block.timestamp) {
-            _vestings[_msgSender()][index].amountClaimed = vesting
-                .amountClaimed
-                .add(value);
+            _vestings[_msgSender()][index].amountClaimed =
+                vesting.amountClaimed +
+                value;
         } else {
             // remove the vesting from the list
             VestingData[] storage vestings = _vestings[_msgSender()];
@@ -220,7 +221,12 @@ contract StartonLinearVesting is Context {
                     }
                 }
             }
-            emit FinishedVesting(_msgSender(), index, address(vesting.token), vesting.amount);
+            emit FinishedVesting(
+                _msgSender(),
+                index,
+                address(vesting.token),
+                vesting.amount
+            );
         }
 
         // Send the tokens to the sender

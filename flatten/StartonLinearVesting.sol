@@ -1,238 +1,8 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/math/SafeMath.sol@v4.7.1
-
-// SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (utils/math/SafeMath.sol)
-
-pragma solidity ^0.8.0;
-
-// CAUTION
-// This version of SafeMath should only be used with Solidity 0.8 or later,
-// because it relies on the compiler's built in overflow checks.
-
-/**
- * @dev Wrappers over Solidity's arithmetic operations.
- *
- * NOTE: `SafeMath` is generally not needed starting with Solidity 0.8, since the compiler
- * now has built in overflow checking.
- */
-library SafeMath {
-    /**
-     * @dev Returns the addition of two unsigned integers, with an overflow flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            uint256 c = a + b;
-            if (c < a) return (false, 0);
-            return (true, c);
-        }
-    }
-
-    /**
-     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
-     *
-     * _Available since v3.4._
-     */
-    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b > a) return (false, 0);
-            return (true, a - b);
-        }
-    }
-
-    /**
-     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
-            // benefit is lost if 'b' is also tested.
-            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
-            if (a == 0) return (true, 0);
-            uint256 c = a * b;
-            if (c / a != b) return (false, 0);
-            return (true, c);
-        }
-    }
-
-    /**
-     * @dev Returns the division of two unsigned integers, with a division by zero flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a / b);
-        }
-    }
-
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a % b);
-        }
-    }
-
-    /**
-     * @dev Returns the addition of two unsigned integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `+` operator.
-     *
-     * Requirements:
-     *
-     * - Addition cannot overflow.
-     */
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a + b;
-    }
-
-    /**
-     * @dev Returns the subtraction of two unsigned integers, reverting on
-     * overflow (when the result is negative).
-     *
-     * Counterpart to Solidity's `-` operator.
-     *
-     * Requirements:
-     *
-     * - Subtraction cannot overflow.
-     */
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a - b;
-    }
-
-    /**
-     * @dev Returns the multiplication of two unsigned integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `*` operator.
-     *
-     * Requirements:
-     *
-     * - Multiplication cannot overflow.
-     */
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a * b;
-    }
-
-    /**
-     * @dev Returns the integer division of two unsigned integers, reverting on
-     * division by zero. The result is rounded towards zero.
-     *
-     * Counterpart to Solidity's `/` operator.
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a / b;
-    }
-
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
-     * reverting when dividing by zero.
-     *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
-     * opcode (which leaves remaining gas untouched) while Solidity uses an
-     * invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a % b;
-    }
-
-    /**
-     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
-     * overflow (when the result is negative).
-     *
-     * CAUTION: This function is deprecated because it requires allocating memory for the error
-     * message unnecessarily. For custom revert reasons use {trySub}.
-     *
-     * Counterpart to Solidity's `-` operator.
-     *
-     * Requirements:
-     *
-     * - Subtraction cannot overflow.
-     */
-    function sub(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b <= a, errorMessage);
-            return a - b;
-        }
-    }
-
-    /**
-     * @dev Returns the integer division of two unsigned integers, reverting with custom message on
-     * division by zero. The result is rounded towards zero.
-     *
-     * Counterpart to Solidity's `/` operator. Note: this function uses a
-     * `revert` opcode (which leaves remaining gas untouched) while Solidity
-     * uses an invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function div(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b > 0, errorMessage);
-            return a / b;
-        }
-    }
-
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
-     * reverting with custom message when dividing by zero.
-     *
-     * CAUTION: This function is deprecated because it requires allocating memory for the error
-     * message unnecessarily. For custom revert reasons use {tryMod}.
-     *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
-     * opcode (which leaves remaining gas untouched) while Solidity uses an
-     * invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function mod(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b > 0, errorMessage);
-            return a % b;
-        }
-    }
-}
-
-
 // File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.7.1
 
+// SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)
 
 pragma solidity ^0.8.0;
@@ -575,10 +345,7 @@ pragma solidity 0.8.9;
 
 
 
-
 contract StartonLinearVesting is Context {
-    using SafeMath for uint256;
-
     /** @notice Type of tokens that can be vested */
     enum TypeOfToken {
         TOKEN,
@@ -602,12 +369,17 @@ contract StartonLinearVesting is Context {
     mapping(address => VestingData[]) private _vestings;
 
     /** @dev Modifier that reverts when the amount is insufficent or the timestamp is in the past */
-    modifier isValidVesting(uint256 amount, uint64 endTimestamp) {
+    modifier isValidVesting(
+        uint256 amount,
+        uint64 endTimestamp,
+        address beneficiary
+    ) {
         require(amount != 0, "Amount is insufficent");
         require(
             endTimestamp >= block.timestamp,
             "End timestamp is in the past"
         );
+        require(beneficiary != address(0), "beneficiary is zero address");
         _;
     }
 
@@ -651,7 +423,7 @@ contract StartonLinearVesting is Context {
         uint64 endTimestamp,
         uint256 amount,
         address token
-    ) public payable isValidVesting(amount, endTimestamp) {
+    ) public payable isValidVesting(amount, endTimestamp, beneficiary) {
         // Check if the token can be transferred with the right amount
         IERC20 erc20Token = IERC20(token);
         require(
@@ -703,7 +475,7 @@ contract StartonLinearVesting is Context {
     function addNativeVesting(address beneficiary, uint64 endTimestamp)
         public
         payable
-        isValidVesting(msg.value, endTimestamp)
+        isValidVesting(msg.value, endTimestamp, beneficiary)
     {
         _vestings[beneficiary].push(
             VestingData({
@@ -734,7 +506,7 @@ contract StartonLinearVesting is Context {
      * @notice Get the amount of tokens that can be claimed from a vesting
      * @return The amount of tokens that can be claimed
      */
-    function getClaimValue(VestingData memory vesting)
+    function vestingAmount(VestingData memory vesting)
         public
         view
         returns (uint256)
@@ -744,11 +516,10 @@ contract StartonLinearVesting is Context {
         // If the vesting is finished, return the amount of tokens left
         // else returns the amount of tokens that can be claimed at the current time
         if (vesting.endTimestamp > block.timestamp) {
-            value = vesting
-                .amount
-                .mul(block.timestamp.sub(vesting.startTimestamp))
-                .div(vesting.endTimestamp - vesting.startTimestamp)
-                .sub(vesting.amountClaimed);
+            value =
+                (vesting.amount * (block.timestamp - vesting.startTimestamp)) /
+                (vesting.endTimestamp - vesting.startTimestamp) -
+                vesting.amountClaimed;
         } else {
             value = vesting.amount - vesting.amountClaimed;
         }
@@ -761,15 +532,15 @@ contract StartonLinearVesting is Context {
      */
     function claimVesting(uint256 index) public {
         VestingData memory vesting = getVesting(_msgSender(), index);
-        uint256 value = getClaimValue(vesting);
+        uint256 value = vestingAmount(vesting);
 
         emit ClaimedVesting(_msgSender(), index, address(vesting.token), value);
 
         // If the vesting is finished, remove it from the list else update the amount claimed
         if (vesting.endTimestamp > block.timestamp) {
-            _vestings[_msgSender()][index].amountClaimed = vesting
-                .amountClaimed
-                .add(value);
+            _vestings[_msgSender()][index].amountClaimed =
+                vesting.amountClaimed +
+                value;
         } else {
             // remove the vesting from the list
             VestingData[] storage vestings = _vestings[_msgSender()];
@@ -789,7 +560,12 @@ contract StartonLinearVesting is Context {
                     }
                 }
             }
-            emit FinishedVesting(_msgSender(), index, address(vesting.token), vesting.amount);
+            emit FinishedVesting(
+                _msgSender(),
+                index,
+                address(vesting.token),
+                vesting.amount
+            );
         }
 
         // Send the tokens to the sender
