@@ -19,6 +19,8 @@ describe("StartonERC721AuctionSale", () => {
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
+
+  // The current date of the test that will be used to mine blocks
   let now: Date;
 
   before(async () => {
@@ -34,10 +36,10 @@ describe("StartonERC721AuctionSale", () => {
     await ethers.provider.send("hardhat_reset", []);
 
     instanceERC721 = (await ERC721.deploy(
-      "testContract",
-      "TC",
-      "rnd1",
-      "rnd2",
+      "StartonToken",
+      "ST",
+      "https://ipfs.io/",
+      "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
     )) as StartonERC721MetaTransaction;
     await instanceERC721.deployed();

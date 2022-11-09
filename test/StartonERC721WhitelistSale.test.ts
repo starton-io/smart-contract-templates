@@ -22,7 +22,11 @@ describe("StartonERC721WhitelistSale", () => {
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
   let addrs: SignerWithAddress[];
+
+  // The current date of the test that will be used to mine blocks
   let now: Date;
+
+  // Merkle tree of the whitelisted addresses
   let merkleTree: MerkleTree;
 
   before(async () => {
@@ -38,10 +42,10 @@ describe("StartonERC721WhitelistSale", () => {
     await ethers.provider.send("hardhat_reset", []);
 
     instanceERC721 = (await ERC721.deploy(
-      "testContract",
-      "TC",
-      "rnd1",
-      "rnd2",
+      "StartonToken",
+      "ST",
+      "https://ipfs.io/",
+      "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
     )) as StartonERC721MetaTransaction;
     await instanceERC721.deployed();
@@ -257,8 +261,8 @@ describe("StartonERC721WhitelistSale", () => {
       });
 
       expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(2);
-      expect(await instanceERC721.tokenURI(0)).to.be.equal("rnd10");
-      expect(await instanceERC721.tokenURI(1)).to.be.equal("rnd11");
+      expect(await instanceERC721.tokenURI(0)).to.be.equal("https://ipfs.io/0");
+      expect(await instanceERC721.tokenURI(1)).to.be.equal("https://ipfs.io/1");
     });
   });
 
@@ -376,9 +380,9 @@ describe("StartonERC721WhitelistSale", () => {
       });
 
       expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(3);
-      expect(await instanceERC721.tokenURI(0)).to.be.equal("rnd10");
-      expect(await instanceERC721.tokenURI(1)).to.be.equal("rnd11");
-      expect(await instanceERC721.tokenURI(2)).to.be.equal("rnd12");
+      expect(await instanceERC721.tokenURI(0)).to.be.equal("https://ipfs.io/0");
+      expect(await instanceERC721.tokenURI(1)).to.be.equal("https://ipfs.io/1");
+      expect(await instanceERC721.tokenURI(2)).to.be.equal("https://ipfs.io/2");
     });
   });
 
