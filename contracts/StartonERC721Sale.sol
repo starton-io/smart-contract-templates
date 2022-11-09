@@ -2,16 +2,14 @@
 
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721Sale
 /// @author Starton
-/// @notice Can sell ERC721 tokens through a public sale with a limited avaible supply, start and end time as well as max tokens per address
-contract StartonERC721Sale {
-    using SafeMath for uint256;
-
+/// @notice Sell ERC721 tokens through a public sale with a limited available supply, start and end time as well as max tokens per address
+contract StartonERC721Sale is Context {
     address private immutable _feeReceiver;
 
     IStartonERC721 public immutable token;
@@ -24,6 +22,13 @@ contract StartonERC721Sale {
     uint256 public leftSupply;
 
     mapping(address => uint256) public tokensClaimed;
+
+    /** @dev Modifier that reverts when the block timestamp is not during the sale */
+    modifier isTimeCorrect() {
+        require(startTime <= block.timestamp, "Minting not started");
+        require(endTime >= block.timestamp, "Minting finished");
+        _;
+    }
 
     constructor(
         address definitiveTokenAddress,
@@ -47,25 +52,40 @@ contract StartonERC721Sale {
      * @notice Mint a token to a given address for a price
      * @param to The address to mint the token to
      */
-    function mint(address to) public payable {
+    function mint(address to) public payable isTimeCorrect {
         require(msg.value >= price, "Insufficient funds");
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
-        _mint(to, Strings.toString(token.totalSupply()));
+        uint256 totalSupply = token.totalSupply();
+        if (totalSupply == 0) {
+            _mint(to, Strings.toString(0));
+        } else {
+            _mint(
+                to,
+                Strings.toString(token.tokenByIndex(totalSupply - 1) + 1)
+            );
+        }
     }
 
     /**
      * @notice Mint multiple tokens to a given address for a price
      * @param to The address to mint the token to
      */
-    function mintBatch(address to, uint256 amount) public payable {
-        require(msg.value >= price.mul(amount), "Insufficient funds");
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
+    function mintBatch(address to, uint256 amount)
+        public
+        payable
+        isTimeCorrect
+    {
+        require(msg.value >= price * amount, "Insufficient funds");
+
+        // Compute the next token id
+        uint256 totalSupply = token.totalSupply();
+        uint256 tokenId;
+        if (totalSupply == 0) tokenId = 0;
+        else tokenId = token.tokenByIndex(totalSupply - 1) + 1;
 
         for (uint256 i = 0; i < amount; ++i) {
-            _mint(to, Strings.toString(token.totalSupply()));
+            _mint(to, Strings.toString(tokenId));
+            tokenId += 1;
         }
     }
 
@@ -83,13 +103,13 @@ contract StartonERC721Sale {
      */
     function _mint(address to, string memory tokenURI) internal {
         require(
-            tokensClaimed[msg.sender] < maxTokensPerAddress,
+            tokensClaimed[_msgSender()] < maxTokensPerAddress,
             "Max tokens reached"
         );
         require(leftSupply != 0, "Max supply reached");
 
+        leftSupply -= 1;
+        tokensClaimed[_msgSender()] += 1;
         token.mint(to, tokenURI);
-        leftSupply = leftSupply.sub(1);
-        tokensClaimed[msg.sender] = tokensClaimed[msg.sender].add(1);
     }
 }

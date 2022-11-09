@@ -1,232 +1,29 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/math/SafeMath.sol@v4.7.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.7.1
 
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (utils/math/SafeMath.sol)
+// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
 pragma solidity ^0.8.0;
 
-// CAUTION
-// This version of SafeMath should only be used with Solidity 0.8 or later,
-// because it relies on the compiler's built in overflow checks.
-
 /**
- * @dev Wrappers over Solidity's arithmetic operations.
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
  *
- * NOTE: `SafeMath` is generally not needed starting with Solidity 0.8, since the compiler
- * now has built in overflow checking.
+ * This contract is only required for intermediate, library-like contracts.
  */
-library SafeMath {
-    /**
-     * @dev Returns the addition of two unsigned integers, with an overflow flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            uint256 c = a + b;
-            if (c < a) return (false, 0);
-            return (true, c);
-        }
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
     }
 
-    /**
-     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
-     *
-     * _Available since v3.4._
-     */
-    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b > a) return (false, 0);
-            return (true, a - b);
-        }
-    }
-
-    /**
-     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
-            // benefit is lost if 'b' is also tested.
-            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
-            if (a == 0) return (true, 0);
-            uint256 c = a * b;
-            if (c / a != b) return (false, 0);
-            return (true, c);
-        }
-    }
-
-    /**
-     * @dev Returns the division of two unsigned integers, with a division by zero flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a / b);
-        }
-    }
-
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
-     *
-     * _Available since v3.4._
-     */
-    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a % b);
-        }
-    }
-
-    /**
-     * @dev Returns the addition of two unsigned integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `+` operator.
-     *
-     * Requirements:
-     *
-     * - Addition cannot overflow.
-     */
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a + b;
-    }
-
-    /**
-     * @dev Returns the subtraction of two unsigned integers, reverting on
-     * overflow (when the result is negative).
-     *
-     * Counterpart to Solidity's `-` operator.
-     *
-     * Requirements:
-     *
-     * - Subtraction cannot overflow.
-     */
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a - b;
-    }
-
-    /**
-     * @dev Returns the multiplication of two unsigned integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `*` operator.
-     *
-     * Requirements:
-     *
-     * - Multiplication cannot overflow.
-     */
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a * b;
-    }
-
-    /**
-     * @dev Returns the integer division of two unsigned integers, reverting on
-     * division by zero. The result is rounded towards zero.
-     *
-     * Counterpart to Solidity's `/` operator.
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a / b;
-    }
-
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
-     * reverting when dividing by zero.
-     *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
-     * opcode (which leaves remaining gas untouched) while Solidity uses an
-     * invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a % b;
-    }
-
-    /**
-     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
-     * overflow (when the result is negative).
-     *
-     * CAUTION: This function is deprecated because it requires allocating memory for the error
-     * message unnecessarily. For custom revert reasons use {trySub}.
-     *
-     * Counterpart to Solidity's `-` operator.
-     *
-     * Requirements:
-     *
-     * - Subtraction cannot overflow.
-     */
-    function sub(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b <= a, errorMessage);
-            return a - b;
-        }
-    }
-
-    /**
-     * @dev Returns the integer division of two unsigned integers, reverting with custom message on
-     * division by zero. The result is rounded towards zero.
-     *
-     * Counterpart to Solidity's `/` operator. Note: this function uses a
-     * `revert` opcode (which leaves remaining gas untouched) while Solidity
-     * uses an invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function div(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b > 0, errorMessage);
-            return a / b;
-        }
-    }
-
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
-     * reverting with custom message when dividing by zero.
-     *
-     * CAUTION: This function is deprecated because it requires allocating memory for the error
-     * message unnecessarily. For custom revert reasons use {tryMod}.
-     *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
-     * opcode (which leaves remaining gas untouched) while Solidity uses an
-     * invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function mod(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b > 0, errorMessage);
-            return a % b;
-        }
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
     }
 }
 
@@ -388,7 +185,7 @@ interface IERC1155 is IERC165 {
 // File contracts/interfaces/IStartonERC1155.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 interface IStartonERC1155 is IERC1155 {
     function mint(
@@ -427,20 +224,18 @@ pragma solidity 0.8.9;
 
 /// @title StartonERC1155Sale
 /// @author Starton
-/// @notice Can sell ERC1155 tokens through a public sale with a limited avaible supply, start and end time as well as max tokens per address
-contract StartonERC1155Sale {
-    using SafeMath for uint256;
-
-    address private immutable _feeReceiver;
-
-    IStartonERC1155 public immutable token;
-
+/// @notice Sell ERC1155 tokens through a public sale with a limited available supply, start and end time as well as max tokens per address
+contract StartonERC1155Sale is Context {
     struct TokenInformations {
         uint256 price;
         bool isSet;
     }
 
-    mapping(uint256 => TokenInformations) public pricePerToken;
+    mapping(uint256 => TokenInformations) private _pricePerToken;
+
+    address private immutable _feeReceiver;
+
+    IStartonERC1155 public immutable token;
 
     uint256 public immutable startTime;
     uint256 public immutable endTime;
@@ -449,6 +244,19 @@ contract StartonERC1155Sale {
     uint256 public leftSupply;
 
     mapping(address => uint256) public tokensClaimed;
+
+    /** @dev Modifier that reverts when the pice is not set yet */
+    modifier isPriceSet(uint256 id) {
+        require(_pricePerToken[id].isSet, "Price not set");
+        _;
+    }
+
+    /** @dev Modifier that reverts when the block timestamp is not during the sale */
+    modifier isTimeCorrect() {
+        require(startTime <= block.timestamp, "Minting not started");
+        require(endTime >= block.timestamp, "Minting finished");
+        _;
+    }
 
     constructor(
         address definitiveTokenAddress,
@@ -476,14 +284,11 @@ contract StartonERC1155Sale {
         address to,
         uint256 id,
         uint256 amount
-    ) public payable {
-        require(pricePerToken[id].isSet, "Price not set");
+    ) public payable isPriceSet(id) isTimeCorrect {
         require(
-            msg.value >= pricePerToken[id].price.mul(amount),
+            msg.value >= _pricePerToken[id].price * amount,
             "Insufficient funds"
         );
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
         _mint(to, id, amount);
     }
@@ -496,20 +301,21 @@ contract StartonERC1155Sale {
      */
     function mintBatch(
         address to,
-        uint256[] memory ids,
-        uint256[] memory amounts
-    ) public payable {
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
+        uint256[] calldata ids,
+        uint256[] calldata amounts
+    ) public payable isTimeCorrect {
+        require(
+            ids.length == amounts.length,
+            "ids and amounts length mismatch"
+        );
 
+        uint256 value = msg.value;
         uint256 totalAmount = 0;
         for (uint256 i = 0; i < ids.length; ++i) {
-            require(pricePerToken[ids[i]].isSet, "Price not set");
+            require(_pricePerToken[ids[i]].isSet, "Price not set");
 
-            totalAmount = totalAmount.add(
-                pricePerToken[ids[i]].price.mul(amounts[i])
-            );
-            require(msg.value >= totalAmount, "Insufficient funds");
+            totalAmount += _pricePerToken[ids[i]].price * amounts[i];
+            require(value >= totalAmount, "Insufficient funds");
 
             _mint(to, ids[i], amounts[i]);
         }
@@ -520,11 +326,13 @@ contract StartonERC1155Sale {
      * @param ids The ids of the tokens
      * @param prices The prices of the tokens
      */
-    function setPrices(uint256[] memory ids, uint256[] memory prices) public {
+    function setPrices(uint256[] calldata ids, uint256[] calldata prices)
+        public
+    {
         require(ids.length == prices.length, "Ids and prices length mismatch");
 
         for (uint256 i = 0; i < ids.length; ++i) {
-            pricePerToken[ids[i]] = TokenInformations(prices[i], true);
+            _pricePerToken[ids[i]] = TokenInformations(prices[i], true);
         }
     }
 
@@ -533,6 +341,20 @@ contract StartonERC1155Sale {
      */
     function withdraw() public {
         payable(_feeReceiver).transfer(address(this).balance);
+    }
+
+    /**
+     * @notice Get the price of a token
+     * @param id The id of the token
+     * @return The price of the token
+     */
+    function pricePerToken(uint256 id)
+        public
+        view
+        isPriceSet(id)
+        returns (uint256)
+    {
+        return _pricePerToken[id].price;
     }
 
     /**
@@ -547,13 +369,13 @@ contract StartonERC1155Sale {
         uint256 amount
     ) internal {
         require(
-            tokensClaimed[msg.sender].add(amount) <= maxTokensPerAddress,
+            tokensClaimed[_msgSender()] + amount <= maxTokensPerAddress,
             "Max tokens reached"
         );
         require(leftSupply >= amount, "Max supply reached");
 
+        leftSupply -= amount;
+        tokensClaimed[_msgSender()] += amount;
         token.mint(to, id, amount);
-        leftSupply = leftSupply.sub(amount);
-        tokensClaimed[msg.sender] = tokensClaimed[msg.sender].add(amount);
     }
 }

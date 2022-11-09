@@ -3,14 +3,19 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "./interfaces/IStartonERC1155.sol";
 
 /// @title StartonERC1155WhitelistSale
 /// @author Starton
-/// @notice Can sell ERC721 tokens through a whitelist sale with a limited avaible supply, start and end time as well as max tokens per address
-contract StartonERC1155WhitelistSale {
-    using SafeMath for uint256;
+/// @notice Sell ERC721 tokens through a whitelist sale with a limited available supply, start and end time as well as max tokens per address
+contract StartonERC1155WhitelistSale is Context {
+    struct TokenInformations {
+        uint256 price;
+        bool isSet;
+    }
+
+    mapping(uint256 => TokenInformations) private _pricePerToken;
 
     address private immutable _feeReceiver;
 
@@ -19,13 +24,6 @@ contract StartonERC1155WhitelistSale {
 
     IStartonERC1155 public immutable token;
 
-    struct TokenInformations {
-        uint256 price;
-        bool isSet;
-    }
-
-    mapping(uint256 => TokenInformations) public pricePerToken;
-
     uint256 public immutable startTime;
     uint256 public immutable endTime;
     uint256 public immutable maxTokensPerAddress;
@@ -33,6 +31,29 @@ contract StartonERC1155WhitelistSale {
     uint256 public leftSupply;
 
     mapping(address => uint256) public tokensClaimed;
+
+    /** @dev Modifier that reverts when the pice is not set yet */
+    modifier isPriceSet(uint256 id) {
+        require(_pricePerToken[id].isSet, "Price not set");
+        _;
+    }
+
+    /** @dev Modifier that reverts when the block timestamp is not during the sale */
+    modifier isTimeCorrect() {
+        require(startTime <= block.timestamp, "Minting not started");
+        require(endTime >= block.timestamp, "Minting finished");
+        _;
+    }
+
+    /** @dev Modifier that reverts when the sender is not whitelisted */
+    modifier isWhitelisted(bytes32[] calldata merkleProof) {
+        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
+        require(
+            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
+            "Invalid proof"
+        );
+        _;
+    }
 
     constructor(
         address definitiveTokenAddress,
@@ -64,20 +85,11 @@ contract StartonERC1155WhitelistSale {
         uint256 id,
         uint256 amount,
         bytes32[] calldata merkleProof
-    ) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
+    ) public payable isPriceSet(id) isTimeCorrect isWhitelisted(merkleProof) {
         require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
-
-        require(pricePerToken[id].isSet, "Price not set");
-        require(
-            msg.value >= pricePerToken[id].price.mul(amount),
+            msg.value >= _pricePerToken[id].price * amount,
             "Insufficient funds"
         );
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
         _mint(to, id, amount);
     }
@@ -91,27 +103,22 @@ contract StartonERC1155WhitelistSale {
      */
     function mintBatch(
         address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
         bytes32[] calldata merkleProof
-    ) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
+    ) public payable isTimeCorrect isWhitelisted(merkleProof) {
         require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
+            ids.length == amounts.length,
+            "Ids and amounts length mismatch"
         );
 
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
-
+        uint256 value = msg.value;
         uint256 totalAmount = 0;
         for (uint256 i = 0; i < ids.length; ++i) {
-            require(pricePerToken[ids[i]].isSet, "Price not set");
+            require(_pricePerToken[ids[i]].isSet, "Price not set");
 
-            totalAmount = totalAmount.add(
-                pricePerToken[ids[i]].price.mul(amounts[i])
-            );
-            require(msg.value >= totalAmount, "Insufficient funds");
+            totalAmount += _pricePerToken[ids[i]].price * amounts[i];
+            require(value >= totalAmount, "Insufficient funds");
 
             _mint(to, ids[i], amounts[i]);
         }
@@ -122,11 +129,13 @@ contract StartonERC1155WhitelistSale {
      * @param ids The ids of the tokens
      * @param prices The prices of the tokens
      */
-    function setPrices(uint256[] memory ids, uint256[] memory prices) public {
+    function setPrices(uint256[] calldata ids, uint256[] calldata prices)
+        public
+    {
         require(ids.length == prices.length, "Ids and prices length mismatch");
 
         for (uint256 i = 0; i < ids.length; ++i) {
-            pricePerToken[ids[i]] = TokenInformations(prices[i], true);
+            _pricePerToken[ids[i]] = TokenInformations(prices[i], true);
         }
     }
 
@@ -135,6 +144,20 @@ contract StartonERC1155WhitelistSale {
      */
     function withdraw() public {
         payable(_feeReceiver).transfer(address(this).balance);
+    }
+
+    /**
+     * @notice Get the price of a token
+     * @param id The id of the token
+     * @return The price of the token
+     */
+    function pricePerToken(uint256 id)
+        public
+        view
+        isPriceSet(id)
+        returns (uint256)
+    {
+        return _pricePerToken[id].price;
     }
 
     /**
@@ -149,13 +172,13 @@ contract StartonERC1155WhitelistSale {
         uint256 amount
     ) internal {
         require(
-            tokensClaimed[msg.sender].add(amount) <= maxTokensPerAddress,
+            tokensClaimed[_msgSender()] + amount <= maxTokensPerAddress,
             "Max tokens reached"
         );
         require(leftSupply >= amount, "Max supply reached");
 
+        leftSupply -= amount;
+        tokensClaimed[_msgSender()] += amount;
         token.mint(to, id, amount);
-        leftSupply = leftSupply.sub(amount);
-        tokensClaimed[msg.sender] = tokensClaimed[msg.sender].add(amount);
     }
 }

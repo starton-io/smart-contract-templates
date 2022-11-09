@@ -4,9 +4,9 @@
 
 pragma solidity 0.8.9;
 
-import "./EIP712Base.sol";
+import "./StartonEIP712Base.sol";
 
-contract NativeMetaTransaction is EIP712Base {
+abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
         keccak256(
             bytes(
@@ -18,7 +18,7 @@ contract NativeMetaTransaction is EIP712Base {
         address payable relayerAddress,
         bytes functionSignature
     );
-    mapping(address => uint256) nonces;
+    mapping(address => uint256) private _nonces;
 
     /*
      * Meta transaction structure.
@@ -39,18 +39,18 @@ contract NativeMetaTransaction is EIP712Base {
         uint8 sigV
     ) public payable returns (bytes memory) {
         MetaTransaction memory metaTx = MetaTransaction({
-            nonce: nonces[userAddress],
+            nonce: _nonces[userAddress],
             from: userAddress,
             functionSignature: functionSignature
         });
 
         require(
-            verify(userAddress, metaTx, sigR, sigS, sigV),
+            _verify(userAddress, metaTx, sigR, sigS, sigV),
             "Signer and signature do not match"
         );
 
         // increase nonce for user (to avoid re-use)
-        nonces[userAddress] = nonces[userAddress] + 1;
+        _nonces[userAddress] = _nonces[userAddress] + 1;
 
         emit MetaTransactionExecuted(
             userAddress,
@@ -67,7 +67,7 @@ contract NativeMetaTransaction is EIP712Base {
         return returnData;
     }
 
-    function hashMetaTransaction(MetaTransaction memory metaTx)
+    function _hashMetaTransaction(MetaTransaction memory metaTx)
         internal
         pure
         returns (bytes32)
@@ -84,10 +84,10 @@ contract NativeMetaTransaction is EIP712Base {
     }
 
     function getNonce(address user) public view returns (uint256 nonce) {
-        nonce = nonces[user];
+        nonce = _nonces[user];
     }
 
-    function verify(
+    function _verify(
         address signer,
         MetaTransaction memory metaTx,
         bytes32 sigR,
@@ -98,7 +98,7 @@ contract NativeMetaTransaction is EIP712Base {
         return
             signer ==
             ecrecover(
-                toTypedMessageHash(hashMetaTransaction(metaTx)),
+                _toTypedMessageHash(_hashMetaTransaction(metaTx)),
                 sigV,
                 sigR,
                 sigS

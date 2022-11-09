@@ -4,7 +4,7 @@
 
 pragma solidity 0.8.9;
 
-abstract contract ContextMixin {
+abstract contract StartonContextMixin {
     function _msgSender() internal view virtual returns (address sender) {
         if (msg.sender == address(this)) {
             bytes memory array = msg.data;

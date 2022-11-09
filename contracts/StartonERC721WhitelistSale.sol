@@ -3,16 +3,14 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721WhitelistSale
 /// @author Starton
-/// @notice Can sell ERC721 tokens through a whitelist sale with a limited avaible supply, start and end time as well as max tokens per address
-contract StartonERC721WhitelistSale {
-    using SafeMath for uint256;
-
+/// @notice Sell ERC721 tokens through a whitelist sale with a limited available supply, start and end time as well as max tokens per address
+contract StartonERC721WhitelistSale is Context {
     address private immutable _feeReceiver;
 
     // Root of the merkle tree for the whitelisted address
@@ -28,6 +26,23 @@ contract StartonERC721WhitelistSale {
     uint256 public leftSupply;
 
     mapping(address => uint256) public tokensClaimed;
+
+    /** @dev Modifier that reverts when the block timestamp is not during the sale */
+    modifier isTimeCorrect() {
+        require(startTime <= block.timestamp, "Minting not started");
+        require(endTime >= block.timestamp, "Minting finished");
+        _;
+    }
+
+    /** @dev Modifier that reverts when the sender is not whitelisted */
+    modifier isWhitelisted(bytes32[] calldata merkleProof) {
+        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
+        require(
+            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
+            "Invalid proof"
+        );
+        _;
+    }
 
     constructor(
         address definitiveTokenAddress,
@@ -54,18 +69,23 @@ contract StartonERC721WhitelistSale {
      * @param to The address to mint the token to
      * @param merkleProof The merkle proof of the address in the whitelist
      */
-    function mint(address to, bytes32[] calldata merkleProof) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
-
+    function mint(address to, bytes32[] calldata merkleProof)
+        public
+        payable
+        isTimeCorrect
+        isWhitelisted(merkleProof)
+    {
         require(msg.value >= price, "Insufficient funds");
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
 
-        _mint(to, Strings.toString(token.totalSupply()));
+        uint256 totalSupply = token.totalSupply();
+        if (totalSupply == 0) {
+            _mint(to, Strings.toString(0));
+        } else {
+            _mint(
+                to,
+                Strings.toString(token.tokenByIndex(totalSupply - 1) + 1)
+            );
+        }
     }
 
     /**
@@ -77,19 +97,18 @@ contract StartonERC721WhitelistSale {
         address to,
         uint256 amount,
         bytes32[] calldata merkleProof
-    ) public payable {
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
+    ) public payable isTimeCorrect isWhitelisted(merkleProof) {
+        require(msg.value >= price * amount, "Insufficient funds");
 
-        require(msg.value >= price.mul(amount), "Insufficient funds");
-        require(startTime <= block.timestamp, "Minting not started");
-        require(endTime >= block.timestamp, "Minting finished");
+        // Compute the next token id
+        uint256 totalSupply = token.totalSupply();
+        uint256 tokenId;
+        if (totalSupply == 0) tokenId = 0;
+        else tokenId = token.tokenByIndex(totalSupply - 1) + 1;
 
         for (uint256 i = 0; i < amount; ++i) {
-            _mint(to, Strings.toString(token.totalSupply()));
+            _mint(to, Strings.toString(tokenId));
+            tokenId += 1;
         }
     }
 
@@ -107,13 +126,13 @@ contract StartonERC721WhitelistSale {
      */
     function _mint(address to, string memory tokenURI) internal {
         require(
-            tokensClaimed[msg.sender] < maxTokensPerAddress,
+            tokensClaimed[_msgSender()] < maxTokensPerAddress,
             "Max tokens reached"
         );
         require(leftSupply != 0, "Max supply reached");
 
+        leftSupply -= 1;
+        tokensClaimed[_msgSender()] += 1;
         token.mint(to, tokenURI);
-        leftSupply = leftSupply.sub(1);
-        tokensClaimed[msg.sender] = tokensClaimed[msg.sender].add(1);
     }
 }

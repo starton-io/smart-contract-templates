@@ -5,20 +5,20 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "./utils/NativeMetaTransaction.sol";
+import "./utils/StartonNativeMetaTransaction.sol";
+import "./utils/StartonContextMixin.sol";
 import "./utils/StartonBlacklist.sol";
-import "./utils/ContextMixin.sol";
 
 /// @title StartonERC1155MetaTransaction
 /// @author Starton
-/// @notice ERC1155 token that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
+/// @notice ERC1155 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
 contract StartonERC1155MetaTransaction is
     ERC1155Burnable,
     AccessControl,
     Pausable,
+    StartonContextMixin,
     StartonBlacklist,
-    ContextMixin,
-    NativeMetaTransaction
+    StartonNativeMetaTransaction
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -32,10 +32,10 @@ contract StartonERC1155MetaTransaction is
     bool private _isMintAllowed;
     bool private _isMetatadataChangingAllowed;
 
-    /** @notice Event when the minting is locked */
+    /** @notice Event emitted when the minting is locked */
     event MintingLocked(address indexed account);
 
-    /** @notice Event when the metadata are locked */
+    /** @notice Event emitted when the metadata are locked */
     event MetadataLocked(address indexed account);
 
     /** @dev Modifier that reverts when the minting is locked */
@@ -232,7 +232,7 @@ contract StartonERC1155MetaTransaction is
         address owner,
         address operator,
         bool approved
-    ) internal override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused notBlacklisted(operator) {
         super._setApprovalForAll(owner, operator, approved);
     }
 
@@ -252,7 +252,7 @@ contract StartonERC1155MetaTransaction is
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused notBlacklisted(operator) {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
@@ -264,9 +264,9 @@ contract StartonERC1155MetaTransaction is
         internal
         view
         virtual
-        override(Context, ContextMixin)
+        override(Context, StartonContextMixin)
         returns (address)
     {
-        return ContextMixin._msgSender();
+        return super._msgSender();
     }
 }

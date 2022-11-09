@@ -2,16 +2,14 @@
 
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IStartonERC721.sol";
 
 /// @title StartonERC721AuctionSale
 /// @author Starton
-/// @notice Can sell ERC721 tokens through a auction
-contract StartonERC721AuctionSale is Ownable {
-    using SafeMath for uint256;
-
+/// @notice Sell ERC721 tokens through an auction
+contract StartonERC721AuctionSale is Ownable, ReentrancyGuard {
     address private immutable _feeReceiver;
 
     IStartonERC721 public immutable token;
@@ -28,13 +26,13 @@ contract StartonERC721AuctionSale is Ownable {
     // If the token as been claimed or not yet
     bool private _claimed;
 
-    /** @notice Event when a auction started */
+    /** @notice Event emitted when an auction started */
     event AuctionStarted(uint256 startTime, uint256 endTime);
 
-    /** @notice Event when a auction winner has claimed his prize */
+    /** @notice Event emitted when an auction winner has claimed his prize */
     event AuctionClaimed(address indexed winner, uint256 price);
 
-    /** @notice Event when a account bided on a auction */
+    /** @notice Event emitted when an account bided on an auction */
     event Bided(address indexed bidder, uint256 amount);
 
     constructor(
@@ -71,11 +69,11 @@ contract StartonERC721AuctionSale is Ownable {
     /**
      * @notice Bid for the current auction
      */
-    function bid() public payable {
+    function bid() public payable nonReentrant {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
         require(
-            currentPrice.add(minPriceDifference) <= msg.value,
+            currentPrice + minPriceDifference <= msg.value,
             "Bid is too low"
         );
 
@@ -89,25 +87,20 @@ contract StartonERC721AuctionSale is Ownable {
 
         // If there is a current winner, send the money back
         if (oldAuctionWinner != address(0)) {
-            payable(oldAuctionWinner).transfer(oldPrice);
+            payable(oldAuctionWinner).call{value: oldPrice}("");
         }
     }
 
     /**
      * @notice Claim the prize of the current auction
-     * @param to The address to send the prize to
      */
-    function mint(address to) public {
-        require(
-            to == currentAuctionWinner,
-            "Destination address isn't the current auction winner"
-        );
+    function claim() public {
         require(endTime < block.timestamp, "Minting hasn't finished yet");
         require(!_claimed, "Token has already been claimed");
 
-        token.mint(to, tokenURI);
         _claimed = true;
-        emit AuctionClaimed(to, currentPrice);
+        emit AuctionClaimed(currentAuctionWinner, currentPrice);
+        token.mint(currentAuctionWinner, tokenURI);
     }
 
     /**
@@ -144,6 +137,7 @@ contract StartonERC721AuctionSale is Ownable {
 
     /**
      * @notice Withdraw funds from the smart contract to the feeReceiver
+     * @dev send everything except the current price if there is an auction ongoing
      */
     function withdraw() public {
         if (currentAuctionWinner != address(0) && !_claimed) {

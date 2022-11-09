@@ -6,12 +6,15 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract StartonBlacklist is AccessControl {
+/// @title StartonBlacklist
+/// @author Starton
+/// @notice Utility smart contract that can blacklist addresses
+abstract contract StartonBlacklist is AccessControl {
     bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
 
     mapping(address => bool) private _blacklisted;
 
-    /** @notice Event when a new address is blacklisted */
+    /** @notice Event emitted when a new address is blacklisted */
     event Blacklisted(address indexed account, bool indexed isBlacklisted);
 
     /** @dev Modifier that reverts when the address is blacklisted */
@@ -66,7 +69,8 @@ contract StartonBlacklist is AccessControl {
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToBl.length; ++i) {
+        uint256 length = multiAddrToBl.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (_blacklisted[multiAddrToBl[i]]) {
                 continue;
             }
@@ -84,7 +88,8 @@ contract StartonBlacklist is AccessControl {
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToRm.length; ++i) {
+        uint256 length = multiAddrToRm.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (!_blacklisted[multiAddrToRm[i]]) {
                 continue;
             }

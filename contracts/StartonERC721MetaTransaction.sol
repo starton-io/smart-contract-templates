@@ -8,13 +8,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./utils/NativeMetaTransaction.sol";
+import "./utils/StartonNativeMetaTransaction.sol";
+import "./utils/StartonContextMixin.sol";
 import "./utils/StartonBlacklist.sol";
-import "./utils/ContextMixin.sol";
 
 /// @title StartonERC721MetaTransaction
 /// @author Starton
-/// @notice ERC721 token that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
+/// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
 contract StartonERC721MetaTransaction is
     ERC721Enumerable,
     ERC721URIStorage,
@@ -22,8 +22,8 @@ contract StartonERC721MetaTransaction is
     Pausable,
     AccessControl,
     StartonBlacklist,
-    ContextMixin,
-    NativeMetaTransaction
+    StartonContextMixin,
+    StartonNativeMetaTransaction
 {
     using Counters for Counters.Counter;
 
@@ -40,10 +40,10 @@ contract StartonERC721MetaTransaction is
     bool private _isMintAllowed;
     bool private _isMetatadataChangingAllowed;
 
-    /** @notice Event when the minting is locked */
+    /** @notice Event emitted when the minting is locked */
     event MintingLocked(address indexed account);
 
-    /** @notice Event when the metadata are locked */
+    /** @notice Event emitted when the metadata are locked */
     event MetadataLocked(address indexed account);
 
     /** @dev Modifier that reverts when the minting is locked */
@@ -205,7 +205,7 @@ contract StartonERC721MetaTransaction is
         address owner,
         address operator,
         bool approved
-    ) internal override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused notBlacklisted(operator) {
         super._setApprovalForAll(owner, operator, approved);
     }
 
@@ -221,6 +221,7 @@ contract StartonERC721MetaTransaction is
         uint256 tokenId
     )
         internal
+        virtual
         override(ERC721, ERC721Enumerable)
         whenNotPaused
         notBlacklisted(_msgSender())
@@ -229,11 +230,12 @@ contract StartonERC721MetaTransaction is
     }
 
     /**
-     * @dev Fix the inheritence problem for the _burn between ERC721 and erc721URIStorage
+     * @dev Fix the inheritence problem for the _burn between ERC721 and ERC721URIStorage
      * @param tokenId Id of the token that will be burnt
      */
     function _burn(uint256 tokenId)
         internal
+        virtual
         override(ERC721, ERC721URIStorage)
     {
         super._burn(tokenId);
@@ -243,7 +245,7 @@ contract StartonERC721MetaTransaction is
      * @notice Returns the first part of the uri being used for the token metadata
      * @return Base URI of the token
      */
-    function _baseURI() internal view override returns (string memory) {
+    function _baseURI() internal view virtual override returns (string memory) {
         return _baseTokenURI;
     }
 
@@ -255,9 +257,9 @@ contract StartonERC721MetaTransaction is
         internal
         view
         virtual
-        override(Context, ContextMixin)
+        override(Context, StartonContextMixin)
         returns (address)
     {
-        return ContextMixin._msgSender();
+        return super._msgSender();
     }
 }

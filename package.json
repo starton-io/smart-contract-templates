@@ -5,7 +5,7 @@
   "main": "hardhat.config.ts",
   "scripts": {
     "test": "hardhat compile && hardhat test",
-    "compile": "hardhat compile && hardhat compile",
+    "compile": "hardhat compile",
     "clean": "hardhat clean",
     "coverage": "hardhat coverage",
     "flatten": "ts-node scripts/flatten-contracts-folder.ts",

@@ -1,8 +1,74 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/math/SafeMath.sol@v4.7.1
+// File @openzeppelin/contracts/security/ReentrancyGuard.sol@v4.7.1
 
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (security/ReentrancyGuard.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Contract module that helps prevent reentrant calls to a function.
+ *
+ * Inheriting from `ReentrancyGuard` will make the {nonReentrant} modifier
+ * available, which can be applied to functions to make sure there are no nested
+ * (reentrant) calls to them.
+ *
+ * Note that because there is a single `nonReentrant` guard, functions marked as
+ * `nonReentrant` may not call one another. This can be worked around by making
+ * those functions `private`, and then adding `external` `nonReentrant` entry
+ * points to them.
+ *
+ * TIP: If you would like to learn more about reentrancy and alternative ways
+ * to protect against it, check out our blog post
+ * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
+ */
+abstract contract ReentrancyGuard {
+    // Booleans are more expensive than uint256 or any type that takes up a full
+    // word because each write operation emits an extra SLOAD to first read the
+    // slot's contents, replace the bits taken up by the boolean, and then write
+    // back. This is the compiler's defense against contract upgrades and
+    // pointer aliasing, and it cannot be disabled.
+
+    // The values being non-zero value makes deployment a bit more expensive,
+    // but in exchange the refund on every call to nonReentrant will be lower in
+    // amount. Since refunds are capped to a percentage of the total
+    // transaction's gas, it is best to keep them low in cases like this one, to
+    // increase the likelihood of the full refund coming into effect.
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
+
+    uint256 private _status;
+
+    constructor() {
+        _status = _NOT_ENTERED;
+    }
+
+    /**
+     * @dev Prevents a contract from calling itself, directly or indirectly.
+     * Calling a `nonReentrant` function from another `nonReentrant`
+     * function is not supported. It is possible to prevent this from happening
+     * by making the `nonReentrant` function external, and making it call a
+     * `private` function that does the actual work.
+     */
+    modifier nonReentrant() {
+        // On the first call to nonReentrant, _notEntered will be true
+        require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
+
+        // Any calls to nonReentrant after this point will fail
+        _status = _ENTERED;
+
+        _;
+
+        // By storing the original value once again, a refund is triggered (see
+        // https://eips.ethereum.org/EIPS/eip-2200)
+        _status = _NOT_ENTERED;
+    }
+}
+
+
+// File @openzeppelin/contracts/utils/math/SafeMath.sol@v4.7.1
+
 // OpenZeppelin Contracts (last updated v4.6.0) (utils/math/SafeMath.sol)
 
 pragma solidity ^0.8.0;
@@ -499,7 +565,7 @@ interface IERC1155 is IERC165 {
 // File contracts/interfaces/IStartonERC1155.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 interface IStartonERC1155 is IERC1155 {
     function mint(
@@ -537,12 +603,11 @@ pragma solidity 0.8.9;
 
 
 
+
 /// @title StartonERC1155AuctionSale
 /// @author Starton
-/// @notice Can sell ERC1155 tokens through a auction
-contract StartonERC1155AuctionSale is Ownable {
-    using SafeMath for uint256;
-
+/// @notice Sell ERC1155 tokens through an auction
+contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
     address private immutable _feeReceiver;
 
     IStartonERC1155 public immutable token;
@@ -560,13 +625,13 @@ contract StartonERC1155AuctionSale is Ownable {
     // If the token as been claimed or not yet
     bool private _claimed;
 
-    /** @notice Event when a auction started */
+    /** @notice Event emitted when an auction started */
     event AuctionStarted(uint256 startTime, uint256 endTime);
 
-    /** @notice Event when a auction winner has claimed his prize */
+    /** @notice Event emitted when an auction winner has claimed his prize */
     event AuctionClaimed(address indexed winner, uint256 price);
 
-    /** @notice Event when a account bided on a auction */
+    /** @notice Event emitted when an account bided on an auction */
     event Bided(address indexed bidder, uint256 amount);
 
     constructor(
@@ -605,11 +670,11 @@ contract StartonERC1155AuctionSale is Ownable {
     /**
      * @notice Bid for the current auction
      */
-    function bid() public payable {
+    function bid() public payable nonReentrant {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
         require(
-            currentPrice.add(minPriceDifference) <= msg.value,
+            currentPrice + minPriceDifference <= msg.value,
             "Bid is too low"
         );
 
@@ -623,25 +688,20 @@ contract StartonERC1155AuctionSale is Ownable {
 
         // If there is a current winner, send the money back
         if (oldAuctionWinner != address(0)) {
-            payable(oldAuctionWinner).transfer(oldPrice);
+            payable(oldAuctionWinner).call{value: oldPrice}("");
         }
     }
 
     /**
      * @notice Claim the prize of the current auction
-     * @param to The address to send the prize to
      */
-    function mint(address to) public {
-        require(
-            to == currentAuctionWinner,
-            "Destination address isn't the current auction winner"
-        );
+    function claim() public {
         require(endTime < block.timestamp, "Minting hasn't finished yet");
         require(!_claimed, "Token has already been claimed");
 
-        token.mint(to, tokenId, tokenAmount);
         _claimed = true;
-        emit AuctionClaimed(to, currentPrice);
+        emit AuctionClaimed(currentAuctionWinner, currentPrice);
+        token.mint(currentAuctionWinner, tokenId, tokenAmount);
     }
 
     /**

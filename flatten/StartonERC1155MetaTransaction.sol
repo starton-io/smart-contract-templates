@@ -1601,14 +1601,14 @@ abstract contract Pausable is Context {
 }
 
 
-// File contracts/utils/Initializable.sol
+// File contracts/utils/StartonInitializable.sol
 
 // Initializable contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract Initializable {
+abstract contract StartonInitializable {
     bool private _inited = false;
 
     modifier initializer() {
@@ -1619,14 +1619,14 @@ contract Initializable {
 }
 
 
-// File contracts/utils/EIP712Base.sol
+// File contracts/utils/StartonEIP712Base.sol
 
 // EIP712Base contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract EIP712Base is Initializable {
+abstract contract StartonEIP712Base is StartonInitializable {
     struct EIP712Domain {
         string name;
         string version;
@@ -1642,17 +1642,17 @@ contract EIP712Base is Initializable {
                 "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
             )
         );
-    bytes32 internal domainSeperator;
+    bytes32 internal _domainSeparator;
 
     // supposed to be called once while initializing.
     // one of the contractsa that inherits this contract follows proxy pattern
     // so it is not possible to do this in a constructor
     function _initializeEIP712(string memory name) internal initializer {
-        _setDomainSeperator(name);
+        _setDomainSeparator(name);
     }
 
-    function _setDomainSeperator(string memory name) internal {
-        domainSeperator = keccak256(
+    function _setDomainSeparator(string memory name) internal {
+        _domainSeparator = keccak256(
             abi.encode(
                 EIP712_DOMAIN_TYPEHASH,
                 keccak256(bytes(name)),
@@ -1663,8 +1663,8 @@ contract EIP712Base is Initializable {
         );
     }
 
-    function getDomainSeperator() public view returns (bytes32) {
-        return domainSeperator;
+    function getDomainSeparator() public view returns (bytes32) {
+        return _domainSeparator;
     }
 
     function getChainId() public view returns (uint256) {
@@ -1682,27 +1682,27 @@ contract EIP712Base is Initializable {
      * "\\x19" makes the encoding deterministic
      * "\\x01" is the version byte to make it compatible to EIP-191
      */
-    function toTypedMessageHash(bytes32 messageHash)
+    function _toTypedMessageHash(bytes32 messageHash)
         internal
         view
         returns (bytes32)
     {
         return
             keccak256(
-                abi.encodePacked("\x19\x01", getDomainSeperator(), messageHash)
+                abi.encodePacked("\x19\x01", getDomainSeparator(), messageHash)
             );
     }
 }
 
 
-// File contracts/utils/NativeMetaTransaction.sol
+// File contracts/utils/StartonNativeMetaTransaction.sol
 
 // NativeMetaTransaction contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract NativeMetaTransaction is EIP712Base {
+abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
         keccak256(
             bytes(
@@ -1714,7 +1714,7 @@ contract NativeMetaTransaction is EIP712Base {
         address payable relayerAddress,
         bytes functionSignature
     );
-    mapping(address => uint256) nonces;
+    mapping(address => uint256) private _nonces;
 
     /*
      * Meta transaction structure.
@@ -1735,18 +1735,18 @@ contract NativeMetaTransaction is EIP712Base {
         uint8 sigV
     ) public payable returns (bytes memory) {
         MetaTransaction memory metaTx = MetaTransaction({
-            nonce: nonces[userAddress],
+            nonce: _nonces[userAddress],
             from: userAddress,
             functionSignature: functionSignature
         });
 
         require(
-            verify(userAddress, metaTx, sigR, sigS, sigV),
+            _verify(userAddress, metaTx, sigR, sigS, sigV),
             "Signer and signature do not match"
         );
 
         // increase nonce for user (to avoid re-use)
-        nonces[userAddress] = nonces[userAddress] + 1;
+        _nonces[userAddress] = _nonces[userAddress] + 1;
 
         emit MetaTransactionExecuted(
             userAddress,
@@ -1763,7 +1763,7 @@ contract NativeMetaTransaction is EIP712Base {
         return returnData;
     }
 
-    function hashMetaTransaction(MetaTransaction memory metaTx)
+    function _hashMetaTransaction(MetaTransaction memory metaTx)
         internal
         pure
         returns (bytes32)
@@ -1780,10 +1780,10 @@ contract NativeMetaTransaction is EIP712Base {
     }
 
     function getNonce(address user) public view returns (uint256 nonce) {
-        nonce = nonces[user];
+        nonce = _nonces[user];
     }
 
-    function verify(
+    function _verify(
         address signer,
         MetaTransaction memory metaTx,
         bytes32 sigR,
@@ -1794,11 +1794,38 @@ contract NativeMetaTransaction is EIP712Base {
         return
             signer ==
             ecrecover(
-                toTypedMessageHash(hashMetaTransaction(metaTx)),
+                _toTypedMessageHash(_hashMetaTransaction(metaTx)),
                 sigV,
                 sigR,
                 sigS
             );
+    }
+}
+
+
+// File contracts/utils/StartonContextMixin.sol
+
+// ContextMixin contract: version 0.0.1
+// Creator: https://starton.io
+
+pragma solidity 0.8.9;
+
+abstract contract StartonContextMixin {
+    function _msgSender() internal view virtual returns (address sender) {
+        if (msg.sender == address(this)) {
+            bytes memory array = msg.data;
+            uint256 index = msg.data.length;
+            assembly {
+                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
+                sender := and(
+                    mload(add(array, index)),
+                    0xffffffffffffffffffffffffffffffffffffffff
+                )
+            }
+        } else {
+            sender = msg.sender;
+        }
+        return sender;
     }
 }
 
@@ -1810,12 +1837,15 @@ contract NativeMetaTransaction is EIP712Base {
 
 pragma solidity 0.8.9;
 
-contract StartonBlacklist is AccessControl {
+/// @title StartonBlacklist
+/// @author Starton
+/// @notice Utility smart contract that can blacklist addresses
+abstract contract StartonBlacklist is AccessControl {
     bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
 
     mapping(address => bool) private _blacklisted;
 
-    /** @notice Event when a new address is blacklisted */
+    /** @notice Event emitted when a new address is blacklisted */
     event Blacklisted(address indexed account, bool indexed isBlacklisted);
 
     /** @dev Modifier that reverts when the address is blacklisted */
@@ -1870,7 +1900,8 @@ contract StartonBlacklist is AccessControl {
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToBl.length; ++i) {
+        uint256 length = multiAddrToBl.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (_blacklisted[multiAddrToBl[i]]) {
                 continue;
             }
@@ -1888,7 +1919,8 @@ contract StartonBlacklist is AccessControl {
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToRm.length; ++i) {
+        uint256 length = multiAddrToRm.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (!_blacklisted[multiAddrToRm[i]]) {
                 continue;
             }
@@ -1908,33 +1940,6 @@ contract StartonBlacklist is AccessControl {
 }
 
 
-// File contracts/utils/ContextMixin.sol
-
-// ContextMixin contract: version 0.0.1
-// Creator: https://starton.io
-
-pragma solidity 0.8.9;
-
-abstract contract ContextMixin {
-    function _msgSender() internal view virtual returns (address sender) {
-        if (msg.sender == address(this)) {
-            bytes memory array = msg.data;
-            uint256 index = msg.data.length;
-            assembly {
-                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
-                sender := and(
-                    mload(add(array, index)),
-                    0xffffffffffffffffffffffffffffffffffffffff
-                )
-            }
-        } else {
-            sender = msg.sender;
-        }
-        return sender;
-    }
-}
-
-
 // File contracts/StartonERC1155MetaTransaction.sol
 
 
@@ -1947,14 +1952,14 @@ pragma solidity 0.8.9;
 
 /// @title StartonERC1155MetaTransaction
 /// @author Starton
-/// @notice ERC1155 token that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
+/// @notice ERC1155 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
 contract StartonERC1155MetaTransaction is
     ERC1155Burnable,
     AccessControl,
     Pausable,
+    StartonContextMixin,
     StartonBlacklist,
-    ContextMixin,
-    NativeMetaTransaction
+    StartonNativeMetaTransaction
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -1968,10 +1973,10 @@ contract StartonERC1155MetaTransaction is
     bool private _isMintAllowed;
     bool private _isMetatadataChangingAllowed;
 
-    /** @notice Event when the minting is locked */
+    /** @notice Event emitted when the minting is locked */
     event MintingLocked(address indexed account);
 
-    /** @notice Event when the metadata are locked */
+    /** @notice Event emitted when the metadata are locked */
     event MetadataLocked(address indexed account);
 
     /** @dev Modifier that reverts when the minting is locked */
@@ -2168,7 +2173,7 @@ contract StartonERC1155MetaTransaction is
         address owner,
         address operator,
         bool approved
-    ) internal override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused notBlacklisted(operator) {
         super._setApprovalForAll(owner, operator, approved);
     }
 
@@ -2188,7 +2193,7 @@ contract StartonERC1155MetaTransaction is
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused notBlacklisted(operator) {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
@@ -2200,9 +2205,9 @@ contract StartonERC1155MetaTransaction is
         internal
         view
         virtual
-        override(Context, ContextMixin)
+        override(Context, StartonContextMixin)
         returns (address)
     {
-        return ContextMixin._msgSender();
+        return super._msgSender();
     }
 }
