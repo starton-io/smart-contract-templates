@@ -38,7 +38,7 @@ contract StartonERC20MetaTransaction is
     }
 
     /**
-     * @notice Pause the contract which stop any changes regarding the ERC721 and minting
+     * @notice Pause the contract which stop any changes regarding the ERC20
      * @custom:requires PAUSER_ROLE
      */
     function pause() public onlyRole(PAUSER_ROLE) {
@@ -46,7 +46,7 @@ contract StartonERC20MetaTransaction is
     }
 
     /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
+     * @notice Unpause the contract which allow back any changes regarding the ERC20
      * @custom:requires PAUSER_ROLE
      */
     function unpause() public onlyRole(PAUSER_ROLE) {

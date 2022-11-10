@@ -1147,14 +1147,14 @@ abstract contract Pausable is Context {
 }
 
 
-// File contracts/utils/Initializable.sol
+// File contracts/utils/StartonInitializable.sol
 
 // Initializable contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract Initializable {
+abstract contract StartonInitializable {
     bool private _inited = false;
 
     modifier initializer() {
@@ -1165,14 +1165,14 @@ contract Initializable {
 }
 
 
-// File contracts/utils/EIP712Base.sol
+// File contracts/utils/StartonEIP712Base.sol
 
 // EIP712Base contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract EIP712Base is Initializable {
+abstract contract StartonEIP712Base is StartonInitializable {
     struct EIP712Domain {
         string name;
         string version;
@@ -1188,17 +1188,17 @@ contract EIP712Base is Initializable {
                 "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
             )
         );
-    bytes32 internal domainSeperator;
+    bytes32 internal _domainSeparator;
 
     // supposed to be called once while initializing.
     // one of the contractsa that inherits this contract follows proxy pattern
     // so it is not possible to do this in a constructor
     function _initializeEIP712(string memory name) internal initializer {
-        _setDomainSeperator(name);
+        _setDomainSeparator(name);
     }
 
-    function _setDomainSeperator(string memory name) internal {
-        domainSeperator = keccak256(
+    function _setDomainSeparator(string memory name) internal {
+        _domainSeparator = keccak256(
             abi.encode(
                 EIP712_DOMAIN_TYPEHASH,
                 keccak256(bytes(name)),
@@ -1209,8 +1209,8 @@ contract EIP712Base is Initializable {
         );
     }
 
-    function getDomainSeperator() public view returns (bytes32) {
-        return domainSeperator;
+    function getDomainSeparator() public view returns (bytes32) {
+        return _domainSeparator;
     }
 
     function getChainId() public view returns (uint256) {
@@ -1228,27 +1228,27 @@ contract EIP712Base is Initializable {
      * "\\x19" makes the encoding deterministic
      * "\\x01" is the version byte to make it compatible to EIP-191
      */
-    function toTypedMessageHash(bytes32 messageHash)
+    function _toTypedMessageHash(bytes32 messageHash)
         internal
         view
         returns (bytes32)
     {
         return
             keccak256(
-                abi.encodePacked("\x19\x01", getDomainSeperator(), messageHash)
+                abi.encodePacked("\x19\x01", getDomainSeparator(), messageHash)
             );
     }
 }
 
 
-// File contracts/utils/NativeMetaTransaction.sol
+// File contracts/utils/StartonNativeMetaTransaction.sol
 
 // NativeMetaTransaction contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract NativeMetaTransaction is EIP712Base {
+abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
         keccak256(
             bytes(
@@ -1260,7 +1260,7 @@ contract NativeMetaTransaction is EIP712Base {
         address payable relayerAddress,
         bytes functionSignature
     );
-    mapping(address => uint256) nonces;
+    mapping(address => uint256) private _nonces;
 
     /*
      * Meta transaction structure.
@@ -1281,18 +1281,18 @@ contract NativeMetaTransaction is EIP712Base {
         uint8 sigV
     ) public payable returns (bytes memory) {
         MetaTransaction memory metaTx = MetaTransaction({
-            nonce: nonces[userAddress],
+            nonce: _nonces[userAddress],
             from: userAddress,
             functionSignature: functionSignature
         });
 
         require(
-            verify(userAddress, metaTx, sigR, sigS, sigV),
+            _verify(userAddress, metaTx, sigR, sigS, sigV),
             "Signer and signature do not match"
         );
 
         // increase nonce for user (to avoid re-use)
-        nonces[userAddress] = nonces[userAddress] + 1;
+        _nonces[userAddress] = _nonces[userAddress] + 1;
 
         emit MetaTransactionExecuted(
             userAddress,
@@ -1309,7 +1309,7 @@ contract NativeMetaTransaction is EIP712Base {
         return returnData;
     }
 
-    function hashMetaTransaction(MetaTransaction memory metaTx)
+    function _hashMetaTransaction(MetaTransaction memory metaTx)
         internal
         pure
         returns (bytes32)
@@ -1326,10 +1326,10 @@ contract NativeMetaTransaction is EIP712Base {
     }
 
     function getNonce(address user) public view returns (uint256 nonce) {
-        nonce = nonces[user];
+        nonce = _nonces[user];
     }
 
-    function verify(
+    function _verify(
         address signer,
         MetaTransaction memory metaTx,
         bytes32 sigR,
@@ -1340,7 +1340,7 @@ contract NativeMetaTransaction is EIP712Base {
         return
             signer ==
             ecrecover(
-                toTypedMessageHash(hashMetaTransaction(metaTx)),
+                _toTypedMessageHash(_hashMetaTransaction(metaTx)),
                 sigV,
                 sigR,
                 sigS
@@ -1349,14 +1349,14 @@ contract NativeMetaTransaction is EIP712Base {
 }
 
 
-// File contracts/utils/ContextMixin.sol
+// File contracts/utils/StartonContextMixin.sol
 
 // ContextMixin contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract ContextMixin {
+abstract contract StartonContextMixin {
     function _msgSender() internal view virtual returns (address sender) {
         if (msg.sender == address(this)) {
             bytes memory array = msg.data;
@@ -1392,8 +1392,8 @@ contract StartonERC20MintMetaTransaction is
     ERC20Burnable,
     Pausable,
     AccessControl,
-    ContextMixin,
-    NativeMetaTransaction
+    StartonContextMixin,
+    StartonNativeMetaTransaction
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -1401,7 +1401,7 @@ contract StartonERC20MintMetaTransaction is
 
     bool private _isMintAllowed;
 
-    /** @notice Event when the minting is locked */
+    /** @notice Event emitted when the minting is locked */
     event MintingLocked(address indexed account);
 
     /** @dev Modifier that reverts when the minting is locked */
@@ -1444,7 +1444,7 @@ contract StartonERC20MintMetaTransaction is
     }
 
     /**
-     * @notice Pause the contract which stop any changes regarding the ERC721 and minting
+     * @notice Pause the contract which stop any changes regarding the ERC20 and minting
      * @custom:requires PAUSER_ROLE
      */
     function pause() public onlyRole(PAUSER_ROLE) {
@@ -1452,7 +1452,7 @@ contract StartonERC20MintMetaTransaction is
     }
 
     /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
+     * @notice Unpause the contract which allow back any changes regarding the ERC20 and minting
      * @custom:requires PAUSER_ROLE
      */
     function unpause() public onlyRole(PAUSER_ROLE) {
@@ -1490,9 +1490,9 @@ contract StartonERC20MintMetaTransaction is
         internal
         view
         virtual
-        override(Context, ContextMixin)
+        override(Context, StartonContextMixin)
         returns (address)
     {
-        return ContextMixin._msgSender();
+        return super._msgSender();
     }
 }
