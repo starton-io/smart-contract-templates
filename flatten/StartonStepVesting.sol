@@ -139,6 +139,7 @@ contract StartonStepVesting is Context {
         address tokenAddress;
         uint64 stepIndex;
         uint64 startTimestamp;
+        uint256 amountClaimed;
         Nico[] steps;
     }
 
@@ -151,17 +152,16 @@ contract StartonStepVesting is Context {
     constructor() {}
 
     function _isValidVesting(
-        uint256 amount,
         address beneficiary,
         uint64[] calldata stepsTimestamps,
         uint256[] calldata stepsAmount
     ) internal pure {
-        require(amount != 0, "Amount is insufficent");
         require(beneficiary != address(0), "Beneficiary is zero address");
         require(
             stepsTimestamps.length == stepsAmount.length,
             "Timestamps and amounts are not the same length"
         );
+        require(stepsTimestamps.length != 0, "Steps are empty");
     }
 
     /**
@@ -177,7 +177,7 @@ contract StartonStepVesting is Context {
         uint256[] calldata stepsAmount,
         address token
     ) public payable {
-        _isValidVesting(amount, beneficiary, stepsTimestamps, stepsAmount);
+        _isValidVesting(beneficiary, stepsTimestamps, stepsAmount);
 
         // Check if the token can be transferred with the right amount
         IERC20 erc20Token = IERC20(token);
@@ -193,12 +193,7 @@ contract StartonStepVesting is Context {
         // Add the new vesting
         VestingData storage vesting = _vestings[beneficiary].push();
 
-        vesting.amount = amount;
-        vesting.tokenType = TypeOfToken.TOKEN;
-        vesting.tokenAddress = token;
-        vesting.startTimestamp = uint64(block.timestamp);
-
-        // TODO need to handle the case that it's not ordered
+        uint256 totalAmount;
         for (uint256 i = 0; i < stepsTimestamps.length; ++i) {
             require(
                 stepsTimestamps[i] > block.timestamp,
@@ -213,7 +208,14 @@ contract StartonStepVesting is Context {
                     timestamp: stepsTimestamps[i]
                 })
             );
+            totalAmount += stepsAmount[i];
         }
+        require(totalAmount == amount, "Incorrect amount");
+
+        vesting.amount = amount;
+        vesting.tokenType = TypeOfToken.TOKEN;
+        vesting.tokenAddress = token;
+        vesting.startTimestamp = uint64(block.timestamp);
 
         // If the beneficiary is not already in the list, add it
         if (!_isBeneficiary(beneficiary))
@@ -236,16 +238,12 @@ contract StartonStepVesting is Context {
         uint64[] calldata stepsTimestamps,
         uint256[] calldata stepsAmount
     ) public payable {
-        _isValidVesting(msg.value, beneficiary, stepsTimestamps, stepsAmount);
+        _isValidVesting(beneficiary, stepsTimestamps, stepsAmount);
 
         // Add the new vesting
         VestingData storage vesting = _vestings[beneficiary].push();
 
-        vesting.amount = msg.value;
-        vesting.tokenType = TypeOfToken.TOKEN;
-        vesting.startTimestamp = uint64(block.timestamp);
-
-        // TODO need to handle the case that it's not ordered
+        uint256 totalAmount;
         for (uint256 i = 0; i < stepsTimestamps.length; ++i) {
             require(
                 stepsTimestamps[i] > block.timestamp,
@@ -260,7 +258,13 @@ contract StartonStepVesting is Context {
                     timestamp: stepsTimestamps[i]
                 })
             );
+            totalAmount += stepsAmount[i];
         }
+        require(totalAmount == msg.value, "Incorrect amount");
+
+        vesting.amount = msg.value;
+        vesting.tokenType = TypeOfToken.NATIVE;
+        vesting.startTimestamp = uint64(block.timestamp);
 
         // If the beneficiary is not already in the list, add it
         if (!_isBeneficiary(beneficiary))
@@ -271,12 +275,11 @@ contract StartonStepVesting is Context {
      * @notice Get the amount of tokens that can be claimed from a vesting
      * @return The amount of tokens that can be claimed
      */
-    function vestingAmount(address beneficiary, uint256 index)
+    function vestingAmount(VestingData memory vesting)
         public
         view
         returns (uint256)
     {
-        VestingData memory vesting = _vestings[beneficiary][index];
         uint256 value = 0;
         uint256 length = vesting.steps.length;
         for (uint64 i = vesting.stepIndex; i < length; ++i) {
@@ -339,6 +342,8 @@ contract StartonStepVesting is Context {
                     }
                 }
             }
+        } else {
+            vesting.amountClaimed += value;
         }
 
         // Send the tokens to the sender
@@ -405,7 +410,7 @@ contract StartonStepVesting is Context {
      * @param beneficiary The account that have the vestings
      * @return The number of vestings
      */
-    function getVestingsNumber(address beneficiary)
+    function getVestingNumber(address beneficiary)
         public
         view
         returns (uint256)
