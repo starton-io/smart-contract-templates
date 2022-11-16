@@ -96,6 +96,7 @@ contract StartonStepVesting is Context {
         VestingData storage vesting = _vestings[beneficiary].push();
 
         uint256 totalAmount;
+        uint64 lastTimestamp;
         uint256 length = stepsTimestamps.length;
         for (uint256 i = 0; i < length; ++i) {
             require(
@@ -103,7 +104,12 @@ contract StartonStepVesting is Context {
                 "Timestamp is in the past"
             );
             require(stepsAmount[i] != 0, "Amount is insufficent");
+            require(
+                stepsTimestamps[i] > lastTimestamp,
+                "Timestamps aren't in order"
+            );
 
+            lastTimestamp = stepsTimestamps[i];
             vesting.steps.push(
                 Nico({
                     amountReleased: stepsAmount[i],
@@ -156,6 +162,7 @@ contract StartonStepVesting is Context {
         // Add the new vesting
         VestingData storage vesting = _vestings[beneficiary].push();
 
+        uint64 lastTimestamp;
         uint256 totalAmount;
         uint256 length = stepsTimestamps.length;
         for (uint256 i = 0; i < length; ++i) {
@@ -164,7 +171,12 @@ contract StartonStepVesting is Context {
                 "Timestamp is in the past"
             );
             require(stepsAmount[i] != 0, "Amount is insufficent");
+            require(
+                stepsTimestamps[i] > lastTimestamp,
+                "Timestamps aren't in order"
+            );
 
+            lastTimestamp = stepsTimestamps[i];
             vesting.steps.push(
                 Nico({
                     amountReleased: stepsAmount[i],
