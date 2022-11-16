@@ -28,21 +28,6 @@ contract StartonLinearVesting is Context {
     // Mapping of vestings
     mapping(address => VestingData[]) private _vestings;
 
-    /** @dev Modifier that reverts when the amount is insufficent or the timestamp is in the past */
-    modifier isValidVesting(
-        uint256 amount,
-        uint64 endTimestamp,
-        address beneficiary
-    ) {
-        require(amount != 0, "Amount is insufficent");
-        require(
-            endTimestamp >= block.timestamp,
-            "End timestamp is in the past"
-        );
-        require(beneficiary != address(0), "beneficiary is zero address");
-        _;
-    }
-
     /** @notice Event emitted when a new vesting has been added */
     event AddedVesting(
         address indexed beneficiary,
@@ -83,7 +68,9 @@ contract StartonLinearVesting is Context {
         uint64 endTimestamp,
         uint256 amount,
         address token
-    ) public payable isValidVesting(amount, endTimestamp, beneficiary) {
+    ) public payable {
+        _isValidVesting(amount, endTimestamp, beneficiary);
+
         // Check if the token can be transferred with the right amount
         IERC20 erc20Token = IERC20(token);
         require(
@@ -135,8 +122,9 @@ contract StartonLinearVesting is Context {
     function addNativeVesting(address beneficiary, uint64 endTimestamp)
         public
         payable
-        isValidVesting(msg.value, endTimestamp, beneficiary)
     {
+        _isValidVesting(msg.value, endTimestamp, beneficiary);
+
         _vestings[beneficiary].push(
             VestingData({
                 amount: msg.value,
@@ -308,5 +296,24 @@ contract StartonLinearVesting is Context {
             if (_vestingBeneficiaries[i] == beneficiary) return true;
         }
         return false;
+    }
+
+    /**
+     * @dev Reverts when the amount is insufficent or the timestamp is in the past
+     * @param amount The amount of tokens
+     * @param endTimestamp The end timestamp of the vesting
+     * @param beneficiary The beneficiary of the vesting
+     */
+    function _isValidVesting(
+        uint256 amount,
+        uint64 endTimestamp,
+        address beneficiary
+    ) internal view {
+        require(amount != 0, "Amount is insufficent");
+        require(
+            endTimestamp >= block.timestamp,
+            "End timestamp is in the past"
+        );
+        require(beneficiary != address(0), "beneficiary is zero address");
     }
 }
