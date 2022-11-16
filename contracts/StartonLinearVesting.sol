@@ -43,6 +43,7 @@ contract StartonLinearVesting is Context {
         address indexed beneficiary,
         uint256 indexed index,
         address token,
+        uint64 timestamp,
         uint256 amountClaimed
     );
 
@@ -51,6 +52,7 @@ contract StartonLinearVesting is Context {
         address indexed beneficiary,
         uint256 indexed index,
         address token,
+        uint64 timestamp,
         uint256 totalAmount
     );
 
@@ -184,7 +186,13 @@ contract StartonLinearVesting is Context {
         uint256 value = vestingAmount(vesting);
         require(value != 0, "VestingAmount is zero");
 
-        emit ClaimedVesting(_msgSender(), index, address(vesting.token), value);
+        emit ClaimedVesting(
+            _msgSender(),
+            index,
+            address(vesting.token),
+            uint64(block.timestamp),
+            value
+        );
 
         // If the vesting is finished, remove it from the list else update the amount claimed
         if (vesting.endTimestamp > block.timestamp) {
@@ -214,6 +222,7 @@ contract StartonLinearVesting is Context {
                 _msgSender(),
                 index,
                 address(vesting.token),
+                uint64(block.timestamp),
                 vesting.amount
             );
         }
