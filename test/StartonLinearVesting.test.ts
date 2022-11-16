@@ -110,10 +110,10 @@ describe("StartonLinearVesting", () => {
           value: amount3,
         });
 
-        const vestingNb1 = await instanceVesting.getVestingsNumber(
+        const vestingNb1 = await instanceVesting.getVestingNumber(
           addr1.address
         );
-        const vestingNb2 = await instanceVesting.getVestingsNumber(
+        const vestingNb2 = await instanceVesting.getVestingNumber(
           addr2.address
         );
         const vesting1 = await instanceVesting.getVesting(addr1.address, 0);

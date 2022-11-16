@@ -226,7 +226,7 @@ contract StartonLinearVesting is Context {
 
         emit AddedVesting(
             beneficiary,
-            getVestingsNumber(beneficiary) - 1,
+            getVestingNumber(beneficiary) - 1,
             token,
             amount,
             uint64(block.timestamp),
@@ -268,7 +268,7 @@ contract StartonLinearVesting is Context {
 
         emit AddedVesting(
             beneficiary,
-            getVestingsNumber(beneficiary) - 1,
+            getVestingNumber(beneficiary) - 1,
             address(0),
             msg.value,
             uint64(block.timestamp),
@@ -404,7 +404,7 @@ contract StartonLinearVesting is Context {
      * @param beneficiary The account that have the vestings
      * @return The number of vestings
      */
-    function getVestingsNumber(address beneficiary)
+    function getVestingNumber(address beneficiary)
         public
         view
         returns (uint256)
