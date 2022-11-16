@@ -266,6 +266,7 @@ contract StartonLinearVesting is Context {
 
     /**
      * @notice Get the amount of tokens that can be claimed from a vesting
+     * @param vesting The vesting to get the amount from
      * @return The amount of tokens that can be claimed
      */
     function vestingAmount(VestingData memory vesting)

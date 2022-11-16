@@ -126,6 +126,7 @@ contract StartonStepVesting is Context {
         NATIVE
     }
 
+    /** @notice Structure of data that defines a vesting step */
     struct Nico {
         uint256 amountReleased;
         uint64 timestamp;
@@ -153,8 +154,10 @@ contract StartonStepVesting is Context {
     /**
      * @notice Add a token vesting to a beneficiary
      * @param beneficiary The account that will receive the tokens
-     * @param token The token that will be vested
      * @param amount The amount of tokens that will be vested
+     * @param stepsTimestamps Array of timestamps for every steps
+     * @param stepsAmount Array of amounts of tokens to be vested for every steps
+     * @param token The token that will be vested
      */
     function addTokenVesting(
         address beneficiary,
@@ -219,6 +222,8 @@ contract StartonStepVesting is Context {
     /**
      * @notice Add a native vesting to a beneficiary
      * @param beneficiary The account that will receive the tokens
+     * @param stepsTimestamps Array of timestamps for every steps
+     * @param stepsAmount Array of amounts of tokens to be vested for every steps
      */
     function addNativeVesting(
         address beneficiary,
@@ -261,6 +266,7 @@ contract StartonStepVesting is Context {
 
     /**
      * @notice Get the amount of tokens that can be claimed from a vesting
+     * @param vesting The vesting to get the amount from
      * @return The amount of tokens that can be claimed
      */
     function vestingAmount(VestingData memory vesting)
@@ -418,6 +424,12 @@ contract StartonStepVesting is Context {
         return false;
     }
 
+    /**
+     * @dev Reverts when the amount is insufficent or the timestamp is in the past
+     * @param beneficiary The beneficiary of the vesting
+     * @param stepsTimestamps Array of timestamps for every steps
+     * @param stepsAmount Array of amounts of tokens to be vested for every steps
+     */
     function _isValidVesting(
         address beneficiary,
         uint64[] calldata stepsTimestamps,
