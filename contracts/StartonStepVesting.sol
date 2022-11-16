@@ -35,6 +35,33 @@ contract StartonStepVesting is Context {
     // Mapping of vestings
     mapping(address => VestingData[]) private _vestings;
 
+    /** @notice Event emitted when a new vesting has been added */
+    event AddedVesting(
+        address indexed beneficiary,
+        uint256 indexed index,
+        address token,
+        uint256 totalAmount,
+        uint64 startTimestamp
+    );
+
+    /** @notice Event emitted when a vesting has been claimed */
+    event ClaimedVesting(
+        address indexed beneficiary,
+        uint256 indexed index,
+        address token,
+        uint64 timestamp,
+        uint256 amountClaimed
+    );
+
+    /** @notice Event emitted when a vesting has been fully claimed */
+    event FinishedVesting(
+        address indexed beneficiary,
+        uint256 indexed index,
+        address token,
+        uint64 timestamp,
+        uint256 totalAmount
+    );
+
     constructor() {}
 
     /**
@@ -97,6 +124,14 @@ contract StartonStepVesting is Context {
         if (!_isBeneficiary(beneficiary))
             _vestingBeneficiaries.push(beneficiary);
 
+        emit AddedVesting(
+            beneficiary,
+            _vestings[beneficiary].length - 1,
+            token,
+            amount,
+            uint64(block.timestamp)
+        );
+
         bool success = erc20Token.transferFrom(
             _msgSender(),
             address(this),
@@ -148,6 +183,14 @@ contract StartonStepVesting is Context {
         // If the beneficiary is not already in the list, add it
         if (!_isBeneficiary(beneficiary))
             _vestingBeneficiaries.push(beneficiary);
+
+        emit AddedVesting(
+            beneficiary,
+            _vestings[beneficiary].length - 1,
+            address(0),
+            msg.value,
+            uint64(block.timestamp)
+        );
     }
 
     /**
@@ -207,6 +250,14 @@ contract StartonStepVesting is Context {
         }
         require(value != 0, "VestingAmount is zero");
 
+        emit ClaimedVesting(
+            _msgSender(),
+            index,
+            tokenAddress,
+            uint64(block.timestamp),
+            value
+        );
+
         // If the vesting is finished, remove it from the list else update the amount claimed
         if (vesting.stepIndex == length) {
             // remove the vesting from the list
@@ -227,6 +278,13 @@ contract StartonStepVesting is Context {
                     }
                 }
             }
+            emit FinishedVesting(
+                _msgSender(),
+                index,
+                tokenAddress,
+                uint64(block.timestamp),
+                vesting.amount
+            );
         }
 
         // Send the tokens to the sender
