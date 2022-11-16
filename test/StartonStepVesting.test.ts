@@ -171,13 +171,15 @@ describe("StartonStepVesting", () => {
         const vestings = await instanceVesting.getVestings(addr1.address);
         const vestingBeneficiaries =
           await instanceVesting.getVestingsBeneficiaries();
+        const vestingNumber = await instanceVesting.getVestingNumber(
+          addr1.address
+        );
         const awaitedVesting = [
           ethers.utils.parseEther("6"),
           TypeOfToken.NATIVE,
           ethers.constants.AddressZero,
           0,
           start,
-          0,
           [
             [stepsAmount[0], stepsTimestamps[0], false],
             [stepsAmount[1], stepsTimestamps[1], false],
@@ -185,14 +187,183 @@ describe("StartonStepVesting", () => {
           ],
         ];
         const awaitedVestings = [awaitedVesting];
+        const awaitedVestingNumber = 1;
 
         expect(vestingBeneficiaries).to.deep.equal([addr1.address]);
         expect(vesting).to.deep.equal(awaitedVesting);
         expect(vestings).to.deep.equal(awaitedVestings);
+        expect(vestingNumber).to.deep.equal(awaitedVestingNumber);
       });
     });
 
-    describe("Claim a native vesting", () => {});
+    describe("Claim a native vesting", () => {
+      it("Shouldn't claim a native vesting if the vesting doesn't exist", async () => {
+        await expect(
+          instanceVesting.connect(addr1).claimVesting(0)
+        ).to.be.revertedWith("Vesting doesn't exist");
+      });
+
+      it("Shouldn't claim zero native vesting", async () => {
+        const start = (now.valueOf() / 1000) | 0;
+        const stepsTimestamps = [start + 1000, start + 2000, start + 3000];
+        const stepsAmount = [
+          ethers.utils.parseEther("1"),
+          ethers.utils.parseEther("2"),
+          ethers.utils.parseEther("3"),
+        ];
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addNativeVesting(
+          addr1.address,
+          stepsTimestamps,
+          stepsAmount,
+          { value: ethers.utils.parseEther("6") }
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+        await expect(
+          instanceVesting.connect(addr1).claimVesting(0)
+        ).to.be.revertedWith("VestingAmount is zero");
+      });
+
+      it("Shouldn't claim twice token vesting", async () => {
+        const start = (now.valueOf() / 1000) | 0;
+        const stepsTimestamps = [start + 1000, start + 2000, start + 3000];
+        const stepsAmount = [
+          ethers.utils.parseEther("1"),
+          ethers.utils.parseEther("2"),
+          ethers.utils.parseEther("3"),
+        ];
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addNativeVesting(
+          addr1.address,
+          stepsTimestamps,
+          stepsAmount,
+          { value: ethers.utils.parseEther("6") }
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1000]);
+        await instanceVesting.connect(addr1).claimVesting(0);
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1001]);
+        await expect(
+          instanceVesting.connect(addr1).claimVesting(0)
+        ).to.be.revertedWith("VestingAmount is zero");
+      });
+
+      it("Should claim a single step", async () => {
+        const start = (now.valueOf() / 1000) | 0;
+        const stepsTimestamps = [start + 1000, start + 2000, start + 3000];
+        const stepsAmount = [
+          ethers.utils.parseEther("1"),
+          ethers.utils.parseEther("2"),
+          ethers.utils.parseEther("3"),
+        ];
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addNativeVesting(
+          addr1.address,
+          stepsTimestamps,
+          stepsAmount,
+          { value: ethers.utils.parseEther("6") }
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1000]);
+
+        const beforeBalance = await addr1.getBalance();
+        const op = await instanceVesting.connect(addr1).claimVesting(0);
+        expect(await addr1.getBalance()).to.be.equal(
+          beforeBalance
+            .add(stepsAmount[0])
+            .sub(
+              (await op.wait()).gasUsed.mul((await op.wait()).effectiveGasPrice)
+            )
+        );
+      });
+
+      it("Should claim every steps in multiple claims", async () => {
+        const start = (now.valueOf() / 1000) | 0;
+        const stepsTimestamps = [start + 1000, start + 2000, start + 3000];
+        const stepsAmount = [
+          ethers.utils.parseEther("1"),
+          ethers.utils.parseEther("2"),
+          ethers.utils.parseEther("3"),
+        ];
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addNativeVesting(
+          addr1.address,
+          stepsTimestamps,
+          stepsAmount,
+          { value: ethers.utils.parseEther("6") }
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1000]);
+
+        const beforeBalance = await addr1.getBalance();
+        const op = await instanceVesting.connect(addr1).claimVesting(0);
+        expect(await addr1.getBalance()).to.be.equal(
+          beforeBalance
+            .add(stepsAmount[0])
+            .sub(
+              (await op.wait()).gasUsed.mul((await op.wait()).effectiveGasPrice)
+            )
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 3000]);
+
+        const op2 = await instanceVesting.connect(addr1).claimVesting(0);
+        expect(await addr1.getBalance()).to.be.equal(
+          beforeBalance
+            .add(stepsAmount[0].add(stepsAmount[1]).add(stepsAmount[2]))
+            .sub(
+              (await op2.wait()).gasUsed.mul(
+                (await op2.wait()).effectiveGasPrice
+              )
+            )
+            .sub(
+              (await op.wait()).gasUsed.mul((await op.wait()).effectiveGasPrice)
+            )
+        );
+        await expect(
+          instanceVesting.getVesting(addr1.address, 0)
+        ).to.be.revertedWith("Vesting doesn't exist");
+      });
+
+      it("Should claim every steps in a single claim", async () => {
+        const start = (now.valueOf() / 1000) | 0;
+        const stepsTimestamps = [start + 1000, start + 2000, start + 3000];
+        const stepsAmount = [
+          ethers.utils.parseEther("1"),
+          ethers.utils.parseEther("2"),
+          ethers.utils.parseEther("3"),
+        ];
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addNativeVesting(
+          addr1.address,
+          stepsTimestamps,
+          stepsAmount,
+          { value: ethers.utils.parseEther("6") }
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 3000]);
+
+        const beforeBalance = await addr1.getBalance();
+        const op = await instanceVesting.connect(addr1).claimVesting(0);
+        expect(await addr1.getBalance()).to.be.equal(
+          beforeBalance
+            .add(stepsAmount[0].add(stepsAmount[1]).add(stepsAmount[2]))
+            .sub(
+              (await op.wait()).gasUsed.mul((await op.wait()).effectiveGasPrice)
+            )
+        );
+        await expect(
+          instanceVesting.getVesting(addr1.address, 0)
+        ).to.be.revertedWith("Vesting doesn't exist");
+      });
+    });
   });
 
   describe("TokenVesting", () => {
@@ -418,7 +589,6 @@ describe("StartonStepVesting", () => {
           instanceToken.address,
           0,
           start,
-          0,
           [
             [stepsAmount[0], stepsTimestamps[0], false],
             [stepsAmount[1], stepsTimestamps[1], false],
@@ -435,6 +605,179 @@ describe("StartonStepVesting", () => {
       });
     });
 
-    describe("Claim a token vesting", () => {});
+    describe("Claim a token vesting", () => {
+      it("Shouldn't claim a token vesting if the vesting doesn't exist", async () => {
+        await expect(
+          instanceVesting.connect(addr1).claimVesting(0)
+        ).to.be.revertedWith("Vesting doesn't exist");
+      });
+
+      it("Shouldn't claim zero token vesting", async () => {
+        const start = (now.valueOf() / 1000) | 0;
+        const stepsTimestamps = [start + 1000, start + 2000, start + 3000];
+        const stepsAmount = [
+          ethers.utils.parseEther("1"),
+          ethers.utils.parseEther("2"),
+          ethers.utils.parseEther("3"),
+        ];
+
+        await instanceToken.approve(
+          instanceVesting.address,
+          ethers.utils.parseEther("6")
+        );
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addTokenVesting(
+          addr1.address,
+          ethers.utils.parseEther("6"),
+          stepsTimestamps,
+          stepsAmount,
+          instanceToken.address
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+        await expect(
+          instanceVesting.connect(addr1).claimVesting(0)
+        ).to.be.revertedWith("VestingAmount is zero");
+      });
+
+      it("Shouldn't claim twice token vesting", async () => {
+        const start = (now.valueOf() / 1000) | 0;
+        const stepsTimestamps = [start + 1000, start + 2000, start + 3000];
+        const stepsAmount = [
+          ethers.utils.parseEther("1"),
+          ethers.utils.parseEther("2"),
+          ethers.utils.parseEther("3"),
+        ];
+
+        await instanceToken.approve(
+          instanceVesting.address,
+          ethers.utils.parseEther("6")
+        );
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addTokenVesting(
+          addr1.address,
+          ethers.utils.parseEther("6"),
+          stepsTimestamps,
+          stepsAmount,
+          instanceToken.address
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1000]);
+        await instanceVesting.connect(addr1).claimVesting(0);
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1001]);
+        await expect(
+          instanceVesting.connect(addr1).claimVesting(0)
+        ).to.be.revertedWith("VestingAmount is zero");
+      });
+
+      it("Should claim a single step", async () => {
+        const start = (now.valueOf() / 1000) | 0;
+        const stepsTimestamps = [start + 1000, start + 2000, start + 3000];
+        const stepsAmount = [
+          ethers.utils.parseEther("1"),
+          ethers.utils.parseEther("2"),
+          ethers.utils.parseEther("3"),
+        ];
+
+        await instanceToken.approve(
+          instanceVesting.address,
+          ethers.utils.parseEther("6")
+        );
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addTokenVesting(
+          addr1.address,
+          ethers.utils.parseEther("6"),
+          stepsTimestamps,
+          stepsAmount,
+          instanceToken.address
+        );
+
+        const beforeBalance = await instanceToken.balanceOf(addr1.address);
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1000]);
+        await instanceVesting.connect(addr1).claimVesting(0);
+        expect(await instanceToken.balanceOf(addr1.address)).to.be.equal(
+          beforeBalance.add(stepsAmount[0])
+        );
+      });
+
+      it("Should claim every steps in multiple claims", async () => {
+        const start = (now.valueOf() / 1000) | 0;
+        const stepsTimestamps = [start + 1000, start + 2000, start + 3000];
+        const stepsAmount = [
+          ethers.utils.parseEther("1"),
+          ethers.utils.parseEther("2"),
+          ethers.utils.parseEther("3"),
+        ];
+
+        await instanceToken.approve(
+          instanceVesting.address,
+          ethers.utils.parseEther("6")
+        );
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addTokenVesting(
+          addr1.address,
+          ethers.utils.parseEther("6"),
+          stepsTimestamps,
+          stepsAmount,
+          instanceToken.address
+        );
+
+        const beforeBalance = await instanceToken.balanceOf(addr1.address);
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1000]);
+        await instanceVesting.connect(addr1).claimVesting(0);
+        expect(await instanceToken.balanceOf(addr1.address)).to.be.equal(
+          beforeBalance.add(stepsAmount[0])
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 3000]);
+        await instanceVesting.connect(addr1).claimVesting(0);
+        expect(await instanceToken.balanceOf(addr1.address)).to.be.equal(
+          beforeBalance
+            .add(stepsAmount[0])
+            .add(stepsAmount[1])
+            .add(stepsAmount[2])
+        );
+        await expect(
+          instanceVesting.getVesting(addr1.address, 0)
+        ).to.be.revertedWith("Vesting doesn't exist");
+      });
+
+      it("Should claim every steps in a single claim", async () => {
+        const start = (now.valueOf() / 1000) | 0;
+        const stepsTimestamps = [start + 1000, start + 2000, start + 3000];
+        const stepsAmount = [
+          ethers.utils.parseEther("1"),
+          ethers.utils.parseEther("2"),
+          ethers.utils.parseEther("3"),
+        ];
+
+        await instanceToken.approve(
+          instanceVesting.address,
+          ethers.utils.parseEther("6")
+        );
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting.addTokenVesting(
+          addr1.address,
+          ethers.utils.parseEther("6"),
+          stepsTimestamps,
+          stepsAmount,
+          instanceToken.address
+        );
+
+        const beforeBalance = await instanceToken.balanceOf(addr1.address);
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 3000]);
+        await instanceVesting.connect(addr1).claimVesting(0);
+        expect(await instanceToken.balanceOf(addr1.address)).to.be.equal(
+          beforeBalance
+            .add(stepsAmount[0])
+            .add(stepsAmount[1])
+            .add(stepsAmount[2])
+        );
+        await expect(
+          instanceVesting.getVesting(addr1.address, 0)
+        ).to.be.revertedWith("Vesting doesn't exist");
+      });
+    });
   });
 });

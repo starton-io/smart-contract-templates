@@ -25,7 +25,6 @@ contract StartonStepVesting is Context {
         address tokenAddress;
         uint64 stepIndex;
         uint64 startTimestamp;
-        uint256 amountClaimed;
         Nico[] steps;
     }
 
@@ -36,19 +35,6 @@ contract StartonStepVesting is Context {
     mapping(address => VestingData[]) private _vestings;
 
     constructor() {}
-
-    function _isValidVesting(
-        address beneficiary,
-        uint64[] calldata stepsTimestamps,
-        uint256[] calldata stepsAmount
-    ) internal pure {
-        require(beneficiary != address(0), "Beneficiary is zero address");
-        require(
-            stepsTimestamps.length == stepsAmount.length,
-            "Timestamps and amounts are not the same length"
-        );
-        require(stepsTimestamps.length != 0, "Steps are empty");
-    }
 
     /**
      * @notice Add a token vesting to a beneficiary
@@ -80,7 +66,8 @@ contract StartonStepVesting is Context {
         VestingData storage vesting = _vestings[beneficiary].push();
 
         uint256 totalAmount;
-        for (uint256 i = 0; i < stepsTimestamps.length; ++i) {
+        uint256 length = stepsTimestamps.length;
+        for (uint256 i = 0; i < length; ++i) {
             require(
                 stepsTimestamps[i] > block.timestamp,
                 "Timestamp is in the past"
@@ -130,7 +117,8 @@ contract StartonStepVesting is Context {
         VestingData storage vesting = _vestings[beneficiary].push();
 
         uint256 totalAmount;
-        for (uint256 i = 0; i < stepsTimestamps.length; ++i) {
+        uint256 length = stepsTimestamps.length;
+        for (uint256 i = 0; i < length; ++i) {
             require(
                 stepsTimestamps[i] > block.timestamp,
                 "Timestamp is in the past"
@@ -190,14 +178,19 @@ contract StartonStepVesting is Context {
             "Vesting doesn't exist"
         );
         VestingData storage vesting = _vestings[_msgSender()][index];
+        TypeOfToken tokenType = vesting.tokenType;
+        address tokenAddress = vesting.tokenAddress;
 
-        uint256 value = 0;
+        uint256 value;
         uint256 length = vesting.steps.length;
-        for (uint64 i = vesting.stepIndex; i < length; ++i) {
-            Nico storage step = vesting.steps[i];
+        for (
+            vesting.stepIndex = 0;
+            vesting.stepIndex < length;
+            ++vesting.stepIndex
+        ) {
+            Nico storage step = vesting.steps[vesting.stepIndex];
 
             if (step.timestamp > block.timestamp) {
-                vesting.stepIndex = i;
                 break;
             }
 
@@ -209,7 +202,7 @@ contract StartonStepVesting is Context {
         require(value != 0, "VestingAmount is zero");
 
         // If the vesting is finished, remove it from the list else update the amount claimed
-        if (vesting.stepIndex == length - 1) {
+        if (vesting.stepIndex == length) {
             // remove the vesting from the list
             VestingData[] storage vestings = _vestings[_msgSender()];
             vestings[index] = vestings[vestings.length - 1];
@@ -228,16 +221,11 @@ contract StartonStepVesting is Context {
                     }
                 }
             }
-        } else {
-            vesting.amountClaimed += value;
         }
 
         // Send the tokens to the sender
-        if (vesting.tokenType == TypeOfToken.TOKEN) {
-            bool success = IERC20(vesting.tokenAddress).transfer(
-                _msgSender(),
-                value
-            );
+        if (tokenType == TypeOfToken.TOKEN) {
+            bool success = IERC20(tokenAddress).transfer(_msgSender(), value);
             require(success, "Transfer failed");
         } else {
             (bool success, ) = payable(_msgSender()).call{value: value}("");
@@ -314,5 +302,18 @@ contract StartonStepVesting is Context {
             if (_vestingBeneficiaries[i] == beneficiary) return true;
         }
         return false;
+    }
+
+    function _isValidVesting(
+        address beneficiary,
+        uint64[] calldata stepsTimestamps,
+        uint256[] calldata stepsAmount
+    ) internal pure {
+        require(beneficiary != address(0), "Beneficiary is zero address");
+        require(
+            stepsTimestamps.length == stepsAmount.length,
+            "Timestamps and amounts are not the same length"
+        );
+        require(stepsTimestamps.length != 0, "Steps are empty");
     }
 }
