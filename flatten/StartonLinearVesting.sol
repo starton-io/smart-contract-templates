@@ -130,7 +130,7 @@ contract StartonLinearVesting is Context {
     struct VestingData {
         uint256 amount;
         TypeOfToken tokenType;
-        IERC20 token;
+        address tokenAddress;
         uint64 startTimestamp;
         uint64 endTimestamp;
         uint256 amountClaimed;
@@ -202,7 +202,7 @@ contract StartonLinearVesting is Context {
             VestingData({
                 amount: amount,
                 tokenType: TypeOfToken.TOKEN,
-                token: erc20Token,
+                tokenAddress: token,
                 startTimestamp: uint64(block.timestamp),
                 amountClaimed: 0,
                 endTimestamp: endTimestamp
@@ -245,7 +245,7 @@ contract StartonLinearVesting is Context {
             VestingData({
                 amount: msg.value,
                 tokenType: TypeOfToken.NATIVE,
-                token: IERC20(address(0)),
+                tokenAddress: address(0),
                 startTimestamp: uint64(block.timestamp),
                 amountClaimed: 0,
                 endTimestamp: endTimestamp
@@ -303,7 +303,7 @@ contract StartonLinearVesting is Context {
         emit ClaimedVesting(
             _msgSender(),
             index,
-            address(vesting.token),
+            vesting.tokenAddress,
             uint64(block.timestamp),
             value
         );
@@ -335,7 +335,7 @@ contract StartonLinearVesting is Context {
             emit FinishedVesting(
                 _msgSender(),
                 index,
-                address(vesting.token),
+                vesting.tokenAddress,
                 uint64(block.timestamp),
                 vesting.amount
             );
@@ -343,7 +343,10 @@ contract StartonLinearVesting is Context {
 
         // Send the tokens to the sender
         if (vesting.tokenType == TypeOfToken.TOKEN) {
-            bool success = vesting.token.transfer(_msgSender(), value);
+            bool success = IERC20(vesting.tokenAddress).transfer(
+                _msgSender(),
+                value
+            );
             require(success, "Transfer failed");
         } else {
             (bool success, ) = payable(_msgSender()).call{value: value}("");
