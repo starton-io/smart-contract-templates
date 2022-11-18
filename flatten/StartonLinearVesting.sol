@@ -175,9 +175,9 @@ contract StartonLinearVesting is Context {
     /**
      * @notice Add a token vesting to a beneficiary
      * @param beneficiary The account that will receive the tokens
-     * @param token The token that will be vested
-     * @param amount The amount of tokens that will be vested
      * @param endTimestamp The timestamp when the vesting will end
+     * @param amount The amount of tokens that will be vested
+     * @param token The token that will be vested
      */
     function addTokenVesting(
         address beneficiary,
@@ -269,15 +269,13 @@ contract StartonLinearVesting is Context {
     /**
      * @notice Get the amount of tokens that can be claimed from a vesting
      * @param vesting The vesting to get the amount from
-     * @return The amount of tokens that can be claimed
+     * @return value The amount of tokens that can be claimed
      */
     function vestingAmount(VestingData memory vesting)
         public
         view
-        returns (uint256)
+        returns (uint256 value)
     {
-        uint256 value;
-
         // If the vesting is finished, return the amount of tokens left
         // else returns the amount of tokens that can be claimed at the current time
         if (vesting.endTimestamp > block.timestamp) {
@@ -288,7 +286,6 @@ contract StartonLinearVesting is Context {
         } else {
             value = vesting.amount - vesting.amountClaimed;
         }
-        return value;
     }
 
     /**

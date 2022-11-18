@@ -165,9 +165,9 @@ contract StartonFinalVesting is Context {
     /**
      * @notice Add a token vesting to a beneficiary
      * @param beneficiary The account that will receive the tokens
-     * @param token The token that will be vested
-     * @param amount The amount of tokens that will be vested
      * @param endTimestamp The timestamp when the vesting will end
+     * @param amount The amount of tokens that will be vested
+     * @param token The token that will be vested
      */
     function addTokenVesting(
         address beneficiary,
@@ -264,8 +264,8 @@ contract StartonFinalVesting is Context {
         view
         returns (uint256 value)
     {
-        // If the vesting is finished, return the amount of tokens left
-        // else returns the amount of tokens that can be claimed at the current time
+        // If the vesting is finished, return the total amount of tokens
+        // else returns 0
         if (block.timestamp >= vesting.endTimestamp) {
             value = vesting.amount;
         } else {
