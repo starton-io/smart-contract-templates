@@ -322,14 +322,13 @@ contract StartonStepVesting is Context {
     /**
      * @notice Get the amount of tokens that can be claimed from a vesting
      * @param vesting The vesting to get the amount from
-     * @return The amount of tokens that can be claimed
+     * @return value The amount of tokens that can be claimed
      */
     function vestingAmount(VestingData memory vesting)
         public
         view
-        returns (uint256)
+        returns (uint256 value)
     {
-        uint256 value = 0;
         uint256 length = vesting.steps.length;
         for (uint64 i = vesting.stepIndex; i < length; ++i) {
             Nico memory step = vesting.steps[i];
@@ -340,7 +339,6 @@ contract StartonStepVesting is Context {
                 value += step.amountReleased;
             }
         }
-        return value;
     }
 
     /**
