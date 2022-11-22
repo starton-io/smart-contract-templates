@@ -1,7 +1,7 @@
 {
   "name": "smart-contract-templates",
   "version": "1.0.0",
-  "description": "This is templates being used and created by starton",
+  "description": "This is templates being used and created by starton.",
   "main": "hardhat.config.ts",
   "scripts": {
     "test": "hardhat compile && hardhat test",
