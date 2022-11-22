@@ -1,3 +1,6 @@
+# Warning:
+Template not audited yet, it will be in the nexts weeks.
+
 # StartonSmartContracts
 
 This repository has all the templates provided by Starton that you can access and deploy using the official API.
