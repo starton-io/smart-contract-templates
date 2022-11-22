@@ -1,117 +1,178 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { ContractFactory } from "@ethersproject/contracts";
-import { StartonERC721Blacklist } from "../typechain-types";
 import { ethers } from "hardhat";
 import { expect } from "chai";
 
-let ERC721: ContractFactory;
+import {
+  StartonERC721CappedMetaTransaction,
+  StartonERC721CappedMetaTransaction__factory, // eslint-disable-line camelcase
+} from "../typechain-types";
 
-describe("ERC721 contract", function () {
-  let instanceERC721: StartonERC721Blacklist;
+let ERC721: StartonERC721CappedMetaTransaction__factory; // eslint-disable-line camelcase
+
+describe("StartonERC721CappedMetaTransaction", () => {
+  let instanceERC721: StartonERC721CappedMetaTransaction;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
   let addrs: SignerWithAddress[];
 
   before(async () => {
-    ERC721 = await ethers.getContractFactory("StartonERC721Blacklist");
-  });
-
-  beforeEach(async function () {
     // Get the Signers here
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
+    // Create factory
+    ERC721 = new StartonERC721CappedMetaTransaction__factory(owner);
+  });
+
+  beforeEach(async () => {
     instanceERC721 = (await ERC721.deploy(
-      "testContract",
-      "TC",
-      "rnd1",
-      "rnd2",
+      "StartonToken",
+      "ST",
+      10,
+      "https://ipfs.io/",
+      "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
-    )) as StartonERC721Blacklist;
+    )) as StartonERC721CappedMetaTransaction;
     await instanceERC721.deployed();
   });
 
-  describe("Deployement", function () {
-    it("Should deploy", async function () {});
+  describe("Deployment", () => {
+    it("Should deploy", async () => {});
 
-    it("Should owner have admin role", async function () {
-      expect(
-        await instanceERC721.hasRole(
-          "0x0000000000000000000000000000000000000000000000000000000000000000",
-          owner.address
-        )
-      ).to.equal(true);
+    it("Should owner have admin role", async () => {
+      const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();
+
+      expect(await instanceERC721.hasRole(adminRole, owner.address)).to.equal(
+        true
+      );
     });
 
-    it("Should owner have default roles", async function () {
+    it("Should owner have default roles", async () => {
+      const pauserRole = await instanceERC721.PAUSER_ROLE();
+      const minterRole = await instanceERC721.MINTER_ROLE();
+      const metadataRole = await instanceERC721.METADATA_ROLE();
+      const lockerRole = await instanceERC721.LOCKER_ROLE();
+
+      expect(await instanceERC721.hasRole(pauserRole, owner.address)).to.equal(
+        true
+      );
+      expect(await instanceERC721.hasRole(minterRole, owner.address)).to.equal(
+        true
+      );
       expect(
-        await instanceERC721.hasRole(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("PAUSER_ROLE")),
-          owner.address
-        )
+        await instanceERC721.hasRole(metadataRole, owner.address)
       ).to.equal(true);
-      expect(
-        await instanceERC721.hasRole(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MINTER_ROLE")),
-          owner.address
-        )
-      ).to.equal(true);
-      expect(
-        await instanceERC721.hasRole(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("METADATA_ROLE")),
-          owner.address
-        )
-      ).to.equal(true);
-      expect(
-        await instanceERC721.hasRole(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LOCKER_ROLE")),
-          owner.address
-        )
-      ).to.equal(true);
+      expect(await instanceERC721.hasRole(lockerRole, owner.address)).to.equal(
+        true
+      );
     });
 
-    it("Should set correctly the contractUri", async function () {
-      expect(await instanceERC721.contractURI()).to.equal("rnd2");
+    it("Should set correctly the contractUri", async () => {
+      expect(await instanceERC721.contractURI()).to.equal(
+        "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR"
+      );
     });
 
-    it("Should set correctly the name", async function () {
-      expect(await instanceERC721.name()).to.equal("testContract");
+    it("Should set correctly the name", async () => {
+      expect(await instanceERC721.name()).to.equal("StartonToken");
     });
 
-    it("Should set correctly the symbol", async function () {
-      expect(await instanceERC721.symbol()).to.equal("TC");
+    it("Should set correctly the symbol", async () => {
+      expect(await instanceERC721.symbol()).to.equal("ST");
     });
 
-    it("Should not be paused", async function () {
+    it("Should not be paused", async () => {
       expect(await instanceERC721.paused()).to.equal(false);
     });
   });
 
-  describe("URI", function () {
-    it("Should set correctly the contractUri", async function () {
-      await instanceERC721.setContractURI("comeon");
-      expect(await instanceERC721.contractURI()).to.equal("comeon");
+  describe("URI", () => {
+    it("Should set correctly the contractUri", async () => {
+      await instanceERC721.setContractURI(
+        "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+      );
+      expect(await instanceERC721.contractURI()).to.equal(
+        "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+      );
     });
 
-    it("Should set correctly the uri", async function () {
-      await instanceERC721.setURI("comeon");
+    it("Should set correctly the base uri", async () => {
+      await instanceERC721.setBaseTokenURI("ipfs://");
     });
   });
 
-  describe("Minting", function () {
-    it("Should mint token correctly", async function () {
-      await instanceERC721.safeMint(addr1.address, "");
+  describe("Minting", () => {
+    it("Shouldn't let anyone mint more than max supply", async () => {
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await expect(
+        instanceERC721.mint(
+          addr1.address,
+          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+        )
+      ).to.be.revertedWith("Max supply reached");
+    });
+
+    it("Should mint token correctly", async () => {
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
       expect(
         await instanceERC721.tokenOfOwnerByIndex(addr1.address, 0)
       ).to.equal(0);
       expect(await instanceERC721.balanceOf(addr1.address)).to.equal(1);
       expect(await instanceERC721.ownerOf(0)).to.equal(addr1.address);
+      expect(await instanceERC721.tokenURI(0)).to.equal(
+        "https://ipfs.io/QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
     });
   });
 
-  describe("Transfer", function () {
-    it("Shouldn't transfer without approval", async function () {
-      await instanceERC721.safeMint(addr1.address, "");
+  describe("Transfer", () => {
+    it("Shouldn't transfer without approval", async () => {
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
       await expect(
         instanceERC721.functions["safeTransferFrom(address,address,uint256)"](
           addr1.address,
@@ -121,8 +182,11 @@ describe("ERC721 contract", function () {
       ).to.be.revertedWith("ERC721: caller is not token owner nor approved");
     });
 
-    it("Should transfer without approval while owner", async function () {
-      await instanceERC721.safeMint(addr1.address, "");
+    it("Should transfer without approval while owner", async () => {
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
       await instanceERC721
         .connect(addr1)
         .functions["safeTransferFrom(address,address,uint256)"](
@@ -134,8 +198,11 @@ describe("ERC721 contract", function () {
       expect(await instanceERC721.balanceOf(addr2.address)).to.equal(1);
     });
 
-    it("Should transfer with approval", async function () {
-      await instanceERC721.safeMint(addr1.address, "");
+    it("Should transfer with approval", async () => {
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
       await instanceERC721
         .connect(addr1)
         .setApprovalForAll(owner.address, true);
@@ -147,17 +214,17 @@ describe("ERC721 contract", function () {
     });
   });
 
-  describe("BlackList", function () {
-    it("Should not set any addresses as blacklisted", async function () {
+  describe("BlackList", () => {
+    it("Should not set any addresses as blacklisted", async () => {
       expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
     });
 
-    it("Should blacklist an address", async function () {
+    it("Should blacklist an address", async () => {
       await instanceERC721.addToBlacklist(addr1.address);
       expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
     });
 
-    it("Should batch blacklist an address", async function () {
+    it("Should batch blacklist an address", async () => {
       await instanceERC721.addBatchToBlacklist([
         addr1.address,
         addr2.address,
@@ -170,14 +237,14 @@ describe("ERC721 contract", function () {
       );
     });
 
-    it("Should be able to remove from blacklist", async function () {
+    it("Should be able to remove from blacklist", async () => {
       await instanceERC721.addToBlacklist(addr1.address);
       expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
       await instanceERC721.removeFromBlacklist(addr1.address);
       expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
     });
 
-    it("Should be able to batch remove blacklist", async function () {
+    it("Should be able to batch remove blacklist", async () => {
       await instanceERC721.addBatchToBlacklist([
         addr1.address,
         addr2.address,
@@ -200,7 +267,7 @@ describe("ERC721 contract", function () {
       );
     });
 
-    it("Shouldn't approve while blacklisted", async function () {
+    it("Shouldn't approve while blacklisted", async () => {
       await instanceERC721.addToBlacklist(addr1.address);
       expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
       await expect(
@@ -208,8 +275,11 @@ describe("ERC721 contract", function () {
       ).to.be.revertedWith("The caller of the contract is blacklisted");
     });
 
-    it("Shouldn't transfer while blacklisted", async function () {
-      await instanceERC721.safeMint(addr2.address, "");
+    it("Shouldn't transfer while blacklisted", async () => {
+      await instanceERC721.mint(
+        addr2.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
       await instanceERC721
         .connect(addr2)
         .setApprovalForAll(addr1.address, true);
@@ -227,13 +297,13 @@ describe("ERC721 contract", function () {
     });
   });
 
-  describe("Pause", function () {
-    it("Should pause correctly", async function () {
+  describe("Pause", () => {
+    it("Should pause correctly", async () => {
       await instanceERC721.pause();
       expect(await instanceERC721.paused()).to.equal(true);
     });
 
-    it("Should unpause correctly", async function () {
+    it("Should unpause correctly", async () => {
       await instanceERC721.pause();
       await instanceERC721.unpause();
 
@@ -241,17 +311,20 @@ describe("ERC721 contract", function () {
     });
   });
 
-  describe("Lock", function () {
-    it("Should lock the mint and not let anyone mint anymore", async function () {
+  describe("Lock", () => {
+    it("Should lock the mint and not let anyone mint anymore", async () => {
       await instanceERC721.lockMint();
       await expect(
-        instanceERC721.safeMint(addr1.address, "")
+        instanceERC721.mint(
+          addr1.address,
+          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+        )
       ).to.be.revertedWith("Minting is locked");
     });
   });
 
-  describe("Roles", function () {
-    it("Should assign roles accordingly", async function () {
+  describe("Roles", () => {
+    it("Should assign roles accordingly", async () => {
       const pauserRole = await instanceERC721.PAUSER_ROLE();
       const minterRole = await instanceERC721.MINTER_ROLE();
       const metadataRole = await instanceERC721.METADATA_ROLE();
@@ -278,7 +351,7 @@ describe("ERC721 contract", function () {
       );
     });
 
-    it("Should revoke roles accordingly", async function () {
+    it("Should revoke roles accordingly", async () => {
       const pauserRole = await instanceERC721.PAUSER_ROLE();
       const minterRole = await instanceERC721.MINTER_ROLE();
       const metadataRole = await instanceERC721.METADATA_ROLE();
@@ -310,23 +383,23 @@ describe("ERC721 contract", function () {
       );
     });
 
-    it("Shouldn't let anyone without the lock role to be able to lock the contract", async function () {
+    it("Shouldn't let anyone without the lock role to be able to lock the contract", async () => {
       await expect(instanceERC721.connect(addr1).lockMint()).to.be.reverted;
     });
 
-    it("Should let anyone with the lock role to be able to lock the contract", async function () {
+    it("Should let anyone with the lock role to be able to lock the contract", async () => {
       const lockerRole = await instanceERC721.LOCKER_ROLE();
       await instanceERC721.grantRole(lockerRole, addr1.address);
 
       await instanceERC721.connect(addr1).lockMint();
     });
 
-    it("Shouldn't let anyone without the pauser role to be able to pause or unpause the contract", async function () {
+    it("Shouldn't let anyone without the pauser role to be able to pause or unpause the contract", async () => {
       await expect(instanceERC721.connect(addr1).pause()).to.be.reverted;
       await expect(instanceERC721.connect(addr1).unpause()).to.be.reverted;
     });
 
-    it("Should let anyone with the pauser role to be able to pause or unpause the contract", async function () {
+    it("Should let anyone with the pauser role to be able to pause or unpause the contract", async () => {
       const pauserRole = await instanceERC721.PAUSER_ROLE();
       await instanceERC721.grantRole(pauserRole, addr1.address);
 
@@ -334,33 +407,48 @@ describe("ERC721 contract", function () {
       await instanceERC721.connect(addr1).unpause();
     });
 
-    it("Shouldn't let anyone without the minter role to be able to mint or batch mint", async function () {
-      await expect(instanceERC721.connect(addr1).safeMint(addr2.address, "")).to
-        .be.reverted;
+    it("Shouldn't let anyone without the minter role to be able to mint or batch mint", async () => {
+      await expect(
+        instanceERC721
+          .connect(addr1)
+          .mint(addr2.address, "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1")
+      ).to.be.reverted;
     });
 
-    it("Should let anyone with the minter role to be able to mint or batch mint", async function () {
+    it("Should let anyone with the minter role to be able to mint or batch mint", async () => {
       const minterRole = await instanceERC721.MINTER_ROLE();
       await instanceERC721.grantRole(minterRole, addr1.address);
 
-      await instanceERC721.connect(addr1).safeMint(addr2.address, "");
+      await instanceERC721
+        .connect(addr1)
+        .mint(addr2.address, "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1");
     });
 
-    it("Shouldn't let anyone without the metadata role to be able to set metadata", async function () {
-      await expect(instanceERC721.connect(addr1).setURI("wow")).to.be.reverted;
-      await expect(instanceERC721.connect(addr1).setContractURI("wow")).to.be
-        .reverted;
+    it("Shouldn't let anyone without the metadata role to be able to set metadata", async () => {
+      await expect(instanceERC721.connect(addr1).setBaseTokenURI("ipfs://")).to
+        .be.reverted;
+      await expect(
+        instanceERC721
+          .connect(addr1)
+          .setContractURI(
+            "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+          )
+      ).to.be.reverted;
     });
 
-    it("Should let anyone with the metadata role to be able to set metadata", async function () {
+    it("Should let anyone with the metadata role to be able to set metadata", async () => {
       const metadataRole = await instanceERC721.METADATA_ROLE();
       await instanceERC721.grantRole(metadataRole, addr1.address);
 
-      await instanceERC721.connect(addr1).setURI("wow");
-      await instanceERC721.connect(addr1).setContractURI("wow");
+      await instanceERC721.connect(addr1).setBaseTokenURI("ipfs://");
+      await instanceERC721
+        .connect(addr1)
+        .setContractURI(
+          "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+        );
     });
 
-    it("Shouldn't let anyone without the blacklister role to be able to blacklist", async function () {
+    it("Shouldn't let anyone without the blacklister role to be able to blacklist", async () => {
       await expect(instanceERC721.connect(addr1).addToBlacklist(addr2.address))
         .to.be.reverted;
       await expect(
@@ -374,7 +462,7 @@ describe("ERC721 contract", function () {
       ).to.be.reverted;
     });
 
-    it("Should let anyone with the blacklister role to be able to blacklist", async function () {
+    it("Should let anyone with the blacklister role to be able to blacklist", async () => {
       const blacklisterRole = await instanceERC721.BLACKLISTER_ROLE();
       await instanceERC721.grantRole(blacklisterRole, addr1.address);
 
@@ -387,8 +475,8 @@ describe("ERC721 contract", function () {
     });
   });
 
-  describe("Forwarder", function () {
-    it("Should be able to send a forwarded transaction", async function () {
+  describe("Forwarder", () => {
+    it("Should be able to send a forwarded transaction", async () => {
       const metaTransactionType = [
         {
           name: "nonce",
@@ -445,6 +533,24 @@ describe("ERC721 contract", function () {
       expect(
         await instanceERC721.isApprovedForAll(addr1.address, addr2.address)
       ).to.equal(true);
+    });
+  });
+
+  describe("Burn", () => {
+    it("Should be able to burn tokens", async () => {
+      await instanceERC721.mint(
+        addr1.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        addr2.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+
+      await instanceERC721.connect(addr1).burn(0);
+
+      expect(await instanceERC721.balanceOf(addr1.address)).to.equal(0);
+      expect(await instanceERC721.balanceOf(addr2.address)).to.equal(1);
     });
   });
 });

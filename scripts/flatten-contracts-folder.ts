@@ -1,20 +1,23 @@
-// @ts-ignore
-const fs = require("fs"); // @ts-ignore
-const path = require("path"); // @ts-ignore
-const execSync = require("child_process").execSync;
+import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
 
 // directory path
 const dir = "contracts/";
 const outDir = "flatten/";
 
-function getAllFiles(dirPath, arrayOfFiles) {
+function getAllFiles(dirPath: string, arrayOfFiles: string[]) {
   const files = fs.readdirSync(dirPath);
+
+  const arrayOfDirectoriesToIgnore = ["utils", "interfaces"];
 
   arrayOfFiles = arrayOfFiles || [];
 
   files.forEach((file) => {
     if (fs.statSync(dirPath + "/" + file).isDirectory()) {
-      arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
+      if (!arrayOfDirectoriesToIgnore.includes(file)) {
+        arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
+      }
     } else {
       arrayOfFiles.push(path.join(dirPath, "/", file));
     }
@@ -23,7 +26,7 @@ function getAllFiles(dirPath, arrayOfFiles) {
   return arrayOfFiles;
 }
 
-function filterLicensesInFile(filePath) {
+function filterLicensesInFile(filePath: string) {
   console.log("Filtering licenses lines in " + filePath);
 
   let fileContent = "";

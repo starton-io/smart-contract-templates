@@ -1821,14 +1821,14 @@ library Counters {
 }
 
 
-// File contracts/Initializable.sol
+// File contracts/utils/StartonInitializable.sol
 
 // Initializable contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract Initializable {
+abstract contract StartonInitializable {
     bool private _inited = false;
 
     modifier initializer() {
@@ -1839,14 +1839,14 @@ contract Initializable {
 }
 
 
-// File contracts/EIP712Base.sol
+// File contracts/utils/StartonEIP712Base.sol
 
 // EIP712Base contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract EIP712Base is Initializable {
+abstract contract StartonEIP712Base is StartonInitializable {
     struct EIP712Domain {
         string name;
         string version;
@@ -1862,17 +1862,17 @@ contract EIP712Base is Initializable {
                 "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
             )
         );
-    bytes32 internal domainSeperator;
+    bytes32 internal _domainSeparator;
 
     // supposed to be called once while initializing.
     // one of the contractsa that inherits this contract follows proxy pattern
     // so it is not possible to do this in a constructor
     function _initializeEIP712(string memory name) internal initializer {
-        _setDomainSeperator(name);
+        _setDomainSeparator(name);
     }
 
-    function _setDomainSeperator(string memory name) internal {
-        domainSeperator = keccak256(
+    function _setDomainSeparator(string memory name) internal {
+        _domainSeparator = keccak256(
             abi.encode(
                 EIP712_DOMAIN_TYPEHASH,
                 keccak256(bytes(name)),
@@ -1883,8 +1883,8 @@ contract EIP712Base is Initializable {
         );
     }
 
-    function getDomainSeperator() public view returns (bytes32) {
-        return domainSeperator;
+    function getDomainSeparator() public view returns (bytes32) {
+        return _domainSeparator;
     }
 
     function getChainId() public view returns (uint256) {
@@ -1902,27 +1902,27 @@ contract EIP712Base is Initializable {
      * "\\x19" makes the encoding deterministic
      * "\\x01" is the version byte to make it compatible to EIP-191
      */
-    function toTypedMessageHash(bytes32 messageHash)
+    function _toTypedMessageHash(bytes32 messageHash)
         internal
         view
         returns (bytes32)
     {
         return
             keccak256(
-                abi.encodePacked("\x19\x01", getDomainSeperator(), messageHash)
+                abi.encodePacked("\x19\x01", getDomainSeparator(), messageHash)
             );
     }
 }
 
 
-// File contracts/NativeMetaTransaction.sol
+// File contracts/utils/StartonNativeMetaTransaction.sol
 
 // NativeMetaTransaction contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract NativeMetaTransaction is EIP712Base {
+abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
         keccak256(
             bytes(
@@ -1934,7 +1934,7 @@ contract NativeMetaTransaction is EIP712Base {
         address payable relayerAddress,
         bytes functionSignature
     );
-    mapping(address => uint256) nonces;
+    mapping(address => uint256) private _nonces;
 
     /*
      * Meta transaction structure.
@@ -1955,18 +1955,18 @@ contract NativeMetaTransaction is EIP712Base {
         uint8 sigV
     ) public payable returns (bytes memory) {
         MetaTransaction memory metaTx = MetaTransaction({
-            nonce: nonces[userAddress],
+            nonce: _nonces[userAddress],
             from: userAddress,
             functionSignature: functionSignature
         });
 
         require(
-            verify(userAddress, metaTx, sigR, sigS, sigV),
+            _verify(userAddress, metaTx, sigR, sigS, sigV),
             "Signer and signature do not match"
         );
 
         // increase nonce for user (to avoid re-use)
-        nonces[userAddress] = nonces[userAddress] + 1;
+        _nonces[userAddress] = _nonces[userAddress] + 1;
 
         emit MetaTransactionExecuted(
             userAddress,
@@ -1983,7 +1983,7 @@ contract NativeMetaTransaction is EIP712Base {
         return returnData;
     }
 
-    function hashMetaTransaction(MetaTransaction memory metaTx)
+    function _hashMetaTransaction(MetaTransaction memory metaTx)
         internal
         pure
         returns (bytes32)
@@ -2000,10 +2000,10 @@ contract NativeMetaTransaction is EIP712Base {
     }
 
     function getNonce(address user) public view returns (uint256 nonce) {
-        nonce = nonces[user];
+        nonce = _nonces[user];
     }
 
-    function verify(
+    function _verify(
         address signer,
         MetaTransaction memory metaTx,
         bytes32 sigR,
@@ -2014,7 +2014,7 @@ contract NativeMetaTransaction is EIP712Base {
         return
             signer ==
             ecrecover(
-                toTypedMessageHash(hashMetaTransaction(metaTx)),
+                _toTypedMessageHash(_hashMetaTransaction(metaTx)),
                 sigV,
                 sigR,
                 sigS
@@ -2023,20 +2023,52 @@ contract NativeMetaTransaction is EIP712Base {
 }
 
 
-// File contracts/StartonBlacklist.sol
+// File contracts/utils/StartonContextMixin.sol
+
+// ContextMixin contract: version 0.0.1
+// Creator: https://starton.io
+
+pragma solidity 0.8.9;
+
+abstract contract StartonContextMixin {
+    function _msgSender() internal view virtual returns (address sender) {
+        if (msg.sender == address(this)) {
+            bytes memory array = msg.data;
+            uint256 index = msg.data.length;
+            assembly {
+                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
+                sender := and(
+                    mload(add(array, index)),
+                    0xffffffffffffffffffffffffffffffffffffffff
+                )
+            }
+        } else {
+            sender = msg.sender;
+        }
+        return sender;
+    }
+}
+
+
+// File contracts/utils/StartonBlacklist.sol
 
 // StartonBlacklist contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-contract StartonBlacklist is AccessControl {
-    event Blacklisted(address indexed account, bool indexed isBlacklisted);
-
+/// @title StartonBlacklist
+/// @author Starton
+/// @notice Utility smart contract that can blacklist addresses
+abstract contract StartonBlacklist is AccessControl {
     bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
 
     mapping(address => bool) private _blacklisted;
 
+    /** @notice Event emitted when a new address is blacklisted */
+    event Blacklisted(address indexed account, bool indexed isBlacklisted);
+
+    /** @dev Modifier that reverts when the address is blacklisted */
     modifier notBlacklisted(address checkAddress) {
         require(
             !_blacklisted[checkAddress],
@@ -2045,6 +2077,11 @@ contract StartonBlacklist is AccessControl {
         _;
     }
 
+    /**
+     * @notice Blacklist a address
+     * @param addressToBlacklist The address to blacklist
+     * @custom:requires METADATA_ROLE
+     */
     function addToBlacklist(address addressToBlacklist)
         public
         onlyRole(BLACKLISTER_ROLE)
@@ -2057,6 +2094,11 @@ contract StartonBlacklist is AccessControl {
         emit Blacklisted(addressToBlacklist, true);
     }
 
+    /**
+     * @notice Remove an address from the blacklist
+     * @param addressToRemove The address to remove from the blacklist
+     * @custom:requires METADATA_ROLE
+     */
     function removeFromBlacklist(address addressToRemove)
         public
         onlyRole(BLACKLISTER_ROLE)
@@ -2069,15 +2111,17 @@ contract StartonBlacklist is AccessControl {
         emit Blacklisted(addressToRemove, false);
     }
 
-    function isBlacklisted(address checkAddress) public view returns (bool) {
-        return _blacklisted[checkAddress];
-    }
-
+    /**
+     * @notice Blacklist a list of addresses
+     * @param multiAddrToBl The addresses to blacklist
+     * @custom:requires METADATA_ROLE
+     */
     function addBatchToBlacklist(address[] memory multiAddrToBl)
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToBl.length; ++i) {
+        uint256 length = multiAddrToBl.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (_blacklisted[multiAddrToBl[i]]) {
                 continue;
             }
@@ -2086,11 +2130,17 @@ contract StartonBlacklist is AccessControl {
         }
     }
 
+    /**
+     * @notice Remove a list of addresses from the blacklist
+     * @param multiAddrToRm The addresses to remove from the blacklist
+     * @custom:requires METADATA_ROLE
+     */
     function removeBatchFromBlacklist(address[] memory multiAddrToRm)
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToRm.length; ++i) {
+        uint256 length = multiAddrToRm.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (!_blacklisted[multiAddrToRm[i]]) {
                 continue;
             }
@@ -2098,40 +2148,20 @@ contract StartonBlacklist is AccessControl {
             emit Blacklisted(multiAddrToRm[i], false);
         }
     }
-}
 
-
-// File contracts/ContextMixin.sol
-
-// ContextMixin contract: version 0.0.1
-// Creator: https://starton.io
-
-pragma solidity 0.8.9;
-
-abstract contract ContextMixin {
-    function msgSender() internal view returns (address payable sender) {
-        if (msg.sender == address(this)) {
-            bytes memory array = msg.data;
-            uint256 index = msg.data.length;
-            assembly {
-                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
-                sender := and(
-                    mload(add(array, index)),
-                    0xffffffffffffffffffffffffffffffffffffffff
-                )
-            }
-        } else {
-            sender = payable(msg.sender);
-        }
-        return sender;
+    /**
+     * @notice Check if an address is blacklisted
+     * @param checkAddress The address to check
+     * @return True if the address is blacklisted, false otherwise
+     */
+    function isBlacklisted(address checkAddress) public view returns (bool) {
+        return _blacklisted[checkAddress];
     }
 }
 
 
-// File contracts/StartonERC721Blacklist.sol
+// File contracts/StartonERC721CappedMetaTransaction.sol
 
-// StartonERC721Blacklist contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
@@ -2143,19 +2173,18 @@ pragma solidity 0.8.9;
 
 
 
-/**
- * @dev This implements a ERC721 token that can be blacklisted, paused, locked and have a access management.
- * On top of that it supports meta transactions.
- */
-contract StartonERC721Blacklist is
+/// @title StartonERC721CappedMetaTransaction
+/// @author Starton
+/// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management, max number of tokens and handle meta transactions
+contract StartonERC721CappedMetaTransaction is
     ERC721Enumerable,
     ERC721URIStorage,
+    ERC721Burnable,
     Pausable,
     AccessControl,
-    ERC721Burnable,
     StartonBlacklist,
-    ContextMixin,
-    NativeMetaTransaction
+    StartonContextMixin,
+    StartonNativeMetaTransaction
 {
     using Counters for Counters.Counter;
 
@@ -2164,73 +2193,155 @@ contract StartonERC721Blacklist is
     bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
 
+    uint256 public immutable maxSupply;
+
     Counters.Counter private _tokenIdCounter;
 
-    string private _uri;
-    string private _contractUri;
-    bool private _isMintAllowed;
+    string private _baseTokenURI;
+    string private _contractURI;
 
-    event LockMinting(address indexed account);
+    bool private _isMintAllowed;
+    bool private _isMetatadataChangingAllowed;
+
+    /** @notice Event emitted when the minting is locked */
+    event MintingLocked(address indexed account);
+
+    /** @notice Event emitted when the metadata are locked */
+    event MetadataLocked(address indexed account);
+
+    /** @dev Modifier that reverts when the minting is locked */
+    modifier mintingNotLocked() {
+        require(_isMintAllowed, "Minting is locked");
+        _;
+    }
+
+    /** @dev Modifier that reverts when the metadatas are locked */
+    modifier metadataNotLocked() {
+        require(_isMintAllowed, "Metadatas are locked");
+        _;
+    }
 
     constructor(
-        string memory name,
-        string memory symbol,
-        string memory baseUri,
-        string memory contractUri,
-        address ownerOrMultiSigContract
-    ) ERC721(name, symbol) {
-        _setupRole(DEFAULT_ADMIN_ROLE, ownerOrMultiSigContract);
-        _setupRole(PAUSER_ROLE, ownerOrMultiSigContract);
-        _setupRole(MINTER_ROLE, ownerOrMultiSigContract);
-        _setupRole(METADATA_ROLE, ownerOrMultiSigContract);
-        _setupRole(LOCKER_ROLE, ownerOrMultiSigContract);
-        _setupRole(BLACKLISTER_ROLE, ownerOrMultiSigContract);
+        string memory definitiveName,
+        string memory definitiveSymbol,
+        uint256 definitiveMaxSupply,
+        string memory initialBaseTokenURI,
+        string memory initialContractURI,
+        address initialOwnerOrMultiSigContract
+    ) ERC721(definitiveName, definitiveSymbol) {
+        require(definitiveMaxSupply > 0, "maxSupply must be greater than 0");
 
-        _uri = baseUri;
-        _contractUri = contractUri;
+        // Set all default roles for initialOwnerOrMultiSigContract
+        _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(LOCKER_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(BLACKLISTER_ROLE, initialOwnerOrMultiSigContract);
+
+        maxSupply = definitiveMaxSupply;
+        _baseTokenURI = initialBaseTokenURI;
+        _contractURI = initialContractURI;
         _isMintAllowed = true;
-        _initializeEIP712(name);
+        _isMetatadataChangingAllowed = true;
+
+        // Intialize the EIP712 so we can perform metatransactions
+        _initializeEIP712(definitiveName);
     }
 
-    function contractURI() public view returns (string memory) {
-        return _contractUri;
-    }
-
-    function setContractURI(string memory newBaseContractUri)
+    /**
+     * @notice Mint a new token to the given address and set the token metadata while minting is not locked
+     * @param to The address that will receive the token
+     * @param uri The URI of the token metadata
+     * @custom:requires MINTER_ROLE
+     */
+    function mint(address to, string memory uri)
         public
-        onlyRole(METADATA_ROLE)
-    {
-        _contractUri = newBaseContractUri;
-    }
-
-    function setURI(string memory newUri) public onlyRole(METADATA_ROLE) {
-        _uri = newUri;
-    }
-
-    function safeMint(address to, string memory metadataURI)
-        public
+        mintingNotLocked
         onlyRole(MINTER_ROLE)
     {
-        require(_isMintAllowed, "Minting is locked");
+        require(_tokenIdCounter.current() < maxSupply, "Max supply reached");
 
         _safeMint(to, _tokenIdCounter.current());
-        _setTokenURI(_tokenIdCounter.current(), metadataURI);
+        _setTokenURI(_tokenIdCounter.current(), uri);
         _tokenIdCounter.increment();
     }
 
+    /**
+     * @notice Set the URI of the contract if the metadata are not locked and the contract is not paused
+     * @param newContractURI The new URI of the contract
+     * @custom:requires METADATA_ROLE
+     */
+    function setContractURI(string memory newContractURI)
+        public
+        whenNotPaused
+        metadataNotLocked
+        onlyRole(METADATA_ROLE)
+    {
+        _contractURI = newContractURI;
+    }
+
+    /**
+     * @notice Set the base URI of the token if the metadata are not locked and the contract is not paused
+     * @param newBaseTokenURI The new base URI of the token
+     * @custom:requires METADATA_ROLE
+     */
+    function setBaseTokenURI(string memory newBaseTokenURI)
+        public
+        whenNotPaused
+        metadataNotLocked
+        onlyRole(METADATA_ROLE)
+    {
+        _baseTokenURI = newBaseTokenURI;
+    }
+
+    /**
+     * @notice Pause the contract which stop any changes regarding the ERC721 and minting
+     * @custom:requires PAUSER_ROLE
+     */
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
+    /**
+     * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
+     * @custom:requires PAUSER_ROLE
+     */
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
-    function lockMint() public onlyRole(LOCKER_ROLE) {
-        emit LockMinting(_msgSender());
+    /**
+     * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
+     */
+    function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMintAllowed = false;
+        emit MintingLocked(_msgSender());
     }
 
+    /**
+     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
+     */
+    function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
+        _isMetatadataChangingAllowed = false;
+        emit MetadataLocked(_msgSender());
+    }
+
+    /**
+     * @notice Returns the metadata of the contract
+     * @return Contract URI of the token
+     */
+    function contractURI() public view returns (string memory) {
+        return _contractURI;
+    }
+
+    /**
+     * @notice Returns the metadata of token with the given token id
+     * @param tokenId The token id of the token
+     * @return Contract URI of the token
+     */
     function tokenURI(uint256 tokenId)
         public
         view
@@ -2240,31 +2351,46 @@ contract StartonERC721Blacklist is
         return super.tokenURI(tokenId);
     }
 
+    /**
+     * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
+     * @return True if the interface is supported
+     */
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC721Enumerable, AccessControl, ERC721)
+        override(ERC721, AccessControl, ERC721Enumerable)
         returns (bool)
     {
-        return
-            AccessControl.supportsInterface(interfaceId) ||
-            ERC721Enumerable.supportsInterface(interfaceId);
+        return super.supportsInterface(interfaceId);
     }
 
+    /**
+     * @dev Stop approval of token if the contract is paused or the sender is blacklisted
+     * @param owner The owner of the token
+     * @param operator The operator of the token
+     * @param approved Approve or not the approval of the token
+     */
     function _setApprovalForAll(
         address owner,
         address operator,
         bool approved
-    ) internal override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused notBlacklisted(operator) {
         super._setApprovalForAll(owner, operator, approved);
     }
 
+    /**
+     * @dev Stop transfer if the contract is paused or the sender is blacklisted
+     * @param from The address that will send the token
+     * @param to The address that will receive the token
+     * @param tokenId The ID of the token to be transferred
+     */
     function _beforeTokenTransfer(
         address from,
         address to,
         uint256 tokenId
     )
         internal
+        virtual
         override(ERC721, ERC721Enumerable)
         whenNotPaused
         notBlacklisted(_msgSender())
@@ -2272,24 +2398,37 @@ contract StartonERC721Blacklist is
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
+    /**
+     * @dev Fix the inheritence problem for the _burn between ERC721 and ERC721URIStorage
+     * @param tokenId Id of the token that will be burnt
+     */
     function _burn(uint256 tokenId)
         internal
+        virtual
         override(ERC721, ERC721URIStorage)
     {
         super._burn(tokenId);
     }
 
-    function _baseURI() internal view override returns (string memory) {
-        return _uri;
+    /**
+     * @notice Returns the first part of the uri being used for the token metadata
+     * @return Base URI of the token
+     */
+    function _baseURI() internal view virtual override returns (string memory) {
+        return _baseTokenURI;
     }
 
+    /**
+     * @dev Specify the _msgSender in case the forwarder calls a function to the real sender
+     * @return The sender of the message
+     */
     function _msgSender()
         internal
         view
         virtual
-        override(Context)
-        returns (address sender)
+        override(Context, StartonContextMixin)
+        returns (address)
     {
-        return ContextMixin.msgSender();
+        return super._msgSender();
     }
 }

@@ -4,9 +4,9 @@
 
 pragma solidity 0.8.9;
 
-import "./Initializable.sol";
+import "./StartonInitializable.sol";
 
-contract EIP712Base is Initializable {
+abstract contract StartonEIP712Base is StartonInitializable {
     struct EIP712Domain {
         string name;
         string version;
@@ -22,17 +22,17 @@ contract EIP712Base is Initializable {
                 "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
             )
         );
-    bytes32 internal domainSeperator;
+    bytes32 internal _domainSeparator;
 
     // supposed to be called once while initializing.
     // one of the contractsa that inherits this contract follows proxy pattern
     // so it is not possible to do this in a constructor
     function _initializeEIP712(string memory name) internal initializer {
-        _setDomainSeperator(name);
+        _setDomainSeparator(name);
     }
 
-    function _setDomainSeperator(string memory name) internal {
-        domainSeperator = keccak256(
+    function _setDomainSeparator(string memory name) internal {
+        _domainSeparator = keccak256(
             abi.encode(
                 EIP712_DOMAIN_TYPEHASH,
                 keccak256(bytes(name)),
@@ -43,8 +43,8 @@ contract EIP712Base is Initializable {
         );
     }
 
-    function getDomainSeperator() public view returns (bytes32) {
-        return domainSeperator;
+    function getDomainSeparator() public view returns (bytes32) {
+        return _domainSeparator;
     }
 
     function getChainId() public view returns (uint256) {
@@ -62,14 +62,14 @@ contract EIP712Base is Initializable {
      * "\\x19" makes the encoding deterministic
      * "\\x01" is the version byte to make it compatible to EIP-191
      */
-    function toTypedMessageHash(bytes32 messageHash)
+    function _toTypedMessageHash(bytes32 messageHash)
         internal
         view
         returns (bytes32)
     {
         return
             keccak256(
-                abi.encodePacked("\x19\x01", getDomainSeperator(), messageHash)
+                abi.encodePacked("\x19\x01", getDomainSeparator(), messageHash)
             );
     }
 }

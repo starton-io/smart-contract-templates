@@ -1,15 +1,11 @@
-// Sources flattened with hardhat v2.10.1 https://hardhat.org
-
-// File contracts/ContextMixin.sol
-
 // SPDX-License-Identifier: MIT
 // ContextMixin contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract ContextMixin {
-    function msgSender() internal view returns (address payable sender) {
+abstract contract StartonContextMixin {
+    function _msgSender() internal view virtual returns (address sender) {
         if (msg.sender == address(this)) {
             bytes memory array = msg.data;
             uint256 index = msg.data.length;
@@ -21,7 +17,7 @@ abstract contract ContextMixin {
                 )
             }
         } else {
-            sender = payable(msg.sender);
+            sender = msg.sender;
         }
         return sender;
     }

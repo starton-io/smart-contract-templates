@@ -6,13 +6,18 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract StartonBlacklist is AccessControl {
-    event Blacklisted(address indexed account, bool indexed isBlacklisted);
-
+/// @title StartonBlacklist
+/// @author Starton
+/// @notice Utility smart contract that can blacklist addresses
+abstract contract StartonBlacklist is AccessControl {
     bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
 
     mapping(address => bool) private _blacklisted;
 
+    /** @notice Event emitted when a new address is blacklisted */
+    event Blacklisted(address indexed account, bool indexed isBlacklisted);
+
+    /** @dev Modifier that reverts when the address is blacklisted */
     modifier notBlacklisted(address checkAddress) {
         require(
             !_blacklisted[checkAddress],
@@ -21,6 +26,11 @@ contract StartonBlacklist is AccessControl {
         _;
     }
 
+    /**
+     * @notice Blacklist a address
+     * @param addressToBlacklist The address to blacklist
+     * @custom:requires METADATA_ROLE
+     */
     function addToBlacklist(address addressToBlacklist)
         public
         onlyRole(BLACKLISTER_ROLE)
@@ -33,6 +43,11 @@ contract StartonBlacklist is AccessControl {
         emit Blacklisted(addressToBlacklist, true);
     }
 
+    /**
+     * @notice Remove an address from the blacklist
+     * @param addressToRemove The address to remove from the blacklist
+     * @custom:requires METADATA_ROLE
+     */
     function removeFromBlacklist(address addressToRemove)
         public
         onlyRole(BLACKLISTER_ROLE)
@@ -45,15 +60,17 @@ contract StartonBlacklist is AccessControl {
         emit Blacklisted(addressToRemove, false);
     }
 
-    function isBlacklisted(address checkAddress) public view returns (bool) {
-        return _blacklisted[checkAddress];
-    }
-
+    /**
+     * @notice Blacklist a list of addresses
+     * @param multiAddrToBl The addresses to blacklist
+     * @custom:requires METADATA_ROLE
+     */
     function addBatchToBlacklist(address[] memory multiAddrToBl)
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToBl.length; ++i) {
+        uint256 length = multiAddrToBl.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (_blacklisted[multiAddrToBl[i]]) {
                 continue;
             }
@@ -62,16 +79,31 @@ contract StartonBlacklist is AccessControl {
         }
     }
 
+    /**
+     * @notice Remove a list of addresses from the blacklist
+     * @param multiAddrToRm The addresses to remove from the blacklist
+     * @custom:requires METADATA_ROLE
+     */
     function removeBatchFromBlacklist(address[] memory multiAddrToRm)
         public
         onlyRole(BLACKLISTER_ROLE)
     {
-        for (uint256 i = 0; i < multiAddrToRm.length; ++i) {
+        uint256 length = multiAddrToRm.length;
+        for (uint256 i = 0; i < length; ++i) {
             if (!_blacklisted[multiAddrToRm[i]]) {
                 continue;
             }
             _blacklisted[multiAddrToRm[i]] = false;
             emit Blacklisted(multiAddrToRm[i], false);
         }
+    }
+
+    /**
+     * @notice Check if an address is blacklisted
+     * @param checkAddress The address to check
+     * @return True if the address is blacklisted, false otherwise
+     */
+    function isBlacklisted(address checkAddress) public view returns (bool) {
+        return _blacklisted[checkAddress];
     }
 }
