@@ -142,18 +142,19 @@ contract StartonFinalVesting is Context {
 
     /**
      * @notice Get the amount of tokens that can be claimed from a vesting
-     * @param vesting The vesting to get the amount from
+     * @param amount The amount of tokens that are vested
+     * @param endTimestamp The timestamp when the vesting will end
      * @return value The amount of tokens that can be claimed
      */
-    function vestingAmount(VestingData memory vesting)
+    function vestingAmount(uint256 amount, uint64 endTimestamp)
         public
         view
         returns (uint256 value)
     {
         // If the vesting is finished, return the total amount of tokens
         // else returns 0
-        if (block.timestamp >= vesting.endTimestamp) {
-            value = vesting.amount;
+        if (block.timestamp >= endTimestamp) {
+            value = amount;
         } else {
             value = 0;
         }
@@ -165,7 +166,8 @@ contract StartonFinalVesting is Context {
      */
     function claimVesting(uint256 index) public {
         VestingData memory vesting = getVesting(_msgSender(), index);
-        uint256 value = vestingAmount(vesting);
+
+        uint256 value = vestingAmount(vesting.amount, vesting.endTimestamp);
         require(value != 0, "VestingAmount is zero");
 
         emit ClaimedVesting(

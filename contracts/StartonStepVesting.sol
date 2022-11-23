@@ -207,17 +207,18 @@ contract StartonStepVesting is Context {
 
     /**
      * @notice Get the amount of tokens that can be claimed from a vesting
-     * @param vesting The vesting to get the amount from
+     * @param steps Array of steps of a vesting
+     * @param stepIndex Index of the step to start from
      * @return value The amount of tokens that can be claimed
      */
-    function vestingAmount(VestingData memory vesting)
+    function vestingAmount(Nico[] memory steps, uint64 stepIndex)
         public
         view
         returns (uint256 value)
     {
-        uint256 length = vesting.steps.length;
-        for (uint64 i = vesting.stepIndex; i < length; ++i) {
-            Nico memory step = vesting.steps[i];
+        uint256 length = steps.length;
+        for (uint64 i = stepIndex; i < length; ++i) {
+            Nico memory step = steps[i];
             if (step.timestamp > block.timestamp) {
                 break;
             }
@@ -237,6 +238,7 @@ contract StartonStepVesting is Context {
             "Vesting doesn't exist"
         );
         VestingData storage vesting = _vestings[_msgSender()][index];
+
         TypeOfToken tokenType = vesting.tokenType;
         address tokenAddress = vesting.tokenAddress;
 

@@ -268,23 +268,27 @@ contract StartonLinearVesting is Context {
 
     /**
      * @notice Get the amount of tokens that can be claimed from a vesting
-     * @param vesting The vesting to get the amount from
+     * @param amount The total amount of tokens that can be claimed
+     * @param startTimestamp The timestamp when the vesting started
+     * @param endTimestamp The timestamp when the vesting will end
+     * @param amountClaimed The amount of tokens that have already been claimed
      * @return value The amount of tokens that can be claimed
      */
-    function vestingAmount(VestingData memory vesting)
-        public
-        view
-        returns (uint256 value)
-    {
+    function vestingAmount(
+        uint256 amount,
+        uint64 startTimestamp,
+        uint64 endTimestamp,
+        uint256 amountClaimed
+    ) public view returns (uint256 value) {
         // If the vesting is finished, return the amount of tokens left
         // else returns the amount of tokens that can be claimed at the current time
-        if (vesting.endTimestamp > block.timestamp) {
+        if (endTimestamp > block.timestamp) {
             value =
-                (vesting.amount * (block.timestamp - vesting.startTimestamp)) /
-                (vesting.endTimestamp - vesting.startTimestamp) -
-                vesting.amountClaimed;
+                (amount * (block.timestamp - startTimestamp)) /
+                (endTimestamp - startTimestamp) -
+                amountClaimed;
         } else {
-            value = vesting.amount - vesting.amountClaimed;
+            value = amount - amountClaimed;
         }
     }
 
@@ -294,7 +298,13 @@ contract StartonLinearVesting is Context {
      */
     function claimVesting(uint256 index) public {
         VestingData memory vesting = getVesting(_msgSender(), index);
-        uint256 value = vestingAmount(vesting);
+
+        uint256 value = vestingAmount(
+            vesting.amount,
+            vesting.startTimestamp,
+            vesting.endTimestamp,
+            vesting.amountClaimed
+        );
         require(value != 0, "VestingAmount is zero");
 
         emit ClaimedVesting(
