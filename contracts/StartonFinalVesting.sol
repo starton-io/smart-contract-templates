@@ -3,9 +3,9 @@
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
+import "./utils/AStartonVesting.sol";
 
-contract StartonFinalVesting is Context {
+contract StartonFinalVesting is AStartonVesting {
     /** @notice Type of tokens that can be vested */
     enum TypeOfToken {
         TOKEN,
@@ -20,9 +20,6 @@ contract StartonFinalVesting is Context {
         uint64 startTimestamp;
         uint64 endTimestamp;
     }
-
-    // List of the addresses that have a vesting
-    address[] private _vestingBeneficiaries;
 
     // Mapping of vestings
     mapping(address => VestingData[]) private _vestings;
@@ -224,14 +221,6 @@ contract StartonFinalVesting is Context {
     }
 
     /**
-     * @notice Get the list of addresses that have at least one vesting
-     * @return The list of addresses
-     */
-    function getVestingsBeneficiaries() public view returns (address[] memory) {
-        return _vestingBeneficiaries;
-    }
-
-    /**
      * @notice Get all the vestings from a beneficiary
      * @param beneficiary The account that have the vestings
      * @return The list of vestings data
@@ -270,18 +259,6 @@ contract StartonFinalVesting is Context {
         returns (uint256)
     {
         return _vestings[beneficiary].length;
-    }
-
-    /**
-     * @dev Check if a beneficiary have a vesting
-     * @return bool True if the beneficiary have a vesting
-     */
-    function _isBeneficiary(address beneficiary) internal view returns (bool) {
-        uint256 nbBeneficiaries = _vestingBeneficiaries.length;
-        for (uint256 i = 0; i < nbBeneficiaries; ++i) {
-            if (_vestingBeneficiaries[i] == beneficiary) return true;
-        }
-        return false;
     }
 
     /**

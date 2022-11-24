@@ -113,13 +113,53 @@ abstract contract Context {
 }
 
 
+// File contracts/utils/AStartonVesting.sol
+
+pragma solidity 0.8.9;
+
+abstract contract AStartonVesting is Context {
+    // List of the addresses that have a vesting
+    address[] internal _vestingBeneficiaries;
+
+    /**
+     * @notice Get the list of addresses that have at least one vesting
+     * @return The list of addresses
+     */
+    function getVestingsBeneficiaries()
+        public
+        view
+        virtual
+        returns (address[] memory)
+    {
+        return _vestingBeneficiaries;
+    }
+
+    /**
+     * @dev Check if a beneficiary have a vesting
+     * @return bool True if the beneficiary have a vesting
+     */
+    function _isBeneficiary(address beneficiary)
+        internal
+        view
+        virtual
+        returns (bool)
+    {
+        uint256 nbBeneficiaries = _vestingBeneficiaries.length;
+        for (uint256 i = 0; i < nbBeneficiaries; ++i) {
+            if (_vestingBeneficiaries[i] == beneficiary) return true;
+        }
+        return false;
+    }
+}
+
+
 // File contracts/StartonLinearVesting.sol
 
 
 pragma solidity 0.8.9;
 
 
-contract StartonLinearVesting is Context {
+contract StartonLinearVesting is AStartonVesting {
     /** @notice Type of tokens that can be vested */
     enum TypeOfToken {
         TOKEN,
@@ -135,9 +175,6 @@ contract StartonLinearVesting is Context {
         uint64 endTimestamp;
         uint256 amountClaimed;
     }
-
-    // List of the addresses that have a vesting
-    address[] private _vestingBeneficiaries;
 
     // Mapping of vestings
     mapping(address => VestingData[]) private _vestings;
@@ -372,14 +409,6 @@ contract StartonLinearVesting is Context {
     }
 
     /**
-     * @notice Get the list of addresses that have at least one vesting
-     * @return The list of addresses
-     */
-    function getVestingsBeneficiaries() public view returns (address[] memory) {
-        return _vestingBeneficiaries;
-    }
-
-    /**
      * @notice Get all the vestings from a beneficiary
      * @param beneficiary The account that have the vestings
      * @return The list of vestings data
@@ -418,18 +447,6 @@ contract StartonLinearVesting is Context {
         returns (uint256)
     {
         return _vestings[beneficiary].length;
-    }
-
-    /**
-     * @dev Check if a beneficiary have a vesting
-     * @return bool True if the beneficiary have a vesting
-     */
-    function _isBeneficiary(address beneficiary) internal view returns (bool) {
-        uint256 nbBeneficiaries = _vestingBeneficiaries.length;
-        for (uint256 i = 0; i < nbBeneficiaries; ++i) {
-            if (_vestingBeneficiaries[i] == beneficiary) return true;
-        }
-        return false;
     }
 
     /**
