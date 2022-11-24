@@ -246,31 +246,8 @@ contract StartonStepVesting is AStartonVesting {
         // Add the new vesting
         VestingData storage vesting = _vestings[beneficiary].push();
 
-        uint256 totalAmount = 0;
-        uint64 lastTimestamp = 0;
-        uint256 length = stepsTimestamps.length;
-        for (uint256 i = 0; i < length; ++i) {
-            require(
-                stepsTimestamps[i] > block.timestamp,
-                "Timestamp is in the past"
-            );
-            require(stepsAmount[i] != 0, "Amount is insufficent");
-            require(
-                stepsTimestamps[i] > lastTimestamp,
-                "Timestamps aren't in order"
-            );
-
-            lastTimestamp = stepsTimestamps[i];
-            vesting.steps.push(
-                VestingStep({
-                    amountReleased: stepsAmount[i],
-                    isClaimed: false,
-                    timestamp: stepsTimestamps[i]
-                })
-            );
-            totalAmount += stepsAmount[i];
-        }
-        require(totalAmount == amount, "Incorrect amount");
+        // Add all the steps into the current vesting
+        _addSteps(vesting, stepsTimestamps, stepsAmount, amount);
 
         vesting.amount = amount;
         vesting.tokenType = TypeOfToken.TOKEN;
@@ -313,31 +290,8 @@ contract StartonStepVesting is AStartonVesting {
         // Add the new vesting
         VestingData storage vesting = _vestings[beneficiary].push();
 
-        uint64 lastTimestamp = 0;
-        uint256 totalAmount = 0;
-        uint256 length = stepsTimestamps.length;
-        for (uint256 i = 0; i < length; ++i) {
-            require(
-                stepsTimestamps[i] > block.timestamp,
-                "Timestamp is in the past"
-            );
-            require(stepsAmount[i] != 0, "Amount is insufficent");
-            require(
-                stepsTimestamps[i] > lastTimestamp,
-                "Timestamps aren't in order"
-            );
-
-            lastTimestamp = stepsTimestamps[i];
-            vesting.steps.push(
-                VestingStep({
-                    amountReleased: stepsAmount[i],
-                    isClaimed: false,
-                    timestamp: stepsTimestamps[i]
-                })
-            );
-            totalAmount += stepsAmount[i];
-        }
-        require(totalAmount == msg.value, "Incorrect amount");
+        // Add all the steps into the current vesting
+        _addSteps(vesting, stepsTimestamps, stepsAmount, msg.value);
 
         vesting.amount = msg.value;
         vesting.tokenType = TypeOfToken.NATIVE;
@@ -528,5 +482,45 @@ contract StartonStepVesting is AStartonVesting {
             "Timestamps and amounts are not the same length"
         );
         require(stepsTimestamps.length != 0, "Steps are empty");
+    }
+
+    /**
+     * @dev Add steps to a vesting and check if everything is correct
+     * @param vesting The vesting to add steps to
+     * @param stepsTimestamps Array of timestamps for every steps
+     * @param stepsAmount Array of amounts of tokens to be vested for every steps
+     * @param expectedAmount The expected amount of tokens to be vested
+     */
+    function _addSteps(
+        VestingData storage vesting,
+        uint64[] calldata stepsTimestamps,
+        uint256[] calldata stepsAmount,
+        uint256 expectedAmount
+    ) internal {
+        uint64 lastTimestamp = 0;
+        uint256 totalAmount = 0;
+        uint256 length = stepsTimestamps.length;
+        for (uint256 i = 0; i < length; ++i) {
+            require(
+                stepsTimestamps[i] > block.timestamp,
+                "Timestamp is in the past"
+            );
+            require(stepsAmount[i] != 0, "Amount is insufficent");
+            require(
+                stepsTimestamps[i] > lastTimestamp,
+                "Timestamps aren't in order"
+            );
+
+            lastTimestamp = stepsTimestamps[i];
+            vesting.steps.push(
+                VestingStep({
+                    amountReleased: stepsAmount[i],
+                    isClaimed: false,
+                    timestamp: stepsTimestamps[i]
+                })
+            );
+            totalAmount += stepsAmount[i];
+        }
+        require(totalAmount == expectedAmount, "Incorrect amount");
     }
 }
