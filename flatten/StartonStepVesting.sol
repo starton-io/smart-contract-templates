@@ -246,8 +246,8 @@ contract StartonStepVesting is AStartonVesting {
         // Add the new vesting
         VestingData storage vesting = _vestings[beneficiary].push();
 
-        uint256 totalAmount;
-        uint64 lastTimestamp;
+        uint256 totalAmount = 0;
+        uint64 lastTimestamp = 0;
         uint256 length = stepsTimestamps.length;
         for (uint256 i = 0; i < length; ++i) {
             require(
@@ -313,8 +313,8 @@ contract StartonStepVesting is AStartonVesting {
         // Add the new vesting
         VestingData storage vesting = _vestings[beneficiary].push();
 
-        uint64 lastTimestamp;
-        uint256 totalAmount;
+        uint64 lastTimestamp = 0;
+        uint256 totalAmount = 0;
         uint256 length = stepsTimestamps.length;
         for (uint256 i = 0; i < length; ++i) {
             require(
@@ -393,7 +393,7 @@ contract StartonStepVesting is AStartonVesting {
         TypeOfToken tokenType = vesting.tokenType;
         address tokenAddress = vesting.tokenAddress;
 
-        uint256 value;
+        uint256 value = 0;
         uint256 length = vesting.steps.length;
         for (
             vesting.stepIndex = 0;
