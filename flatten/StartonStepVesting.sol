@@ -167,7 +167,7 @@ contract StartonStepVesting is AStartonVesting {
     }
 
     /** @notice Structure of data that defines a vesting step */
-    struct Nico {
+    struct VestingStep {
         uint256 amountReleased;
         uint64 timestamp;
         bool isClaimed;
@@ -180,7 +180,7 @@ contract StartonStepVesting is AStartonVesting {
         address tokenAddress;
         uint64 stepIndex;
         uint64 startTimestamp;
-        Nico[] steps;
+        VestingStep[] steps;
     }
 
     // Mapping of vestings
@@ -262,7 +262,7 @@ contract StartonStepVesting is AStartonVesting {
 
             lastTimestamp = stepsTimestamps[i];
             vesting.steps.push(
-                Nico({
+                VestingStep({
                     amountReleased: stepsAmount[i],
                     isClaimed: false,
                     timestamp: stepsTimestamps[i]
@@ -329,7 +329,7 @@ contract StartonStepVesting is AStartonVesting {
 
             lastTimestamp = stepsTimestamps[i];
             vesting.steps.push(
-                Nico({
+                VestingStep({
                     amountReleased: stepsAmount[i],
                     isClaimed: false,
                     timestamp: stepsTimestamps[i]
@@ -362,14 +362,14 @@ contract StartonStepVesting is AStartonVesting {
      * @param stepIndex Index of the step to start from
      * @return value The amount of tokens that can be claimed
      */
-    function vestingAmount(Nico[] memory steps, uint64 stepIndex)
+    function vestingAmount(VestingStep[] memory steps, uint64 stepIndex)
         public
         view
         returns (uint256 value)
     {
         uint256 length = steps.length;
         for (uint64 i = stepIndex; i < length; ++i) {
-            Nico memory step = steps[i];
+            VestingStep memory step = steps[i];
             if (step.timestamp > block.timestamp) {
                 break;
             }
@@ -400,7 +400,7 @@ contract StartonStepVesting is AStartonVesting {
             vesting.stepIndex < length;
             ++vesting.stepIndex
         ) {
-            Nico storage step = vesting.steps[vesting.stepIndex];
+            VestingStep storage step = vesting.steps[vesting.stepIndex];
 
             if (step.timestamp > block.timestamp) {
                 break;
