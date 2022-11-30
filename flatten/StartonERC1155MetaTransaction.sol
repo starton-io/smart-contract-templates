@@ -1835,17 +1835,39 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 }
 
 
-// File contracts/utils/StartonBlacklist.sol
+// File contracts/utils/AStartonAccessControl.sol
 
-// StartonBlacklist contract: version 0.0.1
+
+pragma solidity 0.8.9;
+
+/// @title AStartonAcessControl
+/// @author Starton
+/// @notice Utility smart contract that can ease the transfer of ownership between one user to another
+abstract contract AStartonAccessControl is AccessControl {
+
+    /**
+     * @notice Transfer the ownership of the contract to a new address
+     * @param newAdmin The address of the new owner
+     */
+    function transferOwnership(address newAdmin) virtual public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
+        _revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
+    }
+
+}
+
+
+// File contracts/utils/AStartonBlacklist.sol
+
+// AStartonBlacklist contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-/// @title StartonBlacklist
+/// @title AStartonBlacklist
 /// @author Starton
 /// @notice Utility smart contract that can blacklist addresses
-abstract contract StartonBlacklist is AccessControl {
+abstract contract AStartonBlacklist is AccessControl {
     bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
 
     mapping(address => bool) private _blacklisted;
@@ -1945,28 +1967,6 @@ abstract contract StartonBlacklist is AccessControl {
 }
 
 
-// File contracts/utils/AStartonAccessControl.sol
-
-
-pragma solidity 0.8.9;
-
-/// @title AStartonAcessControl
-/// @author Starton
-/// @notice Utility smart contract that can ease the transfer of ownership between one user to another
-abstract contract AStartonAccessControl is AccessControl {
-
-    /**
-     * @notice Transfer the ownership of the contract to a new address
-     * @param newAdmin The address of the new owner
-     */
-    function transferOwnership(address newAdmin) virtual public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
-        _revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
-    }
-
-}
-
-
 // File contracts/StartonERC1155MetaTransaction.sol
 
 
@@ -1985,7 +1985,7 @@ contract StartonERC1155MetaTransaction is
     AStartonAccessControl,
     Pausable,
     AStartonContextMixin,
-    StartonBlacklist,
+    AStartonBlacklist,
     StartonNativeMetaTransaction
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");

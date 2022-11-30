@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "./utils/StartonNativeMetaTransaction.sol";
 import "./utils/AStartonContextMixin.sol";
-import "./utils/StartonBlacklist.sol";
 import "./utils/AStartonAccessControl.sol";
+import "./utils/AStartonBlacklist.sol";
 
 /// @title StartonERC1155MetaTransaction
 /// @author Starton
@@ -17,7 +17,7 @@ contract StartonERC1155MetaTransaction is
     AStartonAccessControl,
     Pausable,
     AStartonContextMixin,
-    StartonBlacklist,
+    AStartonBlacklist,
     StartonNativeMetaTransaction
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");

@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-// StartonBlacklist contract: version 0.0.1
+// AStartonBlacklist contract: version 0.0.1
 // Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-/// @title StartonBlacklist
+/// @title AStartonBlacklist
 /// @author Starton
 /// @notice Utility smart contract that can blacklist addresses
-abstract contract StartonBlacklist is AccessControl {
+abstract contract AStartonBlacklist is AccessControl {
     bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
 
     mapping(address => bool) private _blacklisted;

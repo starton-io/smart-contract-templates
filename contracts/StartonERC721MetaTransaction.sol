@@ -9,8 +9,8 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./utils/StartonNativeMetaTransaction.sol";
 import "./utils/AStartonContextMixin.sol";
-import "./utils/StartonBlacklist.sol";
 import "./utils/AStartonAccessControl.sol";
+import "./utils/AStartonBlacklist.sol";
 
 /// @title StartonERC721MetaTransaction
 /// @author Starton
@@ -21,7 +21,7 @@ contract StartonERC721MetaTransaction is
     ERC721Burnable,
     Pausable,
     AStartonAccessControl,
-    StartonBlacklist,
+    AStartonBlacklist,
     AStartonContextMixin,
     StartonNativeMetaTransaction
 {
