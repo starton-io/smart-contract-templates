@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Initializable contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract StartonInitializable {
+/// @title AStartonInitializable
+/// @author Starton
+/// @notice Utility smart contract that can be used to initialize a contract
+abstract contract AStartonInitializable {
     bool private _inited = false;
 
     modifier initializer() {

@@ -2,12 +2,12 @@
 
 pragma solidity 0.8.9;
 
-import "./StartonInitializable.sol";
+import "./AStartonInitializable.sol";
 
 /// @title AStartonEIP712Base
 /// @author Starton
 /// @notice Utility smart contract that can create types messages
-abstract contract AStartonEIP712Base is StartonInitializable {
+abstract contract AStartonEIP712Base is AStartonInitializable {
     struct EIP712Domain {
         string name;
         string version;

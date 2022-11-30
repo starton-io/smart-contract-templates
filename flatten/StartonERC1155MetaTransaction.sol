@@ -1184,14 +1184,15 @@ abstract contract Pausable is Context {
 }
 
 
-// File contracts/utils/StartonInitializable.sol
+// File contracts/utils/AStartonInitializable.sol
 
-// Initializable contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract StartonInitializable {
+/// @title AStartonInitializable
+/// @author Starton
+/// @notice Utility smart contract that can be used to initialize a contract
+abstract contract AStartonInitializable {
     bool private _inited = false;
 
     modifier initializer() {
@@ -1210,7 +1211,7 @@ pragma solidity 0.8.9;
 /// @title AStartonEIP712Base
 /// @author Starton
 /// @notice Utility smart contract that can create types messages
-abstract contract AStartonEIP712Base is StartonInitializable {
+abstract contract AStartonEIP712Base is AStartonInitializable {
     struct EIP712Domain {
         string name;
         string version;
