@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: MIT
-// AStartonBlacklist contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 

@@ -2079,8 +2079,6 @@ abstract contract AStartonAccessControl is AccessControl {
 
 // File contracts/utils/AStartonBlacklist.sol
 
-// AStartonBlacklist contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
