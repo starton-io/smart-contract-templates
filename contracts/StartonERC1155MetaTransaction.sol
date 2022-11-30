@@ -7,14 +7,14 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "./utils/StartonNativeMetaTransaction.sol";
 import "./utils/StartonContextMixin.sol";
 import "./utils/StartonBlacklist.sol";
-import "./utils/StartonAccessControl.sol";
+import "./utils/AStartonAccessControl.sol";
 
 /// @title StartonERC1155MetaTransaction
 /// @author Starton
 /// @notice ERC1155 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
 contract StartonERC1155MetaTransaction is
     ERC1155Burnable,
-    StartonAccessControl,
+    AStartonAccessControl,
     Pausable,
     StartonContextMixin,
     StartonBlacklist,

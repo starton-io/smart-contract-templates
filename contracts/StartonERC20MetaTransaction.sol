@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "./utils/StartonNativeMetaTransaction.sol";
 import "./utils/StartonContextMixin.sol";
-import "./utils/StartonAccessControl.sol";
+import "./utils/AStartonAccessControl.sol";
 
 /// @title StartonERC20MetaTransaction
 /// @author Starton
@@ -14,7 +14,7 @@ import "./utils/StartonAccessControl.sol";
 contract StartonERC20MetaTransaction is
     ERC20Burnable,
     Pausable,
-    StartonAccessControl,
+    AStartonAccessControl,
     StartonContextMixin,
     StartonNativeMetaTransaction
 {
