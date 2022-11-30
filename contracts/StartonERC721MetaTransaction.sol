@@ -5,12 +5,12 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./utils/StartonNativeMetaTransaction.sol";
 import "./utils/StartonContextMixin.sol";
 import "./utils/StartonBlacklist.sol";
+import "./utils/StartonAccessControl.sol";
 
 /// @title StartonERC721MetaTransaction
 /// @author Starton
@@ -20,7 +20,7 @@ contract StartonERC721MetaTransaction is
     ERC721URIStorage,
     ERC721Burnable,
     Pausable,
-    AccessControl,
+    StartonAccessControl,
     StartonBlacklist,
     StartonContextMixin,
     StartonNativeMetaTransaction
