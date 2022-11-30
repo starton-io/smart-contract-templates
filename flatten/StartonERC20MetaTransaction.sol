@@ -874,33 +874,6 @@ abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
 }
 
 
-// File contracts/utils/StartonContextMixin.sol
-
-// ContextMixin contract: version 0.0.1
-// Creator: https://starton.io
-
-pragma solidity 0.8.9;
-
-abstract contract StartonContextMixin {
-    function _msgSender() internal view virtual returns (address sender) {
-        if (msg.sender == address(this)) {
-            bytes memory array = msg.data;
-            uint256 index = msg.data.length;
-            assembly {
-                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
-                sender := and(
-                    mload(add(array, index)),
-                    0xffffffffffffffffffffffffffffffffffffffff
-                )
-            }
-        } else {
-            sender = msg.sender;
-        }
-        return sender;
-    }
-}
-
-
 // File @openzeppelin/contracts/access/IAccessControl.sol@v4.7.1
 
 // OpenZeppelin Contracts v4.4.1 (access/IAccessControl.sol)
@@ -1398,6 +1371,38 @@ abstract contract AStartonAccessControl is AccessControl {
 }
 
 
+// File contracts/utils/AStartonContextMixin.sol
+
+
+pragma solidity 0.8.9;
+
+/// @title AStartonContextMixin
+/// @author Starton
+/// @notice Utility smart contract that can help enable gasless transactions with a context
+abstract contract AStartonContextMixin {
+    /**
+     * @dev Returns the address of the current signer.
+     * @return sender The address of the signer of the current meta transaction
+     */
+    function _msgSender() internal view virtual returns (address sender) {
+        if (msg.sender == address(this)) {
+            bytes memory array = msg.data;
+            uint256 index = msg.data.length;
+            assembly {
+                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
+                sender := and(
+                    mload(add(array, index)),
+                    0xffffffffffffffffffffffffffffffffffffffff
+                )
+            }
+        } else {
+            sender = msg.sender;
+        }
+        return sender;
+    }
+}
+
+
 // File contracts/StartonERC20MetaTransaction.sol
 
 
@@ -1414,7 +1419,7 @@ contract StartonERC20MetaTransaction is
     ERC20Burnable,
     Pausable,
     AStartonAccessControl,
-    StartonContextMixin,
+    AStartonContextMixin,
     StartonNativeMetaTransaction
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -1474,7 +1479,7 @@ contract StartonERC20MetaTransaction is
         internal
         view
         virtual
-        override(Context, StartonContextMixin)
+        override(Context, AStartonContextMixin)
         returns (address)
     {
         return super._msgSender();

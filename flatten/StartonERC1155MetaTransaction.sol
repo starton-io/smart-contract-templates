@@ -1386,14 +1386,19 @@ abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
 }
 
 
-// File contracts/utils/StartonContextMixin.sol
+// File contracts/utils/AStartonContextMixin.sol
 
-// ContextMixin contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract StartonContextMixin {
+/// @title AStartonContextMixin
+/// @author Starton
+/// @notice Utility smart contract that can help enable gasless transactions with a context
+abstract contract AStartonContextMixin {
+    /**
+     * @dev Returns the address of the current signer.
+     * @return sender The address of the signer of the current meta transaction
+     */
     function _msgSender() internal view virtual returns (address sender) {
         if (msg.sender == address(this)) {
             bytes memory array = msg.data;
@@ -1979,7 +1984,7 @@ contract StartonERC1155MetaTransaction is
     ERC1155Burnable,
     AStartonAccessControl,
     Pausable,
-    StartonContextMixin,
+    AStartonContextMixin,
     StartonBlacklist,
     StartonNativeMetaTransaction
 {
@@ -2227,7 +2232,7 @@ contract StartonERC1155MetaTransaction is
         internal
         view
         virtual
-        override(Context, StartonContextMixin)
+        override(Context, AStartonContextMixin)
         returns (address)
     {
         return super._msgSender();

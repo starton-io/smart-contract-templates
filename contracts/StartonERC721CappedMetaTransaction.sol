@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./utils/StartonNativeMetaTransaction.sol";
-import "./utils/StartonContextMixin.sol";
+import "./utils/AStartonContextMixin.sol";
 import "./utils/StartonBlacklist.sol";
 import "./utils/AStartonAccessControl.sol";
 
@@ -22,7 +22,7 @@ contract StartonERC721CappedMetaTransaction is
     Pausable,
     AStartonAccessControl,
     StartonBlacklist,
-    StartonContextMixin,
+    AStartonContextMixin,
     StartonNativeMetaTransaction
 {
     using Counters for Counters.Counter;
@@ -265,7 +265,7 @@ contract StartonERC721CappedMetaTransaction is
         internal
         view
         virtual
-        override(Context, StartonContextMixin)
+        override(Context, AStartonContextMixin)
         returns (address)
     {
         return super._msgSender();

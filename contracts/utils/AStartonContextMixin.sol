@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: MIT
-// ContextMixin contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract StartonContextMixin {
+/// @title AStartonContextMixin
+/// @author Starton
+/// @notice Utility smart contract that can help enable gasless transactions with a context
+abstract contract AStartonContextMixin {
+    /**
+     * @dev Returns the address of the current signer.
+     * @return sender The address of the signer of the current meta transaction
+     */
     function _msgSender() internal view virtual returns (address sender) {
         if (msg.sender == address(this)) {
             bytes memory array = msg.data;
