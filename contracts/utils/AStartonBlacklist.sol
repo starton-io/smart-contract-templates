@@ -31,6 +31,7 @@ abstract contract AStartonBlacklist is AccessControl {
      */
     function addToBlacklist(address addressToBlacklist)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         require(
@@ -48,6 +49,7 @@ abstract contract AStartonBlacklist is AccessControl {
      */
     function removeFromBlacklist(address addressToRemove)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         require(
@@ -65,6 +67,7 @@ abstract contract AStartonBlacklist is AccessControl {
      */
     function addBatchToBlacklist(address[] memory multiAddrToBl)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         uint256 length = multiAddrToBl.length;
@@ -84,6 +87,7 @@ abstract contract AStartonBlacklist is AccessControl {
      */
     function removeBatchFromBlacklist(address[] memory multiAddrToRm)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         uint256 length = multiAddrToRm.length;
@@ -101,7 +105,12 @@ abstract contract AStartonBlacklist is AccessControl {
      * @param checkAddress The address to check
      * @return True if the address is blacklisted, false otherwise
      */
-    function isBlacklisted(address checkAddress) public view returns (bool) {
+    function isBlacklisted(address checkAddress)
+        public
+        view
+        virtual
+        returns (bool)
+    {
         return _blacklisted[checkAddress];
     }
 }
