@@ -1578,14 +1578,15 @@ abstract contract AStartonEIP712Base is AStartonInitializable {
 }
 
 
-// File contracts/utils/StartonNativeMetaTransaction.sol
+// File contracts/utils/AStartonNativeMetaTransaction.sol
 
-// NativeMetaTransaction contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract StartonNativeMetaTransaction is AStartonEIP712Base {
+/// @title AStartonNativeMetaTransaction
+/// @author Starton
+/// @notice Utility smart contract that enable gasless transactions
+abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
         keccak256(
             bytes(
@@ -1693,7 +1694,7 @@ pragma solidity 0.8.9;
 
 /// @title AStartonContextMixin
 /// @author Starton
-/// @notice Utility smart contract that can help enable gasless transactions with a context
+/// @notice Utility smart contract that track the signer of a meta transaction
 abstract contract AStartonContextMixin {
     /**
      * @dev Returns the address of the current signer.
@@ -2211,7 +2212,7 @@ contract StartonERC721MetaTransaction is
     AStartonAccessControl,
     AStartonBlacklist,
     AStartonContextMixin,
-    StartonNativeMetaTransaction
+    AStartonNativeMetaTransaction
 {
     using Counters for Counters.Counter;
 

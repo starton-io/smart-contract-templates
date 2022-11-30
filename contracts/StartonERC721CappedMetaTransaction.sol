@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./utils/StartonNativeMetaTransaction.sol";
+import "./utils/AStartonNativeMetaTransaction.sol";
 import "./utils/AStartonContextMixin.sol";
 import "./utils/AStartonAccessControl.sol";
 import "./utils/AStartonBlacklist.sol";
@@ -23,7 +23,7 @@ contract StartonERC721CappedMetaTransaction is
     AStartonAccessControl,
     AStartonBlacklist,
     AStartonContextMixin,
-    StartonNativeMetaTransaction
+    AStartonNativeMetaTransaction
 {
     using Counters for Counters.Counter;
 

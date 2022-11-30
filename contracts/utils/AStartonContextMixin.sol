@@ -4,7 +4,7 @@ pragma solidity 0.8.9;
 
 /// @title AStartonContextMixin
 /// @author Starton
-/// @notice Utility smart contract that can help enable gasless transactions with a context
+/// @notice Utility smart contract that track the signer of a meta transaction
 abstract contract AStartonContextMixin {
     /**
      * @dev Returns the address of the current signer.

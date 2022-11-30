@@ -4,7 +4,7 @@ pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "./utils/StartonNativeMetaTransaction.sol";
+import "./utils/AStartonNativeMetaTransaction.sol";
 import "./utils/AStartonAccessControl.sol";
 import "./utils/AStartonContextMixin.sol";
 
@@ -16,7 +16,7 @@ contract StartonERC20MintMetaTransaction is
     Pausable,
     AStartonAccessControl,
     AStartonContextMixin,
-    StartonNativeMetaTransaction
+    AStartonNativeMetaTransaction
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
