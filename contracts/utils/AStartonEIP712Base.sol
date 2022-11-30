@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
-// EIP712Base contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
 import "./StartonInitializable.sol";
 
-abstract contract StartonEIP712Base is StartonInitializable {
+/// @title AStartonEIP712Base
+/// @author Starton
+/// @notice Utility smart contract that can create types messages
+abstract contract AStartonEIP712Base is StartonInitializable {
     struct EIP712Domain {
         string name;
         string version;

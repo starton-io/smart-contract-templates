@@ -690,14 +690,15 @@ abstract contract StartonInitializable {
 }
 
 
-// File contracts/utils/StartonEIP712Base.sol
+// File contracts/utils/AStartonEIP712Base.sol
 
-// EIP712Base contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract StartonEIP712Base is StartonInitializable {
+/// @title AStartonEIP712Base
+/// @author Starton
+/// @notice Utility smart contract that can create types messages
+abstract contract AStartonEIP712Base is StartonInitializable {
     struct EIP712Domain {
         string name;
         string version;
@@ -773,7 +774,7 @@ abstract contract StartonEIP712Base is StartonInitializable {
 
 pragma solidity 0.8.9;
 
-abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
+abstract contract StartonNativeMetaTransaction is AStartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
         keccak256(
             bytes(
