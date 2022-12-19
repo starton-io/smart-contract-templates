@@ -156,6 +156,15 @@ describe("StartonERC20MintMetaTransaction", () => {
     });
   });
 
+  describe("Minting", () => {
+    it("Should mint token correctly", async () => {
+      await instanceERC20.mint(addr1.address, "100000000000000");
+      expect(await instanceERC20.balanceOf(addr1.address)).to.equal(
+        "100000000000000"
+      );
+    });
+  });
+
   describe("Pause", () => {
     it("Should pause correctly", async () => {
       await instanceERC20.pause();
