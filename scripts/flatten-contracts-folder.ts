@@ -9,7 +9,12 @@ const outDir = "flatten/";
 function getAllFiles(dirPath: string, arrayOfFiles: string[]) {
   const files = fs.readdirSync(dirPath);
 
-  const arrayOfDirectoriesToIgnore = ["utils", "interfaces"];
+  const arrayOfDirectoriesToIgnore = [
+    "utils",
+    "abstracts",
+    "deprecated",
+    "interfaces",
+  ];
 
   arrayOfFiles = arrayOfFiles || [];
 
