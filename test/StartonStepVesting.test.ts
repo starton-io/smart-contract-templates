@@ -68,7 +68,7 @@ describe("StartonStepVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addNativeVesting(
+          instanceVesting["addVesting(address,uint64[],uint256[])"](
             addr1.address,
             stepsTimestamps,
             stepsAmount,
@@ -82,7 +82,11 @@ describe("StartonStepVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addNativeVesting(addr1.address, [], [])
+          instanceVesting["addVesting(address,uint64[],uint256[])"](
+            addr1.address,
+            [],
+            []
+          )
         ).to.be.revertedWith("Steps are empty");
       });
 
@@ -98,7 +102,7 @@ describe("StartonStepVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addNativeVesting(
+          instanceVesting["addVesting(address,uint64[],uint256[])"](
             addr1.address,
             stepsTimestamps,
             stepsAmount,
@@ -119,7 +123,7 @@ describe("StartonStepVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addNativeVesting(
+          instanceVesting["addVesting(address,uint64[],uint256[])"](
             addr1.address,
             stepsTimestamps,
             stepsAmount,
@@ -140,7 +144,7 @@ describe("StartonStepVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addNativeVesting(
+          instanceVesting["addVesting(address,uint64[],uint256[])"](
             addr1.address,
             stepsTimestamps,
             stepsAmount,
@@ -160,7 +164,7 @@ describe("StartonStepVesting", () => {
         ];
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addNativeVesting(
+        await instanceVesting["addVesting(address,uint64[],uint256[])"](
           addr1.address,
           stepsTimestamps,
           stepsAmount,
@@ -213,7 +217,7 @@ describe("StartonStepVesting", () => {
         ];
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addNativeVesting(
+        await instanceVesting["addVesting(address,uint64[],uint256[])"](
           addr1.address,
           stepsTimestamps,
           stepsAmount,
@@ -236,7 +240,7 @@ describe("StartonStepVesting", () => {
         ];
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addNativeVesting(
+        await instanceVesting["addVesting(address,uint64[],uint256[])"](
           addr1.address,
           stepsTimestamps,
           stepsAmount,
@@ -262,7 +266,7 @@ describe("StartonStepVesting", () => {
         ];
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addNativeVesting(
+        await instanceVesting["addVesting(address,uint64[],uint256[])"](
           addr1.address,
           stepsTimestamps,
           stepsAmount,
@@ -292,7 +296,7 @@ describe("StartonStepVesting", () => {
         ];
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addNativeVesting(
+        await instanceVesting["addVesting(address,uint64[],uint256[])"](
           addr1.address,
           stepsTimestamps,
           stepsAmount,
@@ -341,7 +345,7 @@ describe("StartonStepVesting", () => {
         ];
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addNativeVesting(
+        await instanceVesting["addVesting(address,uint64[],uint256[])"](
           addr1.address,
           stepsTimestamps,
           stepsAmount,
@@ -398,7 +402,9 @@ describe("StartonStepVesting", () => {
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addTokenVesting(
+          instanceVesting[
+            "addVesting(address,uint256,uint64[],uint256[],address)"
+          ](
             addr1.address,
             ethers.utils.parseEther("5"),
             stepsTimestamps,
@@ -413,13 +419,9 @@ describe("StartonStepVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addTokenVesting(
-            addr1.address,
-            0,
-            [],
-            [],
-            instanceVesting.address
-          )
+          instanceVesting[
+            "addVesting(address,uint256,uint64[],uint256[],address)"
+          ](addr1.address, 0, [], [], instanceVesting.address)
         ).to.be.revertedWith("Steps are empty");
       });
 
@@ -439,7 +441,9 @@ describe("StartonStepVesting", () => {
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addTokenVesting(
+          instanceVesting[
+            "addVesting(address,uint256,uint64[],uint256[],address)"
+          ](
             addr1.address,
             ethers.utils.parseEther("6"),
             stepsTimestamps,
@@ -465,7 +469,9 @@ describe("StartonStepVesting", () => {
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addTokenVesting(
+          instanceVesting[
+            "addVesting(address,uint256,uint64[],uint256[],address)"
+          ](
             addr1.address,
             ethers.utils.parseEther("4"),
             stepsTimestamps,
@@ -490,7 +496,9 @@ describe("StartonStepVesting", () => {
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addTokenVesting(
+          instanceVesting[
+            "addVesting(address,uint256,uint64[],uint256[],address)"
+          ](
             addr1.address,
             ethers.utils.parseEther("6"),
             stepsTimestamps,
@@ -515,7 +523,9 @@ describe("StartonStepVesting", () => {
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addTokenVesting(
+          instanceVesting[
+            "addVesting(address,uint256,uint64[],uint256[],address)"
+          ](
             addr1.address,
             ethers.utils.parseEther("6"),
             stepsTimestamps,
@@ -544,7 +554,9 @@ describe("StartonStepVesting", () => {
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await expect(
-          instanceVesting.addTokenVesting(
+          instanceVesting[
+            "addVesting(address,uint256,uint64[],uint256[],address)"
+          ](
             addr1.address,
             ethers.utils.parseEther("6"),
             stepsTimestamps,
@@ -568,7 +580,9 @@ describe("StartonStepVesting", () => {
           ethers.utils.parseEther("6")
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting[
+          "addVesting(address,uint256,uint64[],uint256[],address)"
+        ](
           addr1.address,
           ethers.utils.parseEther("6"),
           stepsTimestamps,
@@ -626,7 +640,9 @@ describe("StartonStepVesting", () => {
           ethers.utils.parseEther("6")
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting[
+          "addVesting(address,uint256,uint64[],uint256[],address)"
+        ](
           addr1.address,
           ethers.utils.parseEther("6"),
           stepsTimestamps,
@@ -654,7 +670,9 @@ describe("StartonStepVesting", () => {
           ethers.utils.parseEther("6")
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting[
+          "addVesting(address,uint256,uint64[],uint256[],address)"
+        ](
           addr1.address,
           ethers.utils.parseEther("6"),
           stepsTimestamps,
@@ -685,7 +703,9 @@ describe("StartonStepVesting", () => {
           ethers.utils.parseEther("6")
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting[
+          "addVesting(address,uint256,uint64[],uint256[],address)"
+        ](
           addr1.address,
           ethers.utils.parseEther("6"),
           stepsTimestamps,
@@ -715,7 +735,9 @@ describe("StartonStepVesting", () => {
           ethers.utils.parseEther("6")
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting[
+          "addVesting(address,uint256,uint64[],uint256[],address)"
+        ](
           addr1.address,
           ethers.utils.parseEther("6"),
           stepsTimestamps,
@@ -757,7 +779,9 @@ describe("StartonStepVesting", () => {
           ethers.utils.parseEther("6")
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting[
+          "addVesting(address,uint256,uint64[],uint256[],address)"
+        ](
           addr1.address,
           ethers.utils.parseEther("6"),
           stepsTimestamps,

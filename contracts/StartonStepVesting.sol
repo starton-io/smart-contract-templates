@@ -69,7 +69,7 @@ contract StartonStepVesting is AStartonVesting {
      * @param stepsAmount Array of amounts of tokens to be vested for every steps
      * @param token The token that will be vested
      */
-    function addTokenVesting(
+    function addVesting(
         address beneficiary,
         uint256 amount,
         uint64[] calldata stepsTimestamps,
@@ -126,7 +126,7 @@ contract StartonStepVesting is AStartonVesting {
      * @param stepsTimestamps Array of timestamps for every steps
      * @param stepsAmount Array of amounts of tokens to be vested for every steps
      */
-    function addNativeVesting(
+    function addVesting(
         address beneficiary,
         uint64[] calldata stepsTimestamps,
         uint256[] calldata stepsAmount

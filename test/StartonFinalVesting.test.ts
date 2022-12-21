@@ -64,9 +64,13 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting.addNativeVesting(addr1.address, endTimestamp, {
-            value: amount,
-          })
+          instanceVesting["addVesting(address,uint64)"](
+            addr1.address,
+            endTimestamp,
+            {
+              value: amount,
+            }
+          )
         ).to.be.revertedWith("Amount is insufficent");
       });
 
@@ -78,9 +82,13 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting.addNativeVesting(addr1.address, endTimestamp, {
-            value: amount,
-          })
+          instanceVesting["addVesting(address,uint64)"](
+            addr1.address,
+            endTimestamp,
+            {
+              value: amount,
+            }
+          )
         ).to.be.revertedWith("End timestamp is in the past");
       });
 
@@ -96,19 +104,31 @@ describe("StartonFinalVesting", () => {
         const endTimestamp3 = start1 + 10000;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
-        await instanceVesting.addNativeVesting(addr1.address, endTimestamp1, {
-          value: amount1,
-        });
+        await instanceVesting["addVesting(address,uint64)"](
+          addr1.address,
+          endTimestamp1,
+          {
+            value: amount1,
+          }
+        );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start2]);
-        await instanceVesting.addNativeVesting(addr1.address, endTimestamp2, {
-          value: amount2,
-        });
+        await instanceVesting["addVesting(address,uint64)"](
+          addr1.address,
+          endTimestamp2,
+          {
+            value: amount2,
+          }
+        );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
-        await instanceVesting.addNativeVesting(addr2.address, endTimestamp3, {
-          value: amount3,
-        });
+        await instanceVesting["addVesting(address,uint64)"](
+          addr2.address,
+          endTimestamp3,
+          {
+            value: amount3,
+          }
+        );
 
         const vestingNb1 = await instanceVesting.getVestingNumber(
           addr1.address
@@ -172,9 +192,13 @@ describe("StartonFinalVesting", () => {
         const endTimestamp = start + 100;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addNativeVesting(addr1.address, endTimestamp, {
-          value: amount,
-        });
+        await instanceVesting["addVesting(address,uint64)"](
+          addr1.address,
+          endTimestamp,
+          {
+            value: amount,
+          }
+        );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
         instanceVesting.connect(addr1).claimVesting(0);
@@ -190,9 +214,13 @@ describe("StartonFinalVesting", () => {
         const endTimestamp = start + 100;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addNativeVesting(addr1.address, endTimestamp, {
-          value: amount,
-        });
+        await instanceVesting["addVesting(address,uint64)"](
+          addr1.address,
+          endTimestamp,
+          {
+            value: amount,
+          }
+        );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
 
@@ -207,9 +235,13 @@ describe("StartonFinalVesting", () => {
         const endTimestamp = start + 100;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addNativeVesting(addr1.address, endTimestamp, {
-          value: amount,
-        });
+        await instanceVesting["addVesting(address,uint64)"](
+          addr1.address,
+          endTimestamp,
+          {
+            value: amount,
+          }
+        );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
@@ -244,7 +276,7 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting.addTokenVesting(
+          instanceVesting["addVesting(address,uint64,uint256,address)"](
             addr1.address,
             endTimestamp,
             amount,
@@ -263,7 +295,7 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting.addTokenVesting(
+          instanceVesting["addVesting(address,uint64,uint256,address)"](
             addr1.address,
             endTimestamp,
             amount,
@@ -282,7 +314,7 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting.addTokenVesting(
+          instanceVesting["addVesting(address,uint64,uint256,address)"](
             addr1.address,
             endTimestamp,
             amount,
@@ -301,7 +333,7 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting.addTokenVesting(
+          instanceVesting["addVesting(address,uint64,uint256,address)"](
             addr1.address,
             endTimestamp,
             amount,
@@ -327,7 +359,7 @@ describe("StartonFinalVesting", () => {
         );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting["addVesting(address,uint64,uint256,address)"](
           addr1.address,
           endTimestamp1,
           amount1,
@@ -335,7 +367,7 @@ describe("StartonFinalVesting", () => {
         );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start2]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting["addVesting(address,uint64,uint256,address)"](
           addr1.address,
           endTimestamp2,
           amount2,
@@ -343,7 +375,7 @@ describe("StartonFinalVesting", () => {
         );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting["addVesting(address,uint64,uint256,address)"](
           addr2.address,
           endTimestamp3,
           amount3,
@@ -406,7 +438,7 @@ describe("StartonFinalVesting", () => {
         await instanceToken.approve(instanceVesting.address, amount);
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting["addVesting(address,uint64,uint256,address)"](
           addr1.address,
           endTimestamp,
           amount,
@@ -428,7 +460,7 @@ describe("StartonFinalVesting", () => {
         await instanceToken.approve(instanceVesting.address, amount);
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting["addVesting(address,uint64,uint256,address)"](
           addr1.address,
           endTimestamp,
           amount,
@@ -452,7 +484,7 @@ describe("StartonFinalVesting", () => {
         await instanceToken.approve(instanceVesting.address, amount);
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting.addTokenVesting(
+        await instanceVesting["addVesting(address,uint64,uint256,address)"](
           addr1.address,
           endTimestamp,
           amount,

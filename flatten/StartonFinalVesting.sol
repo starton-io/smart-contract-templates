@@ -206,7 +206,7 @@ contract StartonFinalVesting is AStartonVesting {
      * @param amount The amount of tokens that will be vested
      * @param token The token that will be vested
      */
-    function addTokenVesting(
+    function addVesting(
         address beneficiary,
         uint64 endTimestamp,
         uint256 amount,
@@ -261,7 +261,7 @@ contract StartonFinalVesting is AStartonVesting {
      * @param beneficiary The account that will receive the tokens
      * @param endTimestamp The timestamp when the vesting will end
      */
-    function addNativeVesting(address beneficiary, uint64 endTimestamp)
+    function addVesting(address beneficiary, uint64 endTimestamp)
         public
         payable
     {
