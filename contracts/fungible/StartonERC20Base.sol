@@ -41,7 +41,7 @@ contract StartonERC20Base is
      * @notice Pause the contract which stop any changes regarding the ERC20
      * @custom:requires PAUSER_ROLE
      */
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() public virtual onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
@@ -49,7 +49,7 @@ contract StartonERC20Base is
      * @notice Unpause the contract which allow back any changes regarding the ERC20
      * @custom:requires PAUSER_ROLE
      */
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() public virtual onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
@@ -63,7 +63,7 @@ contract StartonERC20Base is
         address from,
         address to,
         uint256 amount
-    ) internal override whenNotPaused {
+    ) internal virtual override whenNotPaused {
         super._beforeTokenTransfer(from, to, amount);
     }
 
