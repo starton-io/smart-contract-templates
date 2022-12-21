@@ -5,8 +5,8 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "./utils/NativeMetaTransaction.sol";
-import "./utils/ContextMixin.sol";
+import "./utils/StartonNativeMetaTransaction.sol";
+import "./utils/StartonContextMixin.sol";
 
 /// @title StartonERC20MetaTransaction
 /// @author Starton
@@ -15,8 +15,8 @@ contract StartonERC20MintMetaTransaction is
     ERC20Burnable,
     Pausable,
     AccessControl,
-    ContextMixin,
-    NativeMetaTransaction
+    StartonContextMixin,
+    StartonNativeMetaTransaction
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -67,7 +67,7 @@ contract StartonERC20MintMetaTransaction is
     }
 
     /**
-     * @notice Pause the contract which stop any changes regarding the ERC721 and minting
+     * @notice Pause the contract which stop any changes regarding the ERC20 and minting
      * @custom:requires PAUSER_ROLE
      */
     function pause() public onlyRole(PAUSER_ROLE) {
@@ -75,7 +75,7 @@ contract StartonERC20MintMetaTransaction is
     }
 
     /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
+     * @notice Unpause the contract which allow back any changes regarding the ERC20 and minting
      * @custom:requires PAUSER_ROLE
      */
     function unpause() public onlyRole(PAUSER_ROLE) {
@@ -113,7 +113,7 @@ contract StartonERC20MintMetaTransaction is
         internal
         view
         virtual
-        override(Context, ContextMixin)
+        override(Context, StartonContextMixin)
         returns (address)
     {
         return super._msgSender();
