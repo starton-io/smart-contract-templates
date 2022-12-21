@@ -7,7 +7,7 @@
     "test": "hardhat compile && hardhat test",
     "compile": "hardhat compile",
     "clean": "hardhat clean",
-    "coverage": "hardhat coverage",
+    "coverage": "hardhat compile && hardhat coverage",
     "flatten": "ts-node scripts/flatten-contracts-folder.ts",
     "lint": "yarn prettier ; yarn eslint ; yarn solhint",
     "lint:fix": "yarn prettier:fix ; yarn eslint:fix ; yarn solhint:fix",

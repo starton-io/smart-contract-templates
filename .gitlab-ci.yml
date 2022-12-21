@@ -1,0 +1,25 @@
+image: node:16
+
+workflow:
+    rules:
+        - if: $CI_COMMIT_BRANCH == "master"
+        - if: $CI_COMMIT_BRANCH == "develop"
+
+cache:
+  paths:
+    - node_modules/
+
+build:
+  script:
+    - yarn install
+    - yarn compile
+
+test:
+  script:
+    - yarn install
+    - yarn test
+
+coverage:
+  script:
+    - yarn install
+    - yarn coverage

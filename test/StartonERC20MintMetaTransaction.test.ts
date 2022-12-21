@@ -156,6 +156,15 @@ describe("StartonERC20MintMetaTransaction", () => {
     });
   });
 
+  describe("Minting", () => {
+    it("Should mint token correctly", async () => {
+      await instanceERC20.mint(addr1.address, "100000000000000");
+      expect(await instanceERC20.balanceOf(addr1.address)).to.equal(
+        "100000000000000"
+      );
+    });
+  });
+
   describe("Pause", () => {
     it("Should pause correctly", async () => {
       await instanceERC20.pause();
@@ -196,6 +205,18 @@ describe("StartonERC20MintMetaTransaction", () => {
       await instanceERC20.grantRole(minterRole, addr1.address);
       expect(await instanceERC20.hasRole(minterRole, addr1.address)).to.equal(
         true
+      );
+    });
+
+    it("Should transfer ownership", async () => {
+      const adminRole = await instanceERC20.DEFAULT_ADMIN_ROLE();
+
+      await instanceERC20.transferOwnership(addr1.address);
+      expect(await instanceERC20.hasRole(adminRole, addr1.address)).to.equal(
+        true
+      );
+      expect(await instanceERC20.hasRole(adminRole, owner.address)).to.equal(
+        false
       );
     });
 
