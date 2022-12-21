@@ -4,14 +4,14 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 
 import {
-  StartonERC20MetaTransaction,
-  StartonERC20MetaTransaction__factory, // eslint-disable-line camelcase
+  StartonERC20Base,
+  StartonERC20Base__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let ERC20: StartonERC20MetaTransaction__factory; // eslint-disable-line camelcase
+let ERC20: StartonERC20Base__factory; // eslint-disable-line camelcase
 
-describe("StartonERC20MetaTransaction", () => {
-  let instanceERC20: StartonERC20MetaTransaction;
+describe("StartonERC20Base", () => {
+  let instanceERC20: StartonERC20Base;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
@@ -21,7 +21,7 @@ describe("StartonERC20MetaTransaction", () => {
     [owner, addr1, addr2] = await ethers.getSigners();
 
     // Create factory
-    ERC20 = new StartonERC20MetaTransaction__factory(owner);
+    ERC20 = new StartonERC20Base__factory(owner);
   });
 
   beforeEach(async () => {
@@ -30,7 +30,7 @@ describe("StartonERC20MetaTransaction", () => {
       "ST",
       BigNumber.from("1000000000000000000000000000"),
       owner.address
-    )) as StartonERC20MetaTransaction;
+    )) as StartonERC20Base;
     await instanceERC20.deployed();
   });
 
