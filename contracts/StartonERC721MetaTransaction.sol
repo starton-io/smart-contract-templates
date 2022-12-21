@@ -7,10 +7,10 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./utils/StartonNativeMetaTransaction.sol";
-import "./utils/StartonContextMixin.sol";
-import "./utils/StartonBlacklist.sol";
+import "./utils/AStartonNativeMetaTransaction.sol";
+import "./utils/AStartonContextMixin.sol";
 import "./utils/AStartonAccessControl.sol";
+import "./utils/AStartonBlacklist.sol";
 
 /// @title StartonERC721MetaTransaction
 /// @author Starton
@@ -21,9 +21,9 @@ contract StartonERC721MetaTransaction is
     ERC721Burnable,
     Pausable,
     AStartonAccessControl,
-    StartonBlacklist,
-    StartonContextMixin,
-    StartonNativeMetaTransaction
+    AStartonBlacklist,
+    AStartonContextMixin,
+    AStartonNativeMetaTransaction
 {
     using Counters for Counters.Counter;
 
@@ -257,7 +257,7 @@ contract StartonERC721MetaTransaction is
         internal
         view
         virtual
-        override(Context, StartonContextMixin)
+        override(Context, AStartonContextMixin)
         returns (address)
     {
         return super._msgSender();

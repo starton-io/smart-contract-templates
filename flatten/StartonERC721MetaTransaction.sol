@@ -1482,14 +1482,15 @@ library Counters {
 }
 
 
-// File contracts/utils/StartonInitializable.sol
+// File contracts/utils/AStartonInitializable.sol
 
-// Initializable contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract StartonInitializable {
+/// @title AStartonInitializable
+/// @author Starton
+/// @notice Utility smart contract that can be used to initialize a contract
+abstract contract AStartonInitializable {
     bool private _inited = false;
 
     modifier initializer() {
@@ -1500,14 +1501,15 @@ abstract contract StartonInitializable {
 }
 
 
-// File contracts/utils/StartonEIP712Base.sol
+// File contracts/utils/AStartonEIP712Base.sol
 
-// EIP712Base contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract StartonEIP712Base is StartonInitializable {
+/// @title AStartonEIP712Base
+/// @author Starton
+/// @notice Utility smart contract that can create types messages
+abstract contract AStartonEIP712Base is AStartonInitializable {
     struct EIP712Domain {
         string name;
         string version;
@@ -1576,14 +1578,15 @@ abstract contract StartonEIP712Base is StartonInitializable {
 }
 
 
-// File contracts/utils/StartonNativeMetaTransaction.sol
+// File contracts/utils/AStartonNativeMetaTransaction.sol
 
-// NativeMetaTransaction contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
+/// @title AStartonNativeMetaTransaction
+/// @author Starton
+/// @notice Utility smart contract that enable gasless transactions
+abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
         keccak256(
             bytes(
@@ -1684,14 +1687,19 @@ abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
 }
 
 
-// File contracts/utils/StartonContextMixin.sol
+// File contracts/utils/AStartonContextMixin.sol
 
-// ContextMixin contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract StartonContextMixin {
+/// @title AStartonContextMixin
+/// @author Starton
+/// @notice Utility smart contract that track the signer of a meta transaction
+abstract contract AStartonContextMixin {
+    /**
+     * @dev Returns the address of the current signer.
+     * @return sender The address of the signer of the current meta transaction
+     */
     function _msgSender() internal view virtual returns (address sender) {
         if (msg.sender == address(this)) {
             bytes memory array = msg.data;
@@ -2050,17 +2058,37 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 }
 
 
-// File contracts/utils/StartonBlacklist.sol
+// File contracts/utils/AStartonAccessControl.sol
 
-// StartonBlacklist contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-/// @title StartonBlacklist
+/// @title AStartonAcessControl
+/// @author Starton
+/// @notice Utility smart contract that can ease the transfer of ownership between one user to another
+abstract contract AStartonAccessControl is AccessControl {
+
+    /**
+     * @notice Transfer the ownership of the contract to a new address
+     * @param newAdmin The address of the new owner
+     */
+    function transferOwnership(address newAdmin) virtual public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
+        _revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
+    }
+
+}
+
+
+// File contracts/utils/AStartonBlacklist.sol
+
+
+pragma solidity 0.8.9;
+
+/// @title AStartonBlacklist
 /// @author Starton
 /// @notice Utility smart contract that can blacklist addresses
-abstract contract StartonBlacklist is AccessControl {
+abstract contract AStartonBlacklist is AccessControl {
     bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
 
     mapping(address => bool) private _blacklisted;
@@ -2084,6 +2112,7 @@ abstract contract StartonBlacklist is AccessControl {
      */
     function addToBlacklist(address addressToBlacklist)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         require(
@@ -2101,6 +2130,7 @@ abstract contract StartonBlacklist is AccessControl {
      */
     function removeFromBlacklist(address addressToRemove)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         require(
@@ -2118,6 +2148,7 @@ abstract contract StartonBlacklist is AccessControl {
      */
     function addBatchToBlacklist(address[] memory multiAddrToBl)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         uint256 length = multiAddrToBl.length;
@@ -2137,6 +2168,7 @@ abstract contract StartonBlacklist is AccessControl {
      */
     function removeBatchFromBlacklist(address[] memory multiAddrToRm)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         uint256 length = multiAddrToRm.length;
@@ -2154,31 +2186,14 @@ abstract contract StartonBlacklist is AccessControl {
      * @param checkAddress The address to check
      * @return True if the address is blacklisted, false otherwise
      */
-    function isBlacklisted(address checkAddress) public view returns (bool) {
+    function isBlacklisted(address checkAddress)
+        public
+        view
+        virtual
+        returns (bool)
+    {
         return _blacklisted[checkAddress];
     }
-}
-
-
-// File contracts/utils/AStartonAccessControl.sol
-
-
-pragma solidity 0.8.9;
-
-/// @title AStartonAcessControl
-/// @author Starton
-/// @notice Utility smart contract that can ease the transfer of ownership between one user to another
-abstract contract AStartonAccessControl is AccessControl {
-
-    /**
-     * @notice Transfer the ownership of the contract to a new address
-     * @param newAdmin The address of the new owner
-     */
-    function transferOwnership(address newAdmin) virtual public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
-        _revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
-    }
-
 }
 
 
@@ -2204,9 +2219,9 @@ contract StartonERC721MetaTransaction is
     ERC721Burnable,
     Pausable,
     AStartonAccessControl,
-    StartonBlacklist,
-    StartonContextMixin,
-    StartonNativeMetaTransaction
+    AStartonBlacklist,
+    AStartonContextMixin,
+    AStartonNativeMetaTransaction
 {
     using Counters for Counters.Counter;
 
@@ -2440,7 +2455,7 @@ contract StartonERC721MetaTransaction is
         internal
         view
         virtual
-        override(Context, StartonContextMixin)
+        override(Context, AStartonContextMixin)
         returns (address)
     {
         return super._msgSender();

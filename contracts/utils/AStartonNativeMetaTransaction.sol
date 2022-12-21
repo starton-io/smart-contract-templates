@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
-// NativeMetaTransaction contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-import "./StartonEIP712Base.sol";
+import "./AStartonEIP712Base.sol";
 
-abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
+/// @title AStartonNativeMetaTransaction
+/// @author Starton
+/// @notice Utility smart contract that enable gasless transactions
+abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
         keccak256(
             bytes(

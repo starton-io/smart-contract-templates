@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: MIT
-// StartonBlacklist contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-/// @title StartonBlacklist
+/// @title AStartonBlacklist
 /// @author Starton
 /// @notice Utility smart contract that can blacklist addresses
-abstract contract StartonBlacklist is AccessControl {
+abstract contract AStartonBlacklist is AccessControl {
     bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
 
     mapping(address => bool) private _blacklisted;
@@ -33,6 +31,7 @@ abstract contract StartonBlacklist is AccessControl {
      */
     function addToBlacklist(address addressToBlacklist)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         require(
@@ -50,6 +49,7 @@ abstract contract StartonBlacklist is AccessControl {
      */
     function removeFromBlacklist(address addressToRemove)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         require(
@@ -67,6 +67,7 @@ abstract contract StartonBlacklist is AccessControl {
      */
     function addBatchToBlacklist(address[] memory multiAddrToBl)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         uint256 length = multiAddrToBl.length;
@@ -86,6 +87,7 @@ abstract contract StartonBlacklist is AccessControl {
      */
     function removeBatchFromBlacklist(address[] memory multiAddrToRm)
         public
+        virtual
         onlyRole(BLACKLISTER_ROLE)
     {
         uint256 length = multiAddrToRm.length;
@@ -103,7 +105,12 @@ abstract contract StartonBlacklist is AccessControl {
      * @param checkAddress The address to check
      * @return True if the address is blacklisted, false otherwise
      */
-    function isBlacklisted(address checkAddress) public view returns (bool) {
+    function isBlacklisted(address checkAddress)
+        public
+        view
+        virtual
+        returns (bool)
+    {
         return _blacklisted[checkAddress];
     }
 }
