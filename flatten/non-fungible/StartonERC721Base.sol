@@ -2197,7 +2197,7 @@ abstract contract AStartonBlacklist is AccessControl {
 }
 
 
-// File contracts/non-fungible/StartonERC721MetaTransaction.sol
+// File contracts/non-fungible/StartonERC721Base.sol
 
 
 pragma solidity 0.8.9;
@@ -2210,10 +2210,10 @@ pragma solidity 0.8.9;
 
 
 
-/// @title StartonERC721MetaTransaction
+/// @title StartonERC721Base
 /// @author Starton
 /// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
-contract StartonERC721MetaTransaction is
+contract StartonERC721Base is
     ERC721Enumerable,
     ERC721URIStorage,
     ERC721Burnable,
@@ -2230,7 +2230,7 @@ contract StartonERC721MetaTransaction is
     bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
 
-    Counters.Counter private _tokenIdCounter;
+    Counters.Counter internal _tokenIdCounter;
 
     string private _baseTokenURI;
     string private _contractURI;
@@ -2288,6 +2288,7 @@ contract StartonERC721MetaTransaction is
      */
     function mint(address to, string memory uri)
         public
+        virtual
         mintingNotLocked
         onlyRole(MINTER_ROLE)
     {
@@ -2303,6 +2304,7 @@ contract StartonERC721MetaTransaction is
      */
     function setContractURI(string memory newContractURI)
         public
+        virtual
         whenNotPaused
         metadataNotLocked
         onlyRole(METADATA_ROLE)
@@ -2317,6 +2319,7 @@ contract StartonERC721MetaTransaction is
      */
     function setBaseTokenURI(string memory newBaseTokenURI)
         public
+        virtual
         whenNotPaused
         metadataNotLocked
         onlyRole(METADATA_ROLE)
@@ -2328,7 +2331,7 @@ contract StartonERC721MetaTransaction is
      * @notice Pause the contract which stop any changes regarding the ERC721 and minting
      * @custom:requires PAUSER_ROLE
      */
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() public virtual onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
@@ -2336,7 +2339,7 @@ contract StartonERC721MetaTransaction is
      * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
      * @custom:requires PAUSER_ROLE
      */
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() public virtual onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
@@ -2344,7 +2347,7 @@ contract StartonERC721MetaTransaction is
      * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
      * @custom:requires LOCKER_ROLE
      */
-    function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
+    function lockMint() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMintAllowed = false;
         emit MintingLocked(_msgSender());
     }
@@ -2353,7 +2356,7 @@ contract StartonERC721MetaTransaction is
      * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
      * @custom:requires LOCKER_ROLE
      */
-    function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
+    function lockMetadata() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMetatadataChangingAllowed = false;
         emit MetadataLocked(_msgSender());
     }
@@ -2362,7 +2365,7 @@ contract StartonERC721MetaTransaction is
      * @notice Returns the metadata of the contract
      * @return Contract URI of the token
      */
-    function contractURI() public view returns (string memory) {
+    function contractURI() public view virtual returns (string memory) {
         return _contractURI;
     }
 
@@ -2374,6 +2377,7 @@ contract StartonERC721MetaTransaction is
     function tokenURI(uint256 tokenId)
         public
         view
+        virtual
         override(ERC721, ERC721URIStorage)
         returns (string memory)
     {
@@ -2387,6 +2391,7 @@ contract StartonERC721MetaTransaction is
     function supportsInterface(bytes4 interfaceId)
         public
         view
+        virtual
         override(ERC721, AccessControl, ERC721Enumerable)
         returns (bool)
     {
