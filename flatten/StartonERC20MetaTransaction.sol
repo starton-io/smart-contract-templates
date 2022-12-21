@@ -566,6 +566,341 @@ abstract contract ERC20Burnable is Context, ERC20 {
 }
 
 
+// File @openzeppelin/contracts/security/Pausable.sol@v4.7.1
+
+// OpenZeppelin Contracts (last updated v4.7.0) (security/Pausable.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Contract module which allows children to implement an emergency stop
+ * mechanism that can be triggered by an authorized account.
+ *
+ * This module is used through inheritance. It will make available the
+ * modifiers `whenNotPaused` and `whenPaused`, which can be applied to
+ * the functions of your contract. Note that they will not be pausable by
+ * simply including this module, only once the modifiers are put in place.
+ */
+abstract contract Pausable is Context {
+    /**
+     * @dev Emitted when the pause is triggered by `account`.
+     */
+    event Paused(address account);
+
+    /**
+     * @dev Emitted when the pause is lifted by `account`.
+     */
+    event Unpaused(address account);
+
+    bool private _paused;
+
+    /**
+     * @dev Initializes the contract in unpaused state.
+     */
+    constructor() {
+        _paused = false;
+    }
+
+    /**
+     * @dev Modifier to make a function callable only when the contract is not paused.
+     *
+     * Requirements:
+     *
+     * - The contract must not be paused.
+     */
+    modifier whenNotPaused() {
+        _requireNotPaused();
+        _;
+    }
+
+    /**
+     * @dev Modifier to make a function callable only when the contract is paused.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
+     */
+    modifier whenPaused() {
+        _requirePaused();
+        _;
+    }
+
+    /**
+     * @dev Returns true if the contract is paused, and false otherwise.
+     */
+    function paused() public view virtual returns (bool) {
+        return _paused;
+    }
+
+    /**
+     * @dev Throws if the contract is paused.
+     */
+    function _requireNotPaused() internal view virtual {
+        require(!paused(), "Pausable: paused");
+    }
+
+    /**
+     * @dev Throws if the contract is not paused.
+     */
+    function _requirePaused() internal view virtual {
+        require(paused(), "Pausable: not paused");
+    }
+
+    /**
+     * @dev Triggers stopped state.
+     *
+     * Requirements:
+     *
+     * - The contract must not be paused.
+     */
+    function _pause() internal virtual whenNotPaused {
+        _paused = true;
+        emit Paused(_msgSender());
+    }
+
+    /**
+     * @dev Returns to normal state.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
+     */
+    function _unpause() internal virtual whenPaused {
+        _paused = false;
+        emit Unpaused(_msgSender());
+    }
+}
+
+
+// File contracts/utils/StartonInitializable.sol
+
+// Initializable contract: version 0.0.1
+// Creator: https://starton.io
+
+pragma solidity 0.8.9;
+
+abstract contract StartonInitializable {
+    bool private _inited = false;
+
+    modifier initializer() {
+        require(!_inited, "Already inited");
+        _;
+        _inited = true;
+    }
+}
+
+
+// File contracts/utils/StartonEIP712Base.sol
+
+// EIP712Base contract: version 0.0.1
+// Creator: https://starton.io
+
+pragma solidity 0.8.9;
+
+abstract contract StartonEIP712Base is StartonInitializable {
+    struct EIP712Domain {
+        string name;
+        string version;
+        address verifyingContract;
+        bytes32 salt;
+    }
+
+    string public constant ERC712_VERSION = "1";
+
+    bytes32 internal constant EIP712_DOMAIN_TYPEHASH =
+        keccak256(
+            bytes(
+                "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
+            )
+        );
+    bytes32 internal _domainSeparator;
+
+    // supposed to be called once while initializing.
+    // one of the contractsa that inherits this contract follows proxy pattern
+    // so it is not possible to do this in a constructor
+    function _initializeEIP712(string memory name) internal initializer {
+        _setDomainSeparator(name);
+    }
+
+    function _setDomainSeparator(string memory name) internal {
+        _domainSeparator = keccak256(
+            abi.encode(
+                EIP712_DOMAIN_TYPEHASH,
+                keccak256(bytes(name)),
+                keccak256(bytes(ERC712_VERSION)),
+                address(this),
+                bytes32(getChainId())
+            )
+        );
+    }
+
+    function getDomainSeparator() public view returns (bytes32) {
+        return _domainSeparator;
+    }
+
+    function getChainId() public view returns (uint256) {
+        uint256 id;
+        assembly {
+            id := chainid()
+        }
+        return id;
+    }
+
+    /**
+     * Accept message hash and returns hash message in EIP712 compatible form
+     * So that it can be used to recover signer from signature signed using EIP712 formatted data
+     * https://eips.ethereum.org/EIPS/eip-712
+     * "\\x19" makes the encoding deterministic
+     * "\\x01" is the version byte to make it compatible to EIP-191
+     */
+    function _toTypedMessageHash(bytes32 messageHash)
+        internal
+        view
+        returns (bytes32)
+    {
+        return
+            keccak256(
+                abi.encodePacked("\x19\x01", getDomainSeparator(), messageHash)
+            );
+    }
+}
+
+
+// File contracts/utils/StartonNativeMetaTransaction.sol
+
+// NativeMetaTransaction contract: version 0.0.1
+// Creator: https://starton.io
+
+pragma solidity 0.8.9;
+
+abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
+    bytes32 private constant META_TRANSACTION_TYPEHASH =
+        keccak256(
+            bytes(
+                "MetaTransaction(uint256 nonce,address from,bytes functionSignature)"
+            )
+        );
+    event MetaTransactionExecuted(
+        address userAddress,
+        address payable relayerAddress,
+        bytes functionSignature
+    );
+    mapping(address => uint256) private _nonces;
+
+    /*
+     * Meta transaction structure.
+     * No point of including value field here as if user is doing value transfer then he has the funds to pay for gas
+     * He should call the desired function directly in that case.
+     */
+    struct MetaTransaction {
+        uint256 nonce;
+        address from;
+        bytes functionSignature;
+    }
+
+    function executeMetaTransaction(
+        address userAddress,
+        bytes memory functionSignature,
+        bytes32 sigR,
+        bytes32 sigS,
+        uint8 sigV
+    ) public payable returns (bytes memory) {
+        MetaTransaction memory metaTx = MetaTransaction({
+            nonce: _nonces[userAddress],
+            from: userAddress,
+            functionSignature: functionSignature
+        });
+
+        require(
+            _verify(userAddress, metaTx, sigR, sigS, sigV),
+            "Signer and signature do not match"
+        );
+
+        // increase nonce for user (to avoid re-use)
+        _nonces[userAddress] = _nonces[userAddress] + 1;
+
+        emit MetaTransactionExecuted(
+            userAddress,
+            payable(msg.sender),
+            functionSignature
+        );
+
+        // Append userAddress and relayer address at the end to extract it from calling context
+        (bool success, bytes memory returnData) = address(this).call(
+            abi.encodePacked(functionSignature, userAddress)
+        );
+        require(success, "Function call not successful");
+
+        return returnData;
+    }
+
+    function _hashMetaTransaction(MetaTransaction memory metaTx)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return
+            keccak256(
+                abi.encode(
+                    META_TRANSACTION_TYPEHASH,
+                    metaTx.nonce,
+                    metaTx.from,
+                    keccak256(metaTx.functionSignature)
+                )
+            );
+    }
+
+    function getNonce(address user) public view returns (uint256 nonce) {
+        nonce = _nonces[user];
+    }
+
+    function _verify(
+        address signer,
+        MetaTransaction memory metaTx,
+        bytes32 sigR,
+        bytes32 sigS,
+        uint8 sigV
+    ) internal view returns (bool) {
+        require(signer != address(0), "NativeMetaTransaction: INVALID_SIGNER");
+        return
+            signer ==
+            ecrecover(
+                _toTypedMessageHash(_hashMetaTransaction(metaTx)),
+                sigV,
+                sigR,
+                sigS
+            );
+    }
+}
+
+
+// File contracts/utils/StartonContextMixin.sol
+
+// ContextMixin contract: version 0.0.1
+// Creator: https://starton.io
+
+pragma solidity 0.8.9;
+
+abstract contract StartonContextMixin {
+    function _msgSender() internal view virtual returns (address sender) {
+        if (msg.sender == address(this)) {
+            bytes memory array = msg.data;
+            uint256 index = msg.data.length;
+            assembly {
+                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
+                sender := and(
+                    mload(add(array, index)),
+                    0xffffffffffffffffffffffffffffffffffffffff
+                )
+            }
+        } else {
+            sender = msg.sender;
+        }
+        return sender;
+    }
+}
+
+
 // File @openzeppelin/contracts/access/IAccessControl.sol@v4.7.1
 
 // OpenZeppelin Contracts v4.4.1 (access/IAccessControl.sol)
@@ -1041,338 +1376,25 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 }
 
 
-// File @openzeppelin/contracts/security/Pausable.sol@v4.7.1
+// File contracts/utils/AStartonAccessControl.sol
 
-// OpenZeppelin Contracts (last updated v4.7.0) (security/Pausable.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Contract module which allows children to implement an emergency stop
- * mechanism that can be triggered by an authorized account.
- *
- * This module is used through inheritance. It will make available the
- * modifiers `whenNotPaused` and `whenPaused`, which can be applied to
- * the functions of your contract. Note that they will not be pausable by
- * simply including this module, only once the modifiers are put in place.
- */
-abstract contract Pausable is Context {
-    /**
-     * @dev Emitted when the pause is triggered by `account`.
-     */
-    event Paused(address account);
-
-    /**
-     * @dev Emitted when the pause is lifted by `account`.
-     */
-    event Unpaused(address account);
-
-    bool private _paused;
-
-    /**
-     * @dev Initializes the contract in unpaused state.
-     */
-    constructor() {
-        _paused = false;
-    }
-
-    /**
-     * @dev Modifier to make a function callable only when the contract is not paused.
-     *
-     * Requirements:
-     *
-     * - The contract must not be paused.
-     */
-    modifier whenNotPaused() {
-        _requireNotPaused();
-        _;
-    }
-
-    /**
-     * @dev Modifier to make a function callable only when the contract is paused.
-     *
-     * Requirements:
-     *
-     * - The contract must be paused.
-     */
-    modifier whenPaused() {
-        _requirePaused();
-        _;
-    }
-
-    /**
-     * @dev Returns true if the contract is paused, and false otherwise.
-     */
-    function paused() public view virtual returns (bool) {
-        return _paused;
-    }
-
-    /**
-     * @dev Throws if the contract is paused.
-     */
-    function _requireNotPaused() internal view virtual {
-        require(!paused(), "Pausable: paused");
-    }
-
-    /**
-     * @dev Throws if the contract is not paused.
-     */
-    function _requirePaused() internal view virtual {
-        require(paused(), "Pausable: not paused");
-    }
-
-    /**
-     * @dev Triggers stopped state.
-     *
-     * Requirements:
-     *
-     * - The contract must not be paused.
-     */
-    function _pause() internal virtual whenNotPaused {
-        _paused = true;
-        emit Paused(_msgSender());
-    }
-
-    /**
-     * @dev Returns to normal state.
-     *
-     * Requirements:
-     *
-     * - The contract must be paused.
-     */
-    function _unpause() internal virtual whenPaused {
-        _paused = false;
-        emit Unpaused(_msgSender());
-    }
-}
-
-
-// File contracts/utils/StartonInitializable.sol
-
-// Initializable contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
-abstract contract StartonInitializable {
-    bool private _inited = false;
-
-    modifier initializer() {
-        require(!_inited, "Already inited");
-        _;
-        _inited = true;
-    }
-}
-
-
-// File contracts/utils/StartonEIP712Base.sol
-
-// EIP712Base contract: version 0.0.1
-// Creator: https://starton.io
-
-pragma solidity 0.8.9;
-
-abstract contract StartonEIP712Base is StartonInitializable {
-    struct EIP712Domain {
-        string name;
-        string version;
-        address verifyingContract;
-        bytes32 salt;
-    }
-
-    string public constant ERC712_VERSION = "1";
-
-    bytes32 internal constant EIP712_DOMAIN_TYPEHASH =
-        keccak256(
-            bytes(
-                "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
-            )
-        );
-    bytes32 internal _domainSeparator;
-
-    // supposed to be called once while initializing.
-    // one of the contractsa that inherits this contract follows proxy pattern
-    // so it is not possible to do this in a constructor
-    function _initializeEIP712(string memory name) internal initializer {
-        _setDomainSeparator(name);
-    }
-
-    function _setDomainSeparator(string memory name) internal {
-        _domainSeparator = keccak256(
-            abi.encode(
-                EIP712_DOMAIN_TYPEHASH,
-                keccak256(bytes(name)),
-                keccak256(bytes(ERC712_VERSION)),
-                address(this),
-                bytes32(getChainId())
-            )
-        );
-    }
-
-    function getDomainSeparator() public view returns (bytes32) {
-        return _domainSeparator;
-    }
-
-    function getChainId() public view returns (uint256) {
-        uint256 id;
-        assembly {
-            id := chainid()
-        }
-        return id;
-    }
+/// @title AStartonAcessControl
+/// @author Starton
+/// @notice Utility smart contract that can ease the transfer of ownership between one user to another
+abstract contract AStartonAccessControl is AccessControl {
 
     /**
-     * Accept message hash and returns hash message in EIP712 compatible form
-     * So that it can be used to recover signer from signature signed using EIP712 formatted data
-     * https://eips.ethereum.org/EIPS/eip-712
-     * "\\x19" makes the encoding deterministic
-     * "\\x01" is the version byte to make it compatible to EIP-191
+     * @notice Transfer the ownership of the contract to a new address
+     * @param newAdmin The address of the new owner
      */
-    function _toTypedMessageHash(bytes32 messageHash)
-        internal
-        view
-        returns (bytes32)
-    {
-        return
-            keccak256(
-                abi.encodePacked("\x19\x01", getDomainSeparator(), messageHash)
-            );
-    }
-}
-
-
-// File contracts/utils/StartonNativeMetaTransaction.sol
-
-// NativeMetaTransaction contract: version 0.0.1
-// Creator: https://starton.io
-
-pragma solidity 0.8.9;
-
-abstract contract StartonNativeMetaTransaction is StartonEIP712Base {
-    bytes32 private constant META_TRANSACTION_TYPEHASH =
-        keccak256(
-            bytes(
-                "MetaTransaction(uint256 nonce,address from,bytes functionSignature)"
-            )
-        );
-    event MetaTransactionExecuted(
-        address userAddress,
-        address payable relayerAddress,
-        bytes functionSignature
-    );
-    mapping(address => uint256) private _nonces;
-
-    /*
-     * Meta transaction structure.
-     * No point of including value field here as if user is doing value transfer then he has the funds to pay for gas
-     * He should call the desired function directly in that case.
-     */
-    struct MetaTransaction {
-        uint256 nonce;
-        address from;
-        bytes functionSignature;
+    function transferOwnership(address newAdmin) virtual public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
+        _revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
-    function executeMetaTransaction(
-        address userAddress,
-        bytes memory functionSignature,
-        bytes32 sigR,
-        bytes32 sigS,
-        uint8 sigV
-    ) public payable returns (bytes memory) {
-        MetaTransaction memory metaTx = MetaTransaction({
-            nonce: _nonces[userAddress],
-            from: userAddress,
-            functionSignature: functionSignature
-        });
-
-        require(
-            _verify(userAddress, metaTx, sigR, sigS, sigV),
-            "Signer and signature do not match"
-        );
-
-        // increase nonce for user (to avoid re-use)
-        _nonces[userAddress] = _nonces[userAddress] + 1;
-
-        emit MetaTransactionExecuted(
-            userAddress,
-            payable(msg.sender),
-            functionSignature
-        );
-
-        // Append userAddress and relayer address at the end to extract it from calling context
-        (bool success, bytes memory returnData) = address(this).call(
-            abi.encodePacked(functionSignature, userAddress)
-        );
-        require(success, "Function call not successful");
-
-        return returnData;
-    }
-
-    function _hashMetaTransaction(MetaTransaction memory metaTx)
-        internal
-        pure
-        returns (bytes32)
-    {
-        return
-            keccak256(
-                abi.encode(
-                    META_TRANSACTION_TYPEHASH,
-                    metaTx.nonce,
-                    metaTx.from,
-                    keccak256(metaTx.functionSignature)
-                )
-            );
-    }
-
-    function getNonce(address user) public view returns (uint256 nonce) {
-        nonce = _nonces[user];
-    }
-
-    function _verify(
-        address signer,
-        MetaTransaction memory metaTx,
-        bytes32 sigR,
-        bytes32 sigS,
-        uint8 sigV
-    ) internal view returns (bool) {
-        require(signer != address(0), "NativeMetaTransaction: INVALID_SIGNER");
-        return
-            signer ==
-            ecrecover(
-                _toTypedMessageHash(_hashMetaTransaction(metaTx)),
-                sigV,
-                sigR,
-                sigS
-            );
-    }
-}
-
-
-// File contracts/utils/StartonContextMixin.sol
-
-// ContextMixin contract: version 0.0.1
-// Creator: https://starton.io
-
-pragma solidity 0.8.9;
-
-abstract contract StartonContextMixin {
-    function _msgSender() internal view virtual returns (address sender) {
-        if (msg.sender == address(this)) {
-            bytes memory array = msg.data;
-            uint256 index = msg.data.length;
-            assembly {
-                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
-                sender := and(
-                    mload(add(array, index)),
-                    0xffffffffffffffffffffffffffffffffffffffff
-                )
-            }
-        } else {
-            sender = msg.sender;
-        }
-        return sender;
-    }
 }
 
 
@@ -1391,7 +1413,7 @@ pragma solidity 0.8.9;
 contract StartonERC20MetaTransaction is
     ERC20Burnable,
     Pausable,
-    AccessControl,
+    AStartonAccessControl,
     StartonContextMixin,
     StartonNativeMetaTransaction
 {

@@ -199,6 +199,18 @@ describe("StartonERC20MintMetaTransaction", () => {
       );
     });
 
+    it("Should transfer ownership", async () => {
+      const adminRole = await instanceERC20.DEFAULT_ADMIN_ROLE();
+
+      await instanceERC20.transferOwnership(addr1.address);
+      expect(await instanceERC20.hasRole(adminRole, addr1.address)).to.equal(
+        true
+      );
+      expect(await instanceERC20.hasRole(adminRole, owner.address)).to.equal(
+        false
+      );
+    });
+
     it("Should revoke roles accordingly", async () => {
       const pauserRole = await instanceERC20.PAUSER_ROLE();
 

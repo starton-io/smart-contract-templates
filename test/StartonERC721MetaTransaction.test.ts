@@ -301,6 +301,18 @@ describe("StartonERC721MetaTransaction", () => {
       );
     });
 
+    it("Should transfer ownership", async () => {
+      const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();
+
+      await instanceERC721.transferOwnership(addr1.address);
+      expect(await instanceERC721.hasRole(adminRole, addr1.address)).to.equal(
+        true
+      );
+      expect(await instanceERC721.hasRole(adminRole, owner.address)).to.equal(
+        false
+      );
+    });
+
     it("Should revoke roles accordingly", async () => {
       const pauserRole = await instanceERC721.PAUSER_ROLE();
       const minterRole = await instanceERC721.MINTER_ROLE();

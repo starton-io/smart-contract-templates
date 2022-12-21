@@ -461,6 +461,18 @@ describe("StartonERC1155MetaTransaction", () => {
       );
     });
 
+    it("Should transfer ownership", async () => {
+      const adminRole = await instanceERC1155.DEFAULT_ADMIN_ROLE();
+
+      await instanceERC1155.transferOwnership(addr1.address);
+      expect(await instanceERC1155.hasRole(adminRole, addr1.address)).to.equal(
+        true
+      );
+      expect(await instanceERC1155.hasRole(adminRole, owner.address)).to.equal(
+        false
+      );
+    });
+
     it("Should revoke roles accordingly", async () => {
       const pauserRole = await instanceERC1155.PAUSER_ROLE();
       const minterRole = await instanceERC1155.MINTER_ROLE();
