@@ -45,6 +45,9 @@ contract StartonERC20MintMetaTransaction is
         _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(LOCKER_ROLE, initialOwnerOrMultiSigContract);
 
+        // Allow minting of new tokens
+        _isMintAllowed = true;
+
         // Mint initialSupply to initialOwnerOrMultiSigContract
         _mint(initialOwnerOrMultiSigContract, initialSupply);
 
