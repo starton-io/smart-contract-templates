@@ -8,10 +8,10 @@ import "../abstracts/AStartonNativeMetaTransaction.sol";
 import "../abstracts/AStartonAccessControl.sol";
 import "../abstracts/AStartonContextMixin.sol";
 
-/// @title StartonERC20MetaTransaction
+/// @title StartonERC20Base
 /// @author Starton
 /// @notice ERC20 tokens that can be paused, burned, have a access management and handle meta transactions
-contract StartonERC20MetaTransaction is
+contract StartonERC20Base is
     ERC20Burnable,
     Pausable,
     AStartonAccessControl,
