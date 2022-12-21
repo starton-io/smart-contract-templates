@@ -726,8 +726,6 @@ contract PaymentSplitter is Context {
 
 // File contracts/tools/StartonPaymentSplitter.sol
 
-// StartonPaymentSplitter contract: version 0.0.1
-// Creator: https://starton.io
 
 pragma solidity 0.8.9;
 
