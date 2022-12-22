@@ -1979,7 +1979,7 @@ abstract contract AStartonBlacklist is AccessControl {
 }
 
 
-// File contracts/non-fungible/StartonERC1155MetaTransaction.sol
+// File contracts/non-fungible/StartonERC1155Base.sol
 
 
 pragma solidity 0.8.9;
@@ -1989,10 +1989,10 @@ pragma solidity 0.8.9;
 
 
 
-/// @title StartonERC1155MetaTransaction
+/// @title StartonERC1155Base
 /// @author Starton
 /// @notice ERC1155 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
-contract StartonERC1155MetaTransaction is
+contract StartonERC1155Base is
     ERC1155Burnable,
     AStartonAccessControl,
     Pausable,

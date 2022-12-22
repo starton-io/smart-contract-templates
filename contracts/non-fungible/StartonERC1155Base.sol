@@ -9,10 +9,10 @@ import "../abstracts/AStartonContextMixin.sol";
 import "../abstracts/AStartonAccessControl.sol";
 import "../abstracts/AStartonBlacklist.sol";
 
-/// @title StartonERC1155MetaTransaction
+/// @title StartonERC1155Base
 /// @author Starton
 /// @notice ERC1155 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
-contract StartonERC1155MetaTransaction is
+contract StartonERC1155Base is
     ERC1155Burnable,
     AStartonAccessControl,
     Pausable,
