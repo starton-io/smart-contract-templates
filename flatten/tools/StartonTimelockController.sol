@@ -503,9 +503,328 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 }
 
 
-// File contracts/tools/StartonTimelockController.sol
+// File @openzeppelin/contracts/token/ERC721/IERC721Receiver.sol@v4.7.1
+
+// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/IERC721Receiver.sol)
 
 pragma solidity ^0.8.0;
+
+/**
+ * @title ERC721 token receiver interface
+ * @dev Interface for any contract that wants to support safeTransfers
+ * from ERC721 asset contracts.
+ */
+interface IERC721Receiver {
+    /**
+     * @dev Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
+     * by `operator` from `from`, this function is called.
+     *
+     * It must return its Solidity selector to confirm the token transfer.
+     * If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
+     *
+     * The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.selector`.
+     */
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external returns (bytes4);
+}
+
+
+// File @openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol@v4.7.1
+
+// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC1155/IERC1155Receiver.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev _Available since v3.1._
+ */
+interface IERC1155Receiver is IERC165 {
+    /**
+     * @dev Handles the receipt of a single ERC1155 token type. This function is
+     * called at the end of a `safeTransferFrom` after the balance has been updated.
+     *
+     * NOTE: To accept the transfer, this must return
+     * `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`
+     * (i.e. 0xf23a6e61, or its own function selector).
+     *
+     * @param operator The address which initiated the transfer (i.e. msg.sender)
+     * @param from The address which previously owned the token
+     * @param id The ID of the token being transferred
+     * @param value The amount of tokens being transferred
+     * @param data Additional data with no specified format
+     * @return `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))` if transfer is allowed
+     */
+    function onERC1155Received(
+        address operator,
+        address from,
+        uint256 id,
+        uint256 value,
+        bytes calldata data
+    ) external returns (bytes4);
+
+    /**
+     * @dev Handles the receipt of a multiple ERC1155 token types. This function
+     * is called at the end of a `safeBatchTransferFrom` after the balances have
+     * been updated.
+     *
+     * NOTE: To accept the transfer(s), this must return
+     * `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
+     * (i.e. 0xbc197c81, or its own function selector).
+     *
+     * @param operator The address which initiated the batch transfer (i.e. msg.sender)
+     * @param from The address which previously owned the token
+     * @param ids An array containing ids of each token being transferred (order and length must match values array)
+     * @param values An array containing amounts of each token being transferred (order and length must match ids array)
+     * @param data Additional data with no specified format
+     * @return `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))` if transfer is allowed
+     */
+    function onERC1155BatchReceived(
+        address operator,
+        address from,
+        uint256[] calldata ids,
+        uint256[] calldata values,
+        bytes calldata data
+    ) external returns (bytes4);
+}
+
+
+// File @openzeppelin/contracts/utils/Address.sol@v4.7.1
+
+// OpenZeppelin Contracts (last updated v4.7.0) (utils/Address.sol)
+
+pragma solidity ^0.8.1;
+
+/**
+ * @dev Collection of functions related to the address type
+ */
+library Address {
+    /**
+     * @dev Returns true if `account` is a contract.
+     *
+     * [IMPORTANT]
+     * ====
+     * It is unsafe to assume that an address for which this function returns
+     * false is an externally-owned account (EOA) and not a contract.
+     *
+     * Among others, `isContract` will return false for the following
+     * types of addresses:
+     *
+     *  - an externally-owned account
+     *  - a contract in construction
+     *  - an address where a contract will be created
+     *  - an address where a contract lived, but was destroyed
+     * ====
+     *
+     * [IMPORTANT]
+     * ====
+     * You shouldn't rely on `isContract` to protect against flash loan attacks!
+     *
+     * Preventing calls from contracts is highly discouraged. It breaks composability, breaks support for smart wallets
+     * like Gnosis Safe, and does not provide security since it can be circumvented by calling from a contract
+     * constructor.
+     * ====
+     */
+    function isContract(address account) internal view returns (bool) {
+        // This method relies on extcodesize/address.code.length, which returns 0
+        // for contracts in construction, since the code is only stored at the end
+        // of the constructor execution.
+
+        return account.code.length > 0;
+    }
+
+    /**
+     * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
+     * `recipient`, forwarding all available gas and reverting on errors.
+     *
+     * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost
+     * of certain opcodes, possibly making contracts go over the 2300 gas limit
+     * imposed by `transfer`, making them unable to receive funds via
+     * `transfer`. {sendValue} removes this limitation.
+     *
+     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].
+     *
+     * IMPORTANT: because control is transferred to `recipient`, care must be
+     * taken to not create reentrancy vulnerabilities. Consider using
+     * {ReentrancyGuard} or the
+     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
+     */
+    function sendValue(address payable recipient, uint256 amount) internal {
+        require(address(this).balance >= amount, "Address: insufficient balance");
+
+        (bool success, ) = recipient.call{value: amount}("");
+        require(success, "Address: unable to send value, recipient may have reverted");
+    }
+
+    /**
+     * @dev Performs a Solidity function call using a low level `call`. A
+     * plain `call` is an unsafe replacement for a function call: use this
+     * function instead.
+     *
+     * If `target` reverts with a revert reason, it is bubbled up by this
+     * function (like regular Solidity function calls).
+     *
+     * Returns the raw returned data. To convert to the expected return value,
+     * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].
+     *
+     * Requirements:
+     *
+     * - `target` must be a contract.
+     * - calling `target` with `data` must not revert.
+     *
+     * _Available since v3.1._
+     */
+    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
+        return functionCall(target, data, "Address: low-level call failed");
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with
+     * `errorMessage` as a fallback revert reason when `target` reverts.
+     *
+     * _Available since v3.1._
+     */
+    function functionCall(
+        address target,
+        bytes memory data,
+        string memory errorMessage
+    ) internal returns (bytes memory) {
+        return functionCallWithValue(target, data, 0, errorMessage);
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
+     * but also transferring `value` wei to `target`.
+     *
+     * Requirements:
+     *
+     * - the calling contract must have an ETH balance of at least `value`.
+     * - the called Solidity function must be `payable`.
+     *
+     * _Available since v3.1._
+     */
+    function functionCallWithValue(
+        address target,
+        bytes memory data,
+        uint256 value
+    ) internal returns (bytes memory) {
+        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
+     * with `errorMessage` as a fallback revert reason when `target` reverts.
+     *
+     * _Available since v3.1._
+     */
+    function functionCallWithValue(
+        address target,
+        bytes memory data,
+        uint256 value,
+        string memory errorMessage
+    ) internal returns (bytes memory) {
+        require(address(this).balance >= value, "Address: insufficient balance for call");
+        require(isContract(target), "Address: call to non-contract");
+
+        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        return verifyCallResult(success, returndata, errorMessage);
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
+     * but performing a static call.
+     *
+     * _Available since v3.3._
+     */
+    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
+        return functionStaticCall(target, data, "Address: low-level static call failed");
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
+     * but performing a static call.
+     *
+     * _Available since v3.3._
+     */
+    function functionStaticCall(
+        address target,
+        bytes memory data,
+        string memory errorMessage
+    ) internal view returns (bytes memory) {
+        require(isContract(target), "Address: static call to non-contract");
+
+        (bool success, bytes memory returndata) = target.staticcall(data);
+        return verifyCallResult(success, returndata, errorMessage);
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
+     * but performing a delegate call.
+     *
+     * _Available since v3.4._
+     */
+    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
+        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
+     * but performing a delegate call.
+     *
+     * _Available since v3.4._
+     */
+    function functionDelegateCall(
+        address target,
+        bytes memory data,
+        string memory errorMessage
+    ) internal returns (bytes memory) {
+        require(isContract(target), "Address: delegate call to non-contract");
+
+        (bool success, bytes memory returndata) = target.delegatecall(data);
+        return verifyCallResult(success, returndata, errorMessage);
+    }
+
+    /**
+     * @dev Tool to verifies that a low level call was successful, and revert if it wasn't, either by bubbling the
+     * revert reason using the provided one.
+     *
+     * _Available since v4.3._
+     */
+    function verifyCallResult(
+        bool success,
+        bytes memory returndata,
+        string memory errorMessage
+    ) internal pure returns (bytes memory) {
+        if (success) {
+            return returndata;
+        } else {
+            // Look for revert reason and bubble it up if present
+            if (returndata.length > 0) {
+                // The easiest way to bubble the revert reason is using memory via assembly
+                /// @solidity memory-safe-assembly
+                assembly {
+                    let returndata_size := mload(returndata)
+                    revert(add(32, returndata), returndata_size)
+                }
+            } else {
+                revert(errorMessage);
+            }
+        }
+    }
+}
+
+
+// File @openzeppelin/contracts/governance/TimelockController.sol@v4.7.1
+
+// OpenZeppelin Contracts (last updated v4.7.0) (governance/TimelockController.sol)
+
+pragma solidity ^0.8.0;
+
+
+
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -517,15 +836,16 @@ pragma solidity ^0.8.0;
  * By default, this contract is self administered, meaning administration tasks
  * have to go through the timelock process. The proposer (resp executor) role
  * is in charge of proposing (resp executing) operations. A common use case is
- * to position this {StartonTimelockController} as the owner of a smart contract, with
+ * to position this {TimelockController} as the owner of a smart contract, with
  * a multisig or a DAO as the sole proposer.
  *
  * _Available since v3.3._
  */
-contract StartonTimelockController is AccessControl {
+contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver {
     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
+    bytes32 public constant CANCELLER_ROLE = keccak256("CANCELLER_ROLE");
     uint256 internal constant _DONE_TIMESTAMP = uint256(1);
 
     mapping(bytes32 => uint256) private _timestamps;
@@ -560,7 +880,16 @@ contract StartonTimelockController is AccessControl {
     event MinDelayChange(uint256 oldDuration, uint256 newDuration);
 
     /**
-     * @dev Initializes the contract with a given `minDelay`.
+     * @dev Initializes the contract with a given `minDelay`, and a list of
+     * initial proposers and executors. The proposers receive both the
+     * proposer and the canceller role (for backward compatibility). The
+     * executors receive the executor role.
+     *
+     * NOTE: At construction, both the deployer and the timelock itself are
+     * administrators. This helps further configuration of the timelock by the
+     * deployer. After configuration is done, it is recommended that the
+     * deployer renounces its admin position and relies on timelocked
+     * operations to perform future maintenance.
      */
     constructor(
         uint256 minDelay,
@@ -570,14 +899,16 @@ contract StartonTimelockController is AccessControl {
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
+        _setRoleAdmin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE);
 
         // deployer + self administration
         _setupRole(TIMELOCK_ADMIN_ROLE, _msgSender());
         _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
 
-        // register proposers
+        // register proposers and cancellers
         for (uint256 i = 0; i < proposers.length; ++i) {
             _setupRole(PROPOSER_ROLE, proposers[i]);
+            _setupRole(CANCELLER_ROLE, proposers[i]);
         }
 
         // register executors
@@ -608,10 +939,17 @@ contract StartonTimelockController is AccessControl {
     receive() external payable {}
 
     /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, AccessControl) returns (bool) {
+        return interfaceId == type(IERC1155Receiver).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
      * @dev Returns whether an id correspond to a registered operation. This
      * includes both Pending, Ready and Done operations.
      */
-    function isOperation(bytes32 id) public view virtual returns (bool pending) {
+    function isOperation(bytes32 id) public view virtual returns (bool registered) {
         return getTimestamp(id) > 0;
     }
 
@@ -675,11 +1013,11 @@ contract StartonTimelockController is AccessControl {
     function hashOperationBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt
     ) public pure virtual returns (bytes32 hash) {
-        return keccak256(abi.encode(targets, values, datas, predecessor, salt));
+        return keccak256(abi.encode(targets, values, payloads, predecessor, salt));
     }
 
     /**
@@ -716,18 +1054,18 @@ contract StartonTimelockController is AccessControl {
     function scheduleBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt,
         uint256 delay
     ) public virtual onlyRole(PROPOSER_ROLE) {
         require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == datas.length, "TimelockController: length mismatch");
+        require(targets.length == payloads.length, "TimelockController: length mismatch");
 
-        bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
+        bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
         _schedule(id, delay);
         for (uint256 i = 0; i < targets.length; ++i) {
-            emit CallScheduled(id, i, targets[i], values[i], datas[i], predecessor, delay);
+            emit CallScheduled(id, i, targets[i], values[i], payloads[i], predecessor, delay);
         }
     }
 
@@ -745,9 +1083,9 @@ contract StartonTimelockController is AccessControl {
      *
      * Requirements:
      *
-     * - the caller must have the 'proposer' role.
+     * - the caller must have the 'canceller' role.
      */
-    function cancel(bytes32 id) public virtual onlyRole(PROPOSER_ROLE) {
+    function cancel(bytes32 id) public virtual onlyRole(CANCELLER_ROLE) {
         require(isOperationPending(id), "TimelockController: operation cannot be cancelled");
         delete _timestamps[id];
 
@@ -763,16 +1101,21 @@ contract StartonTimelockController is AccessControl {
      *
      * - the caller must have the 'executor' role.
      */
+    // This function can reenter, but it doesn't pose a risk because _afterCall checks that the proposal is pending,
+    // thus any modifications to the operation during reentrancy should be caught.
+    // slither-disable-next-line reentrancy-eth
     function execute(
         address target,
         uint256 value,
-        bytes calldata data,
+        bytes calldata payload,
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
-        bytes32 id = hashOperation(target, value, data, predecessor, salt);
-        _beforeCall(predecessor);
-        _call(id, 0, target, value, data);
+        bytes32 id = hashOperation(target, value, payload, predecessor, salt);
+
+        _beforeCall(id, predecessor);
+        _execute(target, value, payload);
+        emit CallExecuted(id, 0, target, value, payload);
         _afterCall(id);
     }
 
@@ -788,25 +1131,43 @@ contract StartonTimelockController is AccessControl {
     function executeBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
         require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == datas.length, "TimelockController: length mismatch");
+        require(targets.length == payloads.length, "TimelockController: length mismatch");
 
-        bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
-        _beforeCall(predecessor);
+        bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
+
+        _beforeCall(id, predecessor);
         for (uint256 i = 0; i < targets.length; ++i) {
-            _call(id, i, targets[i], values[i], datas[i]);
+            address target = targets[i];
+            uint256 value = values[i];
+            bytes calldata payload = payloads[i];
+            _execute(target, value, payload);
+            emit CallExecuted(id, i, target, value, payload);
         }
         _afterCall(id);
     }
 
     /**
+     * @dev Execute an operation's call.
+     */
+    function _execute(
+        address target,
+        uint256 value,
+        bytes calldata data
+    ) internal virtual {
+        (bool success, ) = target.call{value: value}(data);
+        require(success, "TimelockController: underlying transaction reverted");
+    }
+
+    /**
      * @dev Checks before execution of an operation's calls.
      */
-    function _beforeCall(bytes32 predecessor) private view {
+    function _beforeCall(bytes32 id, bytes32 predecessor) private view {
+        require(isOperationReady(id), "TimelockController: operation is not ready");
         require(predecessor == bytes32(0) || isOperationDone(predecessor), "TimelockController: missing dependency");
     }
 
@@ -816,24 +1177,6 @@ contract StartonTimelockController is AccessControl {
     function _afterCall(bytes32 id) private {
         require(isOperationReady(id), "TimelockController: operation is not ready");
         _timestamps[id] = _DONE_TIMESTAMP;
-    }
-
-    /**
-     * @dev Execute an operation's call.
-     *
-     * Emits a {CallExecuted} event.
-     */
-    function _call(
-        bytes32 id,
-        uint256 index,
-        address target,
-        uint256 value,
-        bytes calldata data
-    ) private {
-        (bool success, ) = target.call{value: value}(data);
-        require(success, "TimelockController: underlying transaction reverted");
-
-        emit CallExecuted(id, index, target, value, data);
     }
 
     /**
@@ -851,4 +1194,56 @@ contract StartonTimelockController is AccessControl {
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
     }
+
+    /**
+     * @dev See {IERC721Receiver-onERC721Received}.
+     */
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+
+    /**
+     * @dev See {IERC1155Receiver-onERC1155Received}.
+     */
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    /**
+     * @dev See {IERC1155Receiver-onERC1155BatchReceived}.
+     */
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
+    }
+}
+
+
+// File contracts/tools/StartonTimelockController.sol
+
+
+pragma solidity 0.8.9;
+
+contract StartonTimeLockController is TimelockController {
+    constructor(
+        uint256 minDelay,
+        address[] memory proposers,
+        address[] memory executors
+    ) payable TimelockController(minDelay, proposers, executors) {}
 }

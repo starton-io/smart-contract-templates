@@ -1482,21 +1482,141 @@ library Counters {
 }
 
 
-// File contracts/abstracts/AStartonInitializable.sol
+// File @openzeppelin/contracts/proxy/utils/Initializable.sol@v4.7.1
 
+// OpenZeppelin Contracts (last updated v4.7.0) (proxy/utils/Initializable.sol)
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.2;
 
-/// @title AStartonInitializable
-/// @author Starton
-/// @notice Utility smart contract that can be used to initialize a contract
-abstract contract AStartonInitializable {
-    bool private _inited = false;
+/**
+ * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
+ * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an
+ * external initializer function, usually called `initialize`. It then becomes necessary to protect this initializer
+ * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.
+ *
+ * The initialization functions use a version number. Once a version number is used, it is consumed and cannot be
+ * reused. This mechanism prevents re-execution of each "step" but allows the creation of new initialization steps in
+ * case an upgrade adds a module that needs to be initialized.
+ *
+ * For example:
+ *
+ * [.hljs-theme-light.nopadding]
+ * ```
+ * contract MyToken is ERC20Upgradeable {
+ *     function initialize() initializer public {
+ *         __ERC20_init("MyToken", "MTK");
+ *     }
+ * }
+ * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {
+ *     function initializeV2() reinitializer(2) public {
+ *         __ERC20Permit_init("MyToken");
+ *     }
+ * }
+ * ```
+ *
+ * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as
+ * possible by providing the encoded function call as the `_data` argument to {ERC1967Proxy-constructor}.
+ *
+ * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure
+ * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.
+ *
+ * [CAUTION]
+ * ====
+ * Avoid leaving a contract uninitialized.
+ *
+ * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation
+ * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke
+ * the {_disableInitializers} function in the constructor to automatically lock it when it is deployed:
+ *
+ * [.hljs-theme-light.nopadding]
+ * ```
+ * /// @custom:oz-upgrades-unsafe-allow constructor
+ * constructor() {
+ *     _disableInitializers();
+ * }
+ * ```
+ * ====
+ */
+abstract contract Initializable {
+    /**
+     * @dev Indicates that the contract has been initialized.
+     * @custom:oz-retyped-from bool
+     */
+    uint8 private _initialized;
 
+    /**
+     * @dev Indicates that the contract is in the process of being initialized.
+     */
+    bool private _initializing;
+
+    /**
+     * @dev Triggered when the contract has been initialized or reinitialized.
+     */
+    event Initialized(uint8 version);
+
+    /**
+     * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,
+     * `onlyInitializing` functions can be used to initialize parent contracts. Equivalent to `reinitializer(1)`.
+     */
     modifier initializer() {
-        require(!_inited, "Already inited");
+        bool isTopLevelCall = !_initializing;
+        require(
+            (isTopLevelCall && _initialized < 1) || (!Address.isContract(address(this)) && _initialized == 1),
+            "Initializable: contract is already initialized"
+        );
+        _initialized = 1;
+        if (isTopLevelCall) {
+            _initializing = true;
+        }
         _;
-        _inited = true;
+        if (isTopLevelCall) {
+            _initializing = false;
+            emit Initialized(1);
+        }
+    }
+
+    /**
+     * @dev A modifier that defines a protected reinitializer function that can be invoked at most once, and only if the
+     * contract hasn't been initialized to a greater version before. In its scope, `onlyInitializing` functions can be
+     * used to initialize parent contracts.
+     *
+     * `initializer` is equivalent to `reinitializer(1)`, so a reinitializer may be used after the original
+     * initialization step. This is essential to configure modules that are added through upgrades and that require
+     * initialization.
+     *
+     * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in
+     * a contract, executing them in the right order is up to the developer or operator.
+     */
+    modifier reinitializer(uint8 version) {
+        require(!_initializing && _initialized < version, "Initializable: contract is already initialized");
+        _initialized = version;
+        _initializing = true;
+        _;
+        _initializing = false;
+        emit Initialized(version);
+    }
+
+    /**
+     * @dev Modifier to protect an initialization function so that it can only be invoked by functions with the
+     * {initializer} and {reinitializer} modifiers, directly or indirectly.
+     */
+    modifier onlyInitializing() {
+        require(_initializing, "Initializable: contract is not initializing");
+        _;
+    }
+
+    /**
+     * @dev Locks the contract, preventing any future reinitialization. This cannot be part of an initializer call.
+     * Calling this in the constructor of a contract will prevent that contract from being initialized or reinitialized
+     * to any version. It is recommended to use this to lock implementation contracts that are designed to be called
+     * through proxies.
+     */
+    function _disableInitializers() internal virtual {
+        require(!_initializing, "Initializable: contract is initializing");
+        if (_initialized < type(uint8).max) {
+            _initialized = type(uint8).max;
+            emit Initialized(type(uint8).max);
+        }
     }
 }
 
@@ -1509,7 +1629,7 @@ pragma solidity 0.8.9;
 /// @title AStartonEIP712Base
 /// @author Starton
 /// @notice Utility smart contract that can create types messages
-abstract contract AStartonEIP712Base is AStartonInitializable {
+abstract contract AStartonEIP712Base is Initializable {
     struct EIP712Domain {
         string name;
         string version;
@@ -2067,16 +2187,18 @@ pragma solidity 0.8.9;
 /// @author Starton
 /// @notice Utility smart contract that can ease the transfer of ownership between one user to another
 abstract contract AStartonAccessControl is AccessControl {
-
     /**
      * @notice Transfer the ownership of the contract to a new address
      * @param newAdmin The address of the new owner
      */
-    function transferOwnership(address newAdmin) virtual public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function transferOwnership(address newAdmin)
+        public
+        virtual
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
         _revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
-
 }
 
 
@@ -2197,7 +2319,7 @@ abstract contract AStartonBlacklist is AccessControl {
 }
 
 
-// File contracts/non-fungible/StartonERC721MetaTransaction.sol
+// File contracts/non-fungible/StartonERC721Base.sol
 
 
 pragma solidity 0.8.9;
@@ -2210,10 +2332,10 @@ pragma solidity 0.8.9;
 
 
 
-/// @title StartonERC721MetaTransaction
+/// @title StartonERC721Base
 /// @author Starton
 /// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
-contract StartonERC721MetaTransaction is
+contract StartonERC721Base is
     ERC721Enumerable,
     ERC721URIStorage,
     ERC721Burnable,
@@ -2230,13 +2352,13 @@ contract StartonERC721MetaTransaction is
     bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
 
-    Counters.Counter private _tokenIdCounter;
+    Counters.Counter internal _tokenIdCounter;
 
     string private _baseTokenURI;
     string private _contractURI;
 
-    bool private _isMintAllowed;
-    bool private _isMetatadataChangingAllowed;
+    bool internal _isMintAllowed;
+    bool internal _isMetatadataChangingAllowed;
 
     /** @notice Event emitted when the minting is locked */
     event MintingLocked(address indexed account);
@@ -2288,6 +2410,7 @@ contract StartonERC721MetaTransaction is
      */
     function mint(address to, string memory uri)
         public
+        virtual
         mintingNotLocked
         onlyRole(MINTER_ROLE)
     {
@@ -2303,6 +2426,7 @@ contract StartonERC721MetaTransaction is
      */
     function setContractURI(string memory newContractURI)
         public
+        virtual
         whenNotPaused
         metadataNotLocked
         onlyRole(METADATA_ROLE)
@@ -2317,6 +2441,7 @@ contract StartonERC721MetaTransaction is
      */
     function setBaseTokenURI(string memory newBaseTokenURI)
         public
+        virtual
         whenNotPaused
         metadataNotLocked
         onlyRole(METADATA_ROLE)
@@ -2328,7 +2453,7 @@ contract StartonERC721MetaTransaction is
      * @notice Pause the contract which stop any changes regarding the ERC721 and minting
      * @custom:requires PAUSER_ROLE
      */
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() public virtual onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
@@ -2336,7 +2461,7 @@ contract StartonERC721MetaTransaction is
      * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
      * @custom:requires PAUSER_ROLE
      */
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() public virtual onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
@@ -2344,7 +2469,7 @@ contract StartonERC721MetaTransaction is
      * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
      * @custom:requires LOCKER_ROLE
      */
-    function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
+    function lockMint() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMintAllowed = false;
         emit MintingLocked(_msgSender());
     }
@@ -2353,7 +2478,7 @@ contract StartonERC721MetaTransaction is
      * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
      * @custom:requires LOCKER_ROLE
      */
-    function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
+    function lockMetadata() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMetatadataChangingAllowed = false;
         emit MetadataLocked(_msgSender());
     }
@@ -2362,7 +2487,7 @@ contract StartonERC721MetaTransaction is
      * @notice Returns the metadata of the contract
      * @return Contract URI of the token
      */
-    function contractURI() public view returns (string memory) {
+    function contractURI() public view virtual returns (string memory) {
         return _contractURI;
     }
 
@@ -2374,6 +2499,7 @@ contract StartonERC721MetaTransaction is
     function tokenURI(uint256 tokenId)
         public
         view
+        virtual
         override(ERC721, ERC721URIStorage)
         returns (string memory)
     {
@@ -2387,6 +2513,7 @@ contract StartonERC721MetaTransaction is
     function supportsInterface(bytes4 interfaceId)
         public
         view
+        virtual
         override(ERC721, AccessControl, ERC721Enumerable)
         returns (bool)
     {
@@ -2459,5 +2586,53 @@ contract StartonERC721MetaTransaction is
         returns (address)
     {
         return super._msgSender();
+    }
+}
+
+
+// File contracts/non-fungible/StartonERC721Capped.sol
+
+
+pragma solidity 0.8.9;
+
+/// @title StartonERC721Capped
+/// @author Starton
+/// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management, max number of tokens and handle meta transactions
+contract StartonERC721Capped is StartonERC721Base {
+    using Counters for Counters.Counter;
+
+    uint256 public immutable maxSupply;
+
+    constructor(
+        string memory definitiveName,
+        string memory definitiveSymbol,
+        uint256 definitiveMaxSupply,
+        string memory initialBaseTokenURI,
+        string memory initialContractURI,
+        address initialOwnerOrMultiSigContract
+    )
+        StartonERC721Base(
+            definitiveName,
+            definitiveSymbol,
+            initialBaseTokenURI,
+            initialContractURI,
+            initialOwnerOrMultiSigContract
+        )
+    {
+        require(definitiveMaxSupply > 0, "maxSupply must be greater than 0");
+
+        maxSupply = definitiveMaxSupply;
+    }
+
+    /**
+     * @notice Mint a new token to the given address and set the token metadata while minting is not locked
+     * @param to The address that will receive the token
+     * @param uri The URI of the token metadata
+     * @custom:requires MINTER_ROLE
+     */
+    function mint(address to, string memory uri) public virtual override {
+        require(_tokenIdCounter.current() < maxSupply, "Max supply reached");
+
+        super.mint(to, uri);
     }
 }

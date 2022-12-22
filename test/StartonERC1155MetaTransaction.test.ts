@@ -3,14 +3,14 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 
 import {
-  StartonERC1155MetaTransaction,
-  StartonERC1155MetaTransaction__factory, // eslint-disable-line camelcase
+  StartonERC1155Base,
+  StartonERC1155Base__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let ERC1155: StartonERC1155MetaTransaction__factory; // eslint-disable-line camelcase
+let ERC1155: StartonERC1155Base__factory; // eslint-disable-line camelcase
 
-describe("StartonERC1155MetaTransaction", () => {
-  let instanceERC1155: StartonERC1155MetaTransaction;
+describe("StartonERC1155Base", () => {
+  let instanceERC1155: StartonERC1155Base;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
@@ -21,7 +21,7 @@ describe("StartonERC1155MetaTransaction", () => {
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
     // Create factory
-    ERC1155 = new StartonERC1155MetaTransaction__factory(owner);
+    ERC1155 = new StartonERC1155Base__factory(owner);
   });
 
   beforeEach(async () => {
@@ -30,7 +30,7 @@ describe("StartonERC1155MetaTransaction", () => {
       "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
-    )) as StartonERC1155MetaTransaction;
+    )) as StartonERC1155Base;
     await instanceERC1155.deployed();
   });
 

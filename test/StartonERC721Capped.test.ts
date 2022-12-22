@@ -3,14 +3,14 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 
 import {
-  StartonERC721CappedMetaTransaction,
-  StartonERC721CappedMetaTransaction__factory, // eslint-disable-line camelcase
+  StartonERC721Capped,
+  StartonERC721Capped__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let ERC721: StartonERC721CappedMetaTransaction__factory; // eslint-disable-line camelcase
+let ERC721: StartonERC721Capped__factory; // eslint-disable-line camelcase
 
-describe("StartonERC721CappedMetaTransaction", () => {
-  let instanceERC721: StartonERC721CappedMetaTransaction;
+describe("StartonERC721Capped", () => {
+  let instanceERC721: StartonERC721Capped;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
@@ -21,7 +21,7 @@ describe("StartonERC721CappedMetaTransaction", () => {
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
     // Create factory
-    ERC721 = new StartonERC721CappedMetaTransaction__factory(owner);
+    ERC721 = new StartonERC721Capped__factory(owner);
   });
 
   beforeEach(async () => {
@@ -32,7 +32,7 @@ describe("StartonERC721CappedMetaTransaction", () => {
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
-    )) as StartonERC721CappedMetaTransaction;
+    )) as StartonERC721Capped;
     await instanceERC721.deployed();
   });
 
