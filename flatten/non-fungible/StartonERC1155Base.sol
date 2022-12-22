@@ -2186,7 +2186,7 @@ contract StartonERC1155Base is
         uint256 id,
         uint256 amount,
         bytes memory data
-    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
         _mint(to, id, amount, data);
     }
 
@@ -2201,7 +2201,7 @@ contract StartonERC1155Base is
         address to,
         uint256 id,
         uint256 amount
-    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
         _mint(to, id, amount, "");
     }
 
@@ -2218,7 +2218,7 @@ contract StartonERC1155Base is
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
         _mintBatch(to, ids, amounts, data);
     }
 
@@ -2233,7 +2233,7 @@ contract StartonERC1155Base is
         address to,
         uint256[] memory ids,
         uint256[] memory amounts
-    ) public whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
         _mintBatch(to, ids, amounts, "");
     }
 
@@ -2246,6 +2246,7 @@ contract StartonERC1155Base is
      */
     function setTokenURI(string memory newTokenURI)
         public
+        virtual
         whenNotPaused
         metadataNotLocked
         onlyRole(METADATA_ROLE)
@@ -2260,6 +2261,7 @@ contract StartonERC1155Base is
      */
     function setContractURI(string memory newContractURI)
         public
+        virtual
         whenNotPaused
         metadataNotLocked
         onlyRole(METADATA_ROLE)
@@ -2271,7 +2273,7 @@ contract StartonERC1155Base is
      * @notice Pause the contract which stop any changes regarding the ERC721 and minting
      * @custom:requires PAUSER_ROLE
      */
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() public virtual onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
@@ -2279,7 +2281,7 @@ contract StartonERC1155Base is
      * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
      * @custom:requires PAUSER_ROLE
      */
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() public virtual onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
@@ -2287,7 +2289,7 @@ contract StartonERC1155Base is
      * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
      * @custom:requires LOCKER_ROLE
      */
-    function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
+    function lockMint() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMintAllowed = false;
         emit MintingLocked(_msgSender());
     }
@@ -2296,7 +2298,7 @@ contract StartonERC1155Base is
      * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
      * @custom:requires LOCKER_ROLE
      */
-    function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
+    function lockMetadata() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMetatadataChangingAllowed = false;
         emit MetadataLocked(_msgSender());
     }
@@ -2308,6 +2310,7 @@ contract StartonERC1155Base is
     function supportsInterface(bytes4 interfaceId)
         public
         view
+        virtual
         override(ERC1155, AccessControl)
         returns (bool)
     {
@@ -2318,7 +2321,7 @@ contract StartonERC1155Base is
      * @notice Returns the metadata of the contract
      * @return Contract URI of the token
      */
-    function contractURI() public view returns (string memory) {
+    function contractURI() public view virtual returns (string memory) {
         return _contractURI;
     }
 
