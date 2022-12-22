@@ -37,8 +37,8 @@ contract StartonERC721Base is
     string private _baseTokenURI;
     string private _contractURI;
 
-    bool private _isMintAllowed;
-    bool private _isMetatadataChangingAllowed;
+    bool internal _isMintAllowed;
+    bool internal _isMetatadataChangingAllowed;
 
     /** @notice Event emitted when the minting is locked */
     event MintingLocked(address indexed account);
