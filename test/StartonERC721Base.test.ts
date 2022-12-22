@@ -3,14 +3,14 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 
 import {
-  StartonERC721MetaTransaction,
-  StartonERC721MetaTransaction__factory, // eslint-disable-line camelcase
+  StartonERC721Base,
+  StartonERC721Base__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let ERC721: StartonERC721MetaTransaction__factory; // eslint-disable-line camelcase
+let ERC721: StartonERC721Base__factory; // eslint-disable-line camelcase
 
-describe("StartonERC721MetaTransaction", () => {
-  let instanceERC721: StartonERC721MetaTransaction;
+describe("StartonERC721Base", () => {
+  let instanceERC721: StartonERC721Base;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
@@ -21,7 +21,7 @@ describe("StartonERC721MetaTransaction", () => {
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
     // Create factory
-    ERC721 = new StartonERC721MetaTransaction__factory(owner);
+    ERC721 = new StartonERC721Base__factory(owner);
   });
 
   beforeEach(async () => {
@@ -31,7 +31,7 @@ describe("StartonERC721MetaTransaction", () => {
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
-    )) as StartonERC721MetaTransaction;
+    )) as StartonERC721Base;
     await instanceERC721.deployed();
   });
 
