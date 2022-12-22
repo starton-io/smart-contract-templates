@@ -2411,6 +2411,7 @@ contract StartonERC721Base is
     function mint(address to, string memory uri)
         public
         virtual
+        whenNotPaused
         mintingNotLocked
         onlyRole(MINTER_ROLE)
     {
