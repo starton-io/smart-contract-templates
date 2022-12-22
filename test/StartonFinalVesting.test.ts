@@ -6,16 +6,16 @@ import { BigNumber } from "ethers";
 import {
   StartonFinalVesting,
   StartonFinalVesting__factory, // eslint-disable-line camelcase
-  StartonERC20Pause,
-  StartonERC20Pause__factory, // eslint-disable-line camelcase
+  StartonERC20Base,
+  StartonERC20Base__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
 let Vesting: StartonFinalVesting__factory; // eslint-disable-line camelcase
-let Token: StartonERC20Pause__factory; // eslint-disable-line camelcase
+let Token: StartonERC20Base__factory; // eslint-disable-line camelcase
 
 describe("StartonFinalVesting", () => {
   let instanceVesting: StartonFinalVesting;
-  let instanceToken: StartonERC20Pause;
+  let instanceToken: StartonERC20Base;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
@@ -252,7 +252,7 @@ describe("StartonFinalVesting", () => {
 
   describe("TokenVesting", () => {
     before(async () => {
-      Token = new StartonERC20Pause__factory(owner);
+      Token = new StartonERC20Base__factory(owner);
     });
 
     beforeEach(async () => {

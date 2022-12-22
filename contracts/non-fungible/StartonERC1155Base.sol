@@ -2,45 +2,35 @@
 
 pragma solidity 0.8.9;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "../abstracts/AStartonNativeMetaTransaction.sol";
 import "../abstracts/AStartonContextMixin.sol";
 import "../abstracts/AStartonAccessControl.sol";
 import "../abstracts/AStartonBlacklist.sol";
 
-/// @title StartonERC721CappedMetaTransaction
+/// @title StartonERC1155Base
 /// @author Starton
-/// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management, max number of tokens and handle meta transactions
-contract StartonERC721CappedMetaTransaction is
-    ERC721Enumerable,
-    ERC721URIStorage,
-    ERC721Burnable,
-    Pausable,
+/// @notice ERC1155 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
+contract StartonERC1155Base is
+    ERC1155Burnable,
     AStartonAccessControl,
-    AStartonBlacklist,
+    Pausable,
     AStartonContextMixin,
+    AStartonBlacklist,
     AStartonNativeMetaTransaction
 {
-    using Counters for Counters.Counter;
-
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
+    bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
 
-    uint256 public immutable maxSupply;
+    string public name;
 
-    Counters.Counter private _tokenIdCounter;
-
-    string private _baseTokenURI;
     string private _contractURI;
 
-    bool private _isMintAllowed;
-    bool private _isMetatadataChangingAllowed;
+    bool internal _isMintAllowed;
+    bool internal _isMetatadataChangingAllowed;
 
     /** @notice Event emitted when the minting is locked */
     event MintingLocked(address indexed account);
@@ -62,14 +52,10 @@ contract StartonERC721CappedMetaTransaction is
 
     constructor(
         string memory definitiveName,
-        string memory definitiveSymbol,
-        uint256 definitiveMaxSupply,
-        string memory initialBaseTokenURI,
+        string memory initialTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
-    ) ERC721(definitiveName, definitiveSymbol) {
-        require(definitiveMaxSupply > 0, "maxSupply must be greater than 0");
-
+    ) ERC1155(initialTokenURI) {
         // Set all default roles for initialOwnerOrMultiSigContract
         _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
@@ -78,8 +64,7 @@ contract StartonERC721CappedMetaTransaction is
         _setupRole(LOCKER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(BLACKLISTER_ROLE, initialOwnerOrMultiSigContract);
 
-        maxSupply = definitiveMaxSupply;
-        _baseTokenURI = initialBaseTokenURI;
+        name = definitiveName;
         _contractURI = initialContractURI;
         _isMintAllowed = true;
         _isMetatadataChangingAllowed = true;
@@ -89,21 +74,84 @@ contract StartonERC721CappedMetaTransaction is
     }
 
     /**
-     * @notice Mint a new token to the given address and set the token metadata while minting is not locked
-     * @param to The address that will receive the token
-     * @param uri The URI of the token metadata
+     * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param id The id of the token to mint
+     * @param amount The amount of tokens to mint
+     * @param data Extra data if necessary
      * @custom:requires MINTER_ROLE
      */
-    function mint(address to, string memory uri)
-        public
-        mintingNotLocked
-        onlyRole(MINTER_ROLE)
-    {
-        require(_tokenIdCounter.current() < maxSupply, "Max supply reached");
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+        _mint(to, id, amount, data);
+    }
 
-        _safeMint(to, _tokenIdCounter.current());
-        _setTokenURI(_tokenIdCounter.current(), uri);
-        _tokenIdCounter.increment();
+    /**
+     * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param id The id of the token to mint
+     * @param amount The amount of tokens to mint
+     * @custom:requires MINTER_ROLE
+     */
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount
+    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+        _mint(to, id, amount, "");
+    }
+
+    /**
+     * @notice Batch mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param ids The ids of the token to mint
+     * @param amounts The amounts of tokens to mint
+     * @param data Extra data if necessary
+     * @custom:requires MINTER_ROLE
+     */
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+        _mintBatch(to, ids, amounts, data);
+    }
+
+    /**
+     * @notice Batch mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param ids The ids of the token to mint
+     * @param amounts The amounts of tokens to mint
+     * @custom:requires MINTER_ROLE
+     */
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+        _mintBatch(to, ids, amounts, "");
+    }
+
+    /**
+     * @notice Set the URI if the token if the metadata are not locked and the contract is not paused
+     * @param newTokenURI The new URI of the token
+     * For ERC1155 there isn't any base uri so it's the whole uri with {id} in it
+     * example: ipfs://QmW77ZQQ7Jm9q8WuLbH8YZg2K7T9Qnjbzm7jYVQQrJY5Y/{id}
+     * @custom:requires METADATA_ROLE
+     */
+    function setTokenURI(string memory newTokenURI)
+        public
+        virtual
+        whenNotPaused
+        metadataNotLocked
+        onlyRole(METADATA_ROLE)
+    {
+        _setURI(newTokenURI);
     }
 
     /**
@@ -113,6 +161,7 @@ contract StartonERC721CappedMetaTransaction is
      */
     function setContractURI(string memory newContractURI)
         public
+        virtual
         whenNotPaused
         metadataNotLocked
         onlyRole(METADATA_ROLE)
@@ -121,24 +170,10 @@ contract StartonERC721CappedMetaTransaction is
     }
 
     /**
-     * @notice Set the base URI of the token if the metadata are not locked and the contract is not paused
-     * @param newBaseTokenURI The new base URI of the token
-     * @custom:requires METADATA_ROLE
-     */
-    function setBaseTokenURI(string memory newBaseTokenURI)
-        public
-        whenNotPaused
-        metadataNotLocked
-        onlyRole(METADATA_ROLE)
-    {
-        _baseTokenURI = newBaseTokenURI;
-    }
-
-    /**
      * @notice Pause the contract which stop any changes regarding the ERC721 and minting
      * @custom:requires PAUSER_ROLE
      */
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() public virtual onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
@@ -146,7 +181,7 @@ contract StartonERC721CappedMetaTransaction is
      * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
      * @custom:requires PAUSER_ROLE
      */
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() public virtual onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
@@ -154,7 +189,7 @@ contract StartonERC721CappedMetaTransaction is
      * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
      * @custom:requires LOCKER_ROLE
      */
-    function lockMint() public whenNotPaused onlyRole(LOCKER_ROLE) {
+    function lockMint() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMintAllowed = false;
         emit MintingLocked(_msgSender());
     }
@@ -163,31 +198,9 @@ contract StartonERC721CappedMetaTransaction is
      * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
      * @custom:requires LOCKER_ROLE
      */
-    function lockMetadata() public whenNotPaused onlyRole(LOCKER_ROLE) {
+    function lockMetadata() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
         _isMetatadataChangingAllowed = false;
         emit MetadataLocked(_msgSender());
-    }
-
-    /**
-     * @notice Returns the metadata of the contract
-     * @return Contract URI of the token
-     */
-    function contractURI() public view returns (string memory) {
-        return _contractURI;
-    }
-
-    /**
-     * @notice Returns the metadata of token with the given token id
-     * @param tokenId The token id of the token
-     * @return Contract URI of the token
-     */
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
-        return super.tokenURI(tokenId);
     }
 
     /**
@@ -197,10 +210,19 @@ contract StartonERC721CappedMetaTransaction is
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC721, AccessControl, ERC721Enumerable)
+        virtual
+        override(ERC1155, AccessControl)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @notice Returns the metadata of the contract
+     * @return Contract URI of the token
+     */
+    function contractURI() public view virtual returns (string memory) {
+        return _contractURI;
     }
 
     /**
@@ -219,42 +241,22 @@ contract StartonERC721CappedMetaTransaction is
 
     /**
      * @dev Stop transfer if the contract is paused or the sender is blacklisted
+     * @param operator The address that will send the token
      * @param from The address that will send the token
      * @param to The address that will receive the token
-     * @param tokenId The ID of the token to be transferred
+     * @param ids The ID of the token to be transferred
+     * @param amounts The address that will send the token
+     * @param data The address that will send the token
      */
     function _beforeTokenTransfer(
+        address operator,
         address from,
         address to,
-        uint256 tokenId
-    )
-        internal
-        virtual
-        override(ERC721, ERC721Enumerable)
-        whenNotPaused
-        notBlacklisted(_msgSender())
-    {
-        super._beforeTokenTransfer(from, to, tokenId);
-    }
-
-    /**
-     * @dev Fix the inheritence problem for the _burn between ERC721 and ERC721URIStorage
-     * @param tokenId Id of the token that will be burnt
-     */
-    function _burn(uint256 tokenId)
-        internal
-        virtual
-        override(ERC721, ERC721URIStorage)
-    {
-        super._burn(tokenId);
-    }
-
-    /**
-     * @notice Returns the first part of the uri being used for the token metadata
-     * @return Base URI of the token
-     */
-    function _baseURI() internal view virtual override returns (string memory) {
-        return _baseTokenURI;
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual override whenNotPaused notBlacklisted(operator) {
+        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
     /**

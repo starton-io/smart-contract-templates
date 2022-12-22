@@ -6,17 +6,17 @@ import { keccak256 } from "ethers/lib/utils";
 import { MerkleTree } from "merkletreejs";
 
 import {
-  StartonERC721MetaTransaction,
-  StartonERC721MetaTransaction__factory, // eslint-disable-line camelcase
+  StartonERC721Base,
+  StartonERC721Base__factory, // eslint-disable-line camelcase
   StartonERC721WhitelistSale,
   StartonERC721WhitelistSale__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let ERC721: StartonERC721MetaTransaction__factory; // eslint-disable-line camelcase
+let ERC721: StartonERC721Base__factory; // eslint-disable-line camelcase
 let ERC721Sale: StartonERC721WhitelistSale__factory; // eslint-disable-line camelcase
 
 describe("StartonERC721WhitelistSale", () => {
-  let instanceERC721: StartonERC721MetaTransaction;
+  let instanceERC721: StartonERC721Base;
   let instanceSale: StartonERC721WhitelistSale;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
@@ -33,7 +33,7 @@ describe("StartonERC721WhitelistSale", () => {
     // Get the Signers here
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
-    ERC721 = new StartonERC721MetaTransaction__factory(owner);
+    ERC721 = new StartonERC721Base__factory(owner);
     ERC721Sale = new StartonERC721WhitelistSale__factory(owner);
   });
 
@@ -47,7 +47,7 @@ describe("StartonERC721WhitelistSale", () => {
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
-    )) as StartonERC721MetaTransaction;
+    )) as StartonERC721Base;
     await instanceERC721.deployed();
 
     // Compute the root of the merkletree

@@ -4,17 +4,17 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 
 import {
-  StartonERC721MetaTransaction,
-  StartonERC721MetaTransaction__factory, // eslint-disable-line camelcase
+  StartonERC721Base,
+  StartonERC721Base__factory, // eslint-disable-line camelcase
   StartonERC721Sale,
   StartonERC721Sale__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let ERC721: StartonERC721MetaTransaction__factory; // eslint-disable-line camelcase
+let ERC721: StartonERC721Base__factory; // eslint-disable-line camelcase
 let ERC721Sale: StartonERC721Sale__factory; // eslint-disable-line camelcase
 
 describe("StartonERC721Sale", () => {
-  let instanceERC721: StartonERC721MetaTransaction;
+  let instanceERC721: StartonERC721Base;
   let instanceSale: StartonERC721Sale;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
@@ -28,7 +28,7 @@ describe("StartonERC721Sale", () => {
     // Get the Signers here
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
-    ERC721 = new StartonERC721MetaTransaction__factory(owner);
+    ERC721 = new StartonERC721Base__factory(owner);
     ERC721Sale = new StartonERC721Sale__factory(owner);
   });
 
@@ -42,7 +42,7 @@ describe("StartonERC721Sale", () => {
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
-    )) as StartonERC721MetaTransaction;
+    )) as StartonERC721Base;
     await instanceERC721.deployed();
 
     now = new Date();
