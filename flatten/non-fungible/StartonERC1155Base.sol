@@ -2099,10 +2099,38 @@ abstract contract AStartonBlacklist is AccessControl {
 }
 
 
+// File contracts/abstracts/AStartonPausable.sol
+
+
+pragma solidity 0.8.9;
+
+
+contract AStartonPausable is Pausable, AccessControl {
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+
+    /**
+     * @notice Pause the contract which stop any changes regarding the ERC20
+     * @custom:requires PAUSER_ROLE
+     */
+    function pause() public virtual onlyRole(PAUSER_ROLE) {
+        _pause();
+    }
+
+    /**
+     * @notice Unpause the contract which allow back any changes regarding the ERC20
+     * @custom:requires PAUSER_ROLE
+     */
+    function unpause() public virtual onlyRole(PAUSER_ROLE) {
+        _unpause();
+    }
+}
+
+
 // File contracts/non-fungible/StartonERC1155Base.sol
 
 
 pragma solidity 0.8.9;
+
 
 
 
@@ -2115,12 +2143,11 @@ pragma solidity 0.8.9;
 contract StartonERC1155Base is
     ERC1155Burnable,
     AStartonAccessControl,
-    Pausable,
+    AStartonPausable,
     AStartonContextMixin,
     AStartonBlacklist,
     AStartonNativeMetaTransaction
 {
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
     bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
@@ -2267,22 +2294,6 @@ contract StartonERC1155Base is
         onlyRole(METADATA_ROLE)
     {
         _contractURI = newContractURI;
-    }
-
-    /**
-     * @notice Pause the contract which stop any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function pause() public virtual onlyRole(PAUSER_ROLE) {
-        _pause();
-    }
-
-    /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function unpause() public virtual onlyRole(PAUSER_ROLE) {
-        _unpause();
     }
 
     /**

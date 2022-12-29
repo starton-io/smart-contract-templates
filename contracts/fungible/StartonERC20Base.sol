@@ -7,19 +7,18 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "../abstracts/AStartonNativeMetaTransaction.sol";
 import "../abstracts/AStartonAccessControl.sol";
 import "../abstracts/AStartonContextMixin.sol";
+import "../abstracts/AStartonPausable.sol";
 
 /// @title StartonERC20Base
 /// @author Starton
 /// @notice ERC20 tokens that can be paused, burned, have a access management and handle meta transactions
 contract StartonERC20Base is
     ERC20Burnable,
-    Pausable,
+    AStartonPausable,
     AStartonAccessControl,
     AStartonContextMixin,
     AStartonNativeMetaTransaction
 {
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
@@ -35,22 +34,6 @@ contract StartonERC20Base is
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(definitiveName);
-    }
-
-    /**
-     * @notice Pause the contract which stop any changes regarding the ERC20
-     * @custom:requires PAUSER_ROLE
-     */
-    function pause() public virtual onlyRole(PAUSER_ROLE) {
-        _pause();
-    }
-
-    /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC20
-     * @custom:requires PAUSER_ROLE
-     */
-    function unpause() public virtual onlyRole(PAUSER_ROLE) {
-        _unpause();
     }
 
     /**

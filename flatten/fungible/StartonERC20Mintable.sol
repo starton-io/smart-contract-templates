@@ -1753,43 +1753,14 @@ abstract contract AStartonContextMixin {
 }
 
 
-// File contracts/fungible/StartonERC20Base.sol
+// File contracts/abstracts/AStartonPausable.sol
 
 
 pragma solidity 0.8.9;
 
 
-
-
-
-/// @title StartonERC20Base
-/// @author Starton
-/// @notice ERC20 tokens that can be paused, burned, have a access management and handle meta transactions
-contract StartonERC20Base is
-    ERC20Burnable,
-    Pausable,
-    AStartonAccessControl,
-    AStartonContextMixin,
-    AStartonNativeMetaTransaction
-{
+contract AStartonPausable is Pausable, AccessControl {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-
-    constructor(
-        string memory definitiveName,
-        string memory definitiveSymbol,
-        uint256 definitiveSupply,
-        address initialOwnerOrMultiSigContract
-    ) ERC20(definitiveName, definitiveSymbol) {
-        // Set all default roles for initialOwnerOrMultiSigContract
-        _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
-        _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
-
-        // Mint definitiveSupply to initialOwnerOrMultiSigContract
-        _mint(initialOwnerOrMultiSigContract, definitiveSupply);
-
-        // Intialize the EIP712 so we can perform metatransactions
-        _initializeEIP712(definitiveName);
-    }
 
     /**
      * @notice Pause the contract which stop any changes regarding the ERC20
@@ -1805,6 +1776,45 @@ contract StartonERC20Base is
      */
     function unpause() public virtual onlyRole(PAUSER_ROLE) {
         _unpause();
+    }
+}
+
+
+// File contracts/fungible/StartonERC20Base.sol
+
+
+pragma solidity 0.8.9;
+
+
+
+
+
+
+/// @title StartonERC20Base
+/// @author Starton
+/// @notice ERC20 tokens that can be paused, burned, have a access management and handle meta transactions
+contract StartonERC20Base is
+    ERC20Burnable,
+    AStartonPausable,
+    AStartonAccessControl,
+    AStartonContextMixin,
+    AStartonNativeMetaTransaction
+{
+    constructor(
+        string memory definitiveName,
+        string memory definitiveSymbol,
+        uint256 definitiveSupply,
+        address initialOwnerOrMultiSigContract
+    ) ERC20(definitiveName, definitiveSymbol) {
+        // Set all default roles for initialOwnerOrMultiSigContract
+        _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
+
+        // Mint definitiveSupply to initialOwnerOrMultiSigContract
+        _mint(initialOwnerOrMultiSigContract, definitiveSupply);
+
+        // Intialize the EIP712 so we can perform metatransactions
+        _initializeEIP712(definitiveName);
     }
 
     /**
