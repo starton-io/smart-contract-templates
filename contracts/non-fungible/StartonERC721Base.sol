@@ -88,13 +88,7 @@ contract StartonERC721Base is
      * @param uri The URI of the token metadata
      * @custom:requires MINTER_ROLE
      */
-    function mint(address to, string memory uri)
-        public
-        virtual
-        whenNotPaused
-        mintingNotLocked
-        onlyRole(MINTER_ROLE)
-    {
+    function mint(address to, string memory uri) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
         _safeMint(to, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), uri);
         _tokenIdCounter.increment();
@@ -161,13 +155,7 @@ contract StartonERC721Base is
      * @param tokenId The token id of the token
      * @return Contract URI of the token
      */
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        virtual
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
+    function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
@@ -209,13 +197,7 @@ contract StartonERC721Base is
         address from,
         address to,
         uint256 tokenId
-    )
-        internal
-        virtual
-        override(ERC721, ERC721Enumerable)
-        whenNotPaused
-        notBlacklisted(_msgSender())
-    {
+    ) internal virtual override(ERC721, ERC721Enumerable) whenNotPaused notBlacklisted(_msgSender()) {
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
@@ -223,11 +205,7 @@ contract StartonERC721Base is
      * @dev Fix the inheritence problem for the _burn between ERC721 and ERC721URIStorage
      * @param tokenId Id of the token that will be burnt
      */
-    function _burn(uint256 tokenId)
-        internal
-        virtual
-        override(ERC721, ERC721URIStorage)
-    {
+    function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
     }
 
@@ -243,13 +221,7 @@ contract StartonERC721Base is
      * @dev Specify the _msgSender in case the forwarder calls a function to the real sender
      * @return The sender of the message
      */
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context, AStartonContextMixin)
-        returns (address)
-    {
+    function _msgSender() internal view virtual override(Context, AStartonContextMixin) returns (address) {
         return super._msgSender();
     }
 }

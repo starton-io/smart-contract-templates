@@ -12,11 +12,7 @@ abstract contract AStartonAccessControl is AccessControl {
      * @notice Transfer the ownership of the contract to a new address
      * @param newAdmin The address of the new owner
      */
-    function transferOwnership(address newAdmin)
-        public
-        virtual
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function transferOwnership(address newAdmin) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
         _revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }

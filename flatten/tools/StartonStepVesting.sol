@@ -125,12 +125,7 @@ abstract contract AStartonVesting is Context {
      * @notice Get the list of addresses that have at least one vesting
      * @return The list of addresses
      */
-    function getVestingsBeneficiaries()
-        public
-        view
-        virtual
-        returns (address[] memory)
-    {
+    function getVestingsBeneficiaries() public view virtual returns (address[] memory) {
         return _vestingBeneficiaries;
     }
 
@@ -138,12 +133,7 @@ abstract contract AStartonVesting is Context {
      * @dev Check if a beneficiary have a vesting
      * @return bool True if the beneficiary have a vesting
      */
-    function _isBeneficiary(address beneficiary)
-        internal
-        view
-        virtual
-        returns (bool)
-    {
+    function _isBeneficiary(address beneficiary) internal view virtual returns (bool) {
         uint256 nbBeneficiaries = _vestingBeneficiaries.length;
         for (uint256 i = 0; i < nbBeneficiaries; ++i) {
             if (_vestingBeneficiaries[i] == beneficiary) return true;
@@ -234,14 +224,8 @@ contract StartonStepVesting is AStartonVesting {
 
         // Check if the token can be transferred with the right amount
         IERC20 erc20Token = IERC20(token);
-        require(
-            erc20Token.balanceOf(_msgSender()) >= amount,
-            "Not enough balance"
-        );
-        require(
-            erc20Token.allowance(_msgSender(), address(this)) >= amount,
-            "Not enough allowance"
-        );
+        require(erc20Token.balanceOf(_msgSender()) >= amount, "Not enough balance");
+        require(erc20Token.allowance(_msgSender(), address(this)) >= amount, "Not enough allowance");
 
         // Add the new vesting
         VestingData storage vesting = _vestings[beneficiary].push();
@@ -255,22 +239,11 @@ contract StartonStepVesting is AStartonVesting {
         vesting.startTimestamp = uint64(block.timestamp);
 
         // If the beneficiary is not already in the list, add it
-        if (!_isBeneficiary(beneficiary))
-            _vestingBeneficiaries.push(beneficiary);
+        if (!_isBeneficiary(beneficiary)) _vestingBeneficiaries.push(beneficiary);
 
-        emit AddedVesting(
-            beneficiary,
-            _vestings[beneficiary].length - 1,
-            token,
-            amount,
-            uint64(block.timestamp)
-        );
+        emit AddedVesting(beneficiary, _vestings[beneficiary].length - 1, token, amount, uint64(block.timestamp));
 
-        bool success = erc20Token.transferFrom(
-            _msgSender(),
-            address(this),
-            amount
-        );
+        bool success = erc20Token.transferFrom(_msgSender(), address(this), amount);
         require(success, "Transfer failed");
     }
 
@@ -298,8 +271,7 @@ contract StartonStepVesting is AStartonVesting {
         vesting.startTimestamp = uint64(block.timestamp);
 
         // If the beneficiary is not already in the list, add it
-        if (!_isBeneficiary(beneficiary))
-            _vestingBeneficiaries.push(beneficiary);
+        if (!_isBeneficiary(beneficiary)) _vestingBeneficiaries.push(beneficiary);
 
         emit AddedVesting(
             beneficiary,
@@ -316,11 +288,7 @@ contract StartonStepVesting is AStartonVesting {
      * @param stepIndex Index of the step to start from
      * @return value The amount of tokens that can be claimed
      */
-    function vestingAmount(VestingStep[] memory steps, uint64 stepIndex)
-        public
-        view
-        returns (uint256 value)
-    {
+    function vestingAmount(VestingStep[] memory steps, uint64 stepIndex) public view returns (uint256 value) {
         uint256 length = steps.length;
         for (uint64 i = stepIndex; i < length; ++i) {
             VestingStep memory step = steps[i];
@@ -338,10 +306,7 @@ contract StartonStepVesting is AStartonVesting {
      * @param index The index of the vesting
      */
     function claimVesting(uint256 index) public {
-        require(
-            index < _vestings[_msgSender()].length,
-            "Vesting doesn't exist"
-        );
+        require(index < _vestings[_msgSender()].length, "Vesting doesn't exist");
         VestingData storage vesting = _vestings[_msgSender()][index];
 
         TypeOfToken tokenType = vesting.tokenType;
@@ -349,11 +314,7 @@ contract StartonStepVesting is AStartonVesting {
 
         uint256 value = 0;
         uint256 length = vesting.steps.length;
-        for (
-            vesting.stepIndex = 0;
-            vesting.stepIndex < length;
-            ++vesting.stepIndex
-        ) {
+        for (vesting.stepIndex = 0; vesting.stepIndex < length; ++vesting.stepIndex) {
             VestingStep storage step = vesting.steps[vesting.stepIndex];
 
             if (step.timestamp > block.timestamp) {
@@ -367,13 +328,7 @@ contract StartonStepVesting is AStartonVesting {
         }
         require(value != 0, "VestingAmount is zero");
 
-        emit ClaimedVesting(
-            _msgSender(),
-            index,
-            tokenAddress,
-            uint64(block.timestamp),
-            value
-        );
+        emit ClaimedVesting(_msgSender(), index, tokenAddress, uint64(block.timestamp), value);
 
         // If the vesting is finished, remove it from the list else update the amount claimed
         if (vesting.stepIndex == length) {
@@ -387,21 +342,13 @@ contract StartonStepVesting is AStartonVesting {
                 uint256 nbBeneficiaries = _vestingBeneficiaries.length;
                 for (uint256 i = 0; i < nbBeneficiaries; ++i) {
                     if (_vestingBeneficiaries[i] == _msgSender()) {
-                        _vestingBeneficiaries[i] = _vestingBeneficiaries[
-                            nbBeneficiaries - 1
-                        ];
+                        _vestingBeneficiaries[i] = _vestingBeneficiaries[nbBeneficiaries - 1];
                         _vestingBeneficiaries.pop();
                         break;
                     }
                 }
             }
-            emit FinishedVesting(
-                _msgSender(),
-                index,
-                tokenAddress,
-                uint64(block.timestamp),
-                vesting.amount
-            );
+            emit FinishedVesting(_msgSender(), index, tokenAddress, uint64(block.timestamp), vesting.amount);
         }
 
         // Send the tokens to the sender
@@ -429,11 +376,7 @@ contract StartonStepVesting is AStartonVesting {
      * @param beneficiary The account that have the vestings
      * @return The list of vestings data
      */
-    function getVestings(address beneficiary)
-        public
-        view
-        returns (VestingData[] memory)
-    {
+    function getVestings(address beneficiary) public view returns (VestingData[] memory) {
         return _vestings[beneficiary];
     }
 
@@ -443,11 +386,7 @@ contract StartonStepVesting is AStartonVesting {
      * @param index The index of the vesting
      * @return The vesting data
      */
-    function getVesting(address beneficiary, uint256 index)
-        public
-        view
-        returns (VestingData memory)
-    {
+    function getVesting(address beneficiary, uint256 index) public view returns (VestingData memory) {
         require(index < _vestings[beneficiary].length, "Vesting doesn't exist");
         return _vestings[beneficiary][index];
     }
@@ -457,11 +396,7 @@ contract StartonStepVesting is AStartonVesting {
      * @param beneficiary The account that have the vestings
      * @return The number of vestings
      */
-    function getVestingNumber(address beneficiary)
-        public
-        view
-        returns (uint256)
-    {
+    function getVestingNumber(address beneficiary) public view returns (uint256) {
         return _vestings[beneficiary].length;
     }
 
@@ -477,10 +412,7 @@ contract StartonStepVesting is AStartonVesting {
         uint256[] calldata stepsAmount
     ) internal pure {
         require(beneficiary != address(0), "Beneficiary is zero address");
-        require(
-            stepsTimestamps.length == stepsAmount.length,
-            "Timestamps and amounts are not the same length"
-        );
+        require(stepsTimestamps.length == stepsAmount.length, "Timestamps and amounts are not the same length");
         require(stepsTimestamps.length != 0, "Steps are empty");
     }
 
@@ -501,23 +433,13 @@ contract StartonStepVesting is AStartonVesting {
         uint256 totalAmount = 0;
         uint256 length = stepsTimestamps.length;
         for (uint256 i = 0; i < length; ++i) {
-            require(
-                stepsTimestamps[i] > block.timestamp,
-                "Timestamp is in the past"
-            );
+            require(stepsTimestamps[i] > block.timestamp, "Timestamp is in the past");
             require(stepsAmount[i] != 0, "Amount is insufficent");
-            require(
-                stepsTimestamps[i] > lastTimestamp,
-                "Timestamps aren't in order"
-            );
+            require(stepsTimestamps[i] > lastTimestamp, "Timestamps aren't in order");
 
             lastTimestamp = stepsTimestamps[i];
             vesting.steps.push(
-                VestingStep({
-                    amountReleased: stepsAmount[i],
-                    isClaimed: false,
-                    timestamp: stepsTimestamps[i]
-                })
+                VestingStep({amountReleased: stepsAmount[i], isClaimed: false, timestamp: stepsTimestamps[i]})
             );
             totalAmount += stepsAmount[i];
         }

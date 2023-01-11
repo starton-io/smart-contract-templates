@@ -48,10 +48,7 @@ contract StartonERC1155WhitelistSale is Context {
     /** @dev Modifier that reverts when the sender is not whitelisted */
     modifier isWhitelisted(bytes32[] calldata merkleProof) {
         bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
+        require(MerkleProof.verify(merkleProof, _merkleRoot, leaf), "Invalid proof");
         _;
     }
 
@@ -86,10 +83,7 @@ contract StartonERC1155WhitelistSale is Context {
         uint256 amount,
         bytes32[] calldata merkleProof
     ) public payable isPriceSet(id) isTimeCorrect isWhitelisted(merkleProof) {
-        require(
-            msg.value >= _pricePerToken[id].price * amount,
-            "Insufficient funds"
-        );
+        require(msg.value >= _pricePerToken[id].price * amount, "Insufficient funds");
 
         _mint(to, id, amount);
     }
@@ -107,10 +101,7 @@ contract StartonERC1155WhitelistSale is Context {
         uint256[] calldata amounts,
         bytes32[] calldata merkleProof
     ) public payable isTimeCorrect isWhitelisted(merkleProof) {
-        require(
-            ids.length == amounts.length,
-            "Ids and amounts length mismatch"
-        );
+        require(ids.length == amounts.length, "Ids and amounts length mismatch");
 
         uint256 value = msg.value;
         uint256 totalAmount = 0;
@@ -129,9 +120,7 @@ contract StartonERC1155WhitelistSale is Context {
      * @param ids The ids of the tokens
      * @param prices The prices of the tokens
      */
-    function setPrices(uint256[] calldata ids, uint256[] calldata prices)
-        public
-    {
+    function setPrices(uint256[] calldata ids, uint256[] calldata prices) public {
         require(ids.length == prices.length, "Ids and prices length mismatch");
 
         for (uint256 i = 0; i < ids.length; ++i) {
@@ -151,12 +140,7 @@ contract StartonERC1155WhitelistSale is Context {
      * @param id The id of the token
      * @return The price of the token
      */
-    function pricePerToken(uint256 id)
-        public
-        view
-        isPriceSet(id)
-        returns (uint256)
-    {
+    function pricePerToken(uint256 id) public view isPriceSet(id) returns (uint256) {
         return _pricePerToken[id].price;
     }
 
@@ -171,10 +155,7 @@ contract StartonERC1155WhitelistSale is Context {
         uint256 id,
         uint256 amount
     ) internal {
-        require(
-            tokensClaimed[_msgSender()] + amount <= maxTokensPerAddress,
-            "Max tokens reached"
-        );
+        require(tokensClaimed[_msgSender()] + amount <= maxTokensPerAddress, "Max tokens reached");
         require(leftSupply >= amount, "Max supply reached");
 
         leftSupply -= amount;

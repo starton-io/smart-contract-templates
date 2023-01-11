@@ -125,12 +125,7 @@ abstract contract AStartonVesting is Context {
      * @notice Get the list of addresses that have at least one vesting
      * @return The list of addresses
      */
-    function getVestingsBeneficiaries()
-        public
-        view
-        virtual
-        returns (address[] memory)
-    {
+    function getVestingsBeneficiaries() public view virtual returns (address[] memory) {
         return _vestingBeneficiaries;
     }
 
@@ -138,12 +133,7 @@ abstract contract AStartonVesting is Context {
      * @dev Check if a beneficiary have a vesting
      * @return bool True if the beneficiary have a vesting
      */
-    function _isBeneficiary(address beneficiary)
-        internal
-        view
-        virtual
-        returns (bool)
-    {
+    function _isBeneficiary(address beneficiary) internal view virtual returns (bool) {
         uint256 nbBeneficiaries = _vestingBeneficiaries.length;
         for (uint256 i = 0; i < nbBeneficiaries; ++i) {
             if (_vestingBeneficiaries[i] == beneficiary) return true;
@@ -226,14 +216,8 @@ contract StartonLinearVesting is AStartonVesting {
 
         // Check if the token can be transferred with the right amount
         IERC20 erc20Token = IERC20(token);
-        require(
-            erc20Token.balanceOf(_msgSender()) >= amount,
-            "Not enough balance"
-        );
-        require(
-            erc20Token.allowance(_msgSender(), address(this)) >= amount,
-            "Not enough allowance"
-        );
+        require(erc20Token.balanceOf(_msgSender()) >= amount, "Not enough balance");
+        require(erc20Token.allowance(_msgSender(), address(this)) >= amount, "Not enough allowance");
 
         _vestings[beneficiary].push(
             VestingData({
@@ -247,8 +231,7 @@ contract StartonLinearVesting is AStartonVesting {
         );
 
         // If the beneficiary is not already in the list, add it
-        if (!_isBeneficiary(beneficiary))
-            _vestingBeneficiaries.push(beneficiary);
+        if (!_isBeneficiary(beneficiary)) _vestingBeneficiaries.push(beneficiary);
 
         emit AddedVesting(
             beneficiary,
@@ -259,11 +242,7 @@ contract StartonLinearVesting is AStartonVesting {
             endTimestamp
         );
 
-        bool success = erc20Token.transferFrom(
-            _msgSender(),
-            address(this),
-            amount
-        );
+        bool success = erc20Token.transferFrom(_msgSender(), address(this), amount);
         require(success, "Transfer failed");
     }
 
@@ -272,10 +251,7 @@ contract StartonLinearVesting is AStartonVesting {
      * @param beneficiary The account that will receive the tokens
      * @param endTimestamp The timestamp when the vesting will end
      */
-    function addVesting(address beneficiary, uint64 endTimestamp)
-        public
-        payable
-    {
+    function addVesting(address beneficiary, uint64 endTimestamp) public payable {
         _isValidVesting(msg.value, endTimestamp, beneficiary);
 
         _vestings[beneficiary].push(
@@ -290,8 +266,7 @@ contract StartonLinearVesting is AStartonVesting {
         );
 
         // If the beneficiary is not already in the list, add it
-        if (!_isBeneficiary(beneficiary))
-            _vestingBeneficiaries.push(beneficiary);
+        if (!_isBeneficiary(beneficiary)) _vestingBeneficiaries.push(beneficiary);
 
         emit AddedVesting(
             beneficiary,
@@ -320,10 +295,7 @@ contract StartonLinearVesting is AStartonVesting {
         // If the vesting is finished, return the amount of tokens left
         // else returns the amount of tokens that can be claimed at the current time
         if (endTimestamp > block.timestamp) {
-            value =
-                (amount * (block.timestamp - startTimestamp)) /
-                (endTimestamp - startTimestamp) -
-                amountClaimed;
+            value = (amount * (block.timestamp - startTimestamp)) / (endTimestamp - startTimestamp) - amountClaimed;
         } else {
             value = amount - amountClaimed;
         }
@@ -344,19 +316,11 @@ contract StartonLinearVesting is AStartonVesting {
         );
         require(value != 0, "VestingAmount is zero");
 
-        emit ClaimedVesting(
-            _msgSender(),
-            index,
-            vesting.tokenAddress,
-            uint64(block.timestamp),
-            value
-        );
+        emit ClaimedVesting(_msgSender(), index, vesting.tokenAddress, uint64(block.timestamp), value);
 
         // If the vesting is finished, remove it from the list else update the amount claimed
         if (vesting.endTimestamp > block.timestamp) {
-            _vestings[_msgSender()][index].amountClaimed =
-                vesting.amountClaimed +
-                value;
+            _vestings[_msgSender()][index].amountClaimed = vesting.amountClaimed + value;
         } else {
             // remove the vesting from the list
             VestingData[] storage vestings = _vestings[_msgSender()];
@@ -368,29 +332,18 @@ contract StartonLinearVesting is AStartonVesting {
                 uint256 nbBeneficiaries = _vestingBeneficiaries.length;
                 for (uint256 i = 0; i < nbBeneficiaries; ++i) {
                     if (_vestingBeneficiaries[i] == _msgSender()) {
-                        _vestingBeneficiaries[i] = _vestingBeneficiaries[
-                            nbBeneficiaries - 1
-                        ];
+                        _vestingBeneficiaries[i] = _vestingBeneficiaries[nbBeneficiaries - 1];
                         _vestingBeneficiaries.pop();
                         break;
                     }
                 }
             }
-            emit FinishedVesting(
-                _msgSender(),
-                index,
-                vesting.tokenAddress,
-                uint64(block.timestamp),
-                vesting.amount
-            );
+            emit FinishedVesting(_msgSender(), index, vesting.tokenAddress, uint64(block.timestamp), vesting.amount);
         }
 
         // Send the tokens to the sender
         if (vesting.tokenType == TypeOfToken.TOKEN) {
-            bool success = IERC20(vesting.tokenAddress).transfer(
-                _msgSender(),
-                value
-            );
+            bool success = IERC20(vesting.tokenAddress).transfer(_msgSender(), value);
             require(success, "Transfer failed");
         } else {
             (bool success, ) = payable(_msgSender()).call{value: value}("");
@@ -413,11 +366,7 @@ contract StartonLinearVesting is AStartonVesting {
      * @param beneficiary The account that have the vestings
      * @return The list of vestings data
      */
-    function getVestings(address beneficiary)
-        public
-        view
-        returns (VestingData[] memory)
-    {
+    function getVestings(address beneficiary) public view returns (VestingData[] memory) {
         return _vestings[beneficiary];
     }
 
@@ -427,11 +376,7 @@ contract StartonLinearVesting is AStartonVesting {
      * @param index The index of the vesting
      * @return The vesting data
      */
-    function getVesting(address beneficiary, uint256 index)
-        public
-        view
-        returns (VestingData memory)
-    {
+    function getVesting(address beneficiary, uint256 index) public view returns (VestingData memory) {
         require(index < _vestings[beneficiary].length, "Vesting doesn't exist");
         return _vestings[beneficiary][index];
     }
@@ -441,11 +386,7 @@ contract StartonLinearVesting is AStartonVesting {
      * @param beneficiary The account that have the vestings
      * @return The number of vestings
      */
-    function getVestingNumber(address beneficiary)
-        public
-        view
-        returns (uint256)
-    {
+    function getVestingNumber(address beneficiary) public view returns (uint256) {
         return _vestings[beneficiary].length;
     }
 
@@ -461,10 +402,7 @@ contract StartonLinearVesting is AStartonVesting {
         address beneficiary
     ) internal view {
         require(amount != 0, "Amount is insufficent");
-        require(
-            endTimestamp >= block.timestamp,
-            "End timestamp is in the past"
-        );
+        require(endTimestamp >= block.timestamp, "End timestamp is in the past");
         require(beneficiary != address(0), "beneficiary is zero address");
     }
 }

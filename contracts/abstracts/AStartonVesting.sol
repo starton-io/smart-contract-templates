@@ -11,12 +11,7 @@ abstract contract AStartonVesting is Context {
      * @notice Get the list of addresses that have at least one vesting
      * @return The list of addresses
      */
-    function getVestingsBeneficiaries()
-        public
-        view
-        virtual
-        returns (address[] memory)
-    {
+    function getVestingsBeneficiaries() public view virtual returns (address[] memory) {
         return _vestingBeneficiaries;
     }
 
@@ -24,12 +19,7 @@ abstract contract AStartonVesting is Context {
      * @dev Check if a beneficiary have a vesting
      * @return bool True if the beneficiary have a vesting
      */
-    function _isBeneficiary(address beneficiary)
-        internal
-        view
-        virtual
-        returns (bool)
-    {
+    function _isBeneficiary(address beneficiary) internal view virtual returns (bool) {
         uint256 nbBeneficiaries = _vestingBeneficiaries.length;
         for (uint256 i = 0; i < nbBeneficiaries; ++i) {
             if (_vestingBeneficiaries[i] == beneficiary) return true;

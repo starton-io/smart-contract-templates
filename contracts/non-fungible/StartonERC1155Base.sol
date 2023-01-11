@@ -191,13 +191,7 @@ contract StartonERC1155Base is
      * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
      * @return True if the interface is supported
      */
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC1155, AccessControl)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
@@ -247,13 +241,7 @@ contract StartonERC1155Base is
      * @dev Specify the _msgSender in case the forwarder calls a function to the real sender
      * @return The sender of the message
      */
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context, AStartonContextMixin)
-        returns (address)
-    {
+    function _msgSender() internal view virtual override(Context, AStartonContextMixin) returns (address) {
         return super._msgSender();
     }
 }

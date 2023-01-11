@@ -27,14 +27,7 @@ contract StartonERC20Mintable is StartonERC20Base {
         string memory definitiveSymbol,
         uint256 initialSupply,
         address initialOwnerOrMultiSigContract
-    )
-        StartonERC20Base(
-            definitiveName,
-            definitiveSymbol,
-            initialSupply,
-            initialOwnerOrMultiSigContract
-        )
-    {
+    ) StartonERC20Base(definitiveName, definitiveSymbol, initialSupply, initialOwnerOrMultiSigContract) {
         // Set all default roles for initialOwnerOrMultiSigContract
         _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(LOCKER_ROLE, initialOwnerOrMultiSigContract);
@@ -49,11 +42,7 @@ contract StartonERC20Mintable is StartonERC20Base {
      * @param amount The amount of tokens to mint
      * @custom:requires MINTER_ROLE
      */
-    function mint(address to, uint256 amount)
-        public
-        mintingNotLocked
-        onlyRole(MINTER_ROLE)
-    {
+    function mint(address to, uint256 amount) public mintingNotLocked onlyRole(MINTER_ROLE) {
         _mint(to, amount);
     }
 

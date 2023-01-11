@@ -378,10 +378,7 @@ contract StartonERC721Sale is Context {
         if (totalSupply == 0) {
             _mint(to, Strings.toString(0));
         } else {
-            _mint(
-                to,
-                Strings.toString(token.tokenByIndex(totalSupply - 1) + 1)
-            );
+            _mint(to, Strings.toString(token.tokenByIndex(totalSupply - 1) + 1));
         }
     }
 
@@ -389,11 +386,7 @@ contract StartonERC721Sale is Context {
      * @notice Mint multiple tokens to a given address for a price
      * @param to The address to mint the token to
      */
-    function mintBatch(address to, uint256 amount)
-        public
-        payable
-        isTimeCorrect
-    {
+    function mintBatch(address to, uint256 amount) public payable isTimeCorrect {
         require(msg.value >= price * amount, "Insufficient funds");
 
         // Compute the next token id
@@ -421,10 +414,7 @@ contract StartonERC721Sale is Context {
      * @param tokenURI The URI of the token
      */
     function _mint(address to, string memory tokenURI) internal {
-        require(
-            tokensClaimed[_msgSender()] < maxTokensPerAddress,
-            "Max tokens reached"
-        );
+        require(tokensClaimed[_msgSender()] < maxTokensPerAddress, "Max tokens reached");
         require(leftSupply != 0, "Max supply reached");
 
         leftSupply -= 1;

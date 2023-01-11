@@ -9,16 +9,8 @@ import "./AStartonEIP712Base.sol";
 /// @notice Utility smart contract that enable gasless transactions
 abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
-        keccak256(
-            bytes(
-                "MetaTransaction(uint256 nonce,address from,bytes functionSignature)"
-            )
-        );
-    event MetaTransactionExecuted(
-        address userAddress,
-        address payable relayerAddress,
-        bytes functionSignature
-    );
+        keccak256(bytes("MetaTransaction(uint256 nonce,address from,bytes functionSignature)"));
+    event MetaTransactionExecuted(address userAddress, address payable relayerAddress, bytes functionSignature);
     mapping(address => uint256) private _nonces;
 
     /*
@@ -45,42 +37,24 @@ abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
             functionSignature: functionSignature
         });
 
-        require(
-            _verify(userAddress, metaTx, sigR, sigS, sigV),
-            "Signer and signature do not match"
-        );
+        require(_verify(userAddress, metaTx, sigR, sigS, sigV), "Signer and signature do not match");
 
         // increase nonce for user (to avoid re-use)
         _nonces[userAddress] = _nonces[userAddress] + 1;
 
-        emit MetaTransactionExecuted(
-            userAddress,
-            payable(msg.sender),
-            functionSignature
-        );
+        emit MetaTransactionExecuted(userAddress, payable(msg.sender), functionSignature);
 
         // Append userAddress and relayer address at the end to extract it from calling context
-        (bool success, bytes memory returnData) = address(this).call(
-            abi.encodePacked(functionSignature, userAddress)
-        );
+        (bool success, bytes memory returnData) = address(this).call(abi.encodePacked(functionSignature, userAddress));
         require(success, "Function call not successful");
 
         return returnData;
     }
 
-    function _hashMetaTransaction(MetaTransaction memory metaTx)
-        internal
-        pure
-        returns (bytes32)
-    {
+    function _hashMetaTransaction(MetaTransaction memory metaTx) internal pure returns (bytes32) {
         return
             keccak256(
-                abi.encode(
-                    META_TRANSACTION_TYPEHASH,
-                    metaTx.nonce,
-                    metaTx.from,
-                    keccak256(metaTx.functionSignature)
-                )
+                abi.encode(META_TRANSACTION_TYPEHASH, metaTx.nonce, metaTx.from, keccak256(metaTx.functionSignature))
             );
     }
 
@@ -96,13 +70,6 @@ abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
         uint8 sigV
     ) internal view returns (bool) {
         require(signer != address(0), "NativeMetaTransaction: INVALID_SIGNER");
-        return
-            signer ==
-            ecrecover(
-                _toTypedMessageHash(_hashMetaTransaction(metaTx)),
-                sigV,
-                sigR,
-                sigS
-            );
+        return signer == ecrecover(_toTypedMessageHash(_hashMetaTransaction(metaTx)), sigV, sigR, sigS);
     }
 }

@@ -1342,11 +1342,7 @@ abstract contract AStartonEIP712Base is Initializable {
     string public constant ERC712_VERSION = "1";
 
     bytes32 internal constant EIP712_DOMAIN_TYPEHASH =
-        keccak256(
-            bytes(
-                "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
-            )
-        );
+        keccak256(bytes("EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"));
     bytes32 internal _domainSeparator;
 
     // supposed to be called once while initializing.
@@ -1387,15 +1383,8 @@ abstract contract AStartonEIP712Base is Initializable {
      * "\\x19" makes the encoding deterministic
      * "\\x01" is the version byte to make it compatible to EIP-191
      */
-    function _toTypedMessageHash(bytes32 messageHash)
-        internal
-        view
-        returns (bytes32)
-    {
-        return
-            keccak256(
-                abi.encodePacked("\x19\x01", getDomainSeparator(), messageHash)
-            );
+    function _toTypedMessageHash(bytes32 messageHash) internal view returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19\x01", getDomainSeparator(), messageHash));
     }
 }
 
@@ -1410,16 +1399,8 @@ pragma solidity 0.8.9;
 /// @notice Utility smart contract that enable gasless transactions
 abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
     bytes32 private constant META_TRANSACTION_TYPEHASH =
-        keccak256(
-            bytes(
-                "MetaTransaction(uint256 nonce,address from,bytes functionSignature)"
-            )
-        );
-    event MetaTransactionExecuted(
-        address userAddress,
-        address payable relayerAddress,
-        bytes functionSignature
-    );
+        keccak256(bytes("MetaTransaction(uint256 nonce,address from,bytes functionSignature)"));
+    event MetaTransactionExecuted(address userAddress, address payable relayerAddress, bytes functionSignature);
     mapping(address => uint256) private _nonces;
 
     /*
@@ -1446,42 +1427,24 @@ abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
             functionSignature: functionSignature
         });
 
-        require(
-            _verify(userAddress, metaTx, sigR, sigS, sigV),
-            "Signer and signature do not match"
-        );
+        require(_verify(userAddress, metaTx, sigR, sigS, sigV), "Signer and signature do not match");
 
         // increase nonce for user (to avoid re-use)
         _nonces[userAddress] = _nonces[userAddress] + 1;
 
-        emit MetaTransactionExecuted(
-            userAddress,
-            payable(msg.sender),
-            functionSignature
-        );
+        emit MetaTransactionExecuted(userAddress, payable(msg.sender), functionSignature);
 
         // Append userAddress and relayer address at the end to extract it from calling context
-        (bool success, bytes memory returnData) = address(this).call(
-            abi.encodePacked(functionSignature, userAddress)
-        );
+        (bool success, bytes memory returnData) = address(this).call(abi.encodePacked(functionSignature, userAddress));
         require(success, "Function call not successful");
 
         return returnData;
     }
 
-    function _hashMetaTransaction(MetaTransaction memory metaTx)
-        internal
-        pure
-        returns (bytes32)
-    {
+    function _hashMetaTransaction(MetaTransaction memory metaTx) internal pure returns (bytes32) {
         return
             keccak256(
-                abi.encode(
-                    META_TRANSACTION_TYPEHASH,
-                    metaTx.nonce,
-                    metaTx.from,
-                    keccak256(metaTx.functionSignature)
-                )
+                abi.encode(META_TRANSACTION_TYPEHASH, metaTx.nonce, metaTx.from, keccak256(metaTx.functionSignature))
             );
     }
 
@@ -1497,14 +1460,7 @@ abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
         uint8 sigV
     ) internal view returns (bool) {
         require(signer != address(0), "NativeMetaTransaction: INVALID_SIGNER");
-        return
-            signer ==
-            ecrecover(
-                _toTypedMessageHash(_hashMetaTransaction(metaTx)),
-                sigV,
-                sigR,
-                sigS
-            );
+        return signer == ecrecover(_toTypedMessageHash(_hashMetaTransaction(metaTx)), sigV, sigR, sigS);
     }
 }
 
@@ -1528,10 +1484,7 @@ abstract contract AStartonContextMixin {
             uint256 index = msg.data.length;
             assembly {
                 // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
-                sender := and(
-                    mload(add(array, index)),
-                    0xffffffffffffffffffffffffffffffffffffffff
-                )
+                sender := and(mload(add(array, index)), 0xffffffffffffffffffffffffffffffffffffffff)
             }
         } else {
             sender = msg.sender;
@@ -1971,11 +1924,7 @@ abstract contract AStartonAccessControl is AccessControl {
      * @notice Transfer the ownership of the contract to a new address
      * @param newAdmin The address of the new owner
      */
-    function transferOwnership(address newAdmin)
-        public
-        virtual
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function transferOwnership(address newAdmin) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
         _revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
@@ -2000,10 +1949,7 @@ abstract contract AStartonBlacklist is AccessControl {
 
     /** @dev Modifier that reverts when the address is blacklisted */
     modifier notBlacklisted(address checkAddress) {
-        require(
-            !_blacklisted[checkAddress],
-            "The caller of the contract is blacklisted"
-        );
+        require(!_blacklisted[checkAddress], "The caller of the contract is blacklisted");
         _;
     }
 
@@ -2012,15 +1958,8 @@ abstract contract AStartonBlacklist is AccessControl {
      * @param addressToBlacklist The address to blacklist
      * @custom:requires METADATA_ROLE
      */
-    function addToBlacklist(address addressToBlacklist)
-        public
-        virtual
-        onlyRole(BLACKLISTER_ROLE)
-    {
-        require(
-            !_blacklisted[addressToBlacklist],
-            "This address is already blacklisted"
-        );
+    function addToBlacklist(address addressToBlacklist) public virtual onlyRole(BLACKLISTER_ROLE) {
+        require(!_blacklisted[addressToBlacklist], "This address is already blacklisted");
         _blacklisted[addressToBlacklist] = true;
         emit Blacklisted(addressToBlacklist, true);
     }
@@ -2030,15 +1969,8 @@ abstract contract AStartonBlacklist is AccessControl {
      * @param addressToRemove The address to remove from the blacklist
      * @custom:requires METADATA_ROLE
      */
-    function removeFromBlacklist(address addressToRemove)
-        public
-        virtual
-        onlyRole(BLACKLISTER_ROLE)
-    {
-        require(
-            _blacklisted[addressToRemove],
-            "This address is not blacklisted"
-        );
+    function removeFromBlacklist(address addressToRemove) public virtual onlyRole(BLACKLISTER_ROLE) {
+        require(_blacklisted[addressToRemove], "This address is not blacklisted");
         _blacklisted[addressToRemove] = false;
         emit Blacklisted(addressToRemove, false);
     }
@@ -2048,11 +1980,7 @@ abstract contract AStartonBlacklist is AccessControl {
      * @param multiAddrToBl The addresses to blacklist
      * @custom:requires METADATA_ROLE
      */
-    function addBatchToBlacklist(address[] memory multiAddrToBl)
-        public
-        virtual
-        onlyRole(BLACKLISTER_ROLE)
-    {
+    function addBatchToBlacklist(address[] memory multiAddrToBl) public virtual onlyRole(BLACKLISTER_ROLE) {
         uint256 length = multiAddrToBl.length;
         for (uint256 i = 0; i < length; ++i) {
             if (_blacklisted[multiAddrToBl[i]]) {
@@ -2068,11 +1996,7 @@ abstract contract AStartonBlacklist is AccessControl {
      * @param multiAddrToRm The addresses to remove from the blacklist
      * @custom:requires METADATA_ROLE
      */
-    function removeBatchFromBlacklist(address[] memory multiAddrToRm)
-        public
-        virtual
-        onlyRole(BLACKLISTER_ROLE)
-    {
+    function removeBatchFromBlacklist(address[] memory multiAddrToRm) public virtual onlyRole(BLACKLISTER_ROLE) {
         uint256 length = multiAddrToRm.length;
         for (uint256 i = 0; i < length; ++i) {
             if (!_blacklisted[multiAddrToRm[i]]) {
@@ -2088,12 +2012,7 @@ abstract contract AStartonBlacklist is AccessControl {
      * @param checkAddress The address to check
      * @return True if the address is blacklisted, false otherwise
      */
-    function isBlacklisted(address checkAddress)
-        public
-        view
-        virtual
-        returns (bool)
-    {
+    function isBlacklisted(address checkAddress) public view virtual returns (bool) {
         return _blacklisted[checkAddress];
     }
 }
@@ -2318,13 +2237,7 @@ contract StartonERC1155Base is
      * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
      * @return True if the interface is supported
      */
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC1155, AccessControl)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
@@ -2374,13 +2287,7 @@ contract StartonERC1155Base is
      * @dev Specify the _msgSender in case the forwarder calls a function to the real sender
      * @return The sender of the message
      */
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context, AStartonContextMixin)
-        returns (address)
-    {
+    function _msgSender() internal view virtual override(Context, AStartonContextMixin) returns (address) {
         return super._msgSender();
     }
 }

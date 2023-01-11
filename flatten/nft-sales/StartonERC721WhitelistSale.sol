@@ -571,10 +571,7 @@ contract StartonERC721WhitelistSale is Context {
     /** @dev Modifier that reverts when the sender is not whitelisted */
     modifier isWhitelisted(bytes32[] calldata merkleProof) {
         bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
+        require(MerkleProof.verify(merkleProof, _merkleRoot, leaf), "Invalid proof");
         _;
     }
 
@@ -603,22 +600,14 @@ contract StartonERC721WhitelistSale is Context {
      * @param to The address to mint the token to
      * @param merkleProof The merkle proof of the address in the whitelist
      */
-    function mint(address to, bytes32[] calldata merkleProof)
-        public
-        payable
-        isTimeCorrect
-        isWhitelisted(merkleProof)
-    {
+    function mint(address to, bytes32[] calldata merkleProof) public payable isTimeCorrect isWhitelisted(merkleProof) {
         require(msg.value >= price, "Insufficient funds");
 
         uint256 totalSupply = token.totalSupply();
         if (totalSupply == 0) {
             _mint(to, Strings.toString(0));
         } else {
-            _mint(
-                to,
-                Strings.toString(token.tokenByIndex(totalSupply - 1) + 1)
-            );
+            _mint(to, Strings.toString(token.tokenByIndex(totalSupply - 1) + 1));
         }
     }
 
@@ -659,10 +648,7 @@ contract StartonERC721WhitelistSale is Context {
      * @param tokenURI The URI of the token
      */
     function _mint(address to, string memory tokenURI) internal {
-        require(
-            tokensClaimed[_msgSender()] < maxTokensPerAddress,
-            "Max tokens reached"
-        );
+        require(tokensClaimed[_msgSender()] < maxTokensPerAddress, "Max tokens reached");
         require(leftSupply != 0, "Max supply reached");
 
         leftSupply -= 1;
