@@ -5,7 +5,7 @@ pragma solidity 0.8.9;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../abstracts/AStartonVesting.sol";
 
-contract StartonFinalVesting is AStartonVesting {
+contract StartonVesting is AStartonVesting {
     /** @notice Type of tokens that can be vested */
     enum TypeOfToken {
         TOKEN,
@@ -54,11 +54,12 @@ contract StartonFinalVesting is AStartonVesting {
      */
     function addVesting(
         address beneficiary,
+        address token,
+        uint64 startTimestamp,
         uint64 endTimestamp,
-        uint256 amount,
-        address token
-    ) public payable {
-        _isValidVesting(amount, endTimestamp, beneficiary);
+        uint256 amount
+    ) public {
+        _isValidVesting(amount, startTimestamp, endTimestamp, beneficiary);
 
         // Check if the token can be transferred with the right amount
         IERC20 erc20Token = IERC20(token);
@@ -70,7 +71,7 @@ contract StartonFinalVesting is AStartonVesting {
                 amount: amount,
                 tokenType: TypeOfToken.TOKEN,
                 tokenAddress: token,
-                startTimestamp: uint64(block.timestamp),
+                startTimestamp: startTimestamp,
                 endTimestamp: endTimestamp
             })
         );
@@ -78,14 +79,7 @@ contract StartonFinalVesting is AStartonVesting {
         // If the beneficiary is not already in the list, add it
         if (!_isBeneficiary(beneficiary)) _vestingBeneficiaries.push(beneficiary);
 
-        emit AddedVesting(
-            beneficiary,
-            getVestingNumber(beneficiary) - 1,
-            token,
-            amount,
-            uint64(block.timestamp),
-            endTimestamp
-        );
+        emit AddedVesting(beneficiary, getVestingNumber(beneficiary) - 1, token, amount, startTimestamp, endTimestamp);
 
         bool success = erc20Token.transferFrom(_msgSender(), address(this), amount);
         require(success, "Transfer failed");
@@ -96,15 +90,19 @@ contract StartonFinalVesting is AStartonVesting {
      * @param beneficiary The account that will receive the tokens
      * @param endTimestamp The timestamp when the vesting will end
      */
-    function addVesting(address beneficiary, uint64 endTimestamp) public payable {
-        _isValidVesting(msg.value, endTimestamp, beneficiary);
+    function addVesting(
+        address beneficiary,
+        uint64 startTimestamp,
+        uint64 endTimestamp
+    ) public payable {
+        _isValidVesting(msg.value, startTimestamp, endTimestamp, beneficiary);
 
         _vestings[beneficiary].push(
             VestingData({
                 amount: msg.value,
                 tokenType: TypeOfToken.NATIVE,
                 tokenAddress: address(0),
-                startTimestamp: uint64(block.timestamp),
+                startTimestamp: startTimestamp,
                 endTimestamp: endTimestamp
             })
         );
@@ -117,9 +115,36 @@ contract StartonFinalVesting is AStartonVesting {
             getVestingNumber(beneficiary) - 1,
             address(0),
             msg.value,
-            uint64(block.timestamp),
+            startTimestamp,
             endTimestamp
         );
+    }
+
+    function addVesting(
+        address beneficiary,
+        address token,
+        uint64[] calldata startTimestamp,
+        uint64[] calldata endTimestamp,
+        uint256[] calldata amount
+    ) public {
+        require(startTimestamp.length == endTimestamp.length, "Invalid array length");
+        require(startTimestamp.length == amount.length, "Invalid array length");
+        uint256 nbVestings = startTimestamp.length;
+        for (uint256 i = 0; i < nbVestings; ++i) {
+            addVesting(beneficiary, token, startTimestamp[i], endTimestamp[i], amount[i]);
+        }
+    }
+
+    function addBatchVesting(
+        address beneficiary,
+        uint64[] calldata startTimestamp,
+        uint64[] calldata endTimestamp
+    ) public payable {
+        require(startTimestamp.length == endTimestamp.length, "Invalid array length");
+        uint256 nbVestings = startTimestamp.length;
+        for (uint256 i = 0; i < nbVestings; ++i) {
+            addVesting(beneficiary, startTimestamp[i], endTimestamp[i]);
+        }
     }
 
     /**
@@ -227,11 +252,14 @@ contract StartonFinalVesting is AStartonVesting {
      */
     function _isValidVesting(
         uint256 amount,
+        uint64 startTimestamp,
         uint64 endTimestamp,
         address beneficiary
     ) internal view {
         require(amount != 0, "Amount is insufficent");
         require(endTimestamp >= block.timestamp, "End timestamp is in the past");
+        require(startTimestamp >= block.timestamp, "Start timestamp is in the past");
         require(beneficiary != address(0), "beneficiary is zero address");
+        require(startTimestamp < endTimestamp, "Start timestamp is after end timestamp");
     }
 }
