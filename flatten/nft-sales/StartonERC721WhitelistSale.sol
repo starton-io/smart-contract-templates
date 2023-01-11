@@ -604,6 +604,7 @@ contract StartonERC721BaseSale is Context {
     /**
      * @notice Mint a token to a given address for a price
      * @param to The address to mint the token to
+     * @param data The data to pass to the token (optional)
      */
     function mint(address to, bytes32[] memory data) public payable virtual isTimeCorrect {
         require(msg.value >= price, "Insufficient funds");
@@ -619,6 +620,7 @@ contract StartonERC721BaseSale is Context {
     /**
      * @notice Mint multiple tokens to a given address for a price
      * @param to The address to mint the token to
+     * @param data The data to pass to the token (optional)
      */
     function mintBatch(
         address to,

@@ -279,6 +279,7 @@ contract StartonERC1155BaseSale is Context {
      * @param to The address to mint the token to
      * @param id The id of the token
      * @param amount The amount of tokens to mint
+     * @param data The data to pass to the token (optional)
      */
     function mint(
         address to,
@@ -296,6 +297,7 @@ contract StartonERC1155BaseSale is Context {
      * @param to The address to mint the tokens to
      * @param ids The ids of the token to mint
      * @param amounts The amounts of tokens to mint
+     * @param data The data to pass to the token (optional)
      */
     function mintBatch(
         address to,
