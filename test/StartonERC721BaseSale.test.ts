@@ -258,16 +258,16 @@ describe("StartonERC721BaseSale", () => {
     it("Shouldn't batch mint more than total supply", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      instanceSale.mintBatch(addr1.address, 3, [], {
+      await instanceSale.mintBatch(addr1.address, 3, [], {
         value: BigNumber.from("3000"),
       });
-      instanceSale.connect(addr1).mintBatch(addr1.address, 3, [], {
+      await instanceSale.connect(addr1).mintBatch(addr1.address, 3, [], {
         value: BigNumber.from("3000"),
       });
-      instanceSale.connect(addr2).mintBatch(addr1.address, 3, [], {
+      await instanceSale.connect(addr2).mintBatch(addr1.address, 3, [], {
         value: BigNumber.from("3000"),
       });
-      instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, [], {
+      await instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, [], {
         value: BigNumber.from("3000"),
       });
       await expect(
