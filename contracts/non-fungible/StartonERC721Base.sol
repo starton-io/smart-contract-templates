@@ -54,7 +54,7 @@ contract StartonERC721Base is
 
     /** @dev Modifier that reverts when the metadatas are locked */
     modifier metadataNotLocked() {
-        require(_isMintAllowed, "Metadatas are locked");
+        require(_isMetatadataChangingAllowed, "Metadatas are locked");
         _;
     }
 
