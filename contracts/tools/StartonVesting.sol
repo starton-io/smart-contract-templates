@@ -203,7 +203,7 @@ contract StartonVesting is AStartonVesting {
     function claimAllVestings() public {
         uint256 length = _vestings[_msgSender()].length;
         for (uint256 i = 0; i < length; ++i) {
-            claimVesting(i);
+            claimVesting(0);
         }
     }
 
