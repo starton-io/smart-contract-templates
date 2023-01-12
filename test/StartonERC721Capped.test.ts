@@ -39,6 +39,19 @@ describe("StartonERC721Capped", () => {
   describe("Deployment", () => {
     it("Should deploy", async () => {});
 
+    it("Shouldn't deploy if maxSupply is 0", async () => {
+      await expect(
+        ERC721.deploy(
+          "StartonToken",
+          "ST",
+          0,
+          "https://ipfs.io/",
+          "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
+          owner.address
+        )
+      ).to.be.revertedWith("maxSupply must be greater than 0");
+    });
+
     it("Should owner have admin role", async () => {
       const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();
 
