@@ -120,7 +120,7 @@ contract StartonVesting is AStartonVesting {
         );
     }
 
-    function addVesting(
+    function addBatchVesting(
         address beneficiary,
         address token,
         uint64[] calldata startTimestamp,
