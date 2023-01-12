@@ -45,7 +45,7 @@ describe("StartonVesting", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy the contract", async () => { });
+    it("Should deploy the contract", async () => {});
 
     it("Should be a empty array of vestingBeneficiaries", async () => {
       const vestingBeneficiaries =
@@ -262,7 +262,9 @@ describe("StartonVesting", () => {
             .sub(receipt.gasUsed.mul(receipt.effectiveGasPrice))
         );
       });
+    });
 
+    describe("Claim all native vesting", () => {
       it("Should claim all the vestings at the end", async () => {
         const amount = ethers.utils.parseEther("1000");
         const amount2 = ethers.utils.parseEther("1");
@@ -537,7 +539,9 @@ describe("StartonVesting", () => {
           beforeBalance.add(amount)
         );
       });
+    });
 
+    describe("Claim all token vesting", () => {
       it("Should claim all token vestings at the end", async () => {
         const amount = ethers.utils.parseEther("1000");
         const amount2 = ethers.utils.parseEther("10000");
