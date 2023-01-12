@@ -271,6 +271,18 @@ describe("StartonERC721Base", () => {
         )
       ).to.be.revertedWith("Minting is locked");
     });
+
+    it("Should lock the metadatas and not let anyone change metadatas anymore", async () => {
+      await instanceERC721.lockMetadata();
+      await expect(
+        instanceERC721.setContractURI(
+          "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+        )
+      ).to.be.revertedWith("Metadatas are locked");
+      await expect(
+        instanceERC721.setBaseTokenURI("https://ipfs.io/")
+      ).to.be.revertedWith("Metadatas are locked");
+    });
   });
 
   describe("Roles", () => {

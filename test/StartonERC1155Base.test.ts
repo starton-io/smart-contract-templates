@@ -431,6 +431,20 @@ describe("StartonERC1155Base", () => {
         )
       ).to.be.revertedWith("Minting is locked");
     });
+
+    it("Should lock the metadatas and not let anyone change metadatas anymore", async () => {
+      await instanceERC1155.lockMetadata();
+      await expect(
+        instanceERC1155.setContractURI(
+          "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+        )
+      ).to.be.revertedWith("Metadatas are locked");
+      await expect(
+        instanceERC1155.setTokenURI(
+          "ipfs://QmW77ZQQ7Jm9q8WuLbH8YZg2K7T9Qnjbzm7jYVQQrJY5Y/{id}"
+        )
+      ).to.be.revertedWith("Metadatas are locked");
+    });
   });
 
   describe("Roles", () => {
