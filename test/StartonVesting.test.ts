@@ -4,17 +4,17 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 
 import {
-  StartonFinalVesting,
-  StartonFinalVesting__factory, // eslint-disable-line camelcase
+  StartonVesting,
+  StartonVesting__factory, // eslint-disable-line camelcase
   StartonERC20Base,
   StartonERC20Base__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let Vesting: StartonFinalVesting__factory; // eslint-disable-line camelcase
+let Vesting: StartonVesting__factory; // eslint-disable-line camelcase
 let Token: StartonERC20Base__factory; // eslint-disable-line camelcase
 
-describe("StartonFinalVesting", () => {
-  let instanceVesting: StartonFinalVesting;
+describe("StartonVesting", () => {
+  let instanceVesting: StartonVesting;
   let instanceToken: StartonERC20Base;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
@@ -31,21 +31,21 @@ describe("StartonFinalVesting", () => {
     // Get the Signers here
     [owner, addr1, addr2] = await ethers.getSigners();
 
-    Vesting = new StartonFinalVesting__factory(owner);
+    Vesting = new StartonVesting__factory(owner);
   });
 
   beforeEach(async () => {
     // Reset the whole waffle for each test
     await ethers.provider.send("hardhat_reset", []);
 
-    instanceVesting = (await Vesting.deploy()) as StartonFinalVesting;
+    instanceVesting = (await Vesting.deploy()) as StartonVesting;
     await instanceVesting.deployed();
 
     now = new Date();
   });
 
   describe("Deployment", () => {
-    it("Should deploy the contract", async () => {});
+    it("Should deploy the contract", async () => { });
 
     it("Should be a empty array of vestingBeneficiaries", async () => {
       const vestingBeneficiaries =
@@ -64,8 +64,9 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,uint64)"](
+          instanceVesting["addVesting(address,uint64,uint64)"](
             addr1.address,
+            start,
             endTimestamp,
             {
               value: amount,
@@ -82,8 +83,9 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,uint64)"](
+          instanceVesting["addVesting(address,uint64,uint64)"](
             addr1.address,
+            start,
             endTimestamp,
             {
               value: amount,
@@ -104,8 +106,9 @@ describe("StartonFinalVesting", () => {
         const endTimestamp3 = start1 + 10000;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
-        await instanceVesting["addVesting(address,uint64)"](
+        await instanceVesting["addVesting(address,uint64,uint64)"](
           addr1.address,
+          start1,
           endTimestamp1,
           {
             value: amount1,
@@ -113,8 +116,9 @@ describe("StartonFinalVesting", () => {
         );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start2]);
-        await instanceVesting["addVesting(address,uint64)"](
+        await instanceVesting["addVesting(address,uint64,uint64)"](
           addr1.address,
+          start2,
           endTimestamp2,
           {
             value: amount2,
@@ -122,8 +126,9 @@ describe("StartonFinalVesting", () => {
         );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
-        await instanceVesting["addVesting(address,uint64)"](
+        await instanceVesting["addVesting(address,uint64,uint64)"](
           addr2.address,
+          start3,
           endTimestamp3,
           {
             value: amount3,
@@ -192,8 +197,9 @@ describe("StartonFinalVesting", () => {
         const endTimestamp = start + 100;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting["addVesting(address,uint64)"](
+        await instanceVesting["addVesting(address,uint64,uint64)"](
           addr1.address,
+          start,
           endTimestamp,
           {
             value: amount,
@@ -214,8 +220,9 @@ describe("StartonFinalVesting", () => {
         const endTimestamp = start + 100;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting["addVesting(address,uint64)"](
+        await instanceVesting["addVesting(address,uint64,uint64)"](
           addr1.address,
+          start,
           endTimestamp,
           {
             value: amount,
@@ -235,8 +242,9 @@ describe("StartonFinalVesting", () => {
         const endTimestamp = start + 100;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting["addVesting(address,uint64)"](
+        await instanceVesting["addVesting(address,uint64,uint64)"](
           addr1.address,
+          start,
           endTimestamp,
           {
             value: amount,
@@ -245,7 +253,51 @@ describe("StartonFinalVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
-        instanceVesting.connect(addr1).claimVesting(0);
+        const beforeBalance = await addr1.getBalance();
+        const tx = await instanceVesting.connect(addr1).claimVesting(0);
+        const receipt = await tx.wait();
+        expect(await addr1.getBalance()).to.be.equal(
+          beforeBalance
+            .add(amount)
+            .sub(receipt.gasUsed.mul(receipt.effectiveGasPrice))
+        );
+      });
+
+      it("Should claim all the vestings at the end", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const amount2 = ethers.utils.parseEther("1");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start + 100;
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting["addVesting(address,uint64,uint64)"](
+          addr1.address,
+          start,
+          endTimestamp,
+          {
+            value: amount,
+          }
+        );
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+        await instanceVesting["addVesting(address,uint64,uint64)"](
+          addr1.address,
+          start + 1,
+          endTimestamp,
+          {
+            value: amount2,
+          }
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+
+        const beforeBalance = await addr1.getBalance();
+        const tx = await instanceVesting.connect(addr1).claimAllVestings();
+        const receipt = await tx.wait();
+        expect(await addr1.getBalance()).to.be.equal(
+          beforeBalance
+            .add(amount.add(amount2))
+            .sub(receipt.gasUsed.mul(receipt.effectiveGasPrice))
+        );
       });
     });
   });
@@ -276,11 +328,12 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,uint64,uint256,address)"](
+          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
             addr1.address,
+            instanceToken.address,
+            start,
             endTimestamp,
-            amount,
-            instanceToken.address
+            amount
           )
         ).to.be.revertedWith("Amount is insufficent");
       });
@@ -295,11 +348,12 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,uint64,uint256,address)"](
+          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
             addr1.address,
+            instanceToken.address,
+            start,
             endTimestamp,
-            amount,
-            instanceToken.address
+            amount
           )
         ).to.be.revertedWith("End timestamp is in the past");
       });
@@ -314,11 +368,12 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,uint64,uint256,address)"](
+          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
             addr1.address,
+            instanceToken.address,
+            start,
             endTimestamp,
-            amount,
-            instanceToken.address
+            amount
           )
         ).to.be.revertedWith("Not enough allowance");
       });
@@ -333,11 +388,12 @@ describe("StartonFinalVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,uint64,uint256,address)"](
+          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
             addr1.address,
+            instanceToken.address,
+            start,
             endTimestamp,
-            amount,
-            instanceToken.address
+            amount
           )
         ).to.be.revertedWith("Not enough balance");
       });
@@ -359,28 +415,19 @@ describe("StartonFinalVesting", () => {
         );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
-        await instanceVesting["addVesting(address,uint64,uint256,address)"](
-          addr1.address,
-          endTimestamp1,
-          amount1,
-          instanceToken.address
-        );
+        await instanceVesting[
+          "addVesting(address,address,uint64,uint64,uint256)"
+        ](addr1.address, instanceToken.address, start1, endTimestamp1, amount1);
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start2]);
-        await instanceVesting["addVesting(address,uint64,uint256,address)"](
-          addr1.address,
-          endTimestamp2,
-          amount2,
-          instanceToken.address
-        );
+        await instanceVesting[
+          "addVesting(address,address,uint64,uint64,uint256)"
+        ](addr1.address, instanceToken.address, start2, endTimestamp2, amount2);
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
-        await instanceVesting["addVesting(address,uint64,uint256,address)"](
-          addr2.address,
-          endTimestamp3,
-          amount3,
-          instanceToken.address
-        );
+        await instanceVesting[
+          "addVesting(address,address,uint64,uint64,uint256)"
+        ](addr2.address, instanceToken.address, start3, endTimestamp3, amount3);
 
         const vesting1 = await instanceVesting.getVesting(addr1.address, 0);
         const vesting2 = await instanceVesting.getVesting(addr1.address, 1);
@@ -438,12 +485,9 @@ describe("StartonFinalVesting", () => {
         await instanceToken.approve(instanceVesting.address, amount);
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting["addVesting(address,uint64,uint256,address)"](
-          addr1.address,
-          endTimestamp,
-          amount,
-          instanceToken.address
-        );
+        await instanceVesting[
+          "addVesting(address,address,uint64,uint64,uint256)"
+        ](addr1.address, instanceToken.address, start, endTimestamp, amount);
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
 
@@ -460,12 +504,9 @@ describe("StartonFinalVesting", () => {
         await instanceToken.approve(instanceVesting.address, amount);
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting["addVesting(address,uint64,uint256,address)"](
-          addr1.address,
-          endTimestamp,
-          amount,
-          instanceToken.address
-        );
+        await instanceVesting[
+          "addVesting(address,address,uint64,uint64,uint256)"
+        ](addr1.address, instanceToken.address, start, endTimestamp, amount);
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
@@ -484,16 +525,53 @@ describe("StartonFinalVesting", () => {
         await instanceToken.approve(instanceVesting.address, amount);
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting["addVesting(address,uint64,uint256,address)"](
+        await instanceVesting[
+          "addVesting(address,address,uint64,uint64,uint256)"
+        ](addr1.address, instanceToken.address, start, endTimestamp, amount);
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+
+        const beforeBalance = await instanceToken.balanceOf(addr1.address);
+        await instanceVesting.connect(addr1).claimVesting(0);
+        expect(await instanceToken.balanceOf(addr1.address)).to.equal(
+          beforeBalance.add(amount)
+        );
+      });
+
+      it("Should claim all token vestings at the end", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const amount2 = ethers.utils.parseEther("10000");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start + 100;
+
+        await instanceToken.approve(
+          instanceVesting.address,
+          amount.add(amount2)
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting[
+          "addVesting(address,address,uint64,uint64,uint256)"
+        ](addr1.address, instanceToken.address, start, endTimestamp, amount);
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+        await instanceVesting[
+          "addVesting(address,address,uint64,uint64,uint256)"
+        ](
           addr1.address,
+          instanceToken.address,
+          start + 1,
           endTimestamp,
-          amount,
-          instanceToken.address
+          amount2
         );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
-        instanceVesting.connect(addr1).claimVesting(0);
+        const beforeBalance = await instanceToken.balanceOf(addr1.address);
+        await instanceVesting.connect(addr1).claimAllVestings();
+        expect(await instanceToken.balanceOf(addr1.address)).to.equal(
+          beforeBalance.add(amount.add(amount2))
+        );
       });
     });
   });
