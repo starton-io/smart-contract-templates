@@ -231,8 +231,13 @@ contract StartonVesting is AStartonVesting {
      */
     function claimAllVestings() public {
         uint256 length = _vestings[_msgSender()].length;
+        uint256 totalPopped = 0;
         for (uint256 i = 0; i < length; ++i) {
-            claimVesting(0);
+            VestingData memory vesting = getVesting(_msgSender(), i - totalPopped);
+
+            uint256 value = vestingAmount(vesting.amount, vesting.endTimestamp);
+            if (value != 0) claimVesting(i - totalPopped);
+            if (vesting.endTimestamp <= block.timestamp) totalPopped += 1;
         }
     }
 
