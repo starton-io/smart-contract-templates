@@ -27,6 +27,12 @@ describe("StartonVesting", () => {
     NATIVE, // eslint-disable-line no-unused-vars
   }
 
+  // eslint-disable-next-line no-unused-vars
+  enum VestingType {
+    CLIFF, // eslint-disable-line no-unused-vars
+    LINEAR, // eslint-disable-line no-unused-vars
+  }
+
   before(async () => {
     // Get the Signers here
     [owner, addr1, addr2] = await ethers.getSigners();
@@ -45,7 +51,7 @@ describe("StartonVesting", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy the contract", async () => { });
+    it("Should deploy the contract", async () => {});
 
     it("Should be a empty array of vestingBeneficiaries", async () => {
       const vestingBeneficiaries =
@@ -64,8 +70,9 @@ describe("StartonVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,uint64,uint64)"](
+          instanceVesting["addVesting(address,uint8,uint64,uint64)"](
             addr1.address,
+            VestingType.CLIFF,
             start,
             endTimestamp,
             {
@@ -83,8 +90,9 @@ describe("StartonVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,uint64,uint64)"](
+          instanceVesting["addVesting(address,uint8,uint64,uint64)"](
             addr1.address,
+            VestingType.CLIFF,
             start - 1,
             endTimestamp,
             {
@@ -102,8 +110,9 @@ describe("StartonVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,uint64,uint64)"](
+          instanceVesting["addVesting(address,uint8,uint64,uint64)"](
             addr1.address,
+            VestingType.CLIFF,
             start,
             endTimestamp,
             {
@@ -121,8 +130,9 @@ describe("StartonVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,uint64,uint64)"](
-            "0x0000000000000000000000000000000000000000",
+          instanceVesting["addVesting(address,uint8,uint64,uint64)"](
+            ethers.constants.AddressZero,
+            VestingType.CLIFF,
             start,
             endTimestamp,
             {
@@ -144,8 +154,9 @@ describe("StartonVesting", () => {
         const endTimestamp3 = start1 + 10000;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
-        await instanceVesting["addVesting(address,uint64,uint64)"](
+        await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
           addr1.address,
+          VestingType.CLIFF,
           start1,
           endTimestamp1,
           {
@@ -154,8 +165,9 @@ describe("StartonVesting", () => {
         );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start2]);
-        await instanceVesting["addVesting(address,uint64,uint64)"](
+        await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
           addr1.address,
+          VestingType.CLIFF,
           start2,
           endTimestamp2,
           {
@@ -164,8 +176,9 @@ describe("StartonVesting", () => {
         );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
-        await instanceVesting["addVesting(address,uint64,uint64)"](
+        await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
           addr2.address,
+          VestingType.CLIFF,
           start3,
           endTimestamp3,
           {
@@ -189,23 +202,29 @@ describe("StartonVesting", () => {
         const awaitedVesting1 = [
           amount1,
           TypeOfToken.NATIVE,
+          VestingType.CLIFF,
           ethers.constants.AddressZero,
-          start1,
-          endTimestamp1,
+          BigNumber.from(start1),
+          BigNumber.from(endTimestamp1),
+          BigNumber.from("0"),
         ];
         const awaitedVesting2 = [
           amount2,
           TypeOfToken.NATIVE,
+          VestingType.CLIFF,
           ethers.constants.AddressZero,
-          start2,
-          endTimestamp2,
+          BigNumber.from(start2),
+          BigNumber.from(endTimestamp2),
+          BigNumber.from("0"),
         ];
         const awaitedVesting3 = [
           amount3,
           TypeOfToken.NATIVE,
+          VestingType.CLIFF,
           ethers.constants.AddressZero,
-          start3,
-          endTimestamp3,
+          BigNumber.from(start3),
+          BigNumber.from(endTimestamp3),
+          BigNumber.from("0"),
         ];
 
         expect(vestingNb1).to.deep.equal(2);
@@ -232,24 +251,45 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,uint64[],uint64[],uint256[])"
-          ](addr1.address, [start, start], [endTimestamp], [amount], {
-            value: amount,
-          })
+            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+          ](
+            addr1.address,
+            VestingType.CLIFF,
+            [start, start],
+            [endTimestamp],
+            [amount],
+            {
+              value: amount,
+            }
+          )
         ).to.be.revertedWith("Invalid array length");
         await expect(
           instanceVesting[
-            "addBatchVesting(address,uint64[],uint64[],uint256[])"
-          ](addr1.address, [start], [endTimestamp], [amount, amount], {
-            value: amount,
-          })
+            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+          ](
+            addr1.address,
+            VestingType.CLIFF,
+            [start],
+            [endTimestamp],
+            [amount, amount],
+            {
+              value: amount,
+            }
+          )
         ).to.be.revertedWith("Invalid array length");
         await expect(
           instanceVesting[
-            "addBatchVesting(address,uint64[],uint64[],uint256[])"
-          ](addr1.address, [start], [endTimestamp, endTimestamp], [amount], {
-            value: amount,
-          })
+            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+          ](
+            addr1.address,
+            VestingType.CLIFF,
+            [start],
+            [endTimestamp, endTimestamp],
+            [amount],
+            {
+              value: amount,
+            }
+          )
         ).to.be.revertedWith("Invalid array length");
       });
 
@@ -262,9 +302,10 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
+            VestingType.CLIFF,
             [start, start],
             [endTimestamp, endTimestamp],
             [amount, amount],
@@ -285,9 +326,10 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
+            VestingType.CLIFF,
             [start, start],
             [endTimestamp, endTimestamp],
             [amount, amount2],
@@ -307,9 +349,10 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
+            VestingType.CLIFF,
             [start, start - 1],
             [endTimestamp, endTimestamp],
             [amount, amount],
@@ -330,9 +373,10 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
+            VestingType.CLIFF,
             [start, start],
             [endTimestamp1, endTimestamp2],
             [amount, amount],
@@ -352,9 +396,10 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
           ](
-            "0x0000000000000000000000000000000000000000",
+            ethers.constants.AddressZero,
+            VestingType.CLIFF,
             [start, start],
             [endTimestamp, endTimestamp],
             [amount, amount],
@@ -378,9 +423,10 @@ describe("StartonVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
         await instanceVesting[
-          "addBatchVesting(address,uint64[],uint64[],uint256[])"
+          "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
         ](
           addr1.address,
+          VestingType.CLIFF,
           [start1, start2],
           [endTimestamp1, endTimestamp2],
           [amount1, amount2],
@@ -391,10 +437,17 @@ describe("StartonVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
         await instanceVesting[
-          "addBatchVesting(address,uint64[],uint64[],uint256[])"
-        ](addr2.address, [start3], [endTimestamp3], [amount3], {
-          value: amount3,
-        });
+          "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+        ](
+          addr2.address,
+          VestingType.CLIFF,
+          [start3],
+          [endTimestamp3],
+          [amount3],
+          {
+            value: amount3,
+          }
+        );
 
         const vestingNb1 = await instanceVesting.getVestingNumber(
           addr1.address
@@ -412,23 +465,29 @@ describe("StartonVesting", () => {
         const awaitedVesting1 = [
           amount1,
           TypeOfToken.NATIVE,
+          VestingType.CLIFF,
           ethers.constants.AddressZero,
-          start1,
-          endTimestamp1,
+          BigNumber.from(start1),
+          BigNumber.from(endTimestamp1),
+          BigNumber.from("0"),
         ];
         const awaitedVesting2 = [
           amount2,
           TypeOfToken.NATIVE,
+          VestingType.CLIFF,
           ethers.constants.AddressZero,
-          start2,
-          endTimestamp2,
+          BigNumber.from(start2),
+          BigNumber.from(endTimestamp2),
+          BigNumber.from("0"),
         ];
         const awaitedVesting3 = [
           amount3,
           TypeOfToken.NATIVE,
+          VestingType.CLIFF,
           ethers.constants.AddressZero,
-          start3,
-          endTimestamp3,
+          BigNumber.from(start3),
+          BigNumber.from(endTimestamp3),
+          BigNumber.from("0"),
         ];
 
         expect(vestingNb1).to.deep.equal(2);
@@ -458,8 +517,9 @@ describe("StartonVesting", () => {
         const endTimestamp = start + 100;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting["addVesting(address,uint64,uint64)"](
+        await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
           addr1.address,
+          VestingType.CLIFF,
           start,
           endTimestamp,
           {
@@ -481,8 +541,9 @@ describe("StartonVesting", () => {
         const endTimestamp = start + 100;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting["addVesting(address,uint64,uint64)"](
+        await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
           addr1.address,
+          VestingType.CLIFF,
           start,
           endTimestamp,
           {
@@ -503,8 +564,9 @@ describe("StartonVesting", () => {
         const endTimestamp = start + 100;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting["addVesting(address,uint64,uint64)"](
+        await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
           addr1.address,
+          VestingType.CLIFF,
           start,
           endTimestamp,
           {
@@ -533,8 +595,9 @@ describe("StartonVesting", () => {
         const endTimestamp = start + 100;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting["addVesting(address,uint64,uint64)"](
+        await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
           addr1.address,
+          VestingType.CLIFF,
           start,
           endTimestamp,
           {
@@ -542,8 +605,9 @@ describe("StartonVesting", () => {
           }
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
-        await instanceVesting["addVesting(address,uint64,uint64)"](
+        await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
           addr1.address,
+          VestingType.CLIFF,
           start + 1,
           endTimestamp,
           {
@@ -571,8 +635,9 @@ describe("StartonVesting", () => {
         const endTimestamp2 = start + 1000;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
-        await instanceVesting["addVesting(address,uint64,uint64)"](
+        await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
           addr1.address,
+          VestingType.CLIFF,
           start,
           endTimestamp,
           {
@@ -580,8 +645,9 @@ describe("StartonVesting", () => {
           }
         );
         await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
-        await instanceVesting["addVesting(address,uint64,uint64)"](
+        await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
           addr1.address,
+          VestingType.CLIFF,
           start + 1,
           endTimestamp2,
           {
@@ -629,9 +695,12 @@ describe("StartonVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
+          instanceVesting[
+            "addVesting(address,address,uint8,uint64,uint64,uint256)"
+          ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             start,
             endTimestamp,
             amount
@@ -649,9 +718,12 @@ describe("StartonVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
+          instanceVesting[
+            "addVesting(address,address,uint8,uint64,uint64,uint256)"
+          ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             start - 1,
             endTimestamp,
             amount
@@ -669,9 +741,12 @@ describe("StartonVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
+          instanceVesting[
+            "addVesting(address,address,uint8,uint64,uint64,uint256)"
+          ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             start,
             endTimestamp,
             amount
@@ -689,9 +764,12 @@ describe("StartonVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
-            "0x0000000000000000000000000000000000000000",
+          instanceVesting[
+            "addVesting(address,address,uint8,uint64,uint64,uint256)"
+          ](
+            ethers.constants.AddressZero,
             instanceToken.address,
+            VestingType.CLIFF,
             start,
             endTimestamp,
             amount
@@ -709,9 +787,12 @@ describe("StartonVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
+          instanceVesting[
+            "addVesting(address,address,uint8,uint64,uint64,uint256)"
+          ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             start,
             endTimestamp,
             amount
@@ -729,9 +810,12 @@ describe("StartonVesting", () => {
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
         await expect(
-          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
+          instanceVesting[
+            "addVesting(address,address,uint8,uint64,uint64,uint256)"
+          ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             start,
             endTimestamp,
             amount
@@ -757,18 +841,39 @@ describe("StartonVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
         await instanceVesting[
-          "addVesting(address,address,uint64,uint64,uint256)"
-        ](addr1.address, instanceToken.address, start1, endTimestamp1, amount1);
+          "addVesting(address,address,uint8,uint64,uint64,uint256)"
+        ](
+          addr1.address,
+          instanceToken.address,
+          VestingType.CLIFF,
+          start1,
+          endTimestamp1,
+          amount1
+        );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start2]);
         await instanceVesting[
-          "addVesting(address,address,uint64,uint64,uint256)"
-        ](addr1.address, instanceToken.address, start2, endTimestamp2, amount2);
+          "addVesting(address,address,uint8,uint64,uint64,uint256)"
+        ](
+          addr1.address,
+          instanceToken.address,
+          VestingType.CLIFF,
+          start2,
+          endTimestamp2,
+          amount2
+        );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
         await instanceVesting[
-          "addVesting(address,address,uint64,uint64,uint256)"
-        ](addr2.address, instanceToken.address, start3, endTimestamp3, amount3);
+          "addVesting(address,address,uint8,uint64,uint64,uint256)"
+        ](
+          addr2.address,
+          instanceToken.address,
+          VestingType.CLIFF,
+          start3,
+          endTimestamp3,
+          amount3
+        );
 
         const vesting1 = await instanceVesting.getVesting(addr1.address, 0);
         const vesting2 = await instanceVesting.getVesting(addr1.address, 1);
@@ -780,23 +885,29 @@ describe("StartonVesting", () => {
         const awaitedVesting1 = [
           amount1,
           TypeOfToken.TOKEN,
+          VestingType.CLIFF,
           instanceToken.address,
-          start1,
-          endTimestamp1,
+          BigNumber.from(start1),
+          BigNumber.from(endTimestamp1),
+          BigNumber.from("0"),
         ];
         const awaitedVesting2 = [
           amount2,
           TypeOfToken.TOKEN,
+          VestingType.CLIFF,
           instanceToken.address,
-          start2,
-          endTimestamp2,
+          BigNumber.from(start2),
+          BigNumber.from(endTimestamp2),
+          BigNumber.from("0"),
         ];
         const awaitedVesting3 = [
           amount3,
           TypeOfToken.TOKEN,
+          VestingType.CLIFF,
           instanceToken.address,
-          start3,
-          endTimestamp3,
+          BigNumber.from(start3),
+          BigNumber.from(endTimestamp3),
+          BigNumber.from("0"),
         ];
 
         expect(vesting1).to.deep.equal(awaitedVesting1);
@@ -823,10 +934,11 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             [start, start],
             [endTimestamp],
             [amount]
@@ -834,10 +946,11 @@ describe("StartonVesting", () => {
         ).to.be.revertedWith("Invalid array length");
         await expect(
           instanceVesting[
-            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             [start],
             [endTimestamp],
             [amount, amount]
@@ -845,10 +958,11 @@ describe("StartonVesting", () => {
         ).to.be.revertedWith("Invalid array length");
         await expect(
           instanceVesting[
-            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             [start],
             [endTimestamp, endTimestamp],
             [amount]
@@ -867,10 +981,11 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             [start],
             [endTimestamp],
             [amount]
@@ -889,10 +1004,11 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             [start - 1],
             [endTimestamp],
             [amount]
@@ -911,10 +1027,11 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             [start],
             [endTimestamp],
             [amount]
@@ -933,10 +1050,11 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
-            "0x0000000000000000000000000000000000000000",
+            ethers.constants.AddressZero,
             instanceToken.address,
+            VestingType.CLIFF,
             [start],
             [endTimestamp],
             [amount]
@@ -955,10 +1073,11 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             [start],
             [endTimestamp],
             [amount]
@@ -977,10 +1096,11 @@ describe("StartonVesting", () => {
 
         await expect(
           instanceVesting[
-            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             instanceToken.address,
+            VestingType.CLIFF,
             [start],
             [endTimestamp],
             [amount]
@@ -1006,10 +1126,11 @@ describe("StartonVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
         await instanceVesting[
-          "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+          "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
         ](
           addr1.address,
           instanceToken.address,
+          VestingType.CLIFF,
           [start1, start2],
           [endTimestamp1, endTimestamp2],
           [amount1, amount2]
@@ -1017,10 +1138,11 @@ describe("StartonVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
         await instanceVesting[
-          "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+          "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
         ](
           addr2.address,
           instanceToken.address,
+          VestingType.CLIFF,
           [start3],
           [endTimestamp3],
           [amount3]
@@ -1036,23 +1158,29 @@ describe("StartonVesting", () => {
         const awaitedVesting1 = [
           amount1,
           TypeOfToken.TOKEN,
+          VestingType.CLIFF,
           instanceToken.address,
-          start1,
-          endTimestamp1,
+          BigNumber.from(start1),
+          BigNumber.from(endTimestamp1),
+          BigNumber.from("0"),
         ];
         const awaitedVesting2 = [
           amount2,
           TypeOfToken.TOKEN,
+          VestingType.CLIFF,
           instanceToken.address,
-          start2,
-          endTimestamp2,
+          BigNumber.from(start2),
+          BigNumber.from(endTimestamp2),
+          BigNumber.from("0"),
         ];
         const awaitedVesting3 = [
           amount3,
           TypeOfToken.TOKEN,
+          VestingType.CLIFF,
           instanceToken.address,
-          start3,
-          endTimestamp3,
+          BigNumber.from(start3),
+          BigNumber.from(endTimestamp3),
+          BigNumber.from("0"),
         ];
 
         expect(vesting1).to.deep.equal(awaitedVesting1);
@@ -1083,8 +1211,15 @@ describe("StartonVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await instanceVesting[
-          "addVesting(address,address,uint64,uint64,uint256)"
-        ](addr1.address, instanceToken.address, start, endTimestamp, amount);
+          "addVesting(address,address,uint8,uint64,uint64,uint256)"
+        ](
+          addr1.address,
+          instanceToken.address,
+          VestingType.CLIFF,
+          start,
+          endTimestamp,
+          amount
+        );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
 
@@ -1102,8 +1237,15 @@ describe("StartonVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await instanceVesting[
-          "addVesting(address,address,uint64,uint64,uint256)"
-        ](addr1.address, instanceToken.address, start, endTimestamp, amount);
+          "addVesting(address,address,uint8,uint64,uint64,uint256)"
+        ](
+          addr1.address,
+          instanceToken.address,
+          VestingType.CLIFF,
+          start,
+          endTimestamp,
+          amount
+        );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
@@ -1123,8 +1265,15 @@ describe("StartonVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await instanceVesting[
-          "addVesting(address,address,uint64,uint64,uint256)"
-        ](addr1.address, instanceToken.address, start, endTimestamp, amount);
+          "addVesting(address,address,uint8,uint64,uint64,uint256)"
+        ](
+          addr1.address,
+          instanceToken.address,
+          VestingType.CLIFF,
+          start,
+          endTimestamp,
+          amount
+        );
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
 
@@ -1150,15 +1299,23 @@ describe("StartonVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await instanceVesting[
-          "addVesting(address,address,uint64,uint64,uint256)"
-        ](addr1.address, instanceToken.address, start, endTimestamp, amount);
-
-        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
-        await instanceVesting[
-          "addVesting(address,address,uint64,uint64,uint256)"
+          "addVesting(address,address,uint8,uint64,uint64,uint256)"
         ](
           addr1.address,
           instanceToken.address,
+          VestingType.CLIFF,
+          start,
+          endTimestamp,
+          amount
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+        await instanceVesting[
+          "addVesting(address,address,uint8,uint64,uint64,uint256)"
+        ](
+          addr1.address,
+          instanceToken.address,
+          VestingType.CLIFF,
           start + 1,
           endTimestamp,
           amount2
@@ -1187,15 +1344,23 @@ describe("StartonVesting", () => {
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
         await instanceVesting[
-          "addVesting(address,address,uint64,uint64,uint256)"
-        ](addr1.address, instanceToken.address, start, endTimestamp, amount);
-
-        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
-        await instanceVesting[
-          "addVesting(address,address,uint64,uint64,uint256)"
+          "addVesting(address,address,uint8,uint64,uint64,uint256)"
         ](
           addr1.address,
           instanceToken.address,
+          VestingType.CLIFF,
+          start,
+          endTimestamp,
+          amount
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+        await instanceVesting[
+          "addVesting(address,address,uint8,uint64,uint64,uint256)"
+        ](
+          addr1.address,
+          instanceToken.address,
+          VestingType.CLIFF,
           start + 1,
           endTimestamp2,
           amount2
