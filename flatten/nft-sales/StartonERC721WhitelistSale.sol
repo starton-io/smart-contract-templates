@@ -246,7 +246,7 @@ abstract contract Context {
 // File contracts/abstracts/AStartonWhitelist.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 
 abstract contract AStartonWhitelist is Context {

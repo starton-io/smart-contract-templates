@@ -1039,7 +1039,7 @@ abstract contract Initializable {
 // File contracts/abstracts/AStartonEIP712Base.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 /// @title AStartonEIP712Base
 /// @author Starton
@@ -1105,7 +1105,7 @@ abstract contract AStartonEIP712Base is Initializable {
 // File contracts/abstracts/AStartonNativeMetaTransaction.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 /// @title AStartonNativeMetaTransaction
 /// @author Starton
@@ -1656,7 +1656,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 // File contracts/abstracts/AStartonAccessControl.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 /// @title AStartonAcessControl
 /// @author Starton
@@ -1676,7 +1676,7 @@ abstract contract AStartonAccessControl is AccessControl {
 // File contracts/abstracts/AStartonContextMixin.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 /// @title AStartonContextMixin
 /// @author Starton
@@ -1705,7 +1705,7 @@ abstract contract AStartonContextMixin {
 // File contracts/abstracts/AStartonPausable.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 
 contract AStartonPausable is Pausable, AccessControl {

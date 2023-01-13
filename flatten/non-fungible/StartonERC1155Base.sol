@@ -1326,7 +1326,7 @@ abstract contract Initializable {
 // File contracts/abstracts/AStartonEIP712Base.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 /// @title AStartonEIP712Base
 /// @author Starton
@@ -1392,7 +1392,7 @@ abstract contract AStartonEIP712Base is Initializable {
 // File contracts/abstracts/AStartonNativeMetaTransaction.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 /// @title AStartonNativeMetaTransaction
 /// @author Starton
@@ -1468,7 +1468,7 @@ abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
 // File contracts/abstracts/AStartonContextMixin.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 /// @title AStartonContextMixin
 /// @author Starton
@@ -1914,7 +1914,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 // File contracts/abstracts/AStartonAccessControl.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 /// @title AStartonAcessControl
 /// @author Starton
@@ -1934,7 +1934,7 @@ abstract contract AStartonAccessControl is AccessControl {
 // File contracts/abstracts/AStartonBlacklist.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 /// @title AStartonBlacklist
 /// @author Starton
@@ -1959,7 +1959,7 @@ abstract contract AStartonBlacklist is AccessControl {
      * @custom:requires METADATA_ROLE
      */
     function addToBlacklist(address addressToBlacklist) public virtual onlyRole(BLACKLISTER_ROLE) {
-        require(!_blacklisted[addressToBlacklist], "This address is already blacklisted");
+        require(!_blacklisted[addressToBlacklist], "Address is already blacklisted");
         _blacklisted[addressToBlacklist] = true;
         emit Blacklisted(addressToBlacklist, true);
     }
@@ -1970,7 +1970,7 @@ abstract contract AStartonBlacklist is AccessControl {
      * @custom:requires METADATA_ROLE
      */
     function removeFromBlacklist(address addressToRemove) public virtual onlyRole(BLACKLISTER_ROLE) {
-        require(_blacklisted[addressToRemove], "This address is not blacklisted");
+        require(_blacklisted[addressToRemove], "Address is not blacklisted");
         _blacklisted[addressToRemove] = false;
         emit Blacklisted(addressToRemove, false);
     }
@@ -2021,7 +2021,7 @@ abstract contract AStartonBlacklist is AccessControl {
 // File contracts/abstracts/AStartonPausable.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 
 contract AStartonPausable is Pausable, AccessControl {
@@ -2092,7 +2092,7 @@ contract StartonERC1155Base is
 
     /** @dev Modifier that reverts when the metadatas are locked */
     modifier metadataNotLocked() {
-        require(_isMintAllowed, "Metadatas are locked");
+        require(_isMetatadataChangingAllowed, "Metadatas are locked");
         _;
     }
 
