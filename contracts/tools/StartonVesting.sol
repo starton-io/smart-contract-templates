@@ -249,7 +249,6 @@ contract StartonVesting is AStartonVesting {
         address beneficiary
     ) internal view {
         require(amount != 0, "Amount is insufficent");
-        require(endTimestamp >= block.timestamp, "End timestamp is in the past");
         require(startTimestamp >= block.timestamp, "Start timestamp is in the past");
         require(beneficiary != address(0), "Beneficiary is invalid");
         require(startTimestamp < endTimestamp, "Start timestamp is after end timestamp");
