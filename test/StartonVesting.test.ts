@@ -75,10 +75,29 @@ describe("StartonVesting", () => {
         ).to.be.revertedWith("Amount is insufficent");
       });
 
-      it("Shouldn't add a native vesting if end is in the past", async () => {
+      it("Shouldn't add a native vesting if start is in the past", async () => {
         const amount = ethers.utils.parseEther("1000");
         const start = (now.valueOf() / 1000) | 0;
-        const endTimestamp = start - 100;
+        const endTimestamp = start + 100;
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+
+        await expect(
+          instanceVesting["addVesting(address,uint64,uint64)"](
+            addr1.address,
+            start - 1,
+            endTimestamp,
+            {
+              value: amount,
+            }
+          )
+        ).to.be.revertedWith("Start timestamp is in the past");
+      });
+
+      it("Shouldn't add a native vesting if start is after end", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start - 1;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
@@ -91,7 +110,26 @@ describe("StartonVesting", () => {
               value: amount,
             }
           )
-        ).to.be.revertedWith("End timestamp is in the past");
+        ).to.be.revertedWith("Start timestamp is after end timestamp");
+      });
+
+      it("Shouldn't add a native vesting if beneficiary is invalid", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start + 100;
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+
+        await expect(
+          instanceVesting["addVesting(address,uint64,uint64)"](
+            "0x0000000000000000000000000000000000000000",
+            start,
+            endTimestamp,
+            {
+              value: amount,
+            }
+          )
+        ).to.be.revertedWith("Beneficiary is invalid");
       });
 
       it("Should add successfully native vestings", async () => {
@@ -260,11 +298,33 @@ describe("StartonVesting", () => {
         ).to.be.revertedWith("Amount is insufficent");
       });
 
-      it("Shouldn't batch add native vestings if end is in the past", async () => {
+      it("Shouldn't batch add native vestings if start is in the past", async () => {
         const amount = ethers.utils.parseEther("1000");
         const start = (now.valueOf() / 1000) | 0;
         const endTimestamp = start + 100;
-        const endTimestamp2 = start - 100;
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+
+        await expect(
+          instanceVesting[
+            "addBatchVesting(address,uint64[],uint64[],uint256[])"
+          ](
+            addr1.address,
+            [start, start - 1],
+            [endTimestamp, endTimestamp],
+            [amount, amount],
+            {
+              value: amount.mul(2),
+            }
+          )
+        ).to.be.revertedWith("Start timestamp is in the past");
+      });
+
+      it("Shouldn't batch add native vestings if start is after end", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp1 = start + 100;
+        const endTimestamp2 = start - 1;
 
         await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
@@ -274,13 +334,35 @@ describe("StartonVesting", () => {
           ](
             addr1.address,
             [start, start],
-            [endTimestamp, endTimestamp2],
+            [endTimestamp1, endTimestamp2],
             [amount, amount],
             {
               value: amount.mul(2),
             }
           )
-        ).to.be.revertedWith("End timestamp is in the past");
+        ).to.be.revertedWith("Start timestamp is after end timestamp");
+      });
+
+      it("Shouldn't batch add native vestings if beneficiary is invalid", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start + 100;
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+
+        await expect(
+          instanceVesting[
+            "addBatchVesting(address,uint64[],uint64[],uint256[])"
+          ](
+            "0x0000000000000000000000000000000000000000",
+            [start, start],
+            [endTimestamp, endTimestamp],
+            [amount, amount],
+            {
+              value: amount.mul(2),
+            }
+          )
+        ).to.be.revertedWith("Beneficiary is invalid");
       });
 
       it("Should batch add successfully native vestings", async () => {
@@ -519,10 +601,30 @@ describe("StartonVesting", () => {
         ).to.be.revertedWith("Amount is insufficent");
       });
 
-      it("Shouldn't add a token vesting if end is in the past", async () => {
+      it("Shouldn't add a token vesting if start is in the past", async () => {
         const amount = ethers.utils.parseEther("1000");
         const start = (now.valueOf() / 1000) | 0;
-        const endTimestamp = start - 100;
+        const endTimestamp = start + 100;
+
+        await instanceToken.approve(instanceVesting.address, amount);
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+
+        await expect(
+          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
+            addr1.address,
+            instanceToken.address,
+            start - 1,
+            endTimestamp,
+            amount
+          )
+        ).to.be.revertedWith("Start timestamp is in the past");
+      });
+
+      it("Shouldn't add a token vesting if start is after end", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start - 1;
 
         await instanceToken.approve(instanceVesting.address, amount);
 
@@ -536,7 +638,27 @@ describe("StartonVesting", () => {
             endTimestamp,
             amount
           )
-        ).to.be.revertedWith("End timestamp is in the past");
+        ).to.be.revertedWith("Start timestamp is after end timestamp");
+      });
+
+      it("Shouldn't add a token vesting if beneficiary is invalid", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start + 100;
+
+        await instanceToken.approve(instanceVesting.address, amount);
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+
+        await expect(
+          instanceVesting["addVesting(address,address,uint64,uint64,uint256)"](
+            "0x0000000000000000000000000000000000000000",
+            instanceToken.address,
+            start,
+            endTimestamp,
+            amount
+          )
+        ).to.be.revertedWith("Beneficiary is invalid");
       });
 
       it("Shouldn't add a token vesting if not enough allowance", async () => {
@@ -652,6 +774,50 @@ describe("StartonVesting", () => {
     });
 
     describe("Batch add a new vesting", () => {
+      it("Shouldn't batch add native vesting if not same length of args", async () => {
+        const amount = ethers.utils.parseEther("0.1");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start + 100;
+
+        await instanceToken.approve(instanceVesting.address, amount);
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+
+        await expect(
+          instanceVesting[
+            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+          ](
+            addr1.address,
+            instanceToken.address,
+            [start, start],
+            [endTimestamp],
+            [amount]
+          )
+        ).to.be.revertedWith("Invalid array length");
+        await expect(
+          instanceVesting[
+            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+          ](
+            addr1.address,
+            instanceToken.address,
+            [start],
+            [endTimestamp],
+            [amount, amount]
+          )
+        ).to.be.revertedWith("Invalid array length");
+        await expect(
+          instanceVesting[
+            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+          ](
+            addr1.address,
+            instanceToken.address,
+            [start],
+            [endTimestamp, endTimestamp],
+            [amount]
+          )
+        ).to.be.revertedWith("Invalid array length");
+      });
+
       it("Shouldn't batch add token vestings if the vested amount is 0", async () => {
         const amount = ethers.utils.parseEther("0");
         const start = (now.valueOf() / 1000) | 0;
@@ -674,10 +840,32 @@ describe("StartonVesting", () => {
         ).to.be.revertedWith("Amount is insufficent");
       });
 
-      it("Shouldn't batch add token vestings if end is in the past", async () => {
+      it("Shouldn't batch add token vestings if start is in the past", async () => {
         const amount = ethers.utils.parseEther("1000");
         const start = (now.valueOf() / 1000) | 0;
-        const endTimestamp = start - 100;
+        const endTimestamp = start + 100;
+
+        await instanceToken.approve(instanceVesting.address, amount);
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+
+        await expect(
+          instanceVesting[
+            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+          ](
+            addr1.address,
+            instanceToken.address,
+            [start - 1],
+            [endTimestamp],
+            [amount]
+          )
+        ).to.be.revertedWith("Start timestamp is in the past");
+      });
+
+      it("Shouldn't batch add token vestings if start is after end", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start - 1;
 
         await instanceToken.approve(instanceVesting.address, amount);
 
@@ -693,7 +881,29 @@ describe("StartonVesting", () => {
             [endTimestamp],
             [amount]
           )
-        ).to.be.revertedWith("End timestamp is in the past");
+        ).to.be.revertedWith("Start timestamp is after end timestamp");
+      });
+
+      it("Shouldn't batch add token vestings if beneficiary is invalid", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start + 100;
+
+        await instanceToken.approve(instanceVesting.address, amount);
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+
+        await expect(
+          instanceVesting[
+            "addBatchVesting(address,address,uint64[],uint64[],uint256[])"
+          ](
+            "0x0000000000000000000000000000000000000000",
+            instanceToken.address,
+            [start],
+            [endTimestamp],
+            [amount]
+          )
+        ).to.be.revertedWith("Beneficiary is invalid");
       });
 
       it("Shouldn't batch add token vestings if not enough allowance", async () => {
