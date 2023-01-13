@@ -46,6 +46,51 @@ contract StartonVesting is AStartonVesting {
     constructor() {}
 
     /**
+     * @notice Get the amount of tokens that can be claimed from a vesting
+     * @param amount The amount of tokens that are vested
+     * @param endTimestamp The timestamp when the vesting will end
+     * @return value The amount of tokens that can be claimed
+     */
+    function vestingAmount(uint256 amount, uint64 endTimestamp) public view returns (uint256 value) {
+        // If the vesting is finished, return the total amount of tokens
+        // else returns 0
+        if (block.timestamp >= endTimestamp) {
+            value = amount;
+        } else {
+            value = 0;
+        }
+    }
+
+    /**
+     * @notice Get all the vestings from a beneficiary
+     * @param beneficiary The account that have the vestings
+     * @return The list of vestings data
+     */
+    function getVestings(address beneficiary) public view returns (VestingData[] memory) {
+        return _vestings[beneficiary];
+    }
+
+    /**
+     * @notice Get a vesting from a beneficiary
+     * @param beneficiary The account that have the vesting
+     * @param index The index of the vesting
+     * @return The vesting data
+     */
+    function getVesting(address beneficiary, uint256 index) public view returns (VestingData memory) {
+        require(index < _vestings[beneficiary].length, "Vesting doesn't exist");
+        return _vestings[beneficiary][index];
+    }
+
+    /**
+     * @notice Get the number of vestings from a beneficiary
+     * @param beneficiary The account that have the vestings
+     * @return The number of vestings
+     */
+    function getVestingNumber(address beneficiary) public view returns (uint256) {
+        return _vestings[beneficiary].length;
+    }
+
+    /**
      * @notice Add a token vesting to a beneficiary
      * @param beneficiary The account that will receive the tokens
      * @param endTimestamp The timestamp when the vesting will end
@@ -140,22 +185,6 @@ contract StartonVesting is AStartonVesting {
     }
 
     /**
-     * @notice Get the amount of tokens that can be claimed from a vesting
-     * @param amount The amount of tokens that are vested
-     * @param endTimestamp The timestamp when the vesting will end
-     * @return value The amount of tokens that can be claimed
-     */
-    function vestingAmount(uint256 amount, uint64 endTimestamp) public view returns (uint256 value) {
-        // If the vesting is finished, return the total amount of tokens
-        // else returns 0
-        if (block.timestamp >= endTimestamp) {
-            value = amount;
-        } else {
-            value = 0;
-        }
-    }
-
-    /**
      * @notice Claim a vesting
      * @param index The index of the vesting
      */
@@ -205,35 +234,6 @@ contract StartonVesting is AStartonVesting {
         for (uint256 i = 0; i < length; ++i) {
             claimVesting(0);
         }
-    }
-
-    /**
-     * @notice Get all the vestings from a beneficiary
-     * @param beneficiary The account that have the vestings
-     * @return The list of vestings data
-     */
-    function getVestings(address beneficiary) public view returns (VestingData[] memory) {
-        return _vestings[beneficiary];
-    }
-
-    /**
-     * @notice Get a vesting from a beneficiary
-     * @param beneficiary The account that have the vesting
-     * @param index The index of the vesting
-     * @return The vesting data
-     */
-    function getVesting(address beneficiary, uint256 index) public view returns (VestingData memory) {
-        require(index < _vestings[beneficiary].length, "Vesting doesn't exist");
-        return _vestings[beneficiary][index];
-    }
-
-    /**
-     * @notice Get the number of vestings from a beneficiary
-     * @param beneficiary The account that have the vestings
-     * @return The number of vestings
-     */
-    function getVestingNumber(address beneficiary) public view returns (uint256) {
-        return _vestings[beneficiary].length;
     }
 
     /**
