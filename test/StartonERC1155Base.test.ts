@@ -305,8 +305,21 @@ describe("StartonERC1155Base", () => {
     });
   });
 
-  describe("BlackList", () => {
-    it("Should not set any addresses as blacklisted", async () => {
+  describe("Blacklist", () => {
+    it("Shouldn't blacklist if already blacklisted", async () => {
+      await instanceERC1155.addToBlacklist(addr1.address);
+      await expect(
+        instanceERC1155.addToBlacklist(addr1.address)
+      ).to.be.revertedWith("Address is already blacklisted");
+    });
+
+    it("Shouldn't remove from blacklist is not blacklisted", async () => {
+      await expect(
+        instanceERC1155.removeFromBlacklist(addr1.address)
+      ).to.be.revertedWith("Address is not blacklisted");
+    });
+
+    it("Shouldn't set any addresses as blacklisted", async () => {
       expect(await instanceERC1155.isBlacklisted(addr1.address)).to.equal(
         false
       );
@@ -318,6 +331,7 @@ describe("StartonERC1155Base", () => {
     });
 
     it("Should batch blacklist an address", async () => {
+      await instanceERC1155.addBatchToBlacklist([addr1.address]);
       await instanceERC1155.addBatchToBlacklist([
         addr1.address,
         addr2.address,
@@ -341,11 +355,12 @@ describe("StartonERC1155Base", () => {
 
     it("Should be able to batch remove blacklist", async () => {
       await instanceERC1155.addBatchToBlacklist([
-        addr1.address,
         addr2.address,
         addrs[3].address,
       ]);
-      expect(await instanceERC1155.isBlacklisted(addr1.address)).to.equal(true);
+      expect(await instanceERC1155.isBlacklisted(addr1.address)).to.equal(
+        false
+      );
       expect(await instanceERC1155.isBlacklisted(addr2.address)).to.equal(true);
       expect(await instanceERC1155.isBlacklisted(addrs[3].address)).to.equal(
         true
