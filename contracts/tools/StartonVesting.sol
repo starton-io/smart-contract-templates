@@ -12,13 +12,21 @@ contract StartonVesting is AStartonVesting {
         NATIVE
     }
 
+    /** @notice Type of vesting */
+    enum VestingType {
+        CLIFF,
+        LINEAR
+    }
+
     /** @notice Structure of data that defines a vesting */
     struct VestingData {
         uint256 amount;
         TypeOfToken tokenType;
+        VestingType vestingType;
         address tokenAddress;
         uint64 startTimestamp;
         uint64 endTimestamp;
+        uint256 amountClaimed;
     }
 
     // Mapping of vestings
@@ -48,16 +56,35 @@ contract StartonVesting is AStartonVesting {
     /**
      * @notice Get the amount of tokens that can be claimed from a vesting
      * @param amount The amount of tokens that are vested
+     * @param startTimestamp The timestamp when the vesting will start
      * @param endTimestamp The timestamp when the vesting will end
+     * @param amountClaimed The amount of tokens that have been claimed
+     * @param vestingType The type of vesting
      * @return value The amount of tokens that can be claimed
      */
-    function vestingAmount(uint256 amount, uint64 endTimestamp) public view returns (uint256 value) {
-        // If the vesting is finished, return the total amount of tokens
-        // else returns 0
-        if (block.timestamp >= endTimestamp) {
-            value = amount;
+    function vestingAmount(
+        uint256 amount,
+        uint64 startTimestamp,
+        uint64 endTimestamp,
+        uint256 amountClaimed,
+        VestingType vestingType
+    ) public view returns (uint256 value) {
+        if (vestingType == VestingType.LINEAR) {
+            // If the vesting is finished, return the amount of tokens left
+            // else returns the amount of tokens that can be claimed at the current time
+            if (endTimestamp > block.timestamp) {
+                value = (amount * (block.timestamp - startTimestamp)) / (endTimestamp - startTimestamp) - amountClaimed;
+            } else {
+                value = amount - amountClaimed;
+            }
         } else {
-            value = 0;
+            // If the vesting is finished, return the total amount of tokens
+            // else returns 0
+            if (block.timestamp >= endTimestamp) {
+                value = amount;
+            } else {
+                value = 0;
+            }
         }
     }
 
@@ -93,13 +120,16 @@ contract StartonVesting is AStartonVesting {
     /**
      * @notice Add a token vesting to a beneficiary
      * @param beneficiary The account that will receive the tokens
+     * @param token The token that will be vested
+     * @param vestingType The type of vesting
+     * @param startTimestamp The timestamp when the vesting will start
      * @param endTimestamp The timestamp when the vesting will end
      * @param amount The amount of tokens that will be vested
-     * @param token The token that will be vested
      */
     function addVesting(
         address beneficiary,
         address token,
+        VestingType vestingType,
         uint64 startTimestamp,
         uint64 endTimestamp,
         uint256 amount
@@ -109,7 +139,7 @@ contract StartonVesting is AStartonVesting {
         require(erc20Token.balanceOf(_msgSender()) >= amount, "Not enough balance");
         require(erc20Token.allowance(_msgSender(), address(this)) >= amount, "Not enough allowance");
 
-        _createVesting(beneficiary, token, startTimestamp, endTimestamp, amount, TypeOfToken.TOKEN);
+        _createVesting(beneficiary, token, startTimestamp, endTimestamp, amount, TypeOfToken.TOKEN, vestingType);
 
         bool success = erc20Token.transferFrom(_msgSender(), address(this), amount);
         require(success, "Transfer failed");
@@ -118,20 +148,32 @@ contract StartonVesting is AStartonVesting {
     /**
      * @notice Add a native vesting to a beneficiary
      * @param beneficiary The account that will receive the tokens
+     * @param vestingType The type of vesting
+     * @param startTimestamp The timestamp when the vesting will start
      * @param endTimestamp The timestamp when the vesting will end
      */
     function addVesting(
         address beneficiary,
+        VestingType vestingType,
         uint64 startTimestamp,
         uint64 endTimestamp
     ) public payable {
-        _createVesting(beneficiary, address(0), startTimestamp, endTimestamp, msg.value, TypeOfToken.NATIVE);
+        _createVesting(
+            beneficiary,
+            address(0),
+            startTimestamp,
+            endTimestamp,
+            msg.value,
+            TypeOfToken.NATIVE,
+            vestingType
+        );
     }
 
     /**
      * @notice Add a batch of token vesting to a beneficiary
      * @param beneficiary The account that will receive the tokens
      * @param token The token that will be vested
+     * @param vestingType The type of vesting
      * @param startTimestamps The timestamps when the vesting will start
      * @param endTimestamps The timestamps when the vesting will end
      * @param amounts The amounts of tokens that will be vested
@@ -139,38 +181,38 @@ contract StartonVesting is AStartonVesting {
     function addBatchVesting(
         address beneficiary,
         address token,
+        VestingType vestingType,
         uint64[] calldata startTimestamps,
         uint64[] calldata endTimestamps,
         uint256[] calldata amounts
     ) public {
-        require(startTimestamps.length == endTimestamps.length, "Invalid array length");
-        require(startTimestamps.length == amounts.length, "Invalid array length");
+        _isSameLength(startTimestamps, endTimestamps, amounts);
 
         uint256 nbVestings = startTimestamps.length;
         for (uint256 i = 0; i < nbVestings; ++i) {
-            addVesting(beneficiary, token, startTimestamps[i], endTimestamps[i], amounts[i]);
+            addVesting(beneficiary, token, vestingType, startTimestamps[i], endTimestamps[i], amounts[i]);
         }
     }
 
     /**
      * @notice Add a batch of native vesting to a beneficiary
      * @param beneficiary The account that will receive the tokens
+     * @param vestingType The type of vesting
      * @param startTimestamps The timestamps when the vesting will start
      * @param endTimestamps The timestamps when the vesting will end
      * @param amounts The amounts of tokens that will be vested
      */
     function addBatchVesting(
         address beneficiary,
+        VestingType vestingType,
         uint64[] calldata startTimestamps,
         uint64[] calldata endTimestamps,
         uint256[] calldata amounts
-    ) public payable {
-        require(startTimestamps.length == endTimestamps.length, "Invalid array length");
-        require(startTimestamps.length == amounts.length, "Invalid array length");
+    ) external payable {
+        _isSameLength(startTimestamps, endTimestamps, amounts);
 
         uint256 totalAmount = 0;
-        uint256 nbVestings = startTimestamps.length;
-        for (uint256 i = 0; i < nbVestings; ++i) {
+        for (uint256 i = 0; i < startTimestamps.length; ++i) {
             totalAmount += amounts[i];
             require(totalAmount <= msg.value, "Not enough value");
             _createVesting(
@@ -179,7 +221,8 @@ contract StartonVesting is AStartonVesting {
                 startTimestamps[i],
                 endTimestamps[i],
                 amounts[i],
-                TypeOfToken.NATIVE
+                TypeOfToken.NATIVE,
+                vestingType
             );
         }
     }
@@ -191,7 +234,13 @@ contract StartonVesting is AStartonVesting {
     function claimVesting(uint256 index) public {
         VestingData memory vesting = getVesting(_msgSender(), index);
 
-        uint256 value = vestingAmount(vesting.amount, vesting.endTimestamp);
+        uint256 value = vestingAmount(
+            vesting.amount,
+            vesting.startTimestamp,
+            vesting.endTimestamp,
+            vesting.amountClaimed,
+            vesting.vestingType
+        );
         require(value != 0, "VestingAmount is zero");
 
         emit ClaimedVesting(_msgSender(), index, vesting.tokenAddress, uint64(block.timestamp), value);
@@ -214,6 +263,9 @@ contract StartonVesting is AStartonVesting {
                     }
                 }
             }
+        } else {
+            // Update the amount claimed
+            _vestings[_msgSender()][index].amountClaimed += value;
         }
 
         // Send the tokens to the sender
@@ -235,10 +287,45 @@ contract StartonVesting is AStartonVesting {
         for (uint256 i = 0; i < length; ++i) {
             VestingData memory vesting = getVesting(_msgSender(), i - totalPopped);
 
-            uint256 value = vestingAmount(vesting.amount, vesting.endTimestamp);
+            uint256 value = vestingAmount(
+                vesting.amount,
+                vesting.startTimestamp,
+                vesting.endTimestamp,
+                vesting.amountClaimed,
+                vesting.vestingType
+            );
             if (value != 0) claimVesting(i - totalPopped);
             if (vesting.endTimestamp <= block.timestamp) totalPopped += 1;
         }
+    }
+
+    function _createVesting(
+        address beneficiary,
+        address token,
+        uint64 startTimestamp,
+        uint64 endTimestamp,
+        uint256 amount,
+        TypeOfToken tokenType,
+        VestingType vestingType
+    ) internal {
+        _isValidVesting(amount, startTimestamp, endTimestamp, beneficiary);
+
+        _vestings[beneficiary].push(
+            VestingData({
+                amount: amount,
+                tokenType: tokenType,
+                vestingType: vestingType,
+                tokenAddress: token,
+                startTimestamp: startTimestamp,
+                endTimestamp: endTimestamp,
+                amountClaimed: 0
+            })
+        );
+
+        // If the beneficiary is not already in the list, add it
+        if (!_isBeneficiary(beneficiary)) _vestingBeneficiaries.push(beneficiary);
+
+        emit AddedVesting(beneficiary, getVestingNumber(beneficiary) - 1, token, amount, startTimestamp, endTimestamp);
     }
 
     /**
@@ -259,29 +346,18 @@ contract StartonVesting is AStartonVesting {
         require(startTimestamp < endTimestamp, "Start timestamp is after end timestamp");
     }
 
-    function _createVesting(
-        address beneficiary,
-        address token,
-        uint64 startTimestamp,
-        uint64 endTimestamp,
-        uint256 amount,
-        TypeOfToken tokenType
-    ) internal {
-        _isValidVesting(amount, startTimestamp, endTimestamp, beneficiary);
-
-        _vestings[beneficiary].push(
-            VestingData({
-                amount: amount,
-                tokenType: tokenType,
-                tokenAddress: token,
-                startTimestamp: startTimestamp,
-                endTimestamp: endTimestamp
-            })
-        );
-
-        // If the beneficiary is not already in the list, add it
-        if (!_isBeneficiary(beneficiary)) _vestingBeneficiaries.push(beneficiary);
-
-        emit AddedVesting(beneficiary, getVestingNumber(beneficiary) - 1, token, amount, startTimestamp, endTimestamp);
+    /**
+     * @dev Reverts when the length of the arrays are not the same
+     * @param startTimestamps The timestamps when the vesting will start
+     * @param endTimestamps The timestamps when the vesting will end
+     * @param amounts The amounts of tokens that will be vested
+     */
+    function _isSameLength(
+        uint64[] calldata startTimestamps,
+        uint64[] calldata endTimestamps,
+        uint256[] calldata amounts
+    ) internal pure {
+        require(startTimestamps.length == endTimestamps.length, "Invalid array length");
+        require(startTimestamps.length == amounts.length, "Invalid array length");
     }
 }
