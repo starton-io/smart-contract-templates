@@ -103,7 +103,7 @@ describe("StartonERC1155Base", () => {
   });
 
   describe("Minting", () => {
-    it("Should mint unique token correctly", async () => {
+    it("Should mint unique token correctly 1", async () => {
       await instanceERC1155["mint(address,uint256,uint256)"](
         addr1.address,
         1536,
@@ -112,7 +112,7 @@ describe("StartonERC1155Base", () => {
       expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(1);
     });
 
-    it("Should mint multiples token correctly", async () => {
+    it("Should mint multiples token correctly 1", async () => {
       await instanceERC1155["mint(address,uint256,uint256)"](
         addr1.address,
         1536,
@@ -121,11 +121,51 @@ describe("StartonERC1155Base", () => {
       expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(11);
     });
 
-    it("Batch minting should go accordingly", async () => {
+    it("Batch minting should go accordingly 1", async () => {
       await instanceERC1155["mintBatch(address,uint256[],uint256[])"](
         addr1.address,
         [1536, 100, 10, 164658, 184],
         [2747, 29, 957, 284, 2945]
+      );
+      expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(
+        2747
+      );
+      expect(await instanceERC1155.balanceOf(addr1.address, 100)).to.equal(29);
+      expect(await instanceERC1155.balanceOf(addr1.address, 10)).to.equal(957);
+      expect(await instanceERC1155.balanceOf(addr1.address, 164658)).to.equal(
+        284
+      );
+      expect(await instanceERC1155.balanceOf(addr1.address, 184)).to.equal(
+        2945
+      );
+    });
+
+    it("Should mint unique token correctly 2", async () => {
+      await instanceERC1155["mint(address,uint256,uint256,bytes)"](
+        addr1.address,
+        1536,
+        1,
+        "0x"
+      );
+      expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(1);
+    });
+
+    it("Should mint multiples token correctly 2", async () => {
+      await instanceERC1155["mint(address,uint256,uint256,bytes)"](
+        addr1.address,
+        1536,
+        11,
+        "0x"
+      );
+      expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(11);
+    });
+
+    it("Batch minting should go accordingly 2", async () => {
+      await instanceERC1155["mintBatch(address,uint256[],uint256[],bytes)"](
+        addr1.address,
+        [1536, 100, 10, 164658, 184],
+        [2747, 29, 957, 284, 2945],
+        "0x"
       );
       expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(
         2747
