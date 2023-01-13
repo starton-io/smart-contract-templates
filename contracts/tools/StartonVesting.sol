@@ -251,7 +251,7 @@ contract StartonVesting is AStartonVesting {
         require(amount != 0, "Amount is insufficent");
         require(endTimestamp >= block.timestamp, "End timestamp is in the past");
         require(startTimestamp >= block.timestamp, "Start timestamp is in the past");
-        require(beneficiary != address(0), "beneficiary is zero address");
+        require(beneficiary != address(0), "Beneficiary is invalid");
         require(startTimestamp < endTimestamp, "Start timestamp is after end timestamp");
     }
 
