@@ -651,6 +651,20 @@ describe("StartonERC1155Base", () => {
     });
   });
 
+  describe("SupportsInterface", () => {
+    it("Should support ERC1155", async () => {
+      expect(await instanceERC1155.supportsInterface("0xd9b67a26")).to.be.equal(
+        true
+      );
+    });
+
+    it("Should support AccessControl", async () => {
+      expect(await instanceERC1155.supportsInterface("0x7965db0b")).to.be.equal(
+        true
+      );
+    });
+  });
+
   describe("Forwarder", () => {
     it("Should be able to send a forwarded transaction", async () => {
       const metaTransactionType = [

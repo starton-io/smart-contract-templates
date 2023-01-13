@@ -524,6 +524,26 @@ describe("StartonERC721Capped", () => {
     });
   });
 
+  describe("SupportsInterface", () => {
+    it("Should support ERC721", async () => {
+      expect(await instanceERC721.supportsInterface("0x80ac58cd")).to.equal(
+        true
+      );
+    });
+
+    it("should support ERC721Enumerable", async () => {
+      expect(await instanceERC721.supportsInterface("0x780e9d63")).to.equal(
+        true
+      );
+    });
+
+    it("Should support AccessControl", async () => {
+      expect(await instanceERC721.supportsInterface("0x7965db0b")).to.equal(
+        true
+      );
+    });
+  });
+
   describe("Forwarder", () => {
     it("Should be able to send a forwarded transaction", async () => {
       const metaTransactionType = [
