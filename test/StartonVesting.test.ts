@@ -45,7 +45,7 @@ describe("StartonVesting", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy the contract", async () => {});
+    it("Should deploy the contract", async () => { });
 
     it("Should be a empty array of vestingBeneficiaries", async () => {
       const vestingBeneficiaries =
@@ -559,6 +559,44 @@ describe("StartonVesting", () => {
         expect(await addr1.getBalance()).to.be.equal(
           beforeBalance
             .add(amount.add(amount2))
+            .sub(receipt.gasUsed.mul(receipt.effectiveGasPrice))
+        );
+      });
+
+      it("Should claim all native vestings one finished and the other not", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const amount2 = ethers.utils.parseEther("1");
+        const start = (now.valueOf() / 1000) | 0;
+        const endTimestamp = start + 100;
+        const endTimestamp2 = start + 1000;
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting["addVesting(address,uint64,uint64)"](
+          addr1.address,
+          start,
+          endTimestamp,
+          {
+            value: amount,
+          }
+        );
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+        await instanceVesting["addVesting(address,uint64,uint64)"](
+          addr1.address,
+          start + 1,
+          endTimestamp2,
+          {
+            value: amount2,
+          }
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+
+        const beforeBalance = await addr1.getBalance();
+        const tx = await instanceVesting.connect(addr1).claimAllVestings();
+        const receipt = await tx.wait();
+        expect(await addr1.getBalance()).to.be.equal(
+          beforeBalance
+            .add(amount)
             .sub(receipt.gasUsed.mul(receipt.effectiveGasPrice))
         );
       });
@@ -1132,6 +1170,43 @@ describe("StartonVesting", () => {
         await instanceVesting.connect(addr1).claimAllVestings();
         expect(await instanceToken.balanceOf(addr1.address)).to.equal(
           beforeBalance.add(amount.add(amount2))
+        );
+      });
+
+      it("Should claim all token vestings one finished and the other not", async () => {
+        const amount = ethers.utils.parseEther("1000");
+        const amount2 = ethers.utils.parseEther("10000");
+        const start = now.valueOf();
+        const endTimestamp = start + 100;
+        const endTimestamp2 = start + 1000;
+
+        await instanceToken.approve(
+          instanceVesting.address,
+          amount.add(amount2)
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+        await instanceVesting[
+          "addVesting(address,address,uint64,uint64,uint256)"
+        ](addr1.address, instanceToken.address, start, endTimestamp, amount);
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+        await instanceVesting[
+          "addVesting(address,address,uint64,uint64,uint256)"
+        ](
+          addr1.address,
+          instanceToken.address,
+          start + 1,
+          endTimestamp2,
+          amount2
+        );
+
+        await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+
+        const beforeBalance = await instanceToken.balanceOf(addr1.address);
+        await instanceVesting.connect(addr1).claimAllVestings();
+        expect(await instanceToken.balanceOf(addr1.address)).to.equal(
+          beforeBalance.add(amount)
         );
       });
     });
