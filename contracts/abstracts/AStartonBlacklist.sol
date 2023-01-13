@@ -27,7 +27,7 @@ abstract contract AStartonBlacklist is AccessControl {
      * @custom:requires METADATA_ROLE
      */
     function addToBlacklist(address addressToBlacklist) public virtual onlyRole(BLACKLISTER_ROLE) {
-        require(!_blacklisted[addressToBlacklist], "This address is already blacklisted");
+        require(!_blacklisted[addressToBlacklist], "Address is already blacklisted");
         _blacklisted[addressToBlacklist] = true;
         emit Blacklisted(addressToBlacklist, true);
     }
@@ -38,7 +38,7 @@ abstract contract AStartonBlacklist is AccessControl {
      * @custom:requires METADATA_ROLE
      */
     function removeFromBlacklist(address addressToRemove) public virtual onlyRole(BLACKLISTER_ROLE) {
-        require(_blacklisted[addressToRemove], "This address is not blacklisted");
+        require(_blacklisted[addressToRemove], "Address is not blacklisted");
         _blacklisted[addressToRemove] = false;
         emit Blacklisted(addressToRemove, false);
     }
