@@ -178,7 +178,7 @@ contract StartonVesting is AStartonVesting {
      * @param endTimestamps The timestamps when the vesting will end
      * @param amounts The amounts of tokens that will be vested
      */
-    function addBatchVesting(
+    function batchAddVesting(
         address beneficiary,
         address token,
         VestingType vestingType,
@@ -202,7 +202,7 @@ contract StartonVesting is AStartonVesting {
      * @param endTimestamps The timestamps when the vesting will end
      * @param amounts The amounts of tokens that will be vested
      */
-    function addBatchVesting(
+    function batchAddVesting(
         address beneficiary,
         VestingType vestingType,
         uint64[] calldata startTimestamps,

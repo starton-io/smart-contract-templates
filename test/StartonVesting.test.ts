@@ -51,7 +51,7 @@ describe("StartonVesting", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy the contract", async () => { });
+    it("Should deploy the contract", async () => {});
 
     it("Should be a empty array of vestingBeneficiaries", async () => {
       const vestingBeneficiaries =
@@ -252,7 +252,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.CLIFF,
@@ -266,7 +266,7 @@ describe("StartonVesting", () => {
           ).to.be.revertedWith("Invalid array length");
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.CLIFF,
@@ -280,7 +280,7 @@ describe("StartonVesting", () => {
           ).to.be.revertedWith("Invalid array length");
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.CLIFF,
@@ -303,7 +303,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.CLIFF,
@@ -327,7 +327,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.CLIFF,
@@ -350,7 +350,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.CLIFF,
@@ -374,7 +374,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.CLIFF,
@@ -397,7 +397,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               ethers.constants.AddressZero,
               VestingType.CLIFF,
@@ -424,7 +424,7 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
           await instanceVesting[
-            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+            "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             VestingType.CLIFF,
@@ -438,7 +438,7 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
           await instanceVesting[
-            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+            "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr2.address,
             VestingType.CLIFF,
@@ -528,7 +528,9 @@ describe("StartonVesting", () => {
             }
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
           instanceVesting.connect(addr1).claimVesting(0);
 
           await expect(
@@ -575,7 +577,9 @@ describe("StartonVesting", () => {
             }
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await addr1.getBalance();
           const tx = await instanceVesting.connect(addr1).claimVesting(0);
@@ -616,7 +620,9 @@ describe("StartonVesting", () => {
             }
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await addr1.getBalance();
           const tx = await instanceVesting.connect(addr1).claimAllVestings();
@@ -656,7 +662,9 @@ describe("StartonVesting", () => {
             }
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await addr1.getBalance();
           const tx = await instanceVesting.connect(addr1).claimAllVestings();
@@ -935,7 +943,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -947,7 +955,7 @@ describe("StartonVesting", () => {
           ).to.be.revertedWith("Invalid array length");
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -959,7 +967,7 @@ describe("StartonVesting", () => {
           ).to.be.revertedWith("Invalid array length");
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -982,7 +990,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -1005,7 +1013,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -1028,7 +1036,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -1051,7 +1059,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               ethers.constants.AddressZero,
               instanceToken.address,
@@ -1074,7 +1082,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -1097,7 +1105,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -1127,7 +1135,7 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
           await instanceVesting[
-            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+            "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             instanceToken.address,
@@ -1139,7 +1147,7 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
           await instanceVesting[
-            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+            "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr2.address,
             instanceToken.address,
@@ -1248,7 +1256,9 @@ describe("StartonVesting", () => {
             amount
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           await instanceVesting.connect(addr1).claimVesting(0);
 
@@ -1276,7 +1286,9 @@ describe("StartonVesting", () => {
             amount
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await instanceToken.balanceOf(addr1.address);
           await instanceVesting.connect(addr1).claimVesting(0);
@@ -1322,7 +1334,9 @@ describe("StartonVesting", () => {
             amount2
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await instanceToken.balanceOf(addr1.address);
           await instanceVesting.connect(addr1).claimAllVestings();
@@ -1370,8 +1384,9 @@ describe("StartonVesting", () => {
           await ethers.provider.send("evm_mine", []);
           await ethers.provider.send("evm_setAutomine", [true]);
 
-
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await instanceToken.balanceOf(addr1.address);
           await instanceVesting.connect(addr1).claimAllVestings();
@@ -1575,7 +1590,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.LINEAR,
@@ -1589,7 +1604,7 @@ describe("StartonVesting", () => {
           ).to.be.revertedWith("Invalid array length");
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.LINEAR,
@@ -1603,7 +1618,7 @@ describe("StartonVesting", () => {
           ).to.be.revertedWith("Invalid array length");
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.LINEAR,
@@ -1626,7 +1641,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.LINEAR,
@@ -1650,7 +1665,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.LINEAR,
@@ -1673,7 +1688,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.LINEAR,
@@ -1697,7 +1712,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               VestingType.LINEAR,
@@ -1720,7 +1735,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
             ](
               ethers.constants.AddressZero,
               VestingType.LINEAR,
@@ -1747,7 +1762,7 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
           await instanceVesting[
-            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+            "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             VestingType.LINEAR,
@@ -1761,7 +1776,7 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
           await instanceVesting[
-            "addBatchVesting(address,uint8,uint64[],uint64[],uint256[])"
+            "batchAddVesting(address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr2.address,
             VestingType.LINEAR,
@@ -1851,7 +1866,9 @@ describe("StartonVesting", () => {
             }
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
           instanceVesting.connect(addr1).claimVesting(0);
 
           await expect(
@@ -1991,7 +2008,9 @@ describe("StartonVesting", () => {
             amount.div(10).mul(7),
           ]);
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           beforeBalance = await addr1.getBalance();
           const op3 = await instanceVesting.connect(addr1).claimVesting(0);
@@ -2026,7 +2045,9 @@ describe("StartonVesting", () => {
             }
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await addr1.getBalance();
           const op = await instanceVesting.connect(addr1).claimVesting(0);
@@ -2034,7 +2055,9 @@ describe("StartonVesting", () => {
             beforeBalance
               .add(amount)
               .sub(
-                (await op.wait()).gasUsed.mul((await op.wait()).effectiveGasPrice)
+                (await op.wait()).gasUsed.mul(
+                  (await op.wait()).effectiveGasPrice
+                )
               )
           );
           await expect(
@@ -2071,7 +2094,9 @@ describe("StartonVesting", () => {
             }
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await addr1.getBalance();
           const tx = await instanceVesting.connect(addr1).claimAllVestings();
@@ -2113,7 +2138,9 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_mine", []);
           await ethers.provider.send("evm_setAutomine", [true]);
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await addr1.getBalance();
           const tx = await instanceVesting.connect(addr1).claimAllVestings();
@@ -2393,7 +2420,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -2405,7 +2432,7 @@ describe("StartonVesting", () => {
           ).to.be.revertedWith("Invalid array length");
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -2417,7 +2444,7 @@ describe("StartonVesting", () => {
           ).to.be.revertedWith("Invalid array length");
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -2440,7 +2467,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -2463,7 +2490,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -2486,7 +2513,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -2509,7 +2536,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               ethers.constants.AddressZero,
               instanceToken.address,
@@ -2532,7 +2559,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -2555,7 +2582,7 @@ describe("StartonVesting", () => {
 
           await expect(
             instanceVesting[
-              "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+              "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
             ](
               addr1.address,
               instanceToken.address,
@@ -2585,7 +2612,7 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_setNextBlockTimestamp", [start1]);
           await instanceVesting[
-            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+            "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr1.address,
             instanceToken.address,
@@ -2597,7 +2624,7 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_setNextBlockTimestamp", [start3]);
           await instanceVesting[
-            "addBatchVesting(address,address,uint8,uint64[],uint64[],uint256[])"
+            "batchAddVesting(address,address,uint8,uint64[],uint64[],uint256[])"
           ](
             addr2.address,
             instanceToken.address,
@@ -2705,7 +2732,9 @@ describe("StartonVesting", () => {
             amount
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           await instanceVesting.connect(addr1).claimVesting(0);
 
@@ -2723,7 +2752,9 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
-          await instanceVesting["addVesting(address,address,uint8,uint64,uint64,uint256)"](
+          await instanceVesting[
+            "addVesting(address,address,uint8,uint64,uint64,uint256)"
+          ](
             addr1.address,
             instanceToken.address,
             VestingType.LINEAR,
@@ -2810,7 +2841,9 @@ describe("StartonVesting", () => {
             amount.div(10).mul(7),
           ]);
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           beforeBalance = await instanceToken.balanceOf(addr1.address);
           await instanceVesting.connect(addr1).claimVesting(0);
@@ -2831,7 +2864,9 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
 
-          await instanceVesting["addVesting(address,address,uint8,uint64,uint64,uint256)"](
+          await instanceVesting[
+            "addVesting(address,address,uint8,uint64,uint64,uint256)"
+          ](
             addr1.address,
             instanceToken.address,
             VestingType.LINEAR,
@@ -2840,7 +2875,9 @@ describe("StartonVesting", () => {
             amount
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await instanceToken.balanceOf(addr1.address);
           await instanceVesting.connect(addr1).claimVesting(0);
@@ -2888,7 +2925,9 @@ describe("StartonVesting", () => {
             amount2
           );
 
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await instanceToken.balanceOf(addr1.address);
           await instanceVesting.connect(addr1).claimAllVestings();
@@ -2935,7 +2974,9 @@ describe("StartonVesting", () => {
 
           await ethers.provider.send("evm_mine", []);
           await ethers.provider.send("evm_setAutomine", [true]);
-          await ethers.provider.send("evm_setNextBlockTimestamp", [endTimestamp]);
+          await ethers.provider.send("evm_setNextBlockTimestamp", [
+            endTimestamp,
+          ]);
 
           const beforeBalance = await instanceToken.balanceOf(addr1.address);
           await instanceVesting.connect(addr1).claimAllVestings();
