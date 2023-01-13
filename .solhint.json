@@ -4,7 +4,6 @@
   "rules": {
     "reason-string": ["warn", { "maxLength": 64 }],
     "compiler-version": ["error", "^0.8.0"],
-    "no-unused-vars": "error",
     "const-name-snakecase": "error",
     "contract-name-camelcase": "error",
     "event-name-camelcase": "error",
@@ -14,6 +13,7 @@
     "private-vars-leading-underscore": "error",
     "var-name-mixedcase": "error",
     "imports-on-top": "error",
-    "func-visibility": ["warn", { "ignoreConstructors": true }]
+    "func-visibility": ["warn", { "ignoreConstructors": true }],
+    "no-empty-blocks": "off"
   }
 }

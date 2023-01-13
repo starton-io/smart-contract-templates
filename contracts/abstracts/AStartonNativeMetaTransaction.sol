@@ -8,7 +8,7 @@ import "./AStartonEIP712Base.sol";
 /// @author Starton
 /// @notice Utility smart contract that enable gasless transactions
 abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
-    bytes32 private constant META_TRANSACTION_TYPEHASH =
+    bytes32 private constant _META_TRANSACTION_TYPEHASH =
         keccak256(bytes("MetaTransaction(uint256 nonce,address from,bytes functionSignature)"));
     event MetaTransactionExecuted(address userAddress, address payable relayerAddress, bytes functionSignature);
     mapping(address => uint256) private _nonces;
@@ -54,7 +54,7 @@ abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
     function _hashMetaTransaction(MetaTransaction memory metaTx) internal pure returns (bytes32) {
         return
             keccak256(
-                abi.encode(META_TRANSACTION_TYPEHASH, metaTx.nonce, metaTx.from, keccak256(metaTx.functionSignature))
+                abi.encode(_META_TRANSACTION_TYPEHASH, metaTx.nonce, metaTx.from, keccak256(metaTx.functionSignature))
             );
     }
 

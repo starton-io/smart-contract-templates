@@ -17,7 +17,7 @@ abstract contract AStartonEIP712Base is Initializable {
 
     string public constant ERC712_VERSION = "1";
 
-    bytes32 internal constant EIP712_DOMAIN_TYPEHASH =
+    bytes32 internal constant _EIP712_DOMAIN_TYPEHASH =
         keccak256(bytes("EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"));
     bytes32 internal _domainSeparator;
 
@@ -31,7 +31,7 @@ abstract contract AStartonEIP712Base is Initializable {
     function _setDomainSeparator(string memory name) internal {
         _domainSeparator = keccak256(
             abi.encode(
-                EIP712_DOMAIN_TYPEHASH,
+                _EIP712_DOMAIN_TYPEHASH,
                 keccak256(bytes(name)),
                 keccak256(bytes(ERC712_VERSION)),
                 address(this),

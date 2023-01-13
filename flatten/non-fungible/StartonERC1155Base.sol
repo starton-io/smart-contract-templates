@@ -1341,7 +1341,7 @@ abstract contract AStartonEIP712Base is Initializable {
 
     string public constant ERC712_VERSION = "1";
 
-    bytes32 internal constant EIP712_DOMAIN_TYPEHASH =
+    bytes32 internal constant _EIP712_DOMAIN_TYPEHASH =
         keccak256(bytes("EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"));
     bytes32 internal _domainSeparator;
 
@@ -1355,7 +1355,7 @@ abstract contract AStartonEIP712Base is Initializable {
     function _setDomainSeparator(string memory name) internal {
         _domainSeparator = keccak256(
             abi.encode(
-                EIP712_DOMAIN_TYPEHASH,
+                _EIP712_DOMAIN_TYPEHASH,
                 keccak256(bytes(name)),
                 keccak256(bytes(ERC712_VERSION)),
                 address(this),
@@ -1398,7 +1398,7 @@ pragma solidity ^0.8.0;
 /// @author Starton
 /// @notice Utility smart contract that enable gasless transactions
 abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
-    bytes32 private constant META_TRANSACTION_TYPEHASH =
+    bytes32 private constant _META_TRANSACTION_TYPEHASH =
         keccak256(bytes("MetaTransaction(uint256 nonce,address from,bytes functionSignature)"));
     event MetaTransactionExecuted(address userAddress, address payable relayerAddress, bytes functionSignature);
     mapping(address => uint256) private _nonces;
@@ -1444,7 +1444,7 @@ abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
     function _hashMetaTransaction(MetaTransaction memory metaTx) internal pure returns (bytes32) {
         return
             keccak256(
-                abi.encode(META_TRANSACTION_TYPEHASH, metaTx.nonce, metaTx.from, keccak256(metaTx.functionSignature))
+                abi.encode(_META_TRANSACTION_TYPEHASH, metaTx.nonce, metaTx.from, keccak256(metaTx.functionSignature))
             );
     }
 
