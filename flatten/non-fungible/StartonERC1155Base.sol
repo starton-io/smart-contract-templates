@@ -2147,8 +2147,8 @@ contract StartonERC1155Base is
         address to,
         uint256 id,
         uint256 amount
-    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
-        _mint(to, id, amount, "");
+    ) public virtual {
+        mint(to, id, amount, "");
     }
 
     /**
@@ -2179,8 +2179,8 @@ contract StartonERC1155Base is
         address to,
         uint256[] memory ids,
         uint256[] memory amounts
-    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
-        _mintBatch(to, ids, amounts, "");
+    ) public virtual {
+        mintBatch(to, ids, amounts, "");
     }
 
     /**
