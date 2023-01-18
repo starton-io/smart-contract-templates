@@ -19,17 +19,14 @@ contract StartonMultiSendERC20 {
         uint256[] calldata amounts,
         address[] calldata addresses
     ) external {
-        require(
-            amounts.length == addresses.length,
-            "Arrays must be of equal length"
-        );
+        require(amounts.length == addresses.length, "Arrays must be of equal length");
 
         uint256 length = amounts.length;
         for (uint256 i = 0; i < length; ) {
             // Don't check if the transfer is successfull because we still wants to continue to send the other tokens
             IERC20(token).transferFrom(msg.sender, addresses[i], amounts[i]);
             unchecked {
-                i++;
+                i += 1;
             }
         }
     }

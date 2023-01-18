@@ -19,17 +19,14 @@ contract StartonMultiSendERC721 {
         uint256[] calldata ids,
         address[] calldata addresses
     ) external {
-        require(
-            ids.length == addresses.length,
-            "Arrays must be of equal length"
-        );
+        require(ids.length == addresses.length, "Arrays must be of equal length");
 
         uint256 length = ids.length;
         for (uint256 i = 0; i < length; ) {
             // Don't check if the transfer is successfull because we still wants to continue to send the other tokens
             IERC721(token).safeTransferFrom(msg.sender, addresses[i], ids[i]);
             unchecked {
-                i++;
+                i += 1;
             }
         }
     }
