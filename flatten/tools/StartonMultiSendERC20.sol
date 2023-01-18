@@ -91,7 +91,7 @@ interface IERC20 {
 
 pragma solidity 0.8.9;
 
-/// @title Starton Multi Send ERC20
+/// @title StartonMultiSendERC20
 /// @author Starton
 /// @notice This contract allows to send multiple ERC20 tokens in a single transaction
 contract StartonMultiSendERC20 {
