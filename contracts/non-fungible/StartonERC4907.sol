@@ -34,26 +34,6 @@ contract StartonERC4907 is StartonERC721Base, IERC4907 {
     {}
 
     /**
-     * @notice Set the user and expires of an NFT
-     * @dev The zero address indicates there is no user
-     * Throws if `tokenId` is not valid NFT
-     * @param user  The new user of the NFT
-     * @param expires UNIX timestamp, The new user could use the NFT before expires
-     */
-    function setUser(
-        uint256 tokenId,
-        address user,
-        uint64 expires
-    ) public virtual {
-        require(_isApprovedOrOwner(msg.sender, tokenId), "Caller is not owner nor approved");
-
-        UserInfo storage info = _users[tokenId];
-        info.user = user;
-        info.expires = expires;
-        emit UpdateUser(tokenId, user, expires);
-    }
-
-    /**
      * @notice Get the user address of an NFT
      * @dev The zero address indicates that there is no user or the user is expired
      * @param tokenId The NFT to get the user address for
@@ -83,6 +63,26 @@ contract StartonERC4907 is StartonERC721Base, IERC4907 {
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IERC4907).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @notice Set the user and expires of an NFT
+     * @dev The zero address indicates there is no user
+     * Throws if `tokenId` is not valid NFT
+     * @param user  The new user of the NFT
+     * @param expires UNIX timestamp, The new user could use the NFT before expires
+     */
+    function setUser(
+        uint256 tokenId,
+        address user,
+        uint64 expires
+    ) public virtual {
+        require(_isApprovedOrOwner(msg.sender, tokenId), "Caller is not owner nor approved");
+
+        UserInfo storage info = _users[tokenId];
+        info.user = user;
+        info.expires = expires;
+        emit UpdateUser(tokenId, user, expires);
     }
 
     /**
