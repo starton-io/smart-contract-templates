@@ -36,7 +36,7 @@ describe("StartonERC4907", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => { });
+    it("Should deploy", async () => {});
 
     it("Should owner have admin role", async () => {
       const adminRole = await instanceERC4907.DEFAULT_ADMIN_ROLE();
@@ -221,7 +221,9 @@ describe("StartonERC4907", () => {
     });
 
     it("Shouldn't set any addresses as blacklisted", async () => {
-      expect(await instanceERC4907.isBlacklisted(addr1.address)).to.equal(false);
+      expect(await instanceERC4907.isBlacklisted(addr1.address)).to.equal(
+        false
+      );
     });
 
     it("Should blacklist an address", async () => {
@@ -247,7 +249,9 @@ describe("StartonERC4907", () => {
       await instanceERC4907.addToBlacklist(addr1.address);
       expect(await instanceERC4907.isBlacklisted(addr1.address)).to.equal(true);
       await instanceERC4907.removeFromBlacklist(addr1.address);
-      expect(await instanceERC4907.isBlacklisted(addr1.address)).to.equal(false);
+      expect(await instanceERC4907.isBlacklisted(addr1.address)).to.equal(
+        false
+      );
     });
 
     it("Should be able to batch remove blacklist", async () => {
@@ -255,7 +259,9 @@ describe("StartonERC4907", () => {
         addr2.address,
         addrs[3].address,
       ]);
-      expect(await instanceERC4907.isBlacklisted(addr1.address)).to.equal(false);
+      expect(await instanceERC4907.isBlacklisted(addr1.address)).to.equal(
+        false
+      );
       expect(await instanceERC4907.isBlacklisted(addr2.address)).to.equal(true);
       expect(await instanceERC4907.isBlacklisted(addrs[3].address)).to.equal(
         true
@@ -265,8 +271,12 @@ describe("StartonERC4907", () => {
         addr1.address,
         addr2.address,
       ]);
-      expect(await instanceERC4907.isBlacklisted(addr1.address)).to.equal(false);
-      expect(await instanceERC4907.isBlacklisted(addr2.address)).to.equal(false);
+      expect(await instanceERC4907.isBlacklisted(addr1.address)).to.equal(
+        false
+      );
+      expect(await instanceERC4907.isBlacklisted(addr2.address)).to.equal(
+        false
+      );
       expect(await instanceERC4907.isBlacklisted(addrs[3].address)).to.equal(
         true
       );
