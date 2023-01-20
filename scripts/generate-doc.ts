@@ -96,7 +96,7 @@ function findFlattenPath(compilationFile: any, contractName: string): string {
     );
   }
 
-  return contractMetadata;
+  return contractMetadata.replace("contracts/", "flatten/");
 }
 
 function main() {
@@ -128,6 +128,7 @@ function main() {
 
   let stringifiedContent = JSON.stringify(doc, null, 2);
 
+  // Remove the quptes of the enum values
   for (const item in Blockchain) {
     stringifiedContent = stringifiedContent.replace(
       `"Blockchain.${item}"`,
