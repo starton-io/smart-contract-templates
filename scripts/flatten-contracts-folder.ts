@@ -59,7 +59,8 @@ function filterLicensesInFile(filePath: string) {
   fs.writeFileSync(filePath, fileContent);
 }
 
-const filesToFlatten = getAllFiles(dir, []);
+const filesToFlatten =
+  process.argv.length === 2 ? getAllFiles(dir, []) : process.argv.slice(2);
 
 for (const file of filesToFlatten) {
   const relativeFilePath = file.split(dir)[1];

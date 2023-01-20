@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 enum Blockchain {
   POLYGON = "Blockchain.POLYGON",
   AVALANCHE = "Blockchain.AVALANCHE",

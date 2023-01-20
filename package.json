@@ -18,7 +18,8 @@
     "solhint": "solhint 'contracts/**/*.sol'",
     "solhint:fix": "solhint 'contracts/**/*.sol' --fix",
     "eslint": "eslint '**/*.{js,ts}'",
-    "eslint:fix": "eslint '**/*.{js,ts}' --fix"
+    "eslint:fix": "eslint '**/*.{js,ts}' --fix",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "starton",
@@ -52,6 +53,7 @@
     "fs": "^0.0.1-security",
     "hardhat": "^2.9.4",
     "hardhat-gas-reporter": "^1.0.8",
+    "husky": "^8.0.3",
     "merkletreejs": "^0.2.32",
     "prettier": "^2.7.1",
     "prettier-plugin-solidity": "^1.0.0-dev.23",
@@ -63,5 +65,22 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix --"
+    ],
+    "*.sol": [
+      "solhint --fix --",
+      "yarn flatten --"
+    ],
+    "*.json|*.md|*.sol": [
+      "prettier --write --"
+    ]
   }
 }
