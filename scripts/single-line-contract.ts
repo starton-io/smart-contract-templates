@@ -6,14 +6,15 @@ if (process.argv[1] === "-h" || process.argv[1] === "--help") {
   console.log();
 }
 
-const filePath = process.argv[1];
+const contractFilePath = process.argv[2];
+const outFilePath = process.argv[3];
 
-const fileContents = readFileSync(filePath, {
+const fileContents = readFileSync(contractFilePath, {
   encoding: "utf8",
   flag: "r",
 }).toString();
 
 writeFileSync(
-  "test.txt",
+  outFilePath,
   fileContents.replace(/\n/g, "\\n").replace(/'/g, "\\'")
 );
