@@ -76,7 +76,14 @@ contract StartonVesting is Context {
             // If the vesting is finished, return the amount of tokens left
             // else returns the amount of tokens that can be claimed at the current time
             if (endTimestamp > block.timestamp) {
-                value = (amount * (block.timestamp - startTimestamp)) / (endTimestamp - startTimestamp) - amountClaimed;
+                if (block.timestamp < startTimestamp) {
+                    value = 0;
+                } else {
+                    value =
+                        (amount * (block.timestamp - startTimestamp)) /
+                        (endTimestamp - startTimestamp) -
+                        amountClaimed;
+                }
             } else {
                 value = amount - amountClaimed;
             }

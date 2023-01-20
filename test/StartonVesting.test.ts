@@ -512,6 +512,28 @@ describe("StartonVesting", () => {
           ).to.be.revertedWith("Vesting doesn't exist");
         });
 
+        it("Shouldn't claim a native vesting before the start", async () => {
+          const amount = ethers.utils.parseEther("1000");
+          const start = (now.valueOf() / 1000) | 0;
+          const endTimestamp = start + 10000;
+
+          await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+          await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
+            addr1.address,
+            VestingType.CLIFF,
+            start + 100,
+            endTimestamp,
+            {
+              value: amount,
+            }
+          );
+
+          await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+          await expect(
+            instanceVesting.connect(addr1).claimVesting(0)
+          ).to.be.revertedWith("VestingAmount is zero");
+        });
+
         it("Shouldn't claim twice a native vesting", async () => {
           const amount = ethers.utils.parseEther("1000");
           const start = (now.valueOf() / 1000) | 0;
@@ -531,7 +553,7 @@ describe("StartonVesting", () => {
           await ethers.provider.send("evm_setNextBlockTimestamp", [
             endTimestamp,
           ]);
-          instanceVesting.connect(addr1).claimVesting(0);
+          await instanceVesting.connect(addr1).claimVesting(0);
 
           await expect(
             instanceVesting.connect(addr1).claimVesting(0)
@@ -1211,6 +1233,31 @@ describe("StartonVesting", () => {
           ).to.be.revertedWith("Vesting doesn't exist");
         });
 
+        it("Shouldn't claim a token vesting before the start", async () => {
+          const amount = ethers.utils.parseEther("1000");
+          const start = (now.valueOf() / 1000) | 0;
+          const endTimestamp = start + 10000;
+
+          await instanceToken.approve(instanceVesting.address, amount);
+
+          await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+          await instanceVesting[
+            "addVesting(address,address,uint8,uint64,uint64,uint256)"
+          ](
+            addr1.address,
+            instanceToken.address,
+            VestingType.CLIFF,
+            start + 100,
+            endTimestamp,
+            amount
+          );
+
+          await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+          await expect(
+            instanceVesting.connect(addr1).claimVesting(0)
+          ).to.be.revertedWith("VestingAmount is zero");
+        });
+
         it("Shouldn't claim zero token vesting", async () => {
           const amount = ethers.utils.parseEther("1000");
           const start = (now.valueOf() / 1000) | 0;
@@ -1848,6 +1895,29 @@ describe("StartonVesting", () => {
           await expect(
             instanceVesting.connect(addr1).claimVesting(0)
           ).to.be.revertedWith("Vesting doesn't exist");
+        });
+
+        it("Shouldn't claim a native vesting before the start", async () => {
+          const amount = ethers.utils.parseEther("1");
+          const start = (now.valueOf() / 1000) | 0;
+          const endTimestamp = start + 10000;
+
+          await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+
+          await instanceVesting["addVesting(address,uint8,uint64,uint64)"](
+            addr1.address,
+            VestingType.LINEAR,
+            start + 100,
+            endTimestamp,
+            {
+              value: amount,
+            }
+          );
+
+          await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+          await expect(
+            instanceVesting.connect(addr1).claimVesting(0)
+          ).to.be.revertedWith("VestingAmount is zero");
         });
 
         it("Shouldn't claim twice totally a native vesting", async () => {
@@ -2686,6 +2756,31 @@ describe("StartonVesting", () => {
           await expect(
             instanceVesting.connect(addr1).claimVesting(0)
           ).to.be.revertedWith("Vesting doesn't exist");
+        });
+
+        it("Shouldn't claim a token vesting before the start", async () => {
+          const amount = ethers.utils.parseEther("1000");
+          const start = (now.valueOf() / 1000) | 0;
+          const endTimestamp = start + 10000;
+
+          await instanceToken.approve(instanceVesting.address, amount);
+
+          await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+          await instanceVesting[
+            "addVesting(address,address,uint8,uint64,uint64,uint256)"
+          ](
+            addr1.address,
+            instanceToken.address,
+            VestingType.LINEAR,
+            start + 100,
+            endTimestamp,
+            amount
+          );
+
+          await ethers.provider.send("evm_setNextBlockTimestamp", [start + 1]);
+          await expect(
+            instanceVesting.connect(addr1).claimVesting(0)
+          ).to.be.revertedWith("VestingAmount is zero");
         });
 
         it("Shouldn't claim zero token vesting", async () => {
