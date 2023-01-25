@@ -6,15 +6,26 @@ import { exec } from "child_process";
 const dir = "contracts/";
 const outDir = "flatten/";
 
+const arrayOfDirectoriesToIgnore = [
+  "utils",
+  "abstracts",
+  "deprecated",
+  "interfaces",
+];
+
+function filterFiles(arrayOfFiles: string[]): string[] {
+  return arrayOfFiles.filter((file) => {
+    for (const dir of arrayOfDirectoriesToIgnore) {
+      if (file.includes(dir)) {
+        return false;
+      }
+    }
+    return true;
+  });
+}
+
 function getAllFiles(dirPath: string, arrayOfFiles: string[]): string[] {
   const files = fs.readdirSync(dirPath);
-
-  const arrayOfDirectoriesToIgnore = [
-    "utils",
-    "abstracts",
-    "deprecated",
-    "interfaces",
-  ];
 
   arrayOfFiles = arrayOfFiles || [];
 
@@ -60,7 +71,11 @@ function filterLicensesInFile(filePath: string): void {
 }
 
 const filesToFlatten =
-  process.argv.length === 2 ? getAllFiles(dir, []) : process.argv.slice(2);
+  process.argv.length === 2
+    ? getAllFiles(dir, [])
+    : filterFiles(process.argv.slice(2));
+
+console.log("Flattening files : " + filesToFlatten);
 
 for (const file of filesToFlatten) {
   const relativeFilePath = file.split(dir)[1];
