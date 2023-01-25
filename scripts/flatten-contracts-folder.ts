@@ -1,30 +1,19 @@
 import fs from "fs";
 import path from "path";
-import { exec } from "child_process";
+import { exec, execSync } from "child_process";
 
 // directory path
 const dir = "contracts/";
 const outDir = "flatten/";
 
-const arrayOfDirectoriesToIgnore = [
-  "utils",
-  "abstracts",
-  "deprecated",
-  "interfaces",
-];
-
-function filterFiles(arrayOfFiles: string[]): string[] {
-  return arrayOfFiles.filter((file) => {
-    for (const dir of arrayOfDirectoriesToIgnore) {
-      if (file.includes(dir)) {
-        return false;
-      }
-    }
-    return true;
-  });
-}
-
 function getAllFiles(dirPath: string, arrayOfFiles: string[]): string[] {
+  const arrayOfDirectoriesToIgnore = [
+    "utils",
+    "abstracts",
+    "deprecated",
+    "interfaces",
+  ];
+
   const files = fs.readdirSync(dirPath);
 
   arrayOfFiles = arrayOfFiles || [];
@@ -70,24 +59,41 @@ function filterLicensesInFile(filePath: string): void {
   fs.writeFileSync(filePath, fileContent);
 }
 
-const filesToFlatten =
-  process.argv.length === 2
-    ? getAllFiles(dir, [])
-    : filterFiles(process.argv.slice(2));
-
-console.log("Flattening files : " + filesToFlatten);
-
-for (const file of filesToFlatten) {
-  const relativeFilePath = file.split(dir)[1];
-  const dest = outDir + relativeFilePath;
-  const source = dir + relativeFilePath;
-
-  console.log("Flattening : " + source + " to " + dest);
-  exec(
-    "npx hardhat flatten " + source + " > " + dest,
-    {
-      encoding: "utf-8",
-    },
-    () => filterLicensesInFile(dest)
-  );
+function printUsage(): void {
+  console.log("USAGE\n\tts-node flatten-contracts-folder [--git] files ...");
+  console.log();
+  console.log("DESCRIPTION\n\t--git\tStage the files in git");
+  console.log("\tfiles\tlist of files / directories to flatten");
 }
+
+function main() {
+  if (process.argv.includes("--help") || process.argv.includes("-h")) {
+    printUsage();
+    return;
+  }
+
+  const git = process.argv.includes("--git");
+
+  const filesToFlatten = getAllFiles(dir, []);
+
+  console.log("Flattening files : " + filesToFlatten);
+
+  for (const file of filesToFlatten) {
+    const relativeFilePath = file.split(dir)[1];
+    const dest = outDir + relativeFilePath;
+    const source = dir + relativeFilePath;
+
+    console.log("Flattening : " + source + " to " + dest);
+    exec(
+      "npx hardhat flatten " + source + " > " + dest,
+      {
+        encoding: "utf-8",
+      },
+      () => {
+        filterLicensesInFile(dest);
+        if (git) execSync("git add " + dest);
+      }
+    );
+  }
+}
+main();

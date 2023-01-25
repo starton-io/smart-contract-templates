@@ -75,9 +75,9 @@
     "*.ts": [
       "eslint --fix"
     ],
-    "*.sol": [
+    "contracts/**/*.sol": [
       "solhint --fix",
-      "yarn flatten"
+      "yarn flatten --git"
     ],
     "*.json|*.md|*.sol": [
       "prettier --write"
