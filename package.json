@@ -73,14 +73,14 @@
   },
   "lint-staged": {
     "*.ts": [
-      "eslint --fix --"
+      "eslint --fix"
     ],
     "*.sol": [
-      "solhint --fix --",
-      "yarn flatten --"
+      "solhint --fix",
+      "yarn flatten"
     ],
     "*.json|*.md|*.sol": [
-      "prettier --write --"
+      "prettier --write"
     ]
   }
 }
