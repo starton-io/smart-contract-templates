@@ -1,9 +1,10 @@
 import {
   Blockchain,
   SmartContractTemplateCategory,
+  SmartContractTemplate,
 } from "./scripts/smart-contract-template";
 
-export default [
+const LIST: SmartContractTemplate[] = [
   {
     id: "ERC_721_METATRANSACTION",
     name: "ERC721 Metatransaction",
@@ -17,3 +18,5 @@ export default [
     },
   },
 ];
+
+export default LIST;

@@ -2,7 +2,6 @@ import { exec } from "child_process";
 import { readdirSync, readFileSync, writeFileSync } from "fs";
 import doc from "../doc";
 import {
-  SmartContractTemplate,
   Blockchain,
   SmartContractTemplateCategory,
 } from "./smart-contract-template";
@@ -99,8 +98,23 @@ function findFlattenPath(compilationFile: any, contractName: string): string {
   return contractMetadata.replace("contracts/", "flatten/");
 }
 
+function printUsage() {
+  console.log("USAGE\n\tyarn generate-doc output");
+  console.log();
+  console.log("DESCRIPTION\n\toutput\tThe output file");
+}
+
 function main() {
-  (doc as unknown as SmartContractTemplate[]).forEach((contract) => {
+  if (
+    process.argv.length !== 2 ||
+    process.argv[1] === "--help" ||
+    process.argv[1] === "-h"
+  ) {
+    printUsage();
+    return;
+  }
+
+  doc.forEach((contract) => {
     const compilationFile = getCompilationFileContent(
       contract.compilationDetails.contractName
     );
