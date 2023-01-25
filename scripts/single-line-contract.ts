@@ -1,11 +1,12 @@
 import { readFileSync, writeFileSync } from "fs";
 
-function printUsage() {
+function printUsage(): void {
   console.log("USAGE\n\tts-node single-line-contract input out");
   console.log();
   console.log("DESCRIPTION\n\tinput\tThe input contract file to convert");
   console.log("\tout\tThe output file where to write the converted contract");
 }
+
 function main() {
   if (process.argv.length !== 4) {
     printUsage();

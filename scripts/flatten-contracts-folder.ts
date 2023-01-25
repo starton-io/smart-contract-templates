@@ -6,7 +6,7 @@ import { exec } from "child_process";
 const dir = "contracts/";
 const outDir = "flatten/";
 
-function getAllFiles(dirPath: string, arrayOfFiles: string[]) {
+function getAllFiles(dirPath: string, arrayOfFiles: string[]): string[] {
   const files = fs.readdirSync(dirPath);
 
   const arrayOfDirectoriesToIgnore = [
@@ -31,7 +31,7 @@ function getAllFiles(dirPath: string, arrayOfFiles: string[]) {
   return arrayOfFiles;
 }
 
-function filterLicensesInFile(filePath: string) {
+function filterLicensesInFile(filePath: string): void {
   console.log("Filtering licenses lines in " + filePath);
 
   let fileContent = "";

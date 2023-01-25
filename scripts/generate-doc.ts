@@ -63,7 +63,7 @@ function getCompilationFileContent(contractName: string): any {
 function findOutputInsideCompilationFile(
   compilationFile: any,
   contractName: string
-) {
+): any {
   let contractMetadata;
   for (const contract in compilationFile.output.contracts) {
     if (contract.includes(contractName + ".sol")) {
@@ -98,7 +98,7 @@ function findFlattenPath(compilationFile: any, contractName: string): string {
   return contractMetadata.replace("contracts/", "flatten/");
 }
 
-function printUsage() {
+function printUsage(): void {
   console.log("USAGE\n\tts-node generate-doc output");
   console.log();
   console.log("DESCRIPTION\n\toutput\tThe output file");
