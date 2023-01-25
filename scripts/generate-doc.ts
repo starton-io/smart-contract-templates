@@ -99,14 +99,14 @@ function findFlattenPath(compilationFile: any, contractName: string): string {
 }
 
 function printUsage() {
-  console.log("USAGE\n\tyarn generate-doc output");
+  console.log("USAGE\n\tts-node generate-doc output");
   console.log();
   console.log("DESCRIPTION\n\toutput\tThe output file");
 }
 
 function main() {
   if (
-    process.argv.length !== 2 ||
+    process.argv.length !== 3 ||
     process.argv[1] === "--help" ||
     process.argv[1] === "-h"
   ) {
@@ -115,6 +115,9 @@ function main() {
   }
 
   doc.forEach((contract) => {
+    console.log(
+      `Handling the ${contract.compilationDetails.contractName} contract`
+    );
     const compilationFile = getCompilationFileContent(
       contract.compilationDetails.contractName
     );
