@@ -6,6 +6,8 @@ import "../interfaces/IStartonERC5192.sol";
 import "./StartonERC721Base.sol";
 
 contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
+    using Counters for Counters.Counter;
+
     mapping(uint256 => bool) internal _tokensLocked;
     bool internal _isLockedByDefault;
 
@@ -33,9 +35,17 @@ contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
         _isLockedByDefault = definitiveIsLockedByDefault;
     }
 
+    function mint(address to, string memory uri) public virtual override {
+        super.mint(to, uri);
+
+        if (_isLockedByDefault) emit Locked(_tokenIdCounter.current() - 1);
+        else emit Unlocked(_tokenIdCounter.current() - 1);
+    }
+
     function lock(uint256 tokenId) public {
         require(!locked(tokenId), "Token is already locked");
 
+        emit Locked(tokenId);
         _tokensLocked[tokenId] = true;
     }
 
