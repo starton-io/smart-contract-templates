@@ -2526,18 +2526,14 @@ pragma solidity 0.8.9;
 contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
     using Counters for Counters.Counter;
 
-    mapping(uint256 => bool) internal _tokensLocked;
-    bool internal _isLockedByDefault;
-
-    modifier checkLock(uint256 tokenId) {
-        require(!_isLockedByDefault || !_tokensLocked[tokenId], "Token is locked");
+    modifier checkLock() {
+        revert("Token locked");
         _;
     }
 
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
-        bool definitiveIsLockedByDefault,
         string memory initialBaseTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
@@ -2549,30 +2545,18 @@ contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
             initialContractURI,
             initialOwnerOrMultiSigContract
         )
-    {
-        _isLockedByDefault = definitiveIsLockedByDefault;
-    }
+    {}
 
     function mint(address to, string memory uri) public virtual override {
         super.mint(to, uri);
 
-        if (_isLockedByDefault) emit Locked(_tokenIdCounter.current() - 1);
-        else emit Unlocked(_tokenIdCounter.current() - 1);
-    }
-
-    function lock(uint256 tokenId) public {
-        require(!locked(tokenId), "Token is already locked");
-
-        emit Locked(tokenId);
-        _tokensLocked[tokenId] = true;
+        emit Locked(_tokenIdCounter.current() - 1);
     }
 
     function locked(uint256 tokenId) public view override returns (bool) {
         require(_exists(tokenId), "Token not found");
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner nor approved");
 
-        if (_isLockedByDefault) return (true);
-        else return (_tokensLocked[tokenId]);
+        return (true);
     }
 
     function safeTransferFrom(
@@ -2580,33 +2564,23 @@ contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
         address to,
         uint256 tokenId,
         bytes memory data
-    ) public override checkLock(tokenId) {
-        super.safeTransferFrom(from, to, tokenId, data);
-    }
+    ) public override checkLock {}
 
     function safeTransferFrom(
         address from,
         address to,
         uint256 tokenId
-    ) public override checkLock(tokenId) {
-        super.safeTransferFrom(from, to, tokenId);
-    }
+    ) public override checkLock {}
 
     function transferFrom(
         address from,
         address to,
         uint256 tokenId
-    ) public override checkLock(tokenId) {
-        super.transferFrom(from, to, tokenId);
-    }
+    ) public override checkLock {}
 
-    function approve(address approved, uint256 tokenId) public override checkLock(tokenId) {
-        super.approve(approved, tokenId);
-    }
+    function approve(address approved, uint256 tokenId) public override checkLock {}
 
-    function setApprovalForAll(address operator, bool approved) public override checkLock(0) {
-        super.setApprovalForAll(operator, approved);
-    }
+    function setApprovalForAll(address operator, bool approved) public override checkLock {}
 
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IStartonERC5192).interfaceId || super.supportsInterface(interfaceId);
