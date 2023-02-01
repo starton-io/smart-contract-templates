@@ -202,7 +202,7 @@ const LIST: SmartContractTemplate[] = [
       Blockchain.ETHEREUM,
     ],
     compilationDetails: {
-      contractName: "StartonERC721Sale",
+      contractName: "StartonERC721BaseSale",
     },
     isActivated: true,
     isAudited: false,
@@ -233,7 +233,7 @@ const LIST: SmartContractTemplate[] = [
       Blockchain.ETHEREUM,
     ],
     compilationDetails: {
-      contractName: "StartonERC1155Sale",
+      contractName: "StartonERC1155BaseSale",
     },
     isActivated: true,
     isAudited: false,

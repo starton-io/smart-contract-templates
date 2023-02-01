@@ -10,7 +10,7 @@
     "coverage": "hardhat compile && hardhat coverage",
     "flatten": "ts-node scripts/flatten-contracts-folder.ts",
     "single-line": "ts-node scripts/single-line-contract.ts",
-    "doc": "ts-node scripts/generate-doc.ts",
+    "doc": "yarn compile && ts-node scripts/generate-doc.ts",
     "lint": "yarn prettier ; yarn eslint ; yarn solhint",
     "lint:fix": "yarn prettier:fix ; yarn eslint:fix ; yarn solhint:fix",
     "prettier": "prettier '**/*.{json,sol,md}' --check",

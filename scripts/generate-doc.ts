@@ -35,7 +35,7 @@ function parseSourceCode(contractFilePath: any): string {
   return fileContents.replace(/\n/g, "\\n").replace(/'/g, "\\'");
 }
 
-function getCompilationFileContent(contractName: string): any {
+function getCompilationFileContent(contractName: string): any | undefined {
   const baseBuildPath = "./artifacts/build-info";
   const files = readdirSync(baseBuildPath);
 
@@ -54,7 +54,7 @@ function getCompilationFileContent(contractName: string): any {
   );
 
   if (!compilationFile) {
-    throw new Error(`Compilation file not found for contract ${contractName}`);
+    return undefined;
   }
 
   return JSON.parse(compilationFile);
@@ -66,7 +66,7 @@ function findOutputInsideCompilationFile(
 ): any {
   let contractMetadata;
   for (const contract in compilationFile.output.contracts) {
-    if (contract.includes(contractName + ".sol")) {
+    if (contract.includes("/" + contractName + ".sol")) {
       contractMetadata =
         compilationFile.output.contracts[contract][contractName];
     }
@@ -84,7 +84,7 @@ function findOutputInsideCompilationFile(
 function findFlattenPath(compilationFile: any, contractName: string): string {
   let contractMetadata;
   for (const contract in compilationFile.output.contracts) {
-    if (contract.includes(contractName + ".sol")) {
+    if (contract.includes("/" + contractName + ".sol")) {
       contractMetadata = contract;
     }
   }
@@ -118,9 +118,23 @@ function main() {
     console.log(
       `Handling the ${contract.compilationDetails.contractName} contract`
     );
+
     const compilationFile = getCompilationFileContent(
       contract.compilationDetails.contractName
     );
+
+    if (!compilationFile) {
+      return;
+    }
+
+    const flattenPath = findFlattenPath(
+      compilationFile,
+      contract.compilationDetails.contractName
+    );
+
+    if (flattenPath.includes("deprecated")) {
+      return;
+    }
 
     contract.compilationDetails.runs = parseRuns(compilationFile);
     contract.compilationDetails.compilerVersion =
@@ -138,9 +152,7 @@ function main() {
     );
     contract.abi = parseAbi(outputContractMetadata);
 
-    contract.compilationDetails.source = parseSourceCode(
-      findFlattenPath(compilationFile, contract.compilationDetails.contractName)
-    );
+    contract.compilationDetails.source = parseSourceCode(flattenPath);
   });
 
   let stringifiedContent = JSON.stringify(doc, null, 2);
