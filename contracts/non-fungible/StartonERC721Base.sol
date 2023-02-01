@@ -11,6 +11,7 @@ import "../abstracts/AStartonNativeMetaTransaction.sol";
 import "../abstracts/AStartonContextMixin.sol";
 import "../abstracts/AStartonAccessControl.sol";
 import "../abstracts/AStartonBlacklist.sol";
+import "../abstracts/AStartonPausable.sol";
 
 /// @title StartonERC721Base
 /// @author Starton
@@ -19,7 +20,7 @@ contract StartonERC721Base is
     ERC721Enumerable,
     ERC721URIStorage,
     ERC721Burnable,
-    Pausable,
+    AStartonPausable,
     AStartonAccessControl,
     AStartonBlacklist,
     AStartonContextMixin,
@@ -27,7 +28,6 @@ contract StartonERC721Base is
 {
     using Counters for Counters.Counter;
 
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
@@ -54,7 +54,7 @@ contract StartonERC721Base is
 
     /** @dev Modifier that reverts when the metadatas are locked */
     modifier metadataNotLocked() {
-        require(_isMintAllowed, "Metadatas are locked");
+        require(_isMetatadataChangingAllowed, "Metadatas are locked");
         _;
     }
 
@@ -88,13 +88,7 @@ contract StartonERC721Base is
      * @param uri The URI of the token metadata
      * @custom:requires MINTER_ROLE
      */
-    function mint(address to, string memory uri)
-        public
-        virtual
-        whenNotPaused
-        mintingNotLocked
-        onlyRole(MINTER_ROLE)
-    {
+    function mint(address to, string memory uri) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
         _safeMint(to, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), uri);
         _tokenIdCounter.increment();
@@ -131,22 +125,6 @@ contract StartonERC721Base is
     }
 
     /**
-     * @notice Pause the contract which stop any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function pause() public virtual onlyRole(PAUSER_ROLE) {
-        _pause();
-    }
-
-    /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function unpause() public virtual onlyRole(PAUSER_ROLE) {
-        _unpause();
-    }
-
-    /**
      * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
      * @custom:requires LOCKER_ROLE
      */
@@ -177,13 +155,7 @@ contract StartonERC721Base is
      * @param tokenId The token id of the token
      * @return Contract URI of the token
      */
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        virtual
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
+    function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
@@ -225,13 +197,7 @@ contract StartonERC721Base is
         address from,
         address to,
         uint256 tokenId
-    )
-        internal
-        virtual
-        override(ERC721, ERC721Enumerable)
-        whenNotPaused
-        notBlacklisted(_msgSender())
-    {
+    ) internal virtual override(ERC721, ERC721Enumerable) whenNotPaused notBlacklisted(_msgSender()) {
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
@@ -239,11 +205,7 @@ contract StartonERC721Base is
      * @dev Fix the inheritence problem for the _burn between ERC721 and ERC721URIStorage
      * @param tokenId Id of the token that will be burnt
      */
-    function _burn(uint256 tokenId)
-        internal
-        virtual
-        override(ERC721, ERC721URIStorage)
-    {
+    function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
     }
 
@@ -259,13 +221,7 @@ contract StartonERC721Base is
      * @dev Specify the _msgSender in case the forwarder calls a function to the real sender
      * @return The sender of the message
      */
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context, AStartonContextMixin)
-        returns (address)
-    {
+    function _msgSender() internal view virtual override(Context, AStartonContextMixin) returns (address) {
         return super._msgSender();
     }
 }

@@ -39,6 +39,19 @@ describe("StartonERC721Capped", () => {
   describe("Deployment", () => {
     it("Should deploy", async () => {});
 
+    it("Shouldn't deploy if maxSupply is 0", async () => {
+      await expect(
+        ERC721.deploy(
+          "StartonToken",
+          "ST",
+          0,
+          "https://ipfs.io/",
+          "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
+          owner.address
+        )
+      ).to.be.revertedWith("maxSupply must be greater than 0");
+    });
+
     it("Should owner have admin role", async () => {
       const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();
 
@@ -214,8 +227,21 @@ describe("StartonERC721Capped", () => {
     });
   });
 
-  describe("BlackList", () => {
-    it("Should not set any addresses as blacklisted", async () => {
+  describe("Blacklist", () => {
+    it("Shouldn't blacklist if already blacklisted", async () => {
+      await instanceERC721.addToBlacklist(addr1.address);
+      await expect(
+        instanceERC721.addToBlacklist(addr1.address)
+      ).to.be.revertedWith("Address is already blacklisted");
+    });
+
+    it("Shouldn't remove from blacklist is not blacklisted", async () => {
+      await expect(
+        instanceERC721.removeFromBlacklist(addr1.address)
+      ).to.be.revertedWith("Address is not blacklisted");
+    });
+
+    it("Shouldn't set any addresses as blacklisted", async () => {
       expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
     });
 
@@ -225,8 +251,8 @@ describe("StartonERC721Capped", () => {
     });
 
     it("Should batch blacklist an address", async () => {
+      await instanceERC721.addBatchToBlacklist([addr1.address]);
       await instanceERC721.addBatchToBlacklist([
-        addr1.address,
         addr2.address,
         addrs[3].address,
       ]);
@@ -246,11 +272,10 @@ describe("StartonERC721Capped", () => {
 
     it("Should be able to batch remove blacklist", async () => {
       await instanceERC721.addBatchToBlacklist([
-        addr1.address,
         addr2.address,
         addrs[3].address,
       ]);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
+      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
       expect(await instanceERC721.isBlacklisted(addr2.address)).to.equal(true);
       expect(await instanceERC721.isBlacklisted(addrs[3].address)).to.equal(
         true
@@ -320,6 +345,18 @@ describe("StartonERC721Capped", () => {
           "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
         )
       ).to.be.revertedWith("Minting is locked");
+    });
+
+    it("Should lock the metadatas and not let anyone change metadatas anymore", async () => {
+      await instanceERC721.lockMetadata();
+      await expect(
+        instanceERC721.setContractURI(
+          "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+        )
+      ).to.be.revertedWith("Metadatas are locked");
+      await expect(
+        instanceERC721.setBaseTokenURI("https://ipfs.io/")
+      ).to.be.revertedWith("Metadatas are locked");
     });
   });
 
@@ -484,6 +521,26 @@ describe("StartonERC721Capped", () => {
       await instanceERC721
         .connect(addr1)
         .removeBatchFromBlacklist([addr2.address]);
+    });
+  });
+
+  describe("SupportsInterface", () => {
+    it("Should support ERC721", async () => {
+      expect(await instanceERC721.supportsInterface("0x80ac58cd")).to.equal(
+        true
+      );
+    });
+
+    it("should support ERC721Enumerable", async () => {
+      expect(await instanceERC721.supportsInterface("0x780e9d63")).to.equal(
+        true
+      );
+    });
+
+    it("Should support AccessControl", async () => {
+      expect(await instanceERC721.supportsInterface("0x7965db0b")).to.equal(
+        true
+      );
     });
   });
 

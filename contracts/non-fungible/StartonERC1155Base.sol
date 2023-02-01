@@ -8,6 +8,7 @@ import "../abstracts/AStartonNativeMetaTransaction.sol";
 import "../abstracts/AStartonContextMixin.sol";
 import "../abstracts/AStartonAccessControl.sol";
 import "../abstracts/AStartonBlacklist.sol";
+import "../abstracts/AStartonPausable.sol";
 
 /// @title StartonERC1155Base
 /// @author Starton
@@ -15,12 +16,11 @@ import "../abstracts/AStartonBlacklist.sol";
 contract StartonERC1155Base is
     ERC1155Burnable,
     AStartonAccessControl,
-    Pausable,
+    AStartonPausable,
     AStartonContextMixin,
     AStartonBlacklist,
     AStartonNativeMetaTransaction
 {
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
     bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
@@ -46,7 +46,7 @@ contract StartonERC1155Base is
 
     /** @dev Modifier that reverts when the metadatas are locked */
     modifier metadataNotLocked() {
-        require(_isMintAllowed, "Metadatas are locked");
+        require(_isMetatadataChangingAllowed, "Metadatas are locked");
         _;
     }
 
@@ -101,8 +101,8 @@ contract StartonERC1155Base is
         address to,
         uint256 id,
         uint256 amount
-    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
-        _mint(to, id, amount, "");
+    ) public virtual {
+        mint(to, id, amount, "");
     }
 
     /**
@@ -133,8 +133,8 @@ contract StartonERC1155Base is
         address to,
         uint256[] memory ids,
         uint256[] memory amounts
-    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
-        _mintBatch(to, ids, amounts, "");
+    ) public virtual {
+        mintBatch(to, ids, amounts, "");
     }
 
     /**
@@ -170,22 +170,6 @@ contract StartonERC1155Base is
     }
 
     /**
-     * @notice Pause the contract which stop any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function pause() public virtual onlyRole(PAUSER_ROLE) {
-        _pause();
-    }
-
-    /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function unpause() public virtual onlyRole(PAUSER_ROLE) {
-        _unpause();
-    }
-
-    /**
      * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
      * @custom:requires LOCKER_ROLE
      */
@@ -207,13 +191,7 @@ contract StartonERC1155Base is
      * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
      * @return True if the interface is supported
      */
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC1155, AccessControl)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
@@ -263,13 +241,7 @@ contract StartonERC1155Base is
      * @dev Specify the _msgSender in case the forwarder calls a function to the real sender
      * @return The sender of the message
      */
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context, AStartonContextMixin)
-        returns (address)
-    {
+    function _msgSender() internal view virtual override(Context, AStartonContextMixin) returns (address) {
         return super._msgSender();
     }
 }

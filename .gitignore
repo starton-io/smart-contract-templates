@@ -9,3 +9,4 @@ coverage.json
 cache
 artifacts
 typechain-types
+yarn-error.log

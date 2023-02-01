@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { execSync } from "child_process";
+import { exec } from "child_process";
 
 // directory path
 const dir = "contracts/";
@@ -67,9 +67,11 @@ for (const file of filesToFlatten) {
   const source = dir + relativeFilePath;
 
   console.log("Flattening : " + source + " to " + dest);
-  execSync("npx hardhat flatten " + source + " > " + dest, {
-    encoding: "utf-8",
-  });
-
-  filterLicensesInFile(dest);
+  exec(
+    "npx hardhat flatten " + source + " > " + dest,
+    {
+      encoding: "utf-8",
+    },
+    () => filterLicensesInFile(dest)
+  );
 }

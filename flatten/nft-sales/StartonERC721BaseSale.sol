@@ -318,17 +318,17 @@ interface IStartonERC721 is IERC721Enumerable {
 }
 
 
-// File contracts/nft-sales/StartonERC721Sale.sol
+// File contracts/nft-sales/StartonERC721BaseSale.sol
 
 
 pragma solidity 0.8.9;
 
 
 
-/// @title StartonERC721Sale
+/// @title StartonERC721BaseSale
 /// @author Starton
 /// @notice Sell ERC721 tokens through a public sale with a limited available supply, start and end time as well as max tokens per address
-contract StartonERC721Sale is Context {
+contract StartonERC721BaseSale is Context {
     address private immutable _feeReceiver;
 
     IStartonERC721 public immutable token;
@@ -370,30 +370,29 @@ contract StartonERC721Sale is Context {
     /**
      * @notice Mint a token to a given address for a price
      * @param to The address to mint the token to
+     * @param data The data to pass to the token (optional)
      */
-    function mint(address to) public payable isTimeCorrect {
+    function mint(address to, bytes32[] memory data) public payable virtual isTimeCorrect {
         require(msg.value >= price, "Insufficient funds");
 
         uint256 totalSupply = token.totalSupply();
         if (totalSupply == 0) {
             _mint(to, Strings.toString(0));
         } else {
-            _mint(
-                to,
-                Strings.toString(token.tokenByIndex(totalSupply - 1) + 1)
-            );
+            _mint(to, Strings.toString(token.tokenByIndex(totalSupply - 1) + 1));
         }
     }
 
     /**
      * @notice Mint multiple tokens to a given address for a price
      * @param to The address to mint the token to
+     * @param data The data to pass to the token (optional)
      */
-    function mintBatch(address to, uint256 amount)
-        public
-        payable
-        isTimeCorrect
-    {
+    function mintBatch(
+        address to,
+        uint256 amount,
+        bytes32[] memory data
+    ) public payable virtual isTimeCorrect {
         require(msg.value >= price * amount, "Insufficient funds");
 
         // Compute the next token id
@@ -411,7 +410,7 @@ contract StartonERC721Sale is Context {
     /**
      * @notice Withdraw funds from the smart contract to the feeReceiver
      */
-    function withdraw() public {
+    function withdraw() public virtual {
         payable(_feeReceiver).transfer(address(this).balance);
     }
 
@@ -420,11 +419,8 @@ contract StartonERC721Sale is Context {
      * @param to The address to mint the token to
      * @param tokenURI The URI of the token
      */
-    function _mint(address to, string memory tokenURI) internal {
-        require(
-            tokensClaimed[_msgSender()] < maxTokensPerAddress,
-            "Max tokens reached"
-        );
+    function _mint(address to, string memory tokenURI) internal virtual {
+        require(tokensClaimed[_msgSender()] < maxTokensPerAddress, "Max tokens reached");
         require(leftSupply != 0, "Max supply reached");
 
         leftSupply -= 1;

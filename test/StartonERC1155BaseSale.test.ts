@@ -4,18 +4,18 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 
 import {
-  StartonERC721Base,
-  StartonERC721Base__factory, // eslint-disable-line camelcase
-  StartonERC721Sale,
-  StartonERC721Sale__factory, // eslint-disable-line camelcase
+  StartonERC1155Base,
+  StartonERC1155Base__factory, // eslint-disable-line camelcase
+  StartonERC1155BaseSale,
+  StartonERC1155BaseSale__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let ERC721: StartonERC721Base__factory; // eslint-disable-line camelcase
-let ERC721Sale: StartonERC721Sale__factory; // eslint-disable-line camelcase
+let ERC1155: StartonERC1155Base__factory; // eslint-disable-line camelcase
+let ERC1155Sale: StartonERC1155BaseSale__factory; // eslint-disable-line camelcase
 
-describe("StartonERC721Sale", () => {
-  let instanceERC721: StartonERC721Base;
-  let instanceSale: StartonERC721Sale;
+describe("StartonERC1155BaseSale", () => {
+  let instanceERC1155: StartonERC1155Base;
+  let instanceSale: StartonERC1155BaseSale;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
@@ -28,48 +28,54 @@ describe("StartonERC721Sale", () => {
     // Get the Signers here
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
-    ERC721 = new StartonERC721Base__factory(owner);
-    ERC721Sale = new StartonERC721Sale__factory(owner);
+    ERC1155 = new StartonERC1155Base__factory(owner);
+    ERC1155Sale = new StartonERC1155BaseSale__factory(owner);
   });
 
   beforeEach(async () => {
     // Reset the whole waffle for each test
     await ethers.provider.send("hardhat_reset", []);
 
-    instanceERC721 = (await ERC721.deploy(
+    instanceERC1155 = (await ERC1155.deploy(
       "StartonToken",
-      "ST",
-      "https://ipfs.io/",
+      "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
-    )) as StartonERC721Base;
-    await instanceERC721.deployed();
+    )) as StartonERC1155Base;
+    await instanceERC1155.deployed();
 
     now = new Date();
-    instanceSale = (await ERC721Sale.deploy(
-      instanceERC721.address,
-      BigNumber.from("1000"),
+    instanceSale = (await ERC1155Sale.deploy(
+      instanceERC1155.address,
       now.valueOf(),
       now.valueOf() + 1000 * 60 * 60 * 24 * 7,
       BigNumber.from("3"),
       BigNumber.from("10"),
       owner.address
-    )) as StartonERC721Sale;
+    )) as StartonERC1155BaseSale;
     await instanceSale.deployed();
 
-    const minterRole = await instanceERC721.MINTER_ROLE();
-    await instanceERC721.grantRole(minterRole, instanceSale.address);
+    const minterRole = await instanceERC1155.MINTER_ROLE();
+    await instanceERC1155.grantRole(minterRole, instanceSale.address);
+
+    await instanceSale.setPrices([10, 11], [1000, 1000]);
   });
 
   describe("Deployment", () => {
     it("Should deploy the contract", async () => {});
 
     it("Should set the token correctly", async () => {
-      expect(await instanceSale.token()).to.be.equal(instanceERC721.address);
+      expect(await instanceSale.token()).to.be.equal(instanceERC1155.address);
     });
 
     it("Should set the price correctly", async () => {
-      expect(await instanceSale.price()).to.be.equal(BigNumber.from("1000"));
+      // Need to check each element apart of the structure because chai doesn't support deep equal
+      expect(await instanceSale.pricePerToken(10)).to.be.equal(
+        BigNumber.from("1000")
+      );
+      expect(await instanceSale.pricePerToken(11)).to.be.equal(
+        BigNumber.from("1000")
+      );
     });
 
     it("Should set the startTime correctly", async () => {
@@ -100,7 +106,7 @@ describe("StartonERC721Sale", () => {
       ]);
 
       await expect(
-        instanceSale.mint(addr1.address, {
+        instanceSale.mint(addr1.address, 10, 1, [], {
           value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Minting not started");
@@ -112,7 +118,7 @@ describe("StartonERC721Sale", () => {
       ]);
 
       await expect(
-        instanceSale.mint(addr1.address, {
+        instanceSale.mint(addr1.address, 10, 1, [], {
           value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Minting finished");
@@ -122,7 +128,7 @@ describe("StartonERC721Sale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
-        instanceSale.mint(addr1.address, {
+        instanceSale.mint(addr1.address, 10, 1, [], {
           value: BigNumber.from("999"),
         })
       ).to.be.revertedWith("Insufficient funds");
@@ -131,18 +137,9 @@ describe("StartonERC721Sale", () => {
     it("Shouldn't mint more than allowed per wallet", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.mint(addr1.address, {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.mint(addr1.address, {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.mint(addr1.address, {
-        value: BigNumber.from("1000"),
-      });
       await expect(
-        instanceSale.mint(addr1.address, {
-          value: BigNumber.from("1000"),
+        instanceSale.mint(addr1.address, 10, 4, [], {
+          value: BigNumber.from("4000"),
         })
       ).to.be.revertedWith("Max tokens reached");
     });
@@ -150,39 +147,18 @@ describe("StartonERC721Sale", () => {
     it("Shouldn't mint more than total supply", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.mint(addr1.address, {
-        value: BigNumber.from("1000"),
+      await instanceSale.mint(addr1.address, 10, 3, [], {
+        value: BigNumber.from("3000"),
       });
-      await instanceSale.mint(addr1.address, {
-        value: BigNumber.from("1000"),
+      await instanceSale.connect(addr1).mint(addr1.address, 10, 3, [], {
+        value: BigNumber.from("3000"),
       });
-      await instanceSale.mint(addr1.address, {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr1).mint(addr1.address, {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr1).mint(addr1.address, {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr1).mint(addr1.address, {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr2).mint(addr1.address, {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr2).mint(addr1.address, {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addr2).mint(addr1.address, {
-        value: BigNumber.from("1000"),
-      });
-      await instanceSale.connect(addrs[3]).mint(addr1.address, {
-        value: BigNumber.from("1000"),
+      await instanceSale.connect(addr2).mint(addr1.address, 10, 3, [], {
+        value: BigNumber.from("3000"),
       });
       await expect(
-        instanceSale.connect(addrs[3]).mint(addr1.address, {
-          value: BigNumber.from("1000"),
+        instanceSale.connect(addrs[3]).mint(addr1.address, 10, 2, [], {
+          value: BigNumber.from("2000"),
         })
       ).to.be.revertedWith("Max supply reached");
     });
@@ -190,23 +166,21 @@ describe("StartonERC721Sale", () => {
     it("Should mint with a correct time and correct value", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.mint(addr1.address, {
+      await instanceSale.mint(addr1.address, 10, 1, [], {
         value: BigNumber.from("1000"),
       });
 
-      expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(1);
+      expect(await instanceERC1155.balanceOf(addr1.address, 10)).to.be.equal(1);
 
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         now.valueOf() + 1000 * 60 * 60 * 24 * 7,
       ]);
 
-      await instanceSale.mint(addr1.address, {
+      await instanceSale.mint(addr1.address, 10, 1, [], {
         value: BigNumber.from("1000"),
       });
 
-      expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(2);
-      expect(await instanceERC721.tokenURI(0)).to.be.equal("https://ipfs.io/0");
-      expect(await instanceERC721.tokenURI(1)).to.be.equal("https://ipfs.io/1");
+      expect(await instanceERC1155.balanceOf(addr1.address, 10)).to.be.equal(2);
     });
   });
 
@@ -217,7 +191,7 @@ describe("StartonERC721Sale", () => {
       ]);
 
       await expect(
-        instanceSale.mintBatch(addr1.address, 3, {
+        instanceSale.mintBatch(addr1.address, [10, 11], [1, 2], [], {
           value: BigNumber.from("3000"),
         })
       ).to.be.revertedWith("Minting not started");
@@ -229,7 +203,7 @@ describe("StartonERC721Sale", () => {
       ]);
 
       await expect(
-        instanceSale.mintBatch(addr1.address, 3, {
+        instanceSale.mintBatch(addr1.address, [10, 11], [1, 2], [], {
           value: BigNumber.from("3000"),
         })
       ).to.be.revertedWith("Minting finished");
@@ -239,7 +213,7 @@ describe("StartonERC721Sale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
-        instanceSale.mintBatch(addr1.address, 3, {
+        instanceSale.mintBatch(addr1.address, [10, 11], [1, 2], [], {
           value: BigNumber.from("2999"),
         })
       ).to.be.revertedWith("Insufficient funds");
@@ -249,7 +223,7 @@ describe("StartonERC721Sale", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await expect(
-        instanceSale.mintBatch(addr1.address, 4, {
+        instanceSale.mintBatch(addr1.address, [10, 11], [2, 2], [], {
           value: BigNumber.from("4000"),
         })
       ).to.be.revertedWith("Max tokens reached");
@@ -258,21 +232,22 @@ describe("StartonERC721Sale", () => {
     it("Shouldn't batch mint more than total supply", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      instanceSale.mintBatch(addr1.address, 3, {
+      await instanceSale.mintBatch(addr1.address, [10, 11], [1, 2], [], {
         value: BigNumber.from("3000"),
       });
-      instanceSale.connect(addr1).mintBatch(addr1.address, 3, {
-        value: BigNumber.from("3000"),
-      });
-      instanceSale.connect(addr2).mintBatch(addr1.address, 3, {
-        value: BigNumber.from("3000"),
-      });
-      instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, {
-        value: BigNumber.from("3000"),
-      });
-      await expect(
-        instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, {
+      await instanceSale
+        .connect(addr1)
+        .mintBatch(addr1.address, [10, 11], [1, 2], [], {
           value: BigNumber.from("3000"),
+        });
+      await instanceSale
+        .connect(addr2)
+        .mintBatch(addr1.address, [10, 11], [1, 2], [], {
+          value: BigNumber.from("3000"),
+        });
+      await expect(
+        instanceSale.connect(addrs[3]).mintBatch(addr1.address, [10], [2], [], {
+          value: BigNumber.from("2000"),
         })
       ).to.be.revertedWith("Max supply reached");
     });
@@ -280,14 +255,12 @@ describe("StartonERC721Sale", () => {
     it("Should batch mint with a correct time and correct value", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
-      await instanceSale.mintBatch(addr1.address, 3, {
+      await instanceSale.mintBatch(addr1.address, [10, 11], [2, 1], [], {
         value: BigNumber.from("3000"),
       });
 
-      expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(3);
-      expect(await instanceERC721.tokenURI(0)).to.be.equal("https://ipfs.io/0");
-      expect(await instanceERC721.tokenURI(1)).to.be.equal("https://ipfs.io/1");
-      expect(await instanceERC721.tokenURI(2)).to.be.equal("https://ipfs.io/2");
+      expect(await instanceERC1155.balanceOf(addr1.address, 10)).to.be.equal(2);
+      expect(await instanceERC1155.balanceOf(addr1.address, 11)).to.be.equal(1);
     });
   });
 
@@ -297,11 +270,11 @@ describe("StartonERC721Sale", () => {
 
       const ownerBalance = await owner.getBalance();
 
-      await instanceSale.connect(addr1).mint(addr1.address, {
+      await instanceSale.connect(addr1).mint(addr1.address, 10, 1, [], {
         value: ethers.utils.parseEther("0.26"),
       });
 
-      await instanceSale.connect(addr1).mint(addr1.address, {
+      await instanceSale.connect(addr1).mint(addr1.address, 10, 1, [], {
         value: ethers.utils.parseEther("0.4"),
       });
 

@@ -103,7 +103,7 @@ describe("StartonERC1155Base", () => {
   });
 
   describe("Minting", () => {
-    it("Should mint unique token correctly", async () => {
+    it("Should mint unique token correctly 1", async () => {
       await instanceERC1155["mint(address,uint256,uint256)"](
         addr1.address,
         1536,
@@ -112,7 +112,7 @@ describe("StartonERC1155Base", () => {
       expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(1);
     });
 
-    it("Should mint multiples token correctly", async () => {
+    it("Should mint multiples token correctly 1", async () => {
       await instanceERC1155["mint(address,uint256,uint256)"](
         addr1.address,
         1536,
@@ -121,11 +121,51 @@ describe("StartonERC1155Base", () => {
       expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(11);
     });
 
-    it("Batch minting should go accordingly", async () => {
+    it("Batch minting should go accordingly 1", async () => {
       await instanceERC1155["mintBatch(address,uint256[],uint256[])"](
         addr1.address,
         [1536, 100, 10, 164658, 184],
         [2747, 29, 957, 284, 2945]
+      );
+      expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(
+        2747
+      );
+      expect(await instanceERC1155.balanceOf(addr1.address, 100)).to.equal(29);
+      expect(await instanceERC1155.balanceOf(addr1.address, 10)).to.equal(957);
+      expect(await instanceERC1155.balanceOf(addr1.address, 164658)).to.equal(
+        284
+      );
+      expect(await instanceERC1155.balanceOf(addr1.address, 184)).to.equal(
+        2945
+      );
+    });
+
+    it("Should mint unique token correctly 2", async () => {
+      await instanceERC1155["mint(address,uint256,uint256,bytes)"](
+        addr1.address,
+        1536,
+        1,
+        "0x"
+      );
+      expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(1);
+    });
+
+    it("Should mint multiples token correctly 2", async () => {
+      await instanceERC1155["mint(address,uint256,uint256,bytes)"](
+        addr1.address,
+        1536,
+        11,
+        "0x"
+      );
+      expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(11);
+    });
+
+    it("Batch minting should go accordingly 2", async () => {
+      await instanceERC1155["mintBatch(address,uint256[],uint256[],bytes)"](
+        addr1.address,
+        [1536, 100, 10, 164658, 184],
+        [2747, 29, 957, 284, 2945],
+        "0x"
       );
       expect(await instanceERC1155.balanceOf(addr1.address, 1536)).to.equal(
         2747
@@ -305,8 +345,21 @@ describe("StartonERC1155Base", () => {
     });
   });
 
-  describe("BlackList", () => {
-    it("Should not set any addresses as blacklisted", async () => {
+  describe("Blacklist", () => {
+    it("Shouldn't blacklist if already blacklisted", async () => {
+      await instanceERC1155.addToBlacklist(addr1.address);
+      await expect(
+        instanceERC1155.addToBlacklist(addr1.address)
+      ).to.be.revertedWith("Address is already blacklisted");
+    });
+
+    it("Shouldn't remove from blacklist is not blacklisted", async () => {
+      await expect(
+        instanceERC1155.removeFromBlacklist(addr1.address)
+      ).to.be.revertedWith("Address is not blacklisted");
+    });
+
+    it("Shouldn't set any addresses as blacklisted", async () => {
       expect(await instanceERC1155.isBlacklisted(addr1.address)).to.equal(
         false
       );
@@ -318,6 +371,7 @@ describe("StartonERC1155Base", () => {
     });
 
     it("Should batch blacklist an address", async () => {
+      await instanceERC1155.addBatchToBlacklist([addr1.address]);
       await instanceERC1155.addBatchToBlacklist([
         addr1.address,
         addr2.address,
@@ -341,11 +395,12 @@ describe("StartonERC1155Base", () => {
 
     it("Should be able to batch remove blacklist", async () => {
       await instanceERC1155.addBatchToBlacklist([
-        addr1.address,
         addr2.address,
         addrs[3].address,
       ]);
-      expect(await instanceERC1155.isBlacklisted(addr1.address)).to.equal(true);
+      expect(await instanceERC1155.isBlacklisted(addr1.address)).to.equal(
+        false
+      );
       expect(await instanceERC1155.isBlacklisted(addr2.address)).to.equal(true);
       expect(await instanceERC1155.isBlacklisted(addrs[3].address)).to.equal(
         true
@@ -430,6 +485,20 @@ describe("StartonERC1155Base", () => {
           [2747, 29, 957, 284, 2945]
         )
       ).to.be.revertedWith("Minting is locked");
+    });
+
+    it("Should lock the metadatas and not let anyone change metadatas anymore", async () => {
+      await instanceERC1155.lockMetadata();
+      await expect(
+        instanceERC1155.setContractURI(
+          "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
+        )
+      ).to.be.revertedWith("Metadatas are locked");
+      await expect(
+        instanceERC1155.setTokenURI(
+          "ipfs://QmW77ZQQ7Jm9q8WuLbH8YZg2K7T9Qnjbzm7jYVQQrJY5Y/{id}"
+        )
+      ).to.be.revertedWith("Metadatas are locked");
     });
   });
 
@@ -619,6 +688,20 @@ describe("StartonERC1155Base", () => {
       await instanceERC1155
         .connect(addr1)
         .removeBatchFromBlacklist([addr2.address]);
+    });
+  });
+
+  describe("SupportsInterface", () => {
+    it("Should support ERC1155", async () => {
+      expect(await instanceERC1155.supportsInterface("0xd9b67a26")).to.be.equal(
+        true
+      );
+    });
+
+    it("Should support AccessControl", async () => {
+      expect(await instanceERC1155.supportsInterface("0x7965db0b")).to.be.equal(
+        true
+      );
     });
   });
 

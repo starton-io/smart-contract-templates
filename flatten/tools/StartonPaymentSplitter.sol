@@ -730,8 +730,5 @@ contract PaymentSplitter is Context {
 pragma solidity 0.8.9;
 
 contract StartonPaymentSplitter is PaymentSplitter {
-    constructor(address[] memory payees, uint256[] memory shares)
-        payable
-        PaymentSplitter(payees, shares)
-    {}
+    constructor(address[] memory payees, uint256[] memory shares) payable PaymentSplitter(payees, shares) {}
 }

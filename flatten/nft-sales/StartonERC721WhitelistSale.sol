@@ -216,6 +216,52 @@ library MerkleProof {
 }
 
 
+// File @openzeppelin/contracts/utils/Context.sol@v4.7.1
+
+// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
+    }
+}
+
+
+// File contracts/abstracts/AStartonWhitelist.sol
+
+
+pragma solidity ^0.8.0;
+
+
+abstract contract AStartonWhitelist is Context {
+    // Root of the merkle tree for the whitelisted address
+    bytes32 internal _merkleRoot;
+
+    /** @dev Modifier that reverts when the sender is not whitelisted */
+    modifier isWhitelisted(bytes32[] memory merkleProof) {
+        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
+        require(MerkleProof.verify(merkleProof, _merkleRoot, leaf), "Invalid proof");
+        _;
+    }
+}
+
+
 // File @openzeppelin/contracts/utils/Strings.sol@v4.7.1
 
 // OpenZeppelin Contracts (last updated v4.7.0) (utils/Strings.sol)
@@ -290,33 +336,6 @@ library Strings {
      */
     function toHexString(address addr) internal pure returns (string memory) {
         return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);
-    }
-}
-
-
-// File @openzeppelin/contracts/utils/Context.sol@v4.7.1
-
-// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Provides information about the current execution context, including the
- * sender of the transaction and its data. While these are generally available
- * via msg.sender and msg.data, they should not be accessed in such a direct
- * manner, since when dealing with meta-transactions the account sending and
- * paying for execution may not be the actual sender (as far as an application
- * is concerned).
- *
- * This contract is only required for intermediate, library-like contracts.
- */
-abstract contract Context {
-    function _msgSender() internal view virtual returns (address) {
-        return msg.sender;
-    }
-
-    function _msgData() internal view virtual returns (bytes calldata) {
-        return msg.data;
     }
 }
 
@@ -533,22 +552,18 @@ interface IStartonERC721 is IERC721Enumerable {
 }
 
 
-// File contracts/nft-sales/StartonERC721WhitelistSale.sol
+// File contracts/nft-sales/StartonERC721BaseSale.sol
 
 
 pragma solidity 0.8.9;
 
 
 
-
-/// @title StartonERC721WhitelistSale
+/// @title StartonERC721BaseSale
 /// @author Starton
-/// @notice Sell ERC721 tokens through a whitelist sale with a limited available supply, start and end time as well as max tokens per address
-contract StartonERC721WhitelistSale is Context {
+/// @notice Sell ERC721 tokens through a public sale with a limited available supply, start and end time as well as max tokens per address
+contract StartonERC721BaseSale is Context {
     address private immutable _feeReceiver;
-
-    // Root of the merkle tree for the whitelisted address
-    bytes32 private _merkleRoot;
 
     IStartonERC721 public immutable token;
 
@@ -568,19 +583,8 @@ contract StartonERC721WhitelistSale is Context {
         _;
     }
 
-    /** @dev Modifier that reverts when the sender is not whitelisted */
-    modifier isWhitelisted(bytes32[] calldata merkleProof) {
-        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
-        _;
-    }
-
     constructor(
         address definitiveTokenAddress,
-        bytes32 definitiveMerkleRoot,
         uint256 definitivePrice,
         uint256 definitiveStartTime,
         uint256 definitiveEndTime,
@@ -590,7 +594,6 @@ contract StartonERC721WhitelistSale is Context {
     ) {
         token = IStartonERC721(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;
-        _merkleRoot = definitiveMerkleRoot;
         price = definitivePrice;
         startTime = definitiveStartTime;
         endTime = definitiveEndTime;
@@ -599,39 +602,31 @@ contract StartonERC721WhitelistSale is Context {
     }
 
     /**
-     * @notice Mint a token to a given address for a price if the given address is whitelisted
+     * @notice Mint a token to a given address for a price
      * @param to The address to mint the token to
-     * @param merkleProof The merkle proof of the address in the whitelist
+     * @param data The data to pass to the token (optional)
      */
-    function mint(address to, bytes32[] calldata merkleProof)
-        public
-        payable
-        isTimeCorrect
-        isWhitelisted(merkleProof)
-    {
+    function mint(address to, bytes32[] memory data) public payable virtual isTimeCorrect {
         require(msg.value >= price, "Insufficient funds");
 
         uint256 totalSupply = token.totalSupply();
         if (totalSupply == 0) {
             _mint(to, Strings.toString(0));
         } else {
-            _mint(
-                to,
-                Strings.toString(token.tokenByIndex(totalSupply - 1) + 1)
-            );
+            _mint(to, Strings.toString(token.tokenByIndex(totalSupply - 1) + 1));
         }
     }
 
     /**
-     * @notice Mint multiple tokens to a given address for a price if the given address is whitelisted
+     * @notice Mint multiple tokens to a given address for a price
      * @param to The address to mint the token to
-     * @param merkleProof The merkle proof of the address in the whitelist
+     * @param data The data to pass to the token (optional)
      */
     function mintBatch(
         address to,
         uint256 amount,
-        bytes32[] calldata merkleProof
-    ) public payable isTimeCorrect isWhitelisted(merkleProof) {
+        bytes32[] memory data
+    ) public payable virtual isTimeCorrect {
         require(msg.value >= price * amount, "Insufficient funds");
 
         // Compute the next token id
@@ -649,7 +644,7 @@ contract StartonERC721WhitelistSale is Context {
     /**
      * @notice Withdraw funds from the smart contract to the feeReceiver
      */
-    function withdraw() public {
+    function withdraw() public virtual {
         payable(_feeReceiver).transfer(address(this).balance);
     }
 
@@ -658,15 +653,69 @@ contract StartonERC721WhitelistSale is Context {
      * @param to The address to mint the token to
      * @param tokenURI The URI of the token
      */
-    function _mint(address to, string memory tokenURI) internal {
-        require(
-            tokensClaimed[_msgSender()] < maxTokensPerAddress,
-            "Max tokens reached"
-        );
+    function _mint(address to, string memory tokenURI) internal virtual {
+        require(tokensClaimed[_msgSender()] < maxTokensPerAddress, "Max tokens reached");
         require(leftSupply != 0, "Max supply reached");
 
         leftSupply -= 1;
         tokensClaimed[_msgSender()] += 1;
         token.mint(to, tokenURI);
+    }
+}
+
+
+// File contracts/nft-sales/StartonERC721WhitelistSale.sol
+
+
+pragma solidity 0.8.9;
+
+
+/// @title StartonERC721WhitelistSale
+/// @author Starton
+/// @notice Sell ERC721 tokens through a whitelist sale with a limited available supply, start and end time as well as max tokens per address
+contract StartonERC721WhitelistSale is StartonERC721BaseSale, AStartonWhitelist {
+    constructor(
+        address definitiveTokenAddress,
+        bytes32 definitiveMerkleRoot,
+        uint256 definitivePrice,
+        uint256 definitiveStartTime,
+        uint256 definitiveEndTime,
+        uint256 definitiveMaxTokensPerAddress,
+        uint256 definitiveMaxSupply,
+        address definitiveFeeReceiver
+    )
+        StartonERC721BaseSale(
+            definitiveTokenAddress,
+            definitivePrice,
+            definitiveStartTime,
+            definitiveEndTime,
+            definitiveMaxTokensPerAddress,
+            definitiveMaxSupply,
+            definitiveFeeReceiver
+        )
+    {
+        _merkleRoot = definitiveMerkleRoot;
+    }
+
+    /**
+     * @notice Mint a token to a given address for a price if the given address is whitelisted
+     * @param to The address to mint the token to
+     * @param merkleProof The merkle proof of the address in the whitelist
+     */
+    function mint(address to, bytes32[] calldata merkleProof) public payable override isWhitelisted(merkleProof) {
+        super.mint(to, new bytes32[](0));
+    }
+
+    /**
+     * @notice Mint multiple tokens to a given address for a price if the given address is whitelisted
+     * @param to The address to mint the token to
+     * @param merkleProof The merkle proof of the address in the whitelist
+     */
+    function mintBatch(
+        address to,
+        uint256 amount,
+        bytes32[] calldata merkleProof
+    ) public payable override isWhitelisted(merkleProof) {
+        super.mintBatch(to, amount, new bytes32[](0));
     }
 }

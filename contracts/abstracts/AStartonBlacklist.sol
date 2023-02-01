@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
@@ -17,10 +17,7 @@ abstract contract AStartonBlacklist is AccessControl {
 
     /** @dev Modifier that reverts when the address is blacklisted */
     modifier notBlacklisted(address checkAddress) {
-        require(
-            !_blacklisted[checkAddress],
-            "The caller of the contract is blacklisted"
-        );
+        require(!_blacklisted[checkAddress], "The caller of the contract is blacklisted");
         _;
     }
 
@@ -29,15 +26,8 @@ abstract contract AStartonBlacklist is AccessControl {
      * @param addressToBlacklist The address to blacklist
      * @custom:requires METADATA_ROLE
      */
-    function addToBlacklist(address addressToBlacklist)
-        public
-        virtual
-        onlyRole(BLACKLISTER_ROLE)
-    {
-        require(
-            !_blacklisted[addressToBlacklist],
-            "This address is already blacklisted"
-        );
+    function addToBlacklist(address addressToBlacklist) public virtual onlyRole(BLACKLISTER_ROLE) {
+        require(!_blacklisted[addressToBlacklist], "Address is already blacklisted");
         _blacklisted[addressToBlacklist] = true;
         emit Blacklisted(addressToBlacklist, true);
     }
@@ -47,15 +37,8 @@ abstract contract AStartonBlacklist is AccessControl {
      * @param addressToRemove The address to remove from the blacklist
      * @custom:requires METADATA_ROLE
      */
-    function removeFromBlacklist(address addressToRemove)
-        public
-        virtual
-        onlyRole(BLACKLISTER_ROLE)
-    {
-        require(
-            _blacklisted[addressToRemove],
-            "This address is not blacklisted"
-        );
+    function removeFromBlacklist(address addressToRemove) public virtual onlyRole(BLACKLISTER_ROLE) {
+        require(_blacklisted[addressToRemove], "Address is not blacklisted");
         _blacklisted[addressToRemove] = false;
         emit Blacklisted(addressToRemove, false);
     }
@@ -65,11 +48,7 @@ abstract contract AStartonBlacklist is AccessControl {
      * @param multiAddrToBl The addresses to blacklist
      * @custom:requires METADATA_ROLE
      */
-    function addBatchToBlacklist(address[] memory multiAddrToBl)
-        public
-        virtual
-        onlyRole(BLACKLISTER_ROLE)
-    {
+    function addBatchToBlacklist(address[] memory multiAddrToBl) public virtual onlyRole(BLACKLISTER_ROLE) {
         uint256 length = multiAddrToBl.length;
         for (uint256 i = 0; i < length; ++i) {
             if (_blacklisted[multiAddrToBl[i]]) {
@@ -85,11 +64,7 @@ abstract contract AStartonBlacklist is AccessControl {
      * @param multiAddrToRm The addresses to remove from the blacklist
      * @custom:requires METADATA_ROLE
      */
-    function removeBatchFromBlacklist(address[] memory multiAddrToRm)
-        public
-        virtual
-        onlyRole(BLACKLISTER_ROLE)
-    {
+    function removeBatchFromBlacklist(address[] memory multiAddrToRm) public virtual onlyRole(BLACKLISTER_ROLE) {
         uint256 length = multiAddrToRm.length;
         for (uint256 i = 0; i < length; ++i) {
             if (!_blacklisted[multiAddrToRm[i]]) {
@@ -105,12 +80,7 @@ abstract contract AStartonBlacklist is AccessControl {
      * @param checkAddress The address to check
      * @return True if the address is blacklisted, false otherwise
      */
-    function isBlacklisted(address checkAddress)
-        public
-        view
-        virtual
-        returns (bool)
-    {
+    function isBlacklisted(address checkAddress) public view virtual returns (bool) {
         return _blacklisted[checkAddress];
     }
 }

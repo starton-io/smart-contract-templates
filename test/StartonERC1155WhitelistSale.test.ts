@@ -301,15 +301,15 @@ describe("StartonERC1155WhitelistSale", () => {
       const proof3 = merkleTree.getHexProof(keccak256(addr2.address));
       const proof4 = merkleTree.getHexProof(keccak256(addrs[3].address));
 
-      instanceSale.mintBatch(addr1.address, [10, 11], [1, 2], proof, {
+      await instanceSale.mintBatch(addr1.address, [10, 11], [1, 2], proof, {
         value: BigNumber.from("3000"),
       });
-      instanceSale
+      await instanceSale
         .connect(addr1)
         .mintBatch(addr1.address, [10, 11], [1, 2], proof2, {
           value: BigNumber.from("3000"),
         });
-      instanceSale
+      await instanceSale
         .connect(addr2)
         .mintBatch(addr1.address, [10, 11], [1, 2], proof3, {
           value: BigNumber.from("3000"),

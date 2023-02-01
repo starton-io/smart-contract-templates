@@ -216,16 +216,16 @@ interface IStartonERC1155 is IERC1155 {
 }
 
 
-// File contracts/nft-sales/StartonERC1155Sale.sol
+// File contracts/nft-sales/StartonERC1155BaseSale.sol
 
 
 pragma solidity 0.8.9;
 
 
-/// @title StartonERC1155Sale
+/// @title StartonERC1155BaseSale
 /// @author Starton
 /// @notice Sell ERC1155 tokens through a public sale with a limited available supply, start and end time as well as max tokens per address
-contract StartonERC1155Sale is Context {
+contract StartonERC1155BaseSale is Context {
     struct TokenInformations {
         uint256 price;
         bool isSet;
@@ -279,16 +279,15 @@ contract StartonERC1155Sale is Context {
      * @param to The address to mint the token to
      * @param id The id of the token
      * @param amount The amount of tokens to mint
+     * @param data The data to pass to the token (optional)
      */
     function mint(
         address to,
         uint256 id,
-        uint256 amount
-    ) public payable isPriceSet(id) isTimeCorrect {
-        require(
-            msg.value >= _pricePerToken[id].price * amount,
-            "Insufficient funds"
-        );
+        uint256 amount,
+        bytes32[] memory data
+    ) public payable virtual isPriceSet(id) isTimeCorrect {
+        require(msg.value >= _pricePerToken[id].price * amount, "Insufficient funds");
 
         _mint(to, id, amount);
     }
@@ -298,16 +297,15 @@ contract StartonERC1155Sale is Context {
      * @param to The address to mint the tokens to
      * @param ids The ids of the token to mint
      * @param amounts The amounts of tokens to mint
+     * @param data The data to pass to the token (optional)
      */
     function mintBatch(
         address to,
         uint256[] calldata ids,
-        uint256[] calldata amounts
-    ) public payable isTimeCorrect {
-        require(
-            ids.length == amounts.length,
-            "ids and amounts length mismatch"
-        );
+        uint256[] calldata amounts,
+        bytes32[] memory data
+    ) public payable virtual isTimeCorrect {
+        require(ids.length == amounts.length, "ids and amounts length mismatch");
 
         uint256 value = msg.value;
         uint256 totalAmount = 0;
@@ -326,9 +324,7 @@ contract StartonERC1155Sale is Context {
      * @param ids The ids of the tokens
      * @param prices The prices of the tokens
      */
-    function setPrices(uint256[] calldata ids, uint256[] calldata prices)
-        public
-    {
+    function setPrices(uint256[] calldata ids, uint256[] calldata prices) public virtual {
         require(ids.length == prices.length, "Ids and prices length mismatch");
 
         for (uint256 i = 0; i < ids.length; ++i) {
@@ -339,7 +335,7 @@ contract StartonERC1155Sale is Context {
     /**
      * @notice Withdraw funds from the smart contract to the feeReceiver
      */
-    function withdraw() public {
+    function withdraw() public virtual {
         payable(_feeReceiver).transfer(address(this).balance);
     }
 
@@ -348,12 +344,7 @@ contract StartonERC1155Sale is Context {
      * @param id The id of the token
      * @return The price of the token
      */
-    function pricePerToken(uint256 id)
-        public
-        view
-        isPriceSet(id)
-        returns (uint256)
-    {
+    function pricePerToken(uint256 id) public view virtual isPriceSet(id) returns (uint256) {
         return _pricePerToken[id].price;
     }
 
@@ -367,11 +358,8 @@ contract StartonERC1155Sale is Context {
         address to,
         uint256 id,
         uint256 amount
-    ) internal {
-        require(
-            tokensClaimed[_msgSender()] + amount <= maxTokensPerAddress,
-            "Max tokens reached"
-        );
+    ) internal virtual {
+        require(tokensClaimed[_msgSender()] + amount <= maxTokensPerAddress, "Max tokens reached");
         require(leftSupply >= amount, "Max supply reached");
 
         leftSupply -= amount;
