@@ -1712,7 +1712,7 @@ contract AStartonPausable is Pausable, AccessControl {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     /**
-     * @notice Pause the contract which stop any changes regarding the ERC20
+     * @notice Pause the contract
      * @custom:requires PAUSER_ROLE
      */
     function pause() public virtual onlyRole(PAUSER_ROLE) {
@@ -1720,7 +1720,7 @@ contract AStartonPausable is Pausable, AccessControl {
     }
 
     /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC20
+     * @notice Unpause the contract
      * @custom:requires PAUSER_ROLE
      */
     function unpause() public virtual onlyRole(PAUSER_ROLE) {

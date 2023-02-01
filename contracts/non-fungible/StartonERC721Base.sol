@@ -12,6 +12,8 @@ import "../abstracts/AStartonContextMixin.sol";
 import "../abstracts/AStartonAccessControl.sol";
 import "../abstracts/AStartonBlacklist.sol";
 import "../abstracts/AStartonPausable.sol";
+import "../abstracts/AStartonMintLock.sol";
+import "../abstracts/AStartonMetadataLock.sol";
 
 /// @title StartonERC721Base
 /// @author Starton
@@ -24,39 +26,19 @@ contract StartonERC721Base is
     AStartonAccessControl,
     AStartonBlacklist,
     AStartonContextMixin,
-    AStartonNativeMetaTransaction
+    AStartonNativeMetaTransaction,
+    AStartonMintLock,
+    AStartonMetadataLock
 {
     using Counters for Counters.Counter;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
 
     Counters.Counter internal _tokenIdCounter;
 
     string private _baseTokenURI;
     string private _contractURI;
-
-    bool internal _isMintAllowed;
-    bool internal _isMetadataChangingAllowed;
-
-    /** @notice Event emitted when the minting is locked */
-    event MintingLocked(address indexed account);
-
-    /** @notice Event emitted when the metadata are locked */
-    event MetadataLocked(address indexed account);
-
-    /** @dev Modifier that reverts when the minting is locked */
-    modifier mintingNotLocked() {
-        require(_isMintAllowed, "Minting is locked");
-        _;
-    }
-
-    /** @dev Modifier that reverts when the metadatas are locked */
-    modifier metadataNotLocked() {
-        require(_isMetadataChangingAllowed, "Metadatas are locked");
-        _;
-    }
 
     constructor(
         string memory definitiveName,
@@ -122,24 +104,6 @@ contract StartonERC721Base is
         onlyRole(METADATA_ROLE)
     {
         _baseTokenURI = newBaseTokenURI;
-    }
-
-    /**
-     * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
-     * @custom:requires LOCKER_ROLE
-     */
-    function lockMint() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
-        _isMintAllowed = false;
-        emit MintingLocked(_msgSender());
-    }
-
-    /**
-     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
-     * @custom:requires LOCKER_ROLE
-     */
-    function lockMetadata() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
-        _isMetadataChangingAllowed = false;
-        emit MetadataLocked(_msgSender());
     }
 
     /**

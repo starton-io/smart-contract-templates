@@ -2176,7 +2176,7 @@ abstract contract AStartonBlacklist is AccessControl {
     /**
      * @notice Blacklist a address
      * @param addressToBlacklist The address to blacklist
-     * @custom:requires METADATA_ROLE
+     * @custom:requires BLACKLISTER_ROLE
      */
     function addToBlacklist(address addressToBlacklist) public virtual onlyRole(BLACKLISTER_ROLE) {
         require(!_blacklisted[addressToBlacklist], "Address is already blacklisted");
@@ -2187,7 +2187,7 @@ abstract contract AStartonBlacklist is AccessControl {
     /**
      * @notice Remove an address from the blacklist
      * @param addressToRemove The address to remove from the blacklist
-     * @custom:requires METADATA_ROLE
+     * @custom:requires BLACKLISTER_ROLE
      */
     function removeFromBlacklist(address addressToRemove) public virtual onlyRole(BLACKLISTER_ROLE) {
         require(_blacklisted[addressToRemove], "Address is not blacklisted");
@@ -2198,7 +2198,7 @@ abstract contract AStartonBlacklist is AccessControl {
     /**
      * @notice Blacklist a list of addresses
      * @param multiAddrToBl The addresses to blacklist
-     * @custom:requires METADATA_ROLE
+     * @custom:requires BLACKLISTER_ROLE
      */
     function addBatchToBlacklist(address[] memory multiAddrToBl) public virtual onlyRole(BLACKLISTER_ROLE) {
         uint256 length = multiAddrToBl.length;
@@ -2214,7 +2214,7 @@ abstract contract AStartonBlacklist is AccessControl {
     /**
      * @notice Remove a list of addresses from the blacklist
      * @param multiAddrToRm The addresses to remove from the blacklist
-     * @custom:requires METADATA_ROLE
+     * @custom:requires BLACKLISTER_ROLE
      */
     function removeBatchFromBlacklist(address[] memory multiAddrToRm) public virtual onlyRole(BLACKLISTER_ROLE) {
         uint256 length = multiAddrToRm.length;
@@ -2248,7 +2248,7 @@ contract AStartonPausable is Pausable, AccessControl {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     /**
-     * @notice Pause the contract which stop any changes regarding the ERC20
+     * @notice Pause the contract
      * @custom:requires PAUSER_ROLE
      */
     function pause() public virtual onlyRole(PAUSER_ROLE) {
@@ -2256,7 +2256,7 @@ contract AStartonPausable is Pausable, AccessControl {
     }
 
     /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC20
+     * @notice Unpause the contract
      * @custom:requires PAUSER_ROLE
      */
     function unpause() public virtual onlyRole(PAUSER_ROLE) {
@@ -2265,10 +2265,82 @@ contract AStartonPausable is Pausable, AccessControl {
 }
 
 
+// File contracts/abstracts/AStartonLock.sol
+
+
+pragma solidity ^0.8.0;
+
+abstract contract AStartonLock is AccessControl {
+    bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
+}
+
+
+// File contracts/abstracts/AStartonMintLock.sol
+
+
+pragma solidity ^0.8.0;
+
+
+
+abstract contract AStartonMintLock is AStartonPausable, AStartonLock {
+    bool internal _isMintAllowed;
+
+    /** @notice Event emitted when the minting is locked */
+    event MintingLocked(address indexed account);
+
+    /** @dev Modifier that reverts when the minting is locked */
+    modifier mintingNotLocked() {
+        require(_isMintAllowed, "Minting is locked");
+        _;
+    }
+
+    /**
+     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
+     */
+    function lockMint() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
+        _isMintAllowed = false;
+        emit MintingLocked(_msgSender());
+    }
+}
+
+
+// File contracts/abstracts/AStartonMetadataLock.sol
+
+
+pragma solidity ^0.8.0;
+
+
+
+abstract contract AStartonMetadataLock is AStartonPausable, AStartonLock {
+    bool internal _isMetadataChangingAllowed;
+
+    /** @notice Event emitted when the metadata are locked */
+    event MetadataLocked(address indexed account);
+
+    /** @dev Modifier that reverts when the metadatas are locked */
+    modifier metadataNotLocked() {
+        require(_isMetadataChangingAllowed, "Metadatas are locked");
+        _;
+    }
+
+    /**
+     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
+     */
+    function lockMetadata() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
+        _isMetadataChangingAllowed = false;
+        emit MetadataLocked(_msgSender());
+    }
+}
+
+
 // File contracts/non-fungible/StartonERC721Base.sol
 
 
 pragma solidity 0.8.9;
+
+
 
 
 
@@ -2290,39 +2362,19 @@ contract StartonERC721Base is
     AStartonAccessControl,
     AStartonBlacklist,
     AStartonContextMixin,
-    AStartonNativeMetaTransaction
+    AStartonNativeMetaTransaction,
+    AStartonMintLock,
+    AStartonMetadataLock
 {
     using Counters for Counters.Counter;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
 
     Counters.Counter internal _tokenIdCounter;
 
     string private _baseTokenURI;
     string private _contractURI;
-
-    bool internal _isMintAllowed;
-    bool internal _isMetatadataChangingAllowed;
-
-    /** @notice Event emitted when the minting is locked */
-    event MintingLocked(address indexed account);
-
-    /** @notice Event emitted when the metadata are locked */
-    event MetadataLocked(address indexed account);
-
-    /** @dev Modifier that reverts when the minting is locked */
-    modifier mintingNotLocked() {
-        require(_isMintAllowed, "Minting is locked");
-        _;
-    }
-
-    /** @dev Modifier that reverts when the metadatas are locked */
-    modifier metadataNotLocked() {
-        require(_isMetatadataChangingAllowed, "Metadatas are locked");
-        _;
-    }
 
     constructor(
         string memory definitiveName,
@@ -2342,7 +2394,7 @@ contract StartonERC721Base is
         _baseTokenURI = initialBaseTokenURI;
         _contractURI = initialContractURI;
         _isMintAllowed = true;
-        _isMetatadataChangingAllowed = true;
+        _isMetadataChangingAllowed = true;
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(definitiveName);
@@ -2388,24 +2440,6 @@ contract StartonERC721Base is
         onlyRole(METADATA_ROLE)
     {
         _baseTokenURI = newBaseTokenURI;
-    }
-
-    /**
-     * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
-     * @custom:requires LOCKER_ROLE
-     */
-    function lockMint() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
-        _isMintAllowed = false;
-        emit MintingLocked(_msgSender());
-    }
-
-    /**
-     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
-     * @custom:requires LOCKER_ROLE
-     */
-    function lockMetadata() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
-        _isMetatadataChangingAllowed = false;
-        emit MetadataLocked(_msgSender());
     }
 
     /**
