@@ -24,7 +24,7 @@ abstract contract AStartonBlacklist is AccessControl {
     /**
      * @notice Blacklist a address
      * @param addressToBlacklist The address to blacklist
-     * @custom:requires METADATA_ROLE
+     * @custom:requires BLACKLISTER_ROLE
      */
     function addToBlacklist(address addressToBlacklist) public virtual onlyRole(BLACKLISTER_ROLE) {
         require(!_blacklisted[addressToBlacklist], "Address is already blacklisted");
@@ -35,7 +35,7 @@ abstract contract AStartonBlacklist is AccessControl {
     /**
      * @notice Remove an address from the blacklist
      * @param addressToRemove The address to remove from the blacklist
-     * @custom:requires METADATA_ROLE
+     * @custom:requires BLACKLISTER_ROLE
      */
     function removeFromBlacklist(address addressToRemove) public virtual onlyRole(BLACKLISTER_ROLE) {
         require(_blacklisted[addressToRemove], "Address is not blacklisted");
@@ -46,7 +46,7 @@ abstract contract AStartonBlacklist is AccessControl {
     /**
      * @notice Blacklist a list of addresses
      * @param multiAddrToBl The addresses to blacklist
-     * @custom:requires METADATA_ROLE
+     * @custom:requires BLACKLISTER_ROLE
      */
     function addBatchToBlacklist(address[] memory multiAddrToBl) public virtual onlyRole(BLACKLISTER_ROLE) {
         uint256 length = multiAddrToBl.length;
@@ -62,7 +62,7 @@ abstract contract AStartonBlacklist is AccessControl {
     /**
      * @notice Remove a list of addresses from the blacklist
      * @param multiAddrToRm The addresses to remove from the blacklist
-     * @custom:requires METADATA_ROLE
+     * @custom:requires BLACKLISTER_ROLE
      */
     function removeBatchFromBlacklist(address[] memory multiAddrToRm) public virtual onlyRole(BLACKLISTER_ROLE) {
         uint256 length = multiAddrToRm.length;

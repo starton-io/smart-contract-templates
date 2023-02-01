@@ -30,7 +30,7 @@ contract StartonERC1155Base is
     string private _contractURI;
 
     bool internal _isMintAllowed;
-    bool internal _isMetatadataChangingAllowed;
+    bool internal _isMetadataChangingAllowed;
 
     /** @notice Event emitted when the minting is locked */
     event MintingLocked(address indexed account);
@@ -46,7 +46,7 @@ contract StartonERC1155Base is
 
     /** @dev Modifier that reverts when the metadatas are locked */
     modifier metadataNotLocked() {
-        require(_isMetatadataChangingAllowed, "Metadatas are locked");
+        require(_isMetadataChangingAllowed, "Metadatas are locked");
         _;
     }
 
@@ -67,7 +67,7 @@ contract StartonERC1155Base is
         name = definitiveName;
         _contractURI = initialContractURI;
         _isMintAllowed = true;
-        _isMetatadataChangingAllowed = true;
+        _isMetadataChangingAllowed = true;
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(definitiveName);
@@ -183,7 +183,7 @@ contract StartonERC1155Base is
      * @custom:requires LOCKER_ROLE
      */
     function lockMetadata() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
-        _isMetatadataChangingAllowed = false;
+        _isMetadataChangingAllowed = false;
         emit MetadataLocked(_msgSender());
     }
 
