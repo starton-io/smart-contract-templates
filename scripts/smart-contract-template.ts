@@ -12,7 +12,7 @@ enum SmartContractTemplateCategory {
   FUNGIBLE = "SmartContractTemplateCategory.FUNGIBLE",
   SALE = "SmartContractTemplateCategory.SALE",
   NFT = "SmartContractTemplateCategory.NFT",
-  DEPECRECATED = "SmartContractTemplateCategory.DEPECRECATED",
+  DEPRECATED = "SmartContractTemplateCategory.DEPRECATED",
 }
 
 type CompilationDetails = {
