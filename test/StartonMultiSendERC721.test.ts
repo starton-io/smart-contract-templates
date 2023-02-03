@@ -48,6 +48,30 @@ describe("StartonMultiSendERC721", () => {
   });
 
   describe("MultiSend", () => {
+    it("Shouldn't send tokens if arrays not equal ", async () => {
+      await instanceERC721.mint(
+        owner.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        owner.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.mint(
+        owner.address,
+        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
+      );
+      await instanceERC721.setApprovalForAll(instanceMultisend.address, true);
+
+      await expect(
+        instanceMultisend.multiSend(
+          instanceERC721.address,
+          [0, 1, 2],
+          [addr1.address, addr2.address]
+        )
+      ).to.be.revertedWith("Arrays must be of equal length");
+    });
+
     it("Should send tokens to multiple addresses", async () => {
       // mint tokens
       await instanceERC721.mint(

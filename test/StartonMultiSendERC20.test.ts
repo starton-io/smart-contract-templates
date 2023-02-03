@@ -47,6 +47,20 @@ describe("StartonMultiSendERC20", () => {
   });
 
   describe("MultiSend", () => {
+    it("Shouldn't send tokens if arrays not equal ", async () => {
+      await instanceERC20.approve(
+        instanceMultisend.address,
+        "1000000000000000000000000000"
+      );
+      await expect(
+        instanceMultisend.multiSend(
+          instanceERC20.address,
+          ["1000", "100000", "100"],
+          [addr1.address, addr2.address]
+        )
+      ).to.be.revertedWith("Arrays must be of equal length");
+    });
+
     it("Should send tokens to multiple addresses", async () => {
       await instanceERC20.approve(
         instanceMultisend.address,
