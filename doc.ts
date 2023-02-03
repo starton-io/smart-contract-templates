@@ -6,6 +6,26 @@ import {
 
 const LIST: SmartContractTemplate[] = [
   {
+    id: "VESTING",
+    name: "Vesting smart contract",
+    description: `<p>The smart contract to vest your tokens for a fixed time.</p>
+    <p>With it, you can vest your erc20 or native tokens (ETH for exemple) for a fixed time and they will be released either way linearly (every seconds) or through a cliff (all at once).</p>`,
+    shortDescription: `The smart contract template to vest your tokens for a fixed time`,
+    blockchains: [
+      Blockchain.POLYGON,
+      Blockchain.AVALANCHE,
+      Blockchain.BINANCE,
+      Blockchain.ETHEREUM,
+    ],
+    compilationDetails: {
+      contractName: "StartonVesting",
+    },
+    isActivated: true,
+    isAudited: false,
+    category: SmartContractTemplateCategory.OTHER,
+    tags: [],
+  },
+  {
     id: "ERC721_META_TRANSACTION",
     name: "ERC721 NFT smart contract",
     description: `<p>The smart contract standard to manage single-copy NFTs.</p>
