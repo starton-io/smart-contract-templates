@@ -14,11 +14,10 @@ describe("StartonERC721Base", () => {
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
-  let addrs: SignerWithAddress[];
 
   before(async () => {
     // Get the Signers here
-    [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
+    [owner, addr1, addr2] = await ethers.getSigners();
 
     // Create factory
     ERC721 = new StartonERC721Base__factory(owner);
@@ -28,6 +27,8 @@ describe("StartonERC721Base", () => {
     instanceERC721 = (await ERC721.deploy(
       "StartonToken",
       "ST",
+      "10000",
+      owner.address,
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
