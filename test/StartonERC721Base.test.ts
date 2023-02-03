@@ -36,7 +36,7 @@ describe("StartonERC721Base", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => {});
+    it("Should deploy", async () => { });
 
     it("Should owner have admin role", async () => {
       const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();

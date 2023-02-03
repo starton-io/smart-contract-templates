@@ -35,7 +35,7 @@ describe("StartonERC1155Base", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => {});
+    it("Should deploy", async () => { });
 
     it("Should owner have admin role", async () => {
       const adminRole = await instanceERC1155.DEFAULT_ADMIN_ROLE();
@@ -602,16 +602,16 @@ describe("StartonERC1155Base", () => {
       await expect(
         instanceERC1155
           .connect(addr1)
-          ["mint(address,uint256,uint256)"](addr2.address, 1536, 11)
+        ["mint(address,uint256,uint256)"](addr2.address, 1536, 11)
       ).to.be.reverted;
       await expect(
         instanceERC1155
           .connect(addr1)
-          ["mintBatch(address,uint256[],uint256[])"](
-            addr2.address,
-            [1536, 100, 10, 164658, 184],
-            [2747, 29, 957, 284, 2945]
-          )
+        ["mintBatch(address,uint256[],uint256[])"](
+          addr2.address,
+          [1536, 100, 10, 164658, 184],
+          [2747, 29, 957, 284, 2945]
+        )
       ).to.be.reverted;
     });
 
@@ -621,14 +621,14 @@ describe("StartonERC1155Base", () => {
 
       await instanceERC1155
         .connect(addr1)
-        ["mint(address,uint256,uint256)"](addr2.address, 1536, 11);
+      ["mint(address,uint256,uint256)"](addr2.address, 1536, 11);
       await instanceERC1155
         .connect(addr1)
-        ["mintBatch(address,uint256[],uint256[])"](
-          addr2.address,
-          [1536, 100, 10, 164658, 184],
-          [2747, 29, 957, 284, 2945]
-        );
+      ["mintBatch(address,uint256[],uint256[])"](
+        addr2.address,
+        [1536, 100, 10, 164658, 184],
+        [2747, 29, 957, 284, 2945]
+      );
     });
 
     it("Shouldn't let anyone without the metadata role to be able to set metadata", async () => {
