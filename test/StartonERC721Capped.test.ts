@@ -227,101 +227,6 @@ describe("StartonERC721Capped", () => {
     });
   });
 
-  describe("Blacklist", () => {
-    it("Shouldn't blacklist if already blacklisted", async () => {
-      await instanceERC721.addToBlacklist(addr1.address);
-      await expect(
-        instanceERC721.addToBlacklist(addr1.address)
-      ).to.be.revertedWith("Address is already blacklisted");
-    });
-
-    it("Shouldn't remove from blacklist is not blacklisted", async () => {
-      await expect(
-        instanceERC721.removeFromBlacklist(addr1.address)
-      ).to.be.revertedWith("Address is not blacklisted");
-    });
-
-    it("Shouldn't set any addresses as blacklisted", async () => {
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
-    });
-
-    it("Should blacklist an address", async () => {
-      await instanceERC721.addToBlacklist(addr1.address);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
-    });
-
-    it("Should batch blacklist an address", async () => {
-      await instanceERC721.addBatchToBlacklist([addr1.address]);
-      await instanceERC721.addBatchToBlacklist([
-        addr2.address,
-        addrs[3].address,
-      ]);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
-      expect(await instanceERC721.isBlacklisted(addr2.address)).to.equal(true);
-      expect(await instanceERC721.isBlacklisted(addrs[3].address)).to.equal(
-        true
-      );
-    });
-
-    it("Should be able to remove from blacklist", async () => {
-      await instanceERC721.addToBlacklist(addr1.address);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
-      await instanceERC721.removeFromBlacklist(addr1.address);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
-    });
-
-    it("Should be able to batch remove blacklist", async () => {
-      await instanceERC721.addBatchToBlacklist([
-        addr2.address,
-        addrs[3].address,
-      ]);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
-      expect(await instanceERC721.isBlacklisted(addr2.address)).to.equal(true);
-      expect(await instanceERC721.isBlacklisted(addrs[3].address)).to.equal(
-        true
-      );
-
-      await instanceERC721.removeBatchFromBlacklist([
-        addr1.address,
-        addr2.address,
-      ]);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
-      expect(await instanceERC721.isBlacklisted(addr2.address)).to.equal(false);
-      expect(await instanceERC721.isBlacklisted(addrs[3].address)).to.equal(
-        true
-      );
-    });
-
-    it("Shouldn't approve while blacklisted", async () => {
-      await instanceERC721.addToBlacklist(addr1.address);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
-      await expect(
-        instanceERC721.setApprovalForAll(addr1.address, true)
-      ).to.be.revertedWith("The caller of the contract is blacklisted");
-    });
-
-    it("Shouldn't transfer while blacklisted", async () => {
-      await instanceERC721.mint(
-        addr2.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await instanceERC721
-        .connect(addr2)
-        .setApprovalForAll(addr1.address, true);
-
-      await instanceERC721.addToBlacklist(addr1.address);
-      await expect(
-        instanceERC721
-          .connect(addr1)
-          .functions["safeTransferFrom(address,address,uint256)"](
-            addr2.address,
-            addrs[3].address,
-            0
-          )
-      ).to.be.revertedWith("The caller of the contract is blacklisted");
-    });
-  });
-
   describe("Pause", () => {
     it("Should pause correctly", async () => {
       await instanceERC721.pause();
@@ -495,32 +400,6 @@ describe("StartonERC721Capped", () => {
         .setContractURI(
           "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
         );
-    });
-
-    it("Shouldn't let anyone without the blacklister role to be able to blacklist", async () => {
-      await expect(instanceERC721.connect(addr1).addToBlacklist(addr2.address))
-        .to.be.reverted;
-      await expect(
-        instanceERC721.connect(addr1).removeFromBlacklist(addr2.address)
-      ).to.be.reverted;
-      await expect(
-        instanceERC721.connect(addr1).addBatchToBlacklist([addr2.address])
-      ).to.be.reverted;
-      await expect(
-        instanceERC721.connect(addr1).removeBatchFromBlacklist([addr2.address])
-      ).to.be.reverted;
-    });
-
-    it("Should let anyone with the blacklister role to be able to blacklist", async () => {
-      const blacklisterRole = await instanceERC721.BLACKLISTER_ROLE();
-      await instanceERC721.grantRole(blacklisterRole, addr1.address);
-
-      await instanceERC721.connect(addr1).addToBlacklist(addr2.address);
-      await instanceERC721.connect(addr1).removeFromBlacklist(addr2.address);
-      await instanceERC721.connect(addr1).addBatchToBlacklist([addr2.address]);
-      await instanceERC721
-        .connect(addr1)
-        .removeBatchFromBlacklist([addr2.address]);
     });
   });
 
