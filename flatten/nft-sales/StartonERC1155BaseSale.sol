@@ -1,6 +1,6 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.7.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.8.1
 
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
@@ -28,7 +28,7 @@ abstract contract Context {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.7.1
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -56,7 +56,7 @@ interface IERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.7.1
+// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.8.1
 
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC1155/IERC1155.sol)
 

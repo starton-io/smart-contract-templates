@@ -36,7 +36,7 @@ describe("StartonERC721Base", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => {});
+    it("Should deploy", async () => { });
 
     it("Should owner have admin role", async () => {
       const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();
@@ -129,7 +129,7 @@ describe("StartonERC721Base", () => {
           addr2.address,
           0
         )
-      ).to.be.revertedWith("ERC721: caller is not token owner nor approved");
+      ).to.be.revertedWith("ERC721: caller is not token owner or approved");
     });
 
     it("Should transfer without approval while owner", async () => {

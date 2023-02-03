@@ -1,6 +1,6 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.7.1
+// File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.8.1
 
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)

@@ -1,9 +1,9 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/security/ReentrancyGuard.sol@v4.7.1
+// File @openzeppelin/contracts/security/ReentrancyGuard.sol@v4.8.1
 
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (security/ReentrancyGuard.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (security/ReentrancyGuard.sol)
 
 pragma solidity ^0.8.0;
 
@@ -52,14 +52,20 @@ abstract contract ReentrancyGuard {
      * `private` function that does the actual work.
      */
     modifier nonReentrant() {
-        // On the first call to nonReentrant, _notEntered will be true
+        _nonReentrantBefore();
+        _;
+        _nonReentrantAfter();
+    }
+
+    function _nonReentrantBefore() private {
+        // On the first call to nonReentrant, _status will be _NOT_ENTERED
         require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
 
         // Any calls to nonReentrant after this point will fail
         _status = _ENTERED;
+    }
 
-        _;
-
+    function _nonReentrantAfter() private {
         // By storing the original value once again, a refund is triggered (see
         // https://eips.ethereum.org/EIPS/eip-2200)
         _status = _NOT_ENTERED;
@@ -67,7 +73,7 @@ abstract contract ReentrancyGuard {
 }
 
 
-// File @openzeppelin/contracts/utils/math/SafeMath.sol@v4.7.1
+// File @openzeppelin/contracts/utils/math/SafeMath.sol@v4.8.1
 
 // OpenZeppelin Contracts (last updated v4.6.0) (utils/math/SafeMath.sol)
 
@@ -297,7 +303,7 @@ library SafeMath {
 }
 
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.7.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.8.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
@@ -324,7 +330,7 @@ abstract contract Context {
 }
 
 
-// File @openzeppelin/contracts/access/Ownable.sol@v4.7.1
+// File @openzeppelin/contracts/access/Ownable.sol@v4.8.1
 
 // OpenZeppelin Contracts (last updated v4.7.0) (access/Ownable.sol)
 
@@ -408,7 +414,7 @@ abstract contract Ownable is Context {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.7.1
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -436,7 +442,7 @@ interface IERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.7.1
+// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.8.1
 
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC1155/IERC1155.sol)
 

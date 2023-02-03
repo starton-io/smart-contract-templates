@@ -37,7 +37,7 @@ describe("StartonERC721Capped", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => {});
+    it("Should deploy", async () => { });
 
     it("Shouldn't deploy if maxSupply is 0", async () => {
       await expect(
@@ -192,7 +192,7 @@ describe("StartonERC721Capped", () => {
           addr2.address,
           0
         )
-      ).to.be.revertedWith("ERC721: caller is not token owner nor approved");
+      ).to.be.revertedWith("ERC721: caller is not token owner or approved");
     });
 
     it("Should transfer without approval while owner", async () => {

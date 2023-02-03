@@ -1,25 +1,25 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/cryptography/MerkleProof.sol@v4.7.1
+// File @openzeppelin/contracts/utils/cryptography/MerkleProof.sol@v4.8.1
 
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (utils/cryptography/MerkleProof.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/MerkleProof.sol)
 
 pragma solidity ^0.8.0;
 
 /**
  * @dev These functions deal with verification of Merkle Tree proofs.
  *
- * The proofs can be generated using the JavaScript library
- * https://github.com/miguelmota/merkletreejs[merkletreejs].
- * Note: the hashing algorithm should be keccak256 and pair sorting should be enabled.
- *
- * See `test/utils/cryptography/MerkleProof.test.js` for some examples.
+ * The tree and the proofs can be generated using our
+ * https://github.com/OpenZeppelin/merkle-tree[JavaScript library].
+ * You will find a quickstart guide in the readme.
  *
  * WARNING: You should avoid using leaf values that are 64 bytes long prior to
  * hashing, or use a hash function other than keccak256 for hashing leaves.
  * This is because the concatenation of a sorted pair of internal nodes in
  * the merkle tree could be reinterpreted as a leaf value.
+ * OpenZeppelin's JavaScript library generates merkle trees that are safe
+ * against this attack out of the box.
  */
 library MerkleProof {
     /**
@@ -79,8 +79,10 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns true if the `leaves` can be proved to be a part of a Merkle tree defined by
+     * @dev Returns true if the `leaves` can be simultaneously proven to be a part of a merkle tree defined by
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
      *
      * _Available since v4.7._
      */
@@ -96,6 +98,8 @@ library MerkleProof {
     /**
      * @dev Calldata version of {multiProofVerify}
      *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
+     *
      * _Available since v4.7._
      */
     function multiProofVerifyCalldata(
@@ -108,9 +112,14 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns the root of a tree reconstructed from `leaves` and the sibling nodes in `proof`,
-     * consuming from one or the other at each step according to the instructions given by
-     * `proofFlags`.
+     * @dev Returns the root of a tree reconstructed from `leaves` and sibling nodes in `proof`. The reconstruction
+     * proceeds by incrementally reconstructing all inner nodes by combining a leaf/inner node with either another
+     * leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
+     * respectively.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
+     * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
+     * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
      *
      * _Available since v4.7._
      */
@@ -156,7 +165,9 @@ library MerkleProof {
     }
 
     /**
-     * @dev Calldata version of {processMultiProof}
+     * @dev Calldata version of {processMultiProof}.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
      *
      * _Available since v4.7._
      */
@@ -216,7 +227,7 @@ library MerkleProof {
 }
 
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.7.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.8.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
@@ -254,15 +265,15 @@ abstract contract AStartonWhitelist is Context {
     bytes32 internal _merkleRoot;
 
     /** @dev Modifier that reverts when the sender is not whitelisted */
-    modifier isWhitelisted(bytes32[] memory merkleProof) {
+    modifier isWhitelisted(bytes32[] calldata merkleProof) {
         bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
-        require(MerkleProof.verify(merkleProof, _merkleRoot, leaf), "Invalid proof");
+        require(MerkleProof.verifyCalldata(merkleProof, _merkleRoot, leaf), "Invalid proof");
         _;
     }
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.7.1
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -290,7 +301,7 @@ interface IERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.7.1
+// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.8.1
 
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC1155/IERC1155.sol)
 
