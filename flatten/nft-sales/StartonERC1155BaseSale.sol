@@ -219,7 +219,7 @@ interface IStartonERC1155 is IERC1155 {
 // File contracts/nft-sales/StartonERC1155BaseSale.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
 /// @title StartonERC1155BaseSale

@@ -1,8 +1,256 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
+// File operator-filter-registry/src/IOperatorFilterRegistry.sol@v1.4.0
 
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+interface IOperatorFilterRegistry {
+    /**
+     * @notice Returns true if operator is not filtered for a given token, either by address or codeHash. Also returns
+     *         true if supplied registrant address is not registered.
+     */
+    function isOperatorAllowed(address registrant, address operator) external view returns (bool);
+
+    /**
+     * @notice Registers an address with the registry. May be called by address itself or by EIP-173 owner.
+     */
+    function register(address registrant) external;
+
+    /**
+     * @notice Registers an address with the registry and "subscribes" to another address's filtered operators and codeHashes.
+     */
+    function registerAndSubscribe(address registrant, address subscription) external;
+
+    /**
+     * @notice Registers an address with the registry and copies the filtered operators and codeHashes from another
+     *         address without subscribing.
+     */
+    function registerAndCopyEntries(address registrant, address registrantToCopy) external;
+
+    /**
+     * @notice Unregisters an address with the registry and removes its subscription. May be called by address itself or by EIP-173 owner.
+     *         Note that this does not remove any filtered addresses or codeHashes.
+     *         Also note that any subscriptions to this registrant will still be active and follow the existing filtered addresses and codehashes.
+     */
+    function unregister(address addr) external;
+
+    /**
+     * @notice Update an operator address for a registered address - when filtered is true, the operator is filtered.
+     */
+    function updateOperator(address registrant, address operator, bool filtered) external;
+
+    /**
+     * @notice Update multiple operators for a registered address - when filtered is true, the operators will be filtered. Reverts on duplicates.
+     */
+    function updateOperators(address registrant, address[] calldata operators, bool filtered) external;
+
+    /**
+     * @notice Update a codeHash for a registered address - when filtered is true, the codeHash is filtered.
+     */
+    function updateCodeHash(address registrant, bytes32 codehash, bool filtered) external;
+
+    /**
+     * @notice Update multiple codeHashes for a registered address - when filtered is true, the codeHashes will be filtered. Reverts on duplicates.
+     */
+    function updateCodeHashes(address registrant, bytes32[] calldata codeHashes, bool filtered) external;
+
+    /**
+     * @notice Subscribe an address to another registrant's filtered operators and codeHashes. Will remove previous
+     *         subscription if present.
+     *         Note that accounts with subscriptions may go on to subscribe to other accounts - in this case,
+     *         subscriptions will not be forwarded. Instead the former subscription's existing entries will still be
+     *         used.
+     */
+    function subscribe(address registrant, address registrantToSubscribe) external;
+
+    /**
+     * @notice Unsubscribe an address from its current subscribed registrant, and optionally copy its filtered operators and codeHashes.
+     */
+    function unsubscribe(address registrant, bool copyExistingEntries) external;
+
+    /**
+     * @notice Get the subscription address of a given registrant, if any.
+     */
+    function subscriptionOf(address addr) external returns (address registrant);
+
+    /**
+     * @notice Get the set of addresses subscribed to a given registrant.
+     *         Note that order is not guaranteed as updates are made.
+     */
+    function subscribers(address registrant) external returns (address[] memory);
+
+    /**
+     * @notice Get the subscriber at a given index in the set of addresses subscribed to a given registrant.
+     *         Note that order is not guaranteed as updates are made.
+     */
+    function subscriberAt(address registrant, uint256 index) external returns (address);
+
+    /**
+     * @notice Copy filtered operators and codeHashes from a different registrantToCopy to addr.
+     */
+    function copyEntriesOf(address registrant, address registrantToCopy) external;
+
+    /**
+     * @notice Returns true if operator is filtered by a given address or its subscription.
+     */
+    function isOperatorFiltered(address registrant, address operator) external returns (bool);
+
+    /**
+     * @notice Returns true if the hash of an address's code is filtered by a given address or its subscription.
+     */
+    function isCodeHashOfFiltered(address registrant, address operatorWithCode) external returns (bool);
+
+    /**
+     * @notice Returns true if a codeHash is filtered by a given address or its subscription.
+     */
+    function isCodeHashFiltered(address registrant, bytes32 codeHash) external returns (bool);
+
+    /**
+     * @notice Returns a list of filtered operators for a given address or its subscription.
+     */
+    function filteredOperators(address addr) external returns (address[] memory);
+
+    /**
+     * @notice Returns the set of filtered codeHashes for a given address or its subscription.
+     *         Note that order is not guaranteed as updates are made.
+     */
+    function filteredCodeHashes(address addr) external returns (bytes32[] memory);
+
+    /**
+     * @notice Returns the filtered operator at the given index of the set of filtered operators for a given address or
+     *         its subscription.
+     *         Note that order is not guaranteed as updates are made.
+     */
+    function filteredOperatorAt(address registrant, uint256 index) external returns (address);
+
+    /**
+     * @notice Returns the filtered codeHash at the given index of the list of filtered codeHashes for a given address or
+     *         its subscription.
+     *         Note that order is not guaranteed as updates are made.
+     */
+    function filteredCodeHashAt(address registrant, uint256 index) external returns (bytes32);
+
+    /**
+     * @notice Returns true if an address has registered
+     */
+    function isRegistered(address addr) external returns (bool);
+
+    /**
+     * @dev Convenience method to compute the code hash of an arbitrary contract
+     */
+    function codeHashOf(address addr) external returns (bytes32);
+}
+
+
+// File operator-filter-registry/src/lib/Constants.sol@v1.4.0
+
+pragma solidity ^0.8.17;
+
+address constant CANONICAL_OPERATOR_FILTER_REGISTRY_ADDRESS = 0x000000000000AAeB6D7670E522A718067333cd4E;
+address constant CANONICAL_CORI_SUBSCRIPTION = 0x3cc6CddA760b79bAfa08dF41ECFA224f810dCeB6;
+
+
+// File operator-filter-registry/src/OperatorFilterer.sol@v1.4.0
+
+pragma solidity ^0.8.13;
+
+
+/**
+ * @title  OperatorFilterer
+ * @notice Abstract contract whose constructor automatically registers and optionally subscribes to or copies another
+ *         registrant's entries in the OperatorFilterRegistry.
+ * @dev    This smart contract is meant to be inherited by token contracts so they can use the following:
+ *         - `onlyAllowedOperator` modifier for `transferFrom` and `safeTransferFrom` methods.
+ *         - `onlyAllowedOperatorApproval` modifier for `approve` and `setApprovalForAll` methods.
+ *         Please note that if your token contract does not provide an owner with EIP-173, it must provide
+ *         administration methods on the contract itself to interact with the registry otherwise the subscription
+ *         will be locked to the options set during construction.
+ */
+
+abstract contract OperatorFilterer {
+    /// @dev Emitted when an operator is not allowed.
+    error OperatorNotAllowed(address operator);
+
+    IOperatorFilterRegistry public constant OPERATOR_FILTER_REGISTRY =
+        IOperatorFilterRegistry(CANONICAL_OPERATOR_FILTER_REGISTRY_ADDRESS);
+
+    /// @dev The constructor that is called when the contract is being deployed.
+    constructor(address subscriptionOrRegistrantToCopy, bool subscribe) {
+        // If an inheriting token contract is deployed to a network without the registry deployed, the modifier
+        // will not revert, but the contract will need to be registered with the registry once it is deployed in
+        // order for the modifier to filter addresses.
+        if (address(OPERATOR_FILTER_REGISTRY).code.length > 0) {
+            if (subscribe) {
+                OPERATOR_FILTER_REGISTRY.registerAndSubscribe(address(this), subscriptionOrRegistrantToCopy);
+            } else {
+                if (subscriptionOrRegistrantToCopy != address(0)) {
+                    OPERATOR_FILTER_REGISTRY.registerAndCopyEntries(address(this), subscriptionOrRegistrantToCopy);
+                } else {
+                    OPERATOR_FILTER_REGISTRY.register(address(this));
+                }
+            }
+        }
+    }
+
+    /**
+     * @dev A helper function to check if an operator is allowed.
+     */
+    modifier onlyAllowedOperator(address from) virtual {
+        // Allow spending tokens from addresses with balance
+        // Note that this still allows listings and marketplaces with escrow to transfer tokens if transferred
+        // from an EOA.
+        if (from != msg.sender) {
+            _checkFilterOperator(msg.sender);
+        }
+        _;
+    }
+
+    /**
+     * @dev A helper function to check if an operator approval is allowed.
+     */
+    modifier onlyAllowedOperatorApproval(address operator) virtual {
+        _checkFilterOperator(operator);
+        _;
+    }
+
+    /**
+     * @dev A helper function to check if an operator is allowed.
+     */
+    function _checkFilterOperator(address operator) internal view virtual {
+        // Check registry code length to facilitate testing in environments without a deployed registry.
+        if (address(OPERATOR_FILTER_REGISTRY).code.length > 0) {
+            // under normal circumstances, this function will revert rather than return false, but inheriting contracts
+            // may specify their own OperatorFilterRegistry implementations, which may behave differently
+            if (!OPERATOR_FILTER_REGISTRY.isOperatorAllowed(address(this), operator)) {
+                revert OperatorNotAllowed(operator);
+            }
+        }
+    }
+}
+
+
+// File operator-filter-registry/src/DefaultOperatorFilterer.sol@v1.4.0
+
+pragma solidity ^0.8.13;
+
+
+/**
+ * @title  DefaultOperatorFilterer
+ * @notice Inherits from OperatorFilterer and automatically subscribes to the default OpenSea subscription.
+ * @dev    Please note that if your token contract does not provide an owner with EIP-173, it must provide
+ *         administration methods on the contract itself to interact with the registry otherwise the subscription
+ *         will be locked to the options set during construction.
+ */
+
+abstract contract DefaultOperatorFilterer is OperatorFilterer {
+    /// @dev The constructor that is called when the contract is being deployed.
+    constructor() OperatorFilterer(CANONICAL_CORI_SUBSCRIPTION, true) {}
+}
+
+
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
+
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
 pragma solidity ^0.8.0;
@@ -2482,93 +2730,6 @@ abstract contract AStartonAccessControl is AccessControl {
 }
 
 
-// File contracts/abstracts/AStartonBlacklist.sol
-
-
-pragma solidity ^0.8.0;
-
-/// @title AStartonBlacklist
-/// @author Starton
-/// @notice Utility smart contract that can blacklist addresses
-abstract contract AStartonBlacklist is AccessControl {
-    bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
-
-    mapping(address => bool) private _blacklisted;
-
-    /** @notice Event emitted when a new address is blacklisted */
-    event Blacklisted(address indexed account, bool indexed isBlacklisted);
-
-    /** @dev Modifier that reverts when the address is blacklisted */
-    modifier notBlacklisted(address checkAddress) {
-        require(!_blacklisted[checkAddress], "The caller of the contract is blacklisted");
-        _;
-    }
-
-    /**
-     * @notice Blacklist a address
-     * @param addressToBlacklist The address to blacklist
-     * @custom:requires BLACKLISTER_ROLE
-     */
-    function addToBlacklist(address addressToBlacklist) public virtual onlyRole(BLACKLISTER_ROLE) {
-        require(!_blacklisted[addressToBlacklist], "Address is already blacklisted");
-        _blacklisted[addressToBlacklist] = true;
-        emit Blacklisted(addressToBlacklist, true);
-    }
-
-    /**
-     * @notice Remove an address from the blacklist
-     * @param addressToRemove The address to remove from the blacklist
-     * @custom:requires BLACKLISTER_ROLE
-     */
-    function removeFromBlacklist(address addressToRemove) public virtual onlyRole(BLACKLISTER_ROLE) {
-        require(_blacklisted[addressToRemove], "Address is not blacklisted");
-        _blacklisted[addressToRemove] = false;
-        emit Blacklisted(addressToRemove, false);
-    }
-
-    /**
-     * @notice Blacklist a list of addresses
-     * @param multiAddrToBl The addresses to blacklist
-     * @custom:requires BLACKLISTER_ROLE
-     */
-    function addBatchToBlacklist(address[] memory multiAddrToBl) public virtual onlyRole(BLACKLISTER_ROLE) {
-        uint256 length = multiAddrToBl.length;
-        for (uint256 i = 0; i < length; ++i) {
-            if (_blacklisted[multiAddrToBl[i]]) {
-                continue;
-            }
-            _blacklisted[multiAddrToBl[i]] = true;
-            emit Blacklisted(multiAddrToBl[i], true);
-        }
-    }
-
-    /**
-     * @notice Remove a list of addresses from the blacklist
-     * @param multiAddrToRm The addresses to remove from the blacklist
-     * @custom:requires BLACKLISTER_ROLE
-     */
-    function removeBatchFromBlacklist(address[] memory multiAddrToRm) public virtual onlyRole(BLACKLISTER_ROLE) {
-        uint256 length = multiAddrToRm.length;
-        for (uint256 i = 0; i < length; ++i) {
-            if (!_blacklisted[multiAddrToRm[i]]) {
-                continue;
-            }
-            _blacklisted[multiAddrToRm[i]] = false;
-            emit Blacklisted(multiAddrToRm[i], false);
-        }
-    }
-
-    /**
-     * @notice Check if an address is blacklisted
-     * @param checkAddress The address to check
-     * @return True if the address is blacklisted, false otherwise
-     */
-    function isBlacklisted(address checkAddress) public view virtual returns (bool) {
-        return _blacklisted[checkAddress];
-    }
-}
-
-
 // File @openzeppelin/contracts/security/Pausable.sol@v4.8.1
 
 // OpenZeppelin Contracts (last updated v4.7.0) (security/Pausable.sol)
@@ -2775,7 +2936,7 @@ abstract contract AStartonMetadataLock is AStartonPausable, AStartonLock {
 // File contracts/non-fungible/StartonERC721Base.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
 
@@ -2796,11 +2957,11 @@ contract StartonERC721Base is
     ERC721Burnable,
     AStartonPausable,
     AStartonAccessControl,
-    AStartonBlacklist,
     AStartonContextMixin,
     AStartonNativeMetaTransaction,
     AStartonMintLock,
-    AStartonMetadataLock
+    AStartonMetadataLock,
+    DefaultOperatorFilterer
 {
     using Counters for Counters.Counter;
 
@@ -2825,7 +2986,6 @@ contract StartonERC721Base is
         _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(LOCKER_ROLE, initialOwnerOrMultiSigContract);
-        _setupRole(BLACKLISTER_ROLE, initialOwnerOrMultiSigContract);
 
         _baseTokenURI = initialBaseTokenURI;
         _contractURI = initialContractURI;
@@ -2919,7 +3079,7 @@ contract StartonERC721Base is
         address owner,
         address operator,
         bool approved
-    ) internal virtual override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused onlyAllowedOperatorApproval(operator) {
         super._setApprovalForAll(owner, operator, approved);
     }
 
@@ -2934,7 +3094,7 @@ contract StartonERC721Base is
         address to,
         uint256 tokenId,
         uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Enumerable) whenNotPaused notBlacklisted(_msgSender()) {
+    ) internal virtual override(ERC721, ERC721Enumerable) whenNotPaused {
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
@@ -2960,5 +3120,38 @@ contract StartonERC721Base is
      */
     function _msgSender() internal view virtual override(Context, AStartonContextMixin) returns (address) {
         return super._msgSender();
+    }
+
+    function approve(address operator, uint256 tokenId)
+        public
+        override(IERC721, ERC721)
+        onlyAllowedOperatorApproval(operator)
+    {
+        super.approve(operator, tokenId);
+    }
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public override(IERC721, ERC721) onlyAllowedOperator(from) {
+        super.transferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public override(IERC721, ERC721) onlyAllowedOperator(from) {
+        super.safeTransferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes memory data
+    ) public override(IERC721, ERC721) onlyAllowedOperator(from) {
+        super.safeTransferFrom(from, to, tokenId, data);
     }
 }

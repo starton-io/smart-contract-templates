@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 import "../abstracts/AStartonWhitelist.sol";
 import "./StartonERC1155BaseSale.sol";
@@ -41,7 +41,7 @@ contract StartonERC1155WhitelistSale is StartonERC1155BaseSale, AStartonWhitelis
         address to,
         uint256 id,
         uint256 amount,
-        bytes32[] calldata merkleProof
+        bytes32[] memory merkleProof
     ) public payable override isWhitelisted(merkleProof) {
         super.mint(to, id, amount, new bytes32[](0));
     }
@@ -57,7 +57,7 @@ contract StartonERC1155WhitelistSale is StartonERC1155BaseSale, AStartonWhitelis
         address to,
         uint256[] calldata ids,
         uint256[] calldata amounts,
-        bytes32[] calldata merkleProof
+        bytes32[] memory merkleProof
     ) public payable override isWhitelisted(merkleProof) {
         super.mintBatch(to, ids, amounts, new bytes32[](0));
     }

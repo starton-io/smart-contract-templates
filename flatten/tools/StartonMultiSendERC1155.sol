@@ -158,7 +158,7 @@ interface IERC1155 is IERC165 {
 // File contracts/tools/StartonMultiSendERC1155.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 /// @title StartonMultiSendERC11555
 /// @author Starton

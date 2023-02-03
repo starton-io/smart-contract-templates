@@ -89,7 +89,7 @@ interface IERC20 {
 // File contracts/tools/StartonMultiSendERC20.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 /// @title StartonMultiSendERC20
 /// @author Starton
