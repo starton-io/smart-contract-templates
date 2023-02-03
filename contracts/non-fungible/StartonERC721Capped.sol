@@ -15,6 +15,8 @@ contract StartonERC721Capped is StartonERC721Base {
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
+        uint96 definitiveRoyaltyFee,
+        address definitiveFeeReceiver,
         uint256 definitiveMaxSupply,
         string memory initialBaseTokenURI,
         string memory initialContractURI,
@@ -23,6 +25,8 @@ contract StartonERC721Capped is StartonERC721Base {
         StartonERC721Base(
             definitiveName,
             definitiveSymbol,
+            definitiveRoyaltyFee,
+            definitiveFeeReceiver,
             initialBaseTokenURI,
             initialContractURI,
             initialOwnerOrMultiSigContract
