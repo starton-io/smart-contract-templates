@@ -49,8 +49,8 @@ function getCompilationFileContent(contractName: string): any | undefined {
     );
   });
 
-  const compilationFile = compilationFiles.find(
-    (file) => file.indexOf(`${contractName}`) !== -1
+  const compilationFile = compilationFiles.find((file) =>
+    file.includes("/" + contractName + ".sol")
   );
 
   if (!compilationFile) {
@@ -131,10 +131,6 @@ function main() {
       compilationFile,
       contract.compilationDetails.contractName
     );
-
-    if (flattenPath.includes("deprecated")) {
-      return;
-    }
 
     contract.compilationDetails.runs = parseRuns(compilationFile);
     contract.compilationDetails.compilerVersion =
