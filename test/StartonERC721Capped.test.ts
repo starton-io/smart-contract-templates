@@ -38,7 +38,7 @@ describe("StartonERC721Capped", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => { });
+    it("Should deploy", async () => {});
 
     it("Shouldn't deploy if maxSupply is 0", async () => {
       await expect(
@@ -413,6 +413,12 @@ describe("StartonERC721Capped", () => {
       );
     });
 
+    it("Should support ERC2981", async () => {
+      expect(await instanceERC721.supportsInterface("0x2a55205a")).to.equal(
+        true
+      );
+    });
+
     it("should support ERC721Enumerable", async () => {
       expect(await instanceERC721.supportsInterface("0x780e9d63")).to.equal(
         true
@@ -423,6 +429,15 @@ describe("StartonERC721Capped", () => {
       expect(await instanceERC721.supportsInterface("0x7965db0b")).to.equal(
         true
       );
+    });
+  });
+
+  describe("Royalties", () => {
+    it("Should return the correct royalty amount", async () => {
+      expect(await instanceERC721.royaltyInfo(1, 100)).to.deep.equal([
+        owner.address,
+        "100",
+      ]);
     });
   });
 

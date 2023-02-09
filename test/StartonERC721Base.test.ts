@@ -37,7 +37,7 @@ describe("StartonERC721Base", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => { });
+    it("Should deploy", async () => {});
 
     it("Should owner have admin role", async () => {
       const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();
@@ -348,6 +348,12 @@ describe("StartonERC721Base", () => {
       );
     });
 
+    it("Should support ERC2981", async () => {
+      expect(await instanceERC721.supportsInterface("0x2a55205a")).to.equal(
+        true
+      );
+    });
+
     it("should support ERC721Enumerable", async () => {
       expect(await instanceERC721.supportsInterface("0x780e9d63")).to.equal(
         true
@@ -358,6 +364,15 @@ describe("StartonERC721Base", () => {
       expect(await instanceERC721.supportsInterface("0x7965db0b")).to.equal(
         true
       );
+    });
+  });
+
+  describe("Royalties", () => {
+    it("Should return the correct royalty amount", async () => {
+      expect(await instanceERC721.royaltyInfo(1, 100)).to.deep.equal([
+        owner.address,
+        "100",
+      ]);
     });
   });
 
