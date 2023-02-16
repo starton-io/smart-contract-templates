@@ -49,6 +49,9 @@ contract StartonERC1155BaseSale is Context {
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
+        // Check if the end time is after the starting time
+        require(definitiveStartTime < definitiveEndTime, "Start time must be before end time");
+
         token = IStartonERC1155(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;
         startTime = definitiveStartTime;
