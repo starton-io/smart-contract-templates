@@ -2844,7 +2844,7 @@ contract StartonERC721Base is
      * @custom:requires MINTER_ROLE
      */
     function mint(address to, string memory uri) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
-        _safeMint(to, _tokenIdCounter.current());
+        _mint(to, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), uri);
         _tokenIdCounter.increment();
     }
