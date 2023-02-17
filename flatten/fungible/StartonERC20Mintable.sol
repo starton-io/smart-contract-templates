@@ -2174,7 +2174,6 @@ pragma solidity 0.8.9;
 
 
 
-
 /// @title StartonERC20Base
 /// @author Starton
 /// @notice ERC20 tokens that can be paused, burned, have a access management and handle meta transactions
