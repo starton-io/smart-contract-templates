@@ -43,7 +43,7 @@ describe("StartonERC1155WhitelistSale", () => {
 
     instanceERC1155 = (await ERC1155.deploy(
       "StartonToken",
-      "10000",
+      "1000",
       owner.address,
       "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
@@ -81,7 +81,7 @@ describe("StartonERC1155WhitelistSale", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy the contract", async () => {});
+    it("Should deploy the contract", async () => { });
 
     it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC1155.address);

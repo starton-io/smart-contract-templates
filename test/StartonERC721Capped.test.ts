@@ -27,7 +27,7 @@ describe("StartonERC721Capped", () => {
     instanceERC721 = (await ERC721.deploy(
       "StartonToken",
       "ST",
-      "10000",
+      "1000",
       owner.address,
       10,
       "https://ipfs.io/",
@@ -38,14 +38,14 @@ describe("StartonERC721Capped", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => {});
+    it("Should deploy", async () => { });
 
     it("Shouldn't deploy if maxSupply is 0", async () => {
       await expect(
         ERC721.deploy(
           "StartonToken",
           "ST",
-          "10000",
+          "1000",
           owner.address,
           0,
           "https://ipfs.io/",
@@ -436,7 +436,7 @@ describe("StartonERC721Capped", () => {
     it("Should return the correct royalty amount", async () => {
       expect(await instanceERC721.royaltyInfo(1, 100)).to.deep.equal([
         owner.address,
-        "100",
+        "10",
       ]);
     });
   });

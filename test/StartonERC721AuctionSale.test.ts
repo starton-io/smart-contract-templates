@@ -38,7 +38,7 @@ describe("StartonERC721AuctionSale", () => {
     instanceERC721 = (await ERC721.deploy(
       "StartonToken",
       "ST",
-      "10000",
+      "1000",
       owner.address,
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
@@ -63,7 +63,7 @@ describe("StartonERC721AuctionSale", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy the contract", async () => {});
+    it("Should deploy the contract", async () => { });
 
     it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC721.address);

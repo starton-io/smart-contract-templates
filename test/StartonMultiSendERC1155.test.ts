@@ -35,7 +35,7 @@ describe("StartonMultiSendERC1155", () => {
 
     instanceERC1155 = (await ERC1155.deploy(
       "StartonToken",
-      "10000",
+      "1000",
       owner.address,
       "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
@@ -45,7 +45,7 @@ describe("StartonMultiSendERC1155", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => {});
+    it("Should deploy", async () => { });
   });
 
   describe("MultiSend", () => {
