@@ -29,13 +29,12 @@ type SmartContractTemplate = {
   name: string;
   description: string;
   shortDescription: string;
-  githubUrl?: string;
   blockchains: Blockchain[];
-  tags: string[];
+  compilationDetails: CompilationDetails;
+  tags: SmartContractTemplateCategory[];
   category: SmartContractTemplateCategory;
   abi?: Array<Record<string, any>>;
   form?: Record<string, any>;
-  compilationDetails: CompilationDetails;
   isAudited?: boolean;
   isActivated?: boolean;
   order?: number;

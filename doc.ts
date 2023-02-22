@@ -6,48 +6,10 @@ import {
 
 const LIST: SmartContractTemplate[] = [
   {
-    id: "VESTING",
-    name: "Vesting smart contract",
-    description: `<p>The smart contract to vest your tokens for a fixed time.</p>
-    <p>With it, you can vest your erc20 or native tokens (ETH for exemple) for a fixed time and they will be released either way linearly (every seconds) or through a cliff (all at once).</p>`,
-    shortDescription: `The smart contract template to vest your tokens for a fixed time`,
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
-    compilationDetails: {
-      contractName: "StartonVesting",
-    },
-    isActivated: true,
-    isAudited: false,
-    category: SmartContractTemplateCategory.OTHER,
-    tags: [],
-  },
-  {
     id: "ERC721_META_TRANSACTION",
     name: "ERC721 NFT smart contract",
-    description: `<p>The smart contract standard to manage single-copy NFTs.</p>
-        <p>This meta-transaction version enables you to send transactions on behalf of your users so they can use their NFT without paying gas fees.</p>
-        <p>It also includes another feature which is called blacklist. It allows the owner to blacklist one or more addresses to transfer tokens on behalf of your users for example if you want to block the sales happening in a marketplace.</p>
-        <p>Notice that we do not store any content in the smart contract. Smart contract store only references. It is up to smart contract readers to find the content using references.</p>
-        <p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT content.</p>
-        <p>Parameters:</p>
-        <ul>
-        <li><strong>DefinitiveName:</strong> The name of your smart contract which will be reflected on-chain.</li>
-        <li><strong>initialTokenUri: </strong> Will be used to get the token URI. It must be in this exact format because {id} will then be replaced by the tokenId
-        <ul>
-        <li>Using IPFS: <code>ipfs://ipfs/CID/{id}</code></li>
-        <li>Using a centralised server: <code>https://yourapi.com/endpoint/CID/{id}</code></li>
-        </ul>
-        </li>
-        <li><strong>initialContractUri: </strong> The URI of the metadata that will be used to give more details about the description
-        <ul>Example: { "name": "name of your collection", "description": "description of your collection", "image": "URL to image", "external_link": "external-link-URL", "seller_fee_basis_points": 100, // Indicates a 1% seller fee. "fee_recipient": "0xA97F337c39cccE66adfeCB2BF99C1DdC54C2D721" // Where seller fees will be paid to. }</ul>
-        </li>
-        <li><strong>initialOwnerOrMultisigContract: </strong> The address that will own the NFT Collection</li>
-        </ul>`,
-    shortDescription: `The smart contract template to deploy single-copy NFTs`,
+    description: "The smart contract template to deploy single-copy NFTs",
+    shortDescription: "The smart contract template to deploy single-copy NFTs",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -61,33 +23,41 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 1,
     category: SmartContractTemplateCategory.NFT,
-    tags: ["ERC721"],
+    tags: [SmartContractTemplateCategory.NFT],
+    form: {
+      infos: {
+        description:
+          "The ERC721 smart contract standard is built for single-copy Non Fungible Tokens (NFT) and is out-of-the-box compatible with Opensea. With an ERC721, every NFT is unique, so you have to reference the content for each NFT. You can also send transactions on behalf of your users so they can use their tokens without having to pay for gas fees.",
+        usecases: [
+          "In a video game, one-of-one NFT can consist of a digital good only one player can own at a time such as a piece of land.",
+        ],
+        requirements: [
+          "A wallet to fund the creation of your contract",
+          "The URI of the metadata of your collection",
+          "The URI of the content of the NFT",
+          "The address of the initial owner",
+          "The network on which you want to deploy",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Meta",
+            alt: "Go to ERC721 NFT Smart Contract",
+          },
+          tutorials: {
+            href: "https://docs.starton.io/docs/Tutorials/deploy-Nfts-with-Binance",
+            alt: "Go to Deploy your NFTs with Starton",
+          },
+        },
+      },
+    },
   },
   {
     id: "ERC721_CAPPED_META_TRANSACTION",
     name: "ERC721 NFT with limited supply",
-    description: `<p>The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT). In a video game, you can sell an NFT and pay for gas for the NFT receiver. Within this standard, the token is linked to its owner's address and to the URI (Unique Resource Identifier) which references the NFT content.</p>
-    <p>This version enables you to send transactions on behalf of your users so they can use their NFT without having to pay for gas fees. In contrast to the standard version of meta-transaction where you can mint an infinite amount of NFTS, here you can set a maximum limit to the supply of NFTs.</p>
-    <p>It also includes a blacklist feature. It allows the owner to blacklist one or more addresses to transfer tokens on behalf of your users for example if you want to block sales happening in a marketplace.</p>
-    <p>Notice that we do not store any content in the smart contract. Smart contract store only references. It is up to smart contract readers to find the content using references.</p>
-    <p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT content.</p>
-    <p>Parameters:</p>
-    <ul>
-    <li><strong>DefinitiveName:</strong> The name of your smart contract which will be reflected on-chain.</li>
-    <li><strong>DefinitiveSymbol: </strong> The symbol associated with the NFT or its collection.</li>
-    <li><strong>DefinitiveMaxSupply: </strong> The maximum number of NFT that can be minted.</li>
-    <li><strong>initialBaseTokenUri: </strong> Will be used to concatenate NFT URIs
-    <ul>
-    <li>Using IPFS: <code>ipfs://ipfs/</code></li>
-    <li>Using a centralised server: <code>https://yourapi.com/endpoint/</code></li>
-    </ul>
-    </li>
-    <li><strong>initialContractUri: </strong> The URI of the metadata that will be used to give more details about the description
-    <ul>Example: { "name": "name of your collection", "description": "description of your collection", "image": "URL to image", "external_link": "external-link-URL", "seller_fee_basis_points": 100, // Indicates a 1% seller fee. "fee_recipient": "0xA97F337c39cccE66adfeCB2BF99C1DdC54C2D721" // Where seller fees will be paid to. }</ul>
-    </li>
-    <li><strong>initialOwnerOrMultisigContract: </strong> The address that will own the NFT Collection</li>
-    </ul>`,
-    shortDescription: `The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT).`,
+    description:
+      "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT).",
+    shortDescription:
+      "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT).",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -101,32 +71,41 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 2,
     category: SmartContractTemplateCategory.NFT,
-    tags: ["ERC721"],
+    tags: [SmartContractTemplateCategory.NFT],
+    form: {
+      infos: {
+        description:
+          "The NFT ERC721 smart contract where you can define the maximum supply of NFT you can mint.",
+        usecases: [
+          "In a video game, you can sell an NFT and pay for gas in place of the NFT receiver.",
+        ],
+        requirements: [
+          "A wallet to fund the creation of your contract",
+          "The URI of the metadata of your collection",
+          "The URI of the content of the NFT",
+          "The address of the initial owner",
+          "The network on which you want to deploy",
+          "The maximum supply of NFTs that can be minted",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Capped",
+            alt: "Go to ERC721 NFT Capped Documentation",
+          },
+          tutorial: {
+            href: "https://docs.starton.io/docs/Tutorials/Home",
+            alt: "Go to Tutorials",
+          },
+        },
+      },
+    },
   },
   {
     id: "ERC1155_META_TRANSACTION",
     name: "ERC1155 NFTs collection",
-    description: `<p>The smart contract template for multiple-copies of Non Fungible Tokens (NFT). In a video game, you can sell equipment and pay for gas in place of the equipment receiver. Within this standard, the token is linked to its owner's address and to URIs (Unique Resource Identifier), which references the NFT content.</p>
-    <p>This meta-transaction version enables you to send transactions on behalf of your users so they can use their NFT without having to pay for gas fees.</p>
-    <p>It also includes the blacklist feature. It allows the owner to block one or more addresses from transfering tokens on behalf of your users for example if you want to block the sales happening in a marketplace.</p>
-    <p>Notice that we do not store any content in the smart contract. Smart contract store only references. It is up to smart contract readers to find the content using references.</p>
-    <p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT content.</p>
-    <p>Parameters:</p>
-    <ul>
-    <li><strong>DefinitiveName:</strong> The name of your smart contract which will be reflected on-chain.</li>
-    <li><strong>DefinitiveSymbol: </strong> The symbol associated with the NFT or its collection.</li>
-    <li><strong>initialBaseTokenUri: </strong> Will be used to concatenate NFT URIs
-    <ul>
-    <li>Using IPFS: <code>ipfs://ipfs/</code></li>
-    <li>Using a centralised server: <code>https://yourapi.com/endpoint/</code></li>
-    </ul>
-    </li>
-    <li><strong>initialContractUri: </strong> The URI of the metadata that will be used to give more details about the description
-    <ul>Example: { "name": "name of your collection", "description": "description of your collection", "image": "url to image", "external_link": "external-link-url", "seller_fee_basis_points": 100, // Indicates a 1% seller fee. "fee_recipient": "0xA97F337c39cccE66adfeCB2BF99C1DdC54C2D721" // Where seller fees will be paid to. }</ul>
-    </li>
-    <li><strong>initialOwnerOrMultisigContract: </strong> The address that will own the NFT Collection</li>
-    </ul>`,
-    shortDescription: `The smart contract standard to manage multiple-copies NFTs.`,
+    description: "The smart contract standard to manage multiple-copies NFTs.",
+    shortDescription:
+      "The smart contract standard to manage multiple-copies NFTs.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -140,21 +119,41 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 3,
     category: SmartContractTemplateCategory.NFT,
-    tags: ["ERC1155"],
+    tags: [SmartContractTemplateCategory.NFT],
+    form: {
+      infos: {
+        description:
+          "The smart contract standard to manage multiple-copies NFTs. Though their content is identical, each NFT has a different token ID.",
+        usecases: [
+          "In a video game, it can be a piece of equipment won after an action such as a powerful sword after defeating an enemy. Every user defeating the enemy will own an edition of the sword with a different identifier.",
+        ],
+        requirements: [
+          "A wallet to fund the creation of your contract",
+          "The URI of the metadata of your collection",
+          "The URI of the content of the NFT",
+          "The address of the initial owner",
+          "The network on which you want to deploy",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC1155-Meta",
+            alt: "Go to ERC1155 NFT Smart contract Documentation",
+          },
+          tutorial: {
+            href: "https://docs.starton.io/docs/Tutorials/creating-NFT-collection",
+            alt: "Go to Tutorials",
+          },
+        },
+      },
+    },
   },
   {
     id: "ERC20_META_TRANSACTION",
     name: "ERC20 Token with fixed supply",
-    description: `<p>The smart contract template for fungible tokens. No new tokens can be created after the initial emission. In a video game, fixed fungible tokens can represent gems available only in limited supply.</p>
-    <p>This template includes meta-transaction that enables you to send transactions on behalf of your users so they can use their tokens without having to pay for gas fees.</p>
-    <p>Parameters:</p>
-    <ul>
-    <li><strong>DefinitiveName:</strong> The name of your smart contract which will be reflected on-chain.</li>
-    <li><strong>definitiveSymbol: </strong> The symbol of your smart contract which will be reflected on-chain</li>
-    <li><strong>definitiveSupply: </strong> The total amount of tokens that will ever be minted.</li>
-    <li><strong>initialOwnerOrMultisigContract: </strong> The address that will own the ERC20 contract</li>
-    </ul>`,
-    shortDescription: `The smart contract template for fungible tokens. No new tokens can be created after the initial emission.`,
+    description:
+      "The smart contract template for fungible tokens. No new tokens can be created after the initial emission.",
+    shortDescription:
+      "The smart contract template for fungible tokens. No new tokens can be created after the initial emission.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -168,21 +167,37 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 4,
     category: SmartContractTemplateCategory.FUNGIBLE,
-    tags: ["ERC20"],
+    tags: [SmartContractTemplateCategory.FUNGIBLE],
+    form: {
+      infos: {
+        description:
+          "Create your own fungible token. You will set the supply at initial emission. You can also send transactions on behalf of your users so they can use their tokens without having to pay for gas fees.",
+        tag: "ERC20, Fungible",
+        usecases: [
+          "In a video game, fixed fungible tokens can represent gems available only in limited supply",
+        ],
+        requirements: [
+          "A name for your smart contract which will be reflected on-chain",
+          "A symbol for your smart contract which will be reflected on-chain",
+          "A number of tokens that will be minted",
+          "The address that will own the ERC20 contract",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC20-fixed-Meta",
+            alt: "Documentation",
+          },
+        },
+      },
+    },
   },
   {
     id: "ERC20_MINT_META_TRANSACTION",
     name: "ERC20 Token with mintable supply",
-    description: `<p>The smart contract template for fungible tokens. New tokens can be minted after the initial emission. In a video game, mintable fungible tokens can represent the currency gamers can spend in-game.</p>
-    <p>This template includes meta-transaction that enables you to send transactions on behalf of your users so they can use their tokens without having to pay for gas fees.</p>
-    <p>Parameters:</p>
-    <ul>
-    <li><strong>DefinitiveName:</strong> The name of your smart contract which will be reflected on-chain.</li>
-    <li><strong>definitiveSymbol: </strong> The symbol of your smart contract which will be reflected on-chain</li>
-    <li><strong>initialSupply: </strong> The amount of tokens that will be minted when the smart contract is deployed.</li>
-    <li><strong>initialOwnerOrMultisigContract: </strong> The address that will own the ERC20 contract</li>
-    </ul>`,
-    shortDescription: `The smart contract template for fungible tokens. Admin can mint new tokens after initial emission.`,
+    description:
+      "The smart contract template for fungible tokens. Admin can mint new tokens after initial emission.",
+    shortDescription:
+      "The smart contract template for fungible tokens. Admin can mint new tokens after initial emission.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -196,25 +211,40 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 5,
     category: SmartContractTemplateCategory.FUNGIBLE,
-    tags: ["ERC20"],
+    tags: [SmartContractTemplateCategory.FUNGIBLE],
+    form: {
+      infos: {
+        description:
+          "Create your own fungible token, you can mint new tokens after the initial emission. You can also send transactions on behalf of your users so they can use their tokens without having to pay for gas fees.",
+        tag: "ERC20, Fungible",
+        "use cases": [
+          "In a video game, mintable fungible tokens can represent the currency gamers can spend in-game.",
+        ],
+        requirements: [
+          "A Name for your smart contract which will be reflected on-chain",
+          "A Symbol for your smart contract which will be reflected on-chain",
+          "A Number of tokens that will be minted when the smart contract is deployed",
+          "The Address that will own the ERC20 contract",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC20-mintable-Meta",
+            alt: "Documentation",
+          },
+          tutorial: {
+            href: "https://docs.starton.io/docs/Tutorials/Home",
+            alt: "Go to Tutorials",
+          },
+        },
+      },
+    },
   },
   {
     id: "ERC721_SALE",
     name: "ERC721 single-copy NFT Sale",
-    description: `<p>The smart contract to help you sell ERC721 tokens. In a video game, you can sell a piece of land.</p>
-    <p>The sale version enables you to mint a new token and sell it to your users. It helps you set up a sale, select when it starts and ends, and set a maximum number of tokens that can be sold in total or to the same user.</p>
-    <p>Notice that the baseURI of the ERC721 contract should be the URI that is linked to a directory on ipfs or your centralized server because when minting a new token, the URI will be added to the id. For example, https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR/0</p>
-    <p>Parameters:</p>
-    <ul>
-    <li><strong>definitiveTokenAddress:</strong> The token address of the ERC721 that you want sale</li>
-    <li><strong>definitivePrice: </strong> The price that the NFTs will be sold for</li>
-    <li><strong>definitiveStartTime: </strong> The time when the sale will begin and users can mint tokens</li>
-    <li><strong>definitiveEndTime: </strong> The time when the sale will end and users couldn't mint any more tokens</li>
-    <li><strong>definitiveMaxTokensPerAddres: </strong> The maximum amount of tokens that can be minted by a single address</li>
-    <li><strong>definitiveMaxSupply: </strong> The maximum amount of tokens that can be minted during the sale</li>
-    <li><strong>definitiveFeeReceiver: </strong> The address that will receive all the price paid to mint the NFTs</li>
-    </ul>`,
-    shortDescription: `The smart contract template for selling single-copy NFTs.`,
+    description: "The smart contract template for selling single-copy NFTs.",
+    shortDescription:
+      "The smart contract template for selling single-copy NFTs.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -228,24 +258,41 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 6,
     category: SmartContractTemplateCategory.SALE,
-    tags: ["ERC721"],
+    tags: [SmartContractTemplateCategory.SALE],
+    form: {
+      infos: {
+        description:
+          "Set a price, a date, and a supply and you can sell your NFTs deployed using the ERC721 smart contract template. ",
+        tag: "ERC721, Sale",
+        usecases: ["In a video game, you can sell a piece of land."],
+        requirements: [
+          "The address of the ERC721 smart contract of the NFT that you want to sell",
+          "A price the NFTs will be sold for",
+          "The time at which the sale will begin and end",
+          "The maximum amount of tokens that can be minted by a single address",
+          "The maximum amount of tokens that can be minted during the sale",
+          "The address that will receive the payment for the NFTs",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Sale",
+            alt: "Documentation",
+          },
+          tutorial: {
+            href: "https://docs.starton.io/docs/Tutorials/Home",
+            alt: "Go to Tutorials",
+          },
+        },
+      },
+    },
   },
   {
     id: "ERC1155_SALE",
     name: "ERC1155 NFT Collection Sale",
-    description: `<p>The smart contract to help you sell ERC1155 tokens.In a video game, you can sell a piece of equipment to another player.</p>
-    <p>The sale version enables you to mint a new token and sell it to your users. It helps you set up a sale, select when it starts and ends, and set a maximum number of tokens that can be sold in total or to the same user.</p>
-    <p>Notice that you must set the price of the tokens you want to sell after creating the contract by calling the setPrices function.</p>
-    <p>Parameters:</p>
-    <ul>
-    <li><strong>definitiveTokenAddress:</strong> The token address of the ERC721 that you want sale</li>
-    <li><strong>definitiveStartTime: </strong> The time when the sale will begin and users can mint tokens</li>
-    <li><strong>definitiveEndTime: </strong> The time when the sale will end and users couldn't mint anymore tokens</li>
-    <li><strong>definitiveMaxTokensPerAddres: </strong> The maximum amount of otkens that can be minted by a single address</li>
-    <li><strong>definitiveMaxSupply: </strong> The maximum amount of tokens that can be minted during the sale</li>
-    <li><strong>definitiveFeeReceiver: </strong> The address that will receive all the price paid to mint the NFTs</li>
-    </ul>`,
-    shortDescription: `The smart contract template for selling multiple-copies NFTs.`,
+    description:
+      "The smart contract template for selling multiple-copies NFTs.",
+    shortDescription:
+      "The smart contract template for selling multiple-copies NFTs.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -259,26 +306,43 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 7,
     category: SmartContractTemplateCategory.SALE,
-    tags: ["ERC1155"],
+    tags: [SmartContractTemplateCategory.SALE],
+    form: {
+      infos: {
+        description:
+          "Set a price, a date, and a supply and you can sell your NFT collections deployed using the ERC1155 smart contract template. ",
+        tag: "ERC1155, Sale",
+        usecases: [
+          "In a video game, you can sell a piece of land to the player placing the highest bid.",
+        ],
+        requirements: [
+          "The token address of the ERC721 that you want to sell",
+          "The address that will receive the amount paid for the NFTs",
+          "The initial price offered for the NFT",
+          "The minimum bid increment to place a bid on top of the current maximum bid",
+          "The time at which the sale will begin and end, where users can bid. Timestamp in seconds",
+          "The URI that will append at the end of the base token URI for the token that will be minted",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Auction-Sale",
+            alt: "Go to ERC721 Auction Sale Documentation",
+          },
+          tutorials: {
+            href: "https://docs.starton.io/docs/Tutorials/create-an-NFT-auction",
+            alt: "Go to Create an NFT Auction Tutorial",
+          },
+        },
+      },
+    },
   },
   {
     id: "ERC721_WHITELIST_SALE",
     name: "ERC721 Whitelist Sale",
-    description: `<p>The smart contract template to sell NFTs only to selected users. In a video game, you can sell a piece of land only to players of an approved rank </p>	<p>This Whitelist version enables you to create a whitelist of users that can buy your tokens through a Merkle tree.</p>
-    <p>This template enables you to mint a new token and sell it to your users. It helps you set up a sale, select when it starts and ends, and set a maximum number of tokens that can be sold in total or to the same user.</p>
-    <p>Notice that the baseURI of the ERC721 contract should be the URI that is linked to a directory on ipfs or your centralized server because when minting a new token, the URI will be added to the id. For example,QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR/0</p>
-    <p>Parameters:</p>
-    <ul>
-    <li><strong>definitiveTokenAddress:</strong>The token address of the ERC721 that you want sale</li>
-    <li><strong>definitivePrice: </strong> The price that the NFTs will be sold for</li>
-    <li><strong>definitiveMerkleRoot: </strong> The root of the Merkle tree that contains the list of the users that can buy the NFTs</li>
-    <li><strong>definitiveStartTime: </strong> The time when the sale will begin and users can mint tokens</li>
-    <li><strong>definitiveEndTime: </strong> The time when the sale will end and users couldn't mint any more tokens</li>
-    <li><strong>definitiveMaxTokensPerAddres: </strong> The maximum amount of tokens that can be minted by a single address</li>
-    <li><strong>definitiveMaxSupply: </strong> The maximum amount of tokens that can be minted during the sale</li>
-    <li><strong>definitiveFeeReceiver: </strong> The address that will receive all the price paid to mint the NFTs</li>
-    </ul>`,
-    shortDescription: `The smart contract template to sell NFTs only to selected users.`,
+    description:
+      "The smart contract template to sell NFTs only to selected users.",
+    shortDescription:
+      "The smart contract template to sell NFTs only to selected users.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -292,26 +356,43 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 8,
     category: SmartContractTemplateCategory.SALE,
-    tags: ["ERC721"],
+    tags: [SmartContractTemplateCategory.SALE],
+    form: {
+      infos: {
+        description:
+          "Select who can buy your NFTs. Then set a price, a date, and a supply and you can sell your NFTs, deployed using an ERC721 NFT deployment template.",
+        usecases: [
+          "In a video game, you can sell a piece of land only to an approved rank of players.",
+        ],
+        requirements: [
+          "The token address of the ERC721 that you want to sell",
+          "The price that the NFTs will be sold for",
+          "The root of the merkle tree that contains the list of the users that can buy the NFTs",
+          "The time when the sale will begin and end ",
+          "The maximum amount of tokens that can be minted by a single address",
+          "The maximum amount of tokens that can be minted during the sale",
+          "The address that will receive all the price paid to mint the NFTs",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Whitelist-Sale",
+            alt: "Go to Documentation",
+          },
+          tutorial: {
+            href: "https://docs.starton.io/docs/Tutorials/Home",
+            alt: "Go to Tutorials",
+          },
+        },
+      },
+    },
   },
   {
     id: "ERC1155_WHITELIST_SALE",
     name: "ERC1155 Whitelist Sale",
-    description: `<p>The smart contract template to help sell ERC1155 tokens to a specified list of users. In a video game, you can sell a piece of equipment only to a list of approved players.</p>
-    <p>This Whitelist version enables you to create a whitelist of users that can buy your tokens through a Merkle tree.</p>
-    <p>This template enables you to mint a new token and sell it to your users. It helps you set up a sale, select when it starts and ends, and set a maximum number of tokens that can be sold in total or to the same user.</p>
-    <p>Notice that you must set the price of the tokens you want to sell after creating the contract by calling the setPrices function.</p>
-    <p>Parameters:</p>
-    <ul>
-    <li><strong>definitiveTokenAddress:</strong> The token address of the ERC721 that you want sale</li>
-    <li><strong>definitiveMerkleRoot: </strong> The root of the merkle tree that contains the list of the users that can buy the NFTs</li>
-    <li><strong>definitiveStartTime: </strong> The time when the sale will begin and users can mint tokens</li>
-    <li><strong>definitiveEndTime: </strong> The time when the sale will end and users couldn't mint any more tokens</li>
-    <li><strong>definitiveMaxTokensPerAddres: </strong> The maximum amount of tokens that can be minted by a single address</li>
-    <li><strong>definitiveMaxSupply: </strong> The maximum amount of tokens that can be minted during the sale</li>
-    <li><strong>definitiveFeeReceiver: </strong> The address that will receive all the price paid to mint the NFTs</li>
-    </ul>`,
-    shortDescription: `The smart contract template for selling multiple copies of NFTs only to a specified list of addresses.`,
+    description:
+      "The smart contract template for selling multiple copies of NFTs only to a specified list of addresses.",
+    shortDescription:
+      "The smart contract template for selling multiple copies of NFTs only to a specified list of addresses.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -325,23 +406,41 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 9,
     category: SmartContractTemplateCategory.SALE,
-    tags: ["ERC1155"],
+    tags: [SmartContractTemplateCategory.SALE],
+    form: {
+      infos: {
+        description:
+          "Set a price, a date, and a supply and you can sell your NFT collections deployed using the ERC1155 smart contract template. ",
+        tag: "ERC1155, Sale",
+        usecases: [
+          "In a video game, you can sell a piece of land to the player placing the highest bid.",
+        ],
+        requirements: [
+          "The token address of the ERC721 that you want to sell",
+          "The address that will receive the amount paid for the NFTs",
+          "The initial price offered for the NFT",
+          "The minimum bid increment to place a bid on top of the current maximum bid",
+          "The time at which the sale will begin and end, where users can bid. Timestamp in seconds",
+          "The URI that will append at the end of the base token URI for the token that will be minted",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Auction-Sale",
+            alt: "Go to ERC721 Auction Sale Documentation",
+          },
+          tutorials: {
+            href: "https://docs.starton.io/docs/Tutorials/create-an-NFT-auction",
+            alt: "Go to Create an NFT Auction Tutorial",
+          },
+        },
+      },
+    },
   },
   {
     id: "ERC721_AUCTION_SALE",
     name: "ERC721 NFT Sale in an Auction",
-    description: `<p>The smart contract that can help you sell in the form of auction ERC721 tokens. This smart contract has to be chained with an ERC721 smart contract.</p>
-    <p>Parameters:</p>
-    <ul>
-    <li><strong>definitiveTokenAddress:</strong> The token address of the ERC721 that you wants sale</li>
-    <li><strong>definitiveFeeReceiver: </strong> The address that will receive all the price paid to mint the NFTs</li>
-    <li><strong>initialStartingPrice: </strong> The initial price that the NFT will be sold for</li>
-    <li><strong> initialMinPriceDifference: </strong> The price increase that a user needs to at least put to bid on top of the current auction winner</li>
-    <li><strong>initialStartTime: </strong> The time when the sale will begin and users can bid</li>
-    <li><strong>initialEndTime: </strong> The time when the sale will end and users couldn't bid anymore</li>
-    <li><strong>initialTokenURI: </strong> the URI that will be appended at the end of the base token URI for the token that will be minted</li>
-    </ul>`,
-    shortDescription: `The smart contract to sell NFTs in a form of auction.`,
+    description: "The smart contract to sell NFTs in a form of auction.",
+    shortDescription: "The smart contract to sell NFTs in a form of auction.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -355,25 +454,43 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 10,
     category: SmartContractTemplateCategory.SALE,
-    tags: ["ERC721"],
+    tags: [SmartContractTemplateCategory.SALE],
+    form: {
+      infos: {
+        description:
+          "Set a starting price, a date and a supply and you can sell your NFTs, deployed using an ERC721 NFT deployment template. You can set the minimum bid increment to choose the pace of your auction.",
+        tag: "ERC721, Sale",
+        usecases: [
+          "In a video game, you can sell a piece of land to the player placing the highest bid.",
+        ],
+        requirements: [
+          "The token address of the ERC721 that you want to sell.",
+          "The address that will receive the amount paid for the NFTs.",
+          "The initial price offered for the NFT.",
+          "The minimum bid increment to place a bid on top of the current maximum bid.",
+          "The time at which the sale will begin and end, where users can bid. Timestamp in seconds.",
+          "The URI that will be append in the end of the base token URI for the token that will be minted.",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Auction-Sale",
+            alt: "Documentation",
+          },
+          tutorial: {
+            href: "https://docs.starton.io/docs/Tutorials/create-an-NFT-auction",
+            alt: "Go to Tutorials",
+          },
+        },
+      },
+    },
   },
   {
     id: "ERC1155_AUCTION_SALE",
     name: "ERC1155 NFT collection Sale in an Auction",
-    description: `<p>The smart contract that can help you sell in the form of auction ERC1155 tokens. In a video game, you can sell a piece of equipment to the player placing the highest bid.</p>
-    <p>Notice you can start a new auction by simply calling the startNewAuction function without having to deploy a new contract.</p>
-    <p>Parameters:</p>
-    <ul>
-    <li><strong>definitiveTokenAddress:</strong> The token address of the ERC721 that you wants sale</li>
-    <li><strong>definitiveFeeReceiver: </strong> The address that will receive all the price paid to mint the NFTs</li>
-    <li><strong>initialStartingPrice: </strong> The initial price that the NFT will be sold for</li>
-    <li><strong> initialMinPriceDifference: </strong> The price increase that a user needs to at least put to bid on top of the current auction winner</li>
-    <li><strong>initialStartTime: </strong> The time when the sale will begin and users can bid</li>
-    <li><strong>initialEndTime: </strong> The time when the sale will end and users couldn't bid anymore</li>
-    <li><strong>initialTokenId: </strong> The URI that will be appended at the end of the base token URI for the token that will be minted</li>
-    <li><strong>initialTokenAmount: </strong> The amount of tokens that will be minted to the winner of the auction</li>
-    </ul>`,
-    shortDescription: `The smart contract template for selling multiple copies of NFTs in the form of an Auction to the highest bidder in a time slot.`,
+    description:
+      "The smart contract template for selling multiple copies of NFTs in the form of an Auction to the highest bidder in a time slot.",
+    shortDescription:
+      "The smart contract template for selling multiple copies of NFTs in the form of an Auction to the highest bidder in a time slot.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -387,18 +504,42 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 11,
     category: SmartContractTemplateCategory.SALE,
-    tags: ["ERC1155"],
+    tags: [SmartContractTemplateCategory.SALE],
+    form: {
+      infos: {
+        description:
+          "Set a starting price, a date and a supply and you can sell your NFTs, deployed using an ERC1155 NFT deployment template. You can set the minimum bid increment to choose the pace of your auction.",
+        usecases: [
+          "In a video game, you can sell a piece of equipment to the player placing the highest bid.",
+        ],
+        requirements: [
+          "The token address of the ERC1155 that you want to sell",
+          "The address that will receive the amount paid for the NFTs",
+          "The initial price offered for the NFT",
+          "The minimum bid increment to place a bid on top of the current maximum bid",
+          "The start and end time for your sale (in timestamp seconds)",
+          "The URI that will append at the end of the base token URI for the token that will be minted",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC1155-Auction",
+            alt: "Go to ERC1155 Auction Sale Documentation",
+          },
+          tutorial: {
+            href: "https://docs.starton.io/docs/Tutorials/Home",
+            alt: "Go to Tutorials",
+          },
+        },
+      },
+    },
   },
   {
     id: "PAYMENT_SPLITTER",
     name: "Payment Splitter",
-    description: `<p>The smart contract template to split all payments between a list of users with a defined share for each of them.</p>
-          <p>Parameters:</p>
-          <ul>
-          <li><strong>payees:</strong> The list of addresses that will receive a split of all the payments.</li>
-          <li><strong>shares: </strong> The share that each address will get from the payment.</li>
-          </ul>`,
-    shortDescription: `The smart contract template to split all payments between a list of users with a defined share for each of them.`,
+    description:
+      "The smart contract template to split all payments between a list of users with a defined share for each of them.",
+    shortDescription:
+      "The smart contract template to split all payments between a list of users with a defined share for each of them.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -412,39 +553,58 @@ const LIST: SmartContractTemplate[] = [
     isAudited: false,
     order: 12,
     category: SmartContractTemplateCategory.OTHER,
-    tags: [],
+    tags: [SmartContractTemplateCategory.OTHER],
+    form: {
+      infos: {
+        description:
+          "Split all payments between a list of users with a defined share for each of them. The sender is not aware that the payment is split. The contract handles the split in a transparent manner.",
+        usecases: [
+          "When selling NFTs for an artist, you can set up payments so that a percentage of the sale goes directly to the artist and a another percentage goes to the manager.",
+        ],
+        requirements: [
+          "The list of addresses that will receive a split of all the payments",
+          "The share that each address will get from the payment",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/payment-splitter",
+            alt: "Go to Payment splitter documentation",
+          },
+          tutorial: {
+            href: "https://docs.starton.io/docs/Tutorials/Home",
+            alt: "Go to Tutorials",
+          },
+        },
+      },
+    },
   },
   {
     id: "sct_010e42e313cd4de3a4f191510848e9b6",
     name: "Child ERC1155",
-    description: `<p>The ERC1155 is a smart contract standard which is specialised in multiple-copies Non Fungible Tokens (NFT).
-			Within this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>
-			<p>It is important to notice that we do not store any content directly inside the smart contract.
-			Only references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>
-			<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>
-			<p>Parameters :</p>
-			<ul>
-			<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>
-			<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>
-			<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>
-			<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>
-			</ul>
-			</li>
-			<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>
-			<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>
-			<li>Using a centralised server: the path of the contract metadata json</li>
-			</ul>
-			</li>
-			</ul>`,
-    shortDescription: `The smart contract template for bridging multiple-copies Non Fungible Tokens (NFT) between Ethereum and Polygon. For example, at large scale, to reduce gas fees and increase speed, NFTs can be transferred from one blockchain network to another. `,
+    description:
+      '<p>The ERC1155 is a smart contract standard which is specialised in multiple-copies Non Fungible Tokens (NFT).\n\t\t\tWithin this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>\n\t\t\t<p>It is important to notice that we do not store any content directly inside the smart contract.\n\t\t\tOnly references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>\n\t\t\t<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>\n\t\t\t<p>Parameters :</p>\n\t\t\t<ul>\n\t\t\t<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>\n\t\t\t<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>\n\t\t\t<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>\n\t\t\t<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>\n\t\t\t<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>\n\t\t\t<li>Using a centralised server: the path of the contract metadata json</li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t</ul>',
+    shortDescription:
+      "The smart contract template for bridging multiple-copies Non Fungible Tokens (NFT) between Ethereum and Polygon. For example, at large scale, to reduce gas fees and increase speed, NFTs can be transferred from one blockchain network to another. ",
     blockchains: [Blockchain.POLYGON],
     abi: [
       {
         type: "constructor",
         inputs: [
-          { name: "name", type: "string", internalType: "string" },
-          { name: "baseUri", type: "string", internalType: "string" },
-          { name: "contractUriSuffix", type: "string", internalType: "string" },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "baseUri",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "contractUriSuffix",
+            type: "string",
+            internalType: "string",
+          },
           {
             name: "ownerOrMultiSigContract",
             type: "address",
@@ -676,71 +836,147 @@ const LIST: SmartContractTemplate[] = [
         name: "DEFAULT_ADMIN_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "DEPOSITOR_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "LOCKER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "MINTER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "PAUSER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "URI_SETTER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "balanceOf",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "id", type: "uint256", internalType: "uint256" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "id",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "balanceOfBatch",
         type: "function",
         inputs: [
-          { name: "accounts", type: "address[]", internalType: "address[]" },
-          { name: "ids", type: "uint256[]", internalType: "uint256[]" },
+          {
+            name: "accounts",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "ids",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
         ],
-        outputs: [{ name: "", type: "uint256[]", internalType: "uint256[]" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "burn",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "id", type: "uint256", internalType: "uint256" },
-          { name: "value", type: "uint256", internalType: "uint256" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "id",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "value",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -749,9 +985,21 @@ const LIST: SmartContractTemplate[] = [
         name: "burnBatch",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "ids", type: "uint256[]", internalType: "uint256[]" },
-          { name: "values", type: "uint256[]", internalType: "uint256[]" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "ids",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "values",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -760,15 +1008,29 @@ const LIST: SmartContractTemplate[] = [
         name: "contractURI",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "deposit",
         type: "function",
         inputs: [
-          { name: "user", type: "address", internalType: "address" },
-          { name: "depositData", type: "bytes", internalType: "bytes" },
+          {
+            name: "user",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "depositData",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -776,16 +1038,36 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "getRoleAdmin",
         type: "function",
-        inputs: [{ name: "role", type: "bytes32", internalType: "bytes32" }],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        inputs: [
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "grantRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -794,20 +1076,48 @@ const LIST: SmartContractTemplate[] = [
         name: "hasRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "isApprovedForAll",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "operator", type: "address", internalType: "address" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "operator",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -821,10 +1131,26 @@ const LIST: SmartContractTemplate[] = [
         name: "mint",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "id", type: "uint256", internalType: "uint256" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
-          { name: "data", type: "bytes", internalType: "bytes" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "id",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "data",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -833,10 +1159,26 @@ const LIST: SmartContractTemplate[] = [
         name: "mintBatch",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "ids", type: "uint256[]", internalType: "uint256[]" },
-          { name: "amounts", type: "uint256[]", internalType: "uint256[]" },
-          { name: "data", type: "bytes", internalType: "bytes" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "ids",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "amounts",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "data",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -852,15 +1194,29 @@ const LIST: SmartContractTemplate[] = [
         name: "paused",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "renounceRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -869,8 +1225,16 @@ const LIST: SmartContractTemplate[] = [
         name: "revokeRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -879,11 +1243,31 @@ const LIST: SmartContractTemplate[] = [
         name: "safeBatchTransferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "ids", type: "uint256[]", internalType: "uint256[]" },
-          { name: "amounts", type: "uint256[]", internalType: "uint256[]" },
-          { name: "data", type: "bytes", internalType: "bytes" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "ids",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "amounts",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "data",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -892,11 +1276,31 @@ const LIST: SmartContractTemplate[] = [
         name: "safeTransferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "id", type: "uint256", internalType: "uint256" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
-          { name: "data", type: "bytes", internalType: "bytes" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "id",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "data",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -905,8 +1309,16 @@ const LIST: SmartContractTemplate[] = [
         name: "setApprovalForAll",
         type: "function",
         inputs: [
-          { name: "operator", type: "address", internalType: "address" },
-          { name: "approved", type: "bool", internalType: "bool" },
+          {
+            name: "operator",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "approved",
+            type: "bool",
+            internalType: "bool",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -927,7 +1339,13 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "setURI",
         type: "function",
-        inputs: [{ name: "newuri", type: "string", internalType: "string" }],
+        inputs: [
+          {
+            name: "newuri",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
@@ -935,9 +1353,19 @@ const LIST: SmartContractTemplate[] = [
         name: "supportsInterface",
         type: "function",
         inputs: [
-          { name: "interfaceId", type: "bytes4", internalType: "bytes4" },
+          {
+            name: "interfaceId",
+            type: "bytes4",
+            internalType: "bytes4",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -950,16 +1378,36 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "uri",
         type: "function",
-        inputs: [{ name: "", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        inputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "withdrawBatch",
         type: "function",
         inputs: [
-          { name: "ids", type: "uint256[]", internalType: "uint256[]" },
-          { name: "amounts", type: "uint256[]", internalType: "uint256[]" },
+          {
+            name: "ids",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "amounts",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -968,8 +1416,16 @@ const LIST: SmartContractTemplate[] = [
         name: "withdrawSingle",
         type: "function",
         inputs: [
-          { name: "id", type: "uint256", internalType: "uint256" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "id",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -988,22 +1444,36 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 92,
-    tags: [],
+    tags: [SmartContractTemplateCategory.DEPRECATED],
     category: SmartContractTemplateCategory.DEPRECATED,
   },
   {
     id: "sct_743c793cffa741cbafcb7a91f6fd9629",
     name: "Child ERC20 Mintable Fungible tokens",
-    description: `<p>The ERC20 is a smart contract standard made for fungible tokens (I.e: interchangeable tokens like coins).</p> <p>The mintable version of this standard allows the creator to mint new tokens whenever they want.</p> <p>This brings more usage flexibility but implies more trust towards the creators as well.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation.</li> </ul> <p>You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</p>`,
-    shortDescription: `The smart contract template for bridging mintable fungible tokens between Ethereum and Polygon. For example, at large scale, to reduce gas fees and increase speed, tokens can be transferred from one blockchain network to another. `,
+    description:
+      "<p>The ERC20 is a smart contract standard made for fungible tokens (I.e: interchangeable tokens like coins).</p> <p>The mintable version of this standard allows the creator to mint new tokens whenever they want.</p> <p>This brings more usage flexibility but implies more trust towards the creators as well.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation.</li> </ul> <p>You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</p>",
+    shortDescription:
+      "The smart contract template for bridging mintable fungible tokens between Ethereum and Polygon. For example, at large scale, to reduce gas fees and increase speed, tokens can be transferred from one blockchain network to another. ",
     blockchains: [Blockchain.POLYGON],
     abi: [
       {
         type: "constructor",
         inputs: [
-          { name: "name", type: "string", internalType: "string" },
-          { name: "symbol", type: "string", internalType: "string" },
-          { name: "initialSupply", type: "uint256", internalType: "uint256" },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "symbol",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "initialSupply",
+            type: "uint256",
+            internalType: "uint256",
+          },
           {
             name: "ownerOrMultiSigContract",
             type: "address",
@@ -1167,61 +1637,131 @@ const LIST: SmartContractTemplate[] = [
         name: "DEFAULT_ADMIN_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "DEPOSITOR_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "MINTER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "PAUSER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "allowance",
         type: "function",
         inputs: [
-          { name: "owner", type: "address", internalType: "address" },
-          { name: "spender", type: "address", internalType: "address" },
+          {
+            name: "owner",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "approve",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "balanceOf",
         type: "function",
-        inputs: [{ name: "account", type: "address", internalType: "address" }],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "burn",
         type: "function",
-        inputs: [{ name: "amount", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
@@ -1229,8 +1769,16 @@ const LIST: SmartContractTemplate[] = [
         name: "burnFrom",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -1239,25 +1787,53 @@ const LIST: SmartContractTemplate[] = [
         name: "decimals",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "uint8", internalType: "uint8" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint8",
+            internalType: "uint8",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "decreaseAllowance",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "subtractedValue", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "subtractedValue",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "deposit",
         type: "function",
         inputs: [
-          { name: "user", type: "address", internalType: "address" },
-          { name: "depositData", type: "bytes", internalType: "bytes" },
+          {
+            name: "user",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "depositData",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -1265,16 +1841,36 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "getRoleAdmin",
         type: "function",
-        inputs: [{ name: "role", type: "bytes32", internalType: "bytes32" }],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        inputs: [
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "grantRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -1283,28 +1879,64 @@ const LIST: SmartContractTemplate[] = [
         name: "hasRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "increaseAllowance",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "addedValue", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "addedValue",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "mint",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -1313,7 +1945,13 @@ const LIST: SmartContractTemplate[] = [
         name: "name",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -1327,15 +1965,29 @@ const LIST: SmartContractTemplate[] = [
         name: "paused",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "renounceRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -1344,8 +1996,16 @@ const LIST: SmartContractTemplate[] = [
         name: "revokeRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -1354,44 +2014,98 @@ const LIST: SmartContractTemplate[] = [
         name: "supportsInterface",
         type: "function",
         inputs: [
-          { name: "interfaceId", type: "bytes4", internalType: "bytes4" },
+          {
+            name: "interfaceId",
+            type: "bytes4",
+            internalType: "bytes4",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "symbol",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "totalSupply",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "transfer",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "transferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
@@ -1404,7 +2118,13 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "withdraw",
         type: "function",
-        inputs: [{ name: "amount", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
@@ -1422,22 +2142,36 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 93,
-    tags: [],
+    tags: [SmartContractTemplateCategory.DEPRECATED],
     category: SmartContractTemplateCategory.DEPRECATED,
   },
   {
     id: "sct_935a8097313a4240b434fd4bf6f6ee62",
     name: "Child ERC20 Fungible token in Fixed Supply",
-    description: `<p>The ERC20 is a smart contract standard made for fungible tokens (i.e: interchangeable tokens like coins). The fixed supply version of this standard guarantees no token will ever be created after the initial emission. Therefore some flexibility is sacrificed for the sake of more trust towards the token.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation. You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</li> </ul>`,
-    shortDescription: `The smart contract template for bridging fixed fungible tokens between Ethereum and Polygon.For example, at large scale, to reduce gas fees and increase speed, tokens can be transferred from one blockchain network to another. `,
+    description:
+      "<p>The ERC20 is a smart contract standard made for fungible tokens (i.e: interchangeable tokens like coins). The fixed supply version of this standard guarantees no token will ever be created after the initial emission. Therefore some flexibility is sacrificed for the sake of more trust towards the token.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation. You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</li> </ul>",
+    shortDescription:
+      "The smart contract template for bridging fixed fungible tokens between Ethereum and Polygon.For example, at large scale, to reduce gas fees and increase speed, tokens can be transferred from one blockchain network to another. ",
     blockchains: [Blockchain.POLYGON],
     abi: [
       {
         type: "constructor",
         inputs: [
-          { name: "name", type: "string", internalType: "string" },
-          { name: "symbol", type: "string", internalType: "string" },
-          { name: "initialSupply", type: "uint256", internalType: "uint256" },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "symbol",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "initialSupply",
+            type: "uint256",
+            internalType: "uint256",
+          },
           {
             name: "ownerOrMultiSigContract",
             type: "address",
@@ -1601,54 +2335,118 @@ const LIST: SmartContractTemplate[] = [
         name: "DEFAULT_ADMIN_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "DEPOSITOR_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "PAUSER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "allowance",
         type: "function",
         inputs: [
-          { name: "owner", type: "address", internalType: "address" },
-          { name: "spender", type: "address", internalType: "address" },
+          {
+            name: "owner",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "approve",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "balanceOf",
         type: "function",
-        inputs: [{ name: "account", type: "address", internalType: "address" }],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "burn",
         type: "function",
-        inputs: [{ name: "amount", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
@@ -1656,8 +2454,16 @@ const LIST: SmartContractTemplate[] = [
         name: "burnFrom",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -1666,25 +2472,53 @@ const LIST: SmartContractTemplate[] = [
         name: "decimals",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "uint8", internalType: "uint8" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint8",
+            internalType: "uint8",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "decreaseAllowance",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "subtractedValue", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "subtractedValue",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "deposit",
         type: "function",
         inputs: [
-          { name: "user", type: "address", internalType: "address" },
-          { name: "depositData", type: "bytes", internalType: "bytes" },
+          {
+            name: "user",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "depositData",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -1692,16 +2526,36 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "getRoleAdmin",
         type: "function",
-        inputs: [{ name: "role", type: "bytes32", internalType: "bytes32" }],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        inputs: [
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "grantRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -1710,27 +2564,61 @@ const LIST: SmartContractTemplate[] = [
         name: "hasRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "increaseAllowance",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "addedValue", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "addedValue",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "name",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -1744,15 +2632,29 @@ const LIST: SmartContractTemplate[] = [
         name: "paused",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "renounceRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -1761,8 +2663,16 @@ const LIST: SmartContractTemplate[] = [
         name: "revokeRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -1771,44 +2681,98 @@ const LIST: SmartContractTemplate[] = [
         name: "supportsInterface",
         type: "function",
         inputs: [
-          { name: "interfaceId", type: "bytes4", internalType: "bytes4" },
+          {
+            name: "interfaceId",
+            type: "bytes4",
+            internalType: "bytes4",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "symbol",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "totalSupply",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "transfer",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "transferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
@@ -1821,7 +2785,13 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "withdraw",
         type: "function",
-        inputs: [{ name: "amount", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
@@ -1839,42 +2809,41 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 94,
-    tags: [],
+    tags: [SmartContractTemplateCategory.DEPRECATED],
     category: SmartContractTemplateCategory.DEPRECATED,
   },
   {
     id: "sct_b17f3cc1e0a44b03b309d20a854fda48",
     name: "Child ERC721",
-    description: `<p>The ERC721 is a smart contract standard which is specialised in single-copy Non Fungible Tokens (NFT).
-			Within this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>
-			<p>It is important to notice that we do not store any content directly inside the smart contract.
-			Only references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>
-			<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>
-			<p>Parameters :</p>
-			<ul>
-			<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>
-			<li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li>
-			<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>
-			<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>
-			<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>
-			</ul>
-			</li>
-			<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>
-			<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>
-			<li>Using a centralised server: the path of the contract metadata json</li>
-			</ul>
-			</li>
-			</ul>`,
-    shortDescription: `The smart contract template for bridging single-copy Non-Fungible Tokens (NFT) between Ethereum and Polygon. For example, at large scale, to reduce gas fees and increase speed, NFTs can be transferred from one blockchain network to another. `,
+    description:
+      '<p>The ERC721 is a smart contract standard which is specialised in single-copy Non Fungible Tokens (NFT).\n\t\t\tWithin this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>\n\t\t\t<p>It is important to notice that we do not store any content directly inside the smart contract.\n\t\t\tOnly references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>\n\t\t\t<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>\n\t\t\t<p>Parameters :</p>\n\t\t\t<ul>\n\t\t\t<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>\n\t\t\t<li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li>\n\t\t\t<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>\n\t\t\t<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>\n\t\t\t<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>\n\t\t\t<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>\n\t\t\t<li>Using a centralised server: the path of the contract metadata json</li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t</ul>',
+    shortDescription:
+      "The smart contract template for bridging single-copy Non-Fungible Tokens (NFT) between Ethereum and Polygon. For example, at large scale, to reduce gas fees and increase speed, NFTs can be transferred from one blockchain network to another. ",
     blockchains: [Blockchain.POLYGON],
     abi: [
       {
         type: "constructor",
         inputs: [
-          { name: "name", type: "string", internalType: "string" },
-          { name: "symbol", type: "string", internalType: "string" },
-          { name: "baseUri", type: "string", internalType: "string" },
-          { name: "contractUriSuffix", type: "string", internalType: "string" },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "symbol",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "baseUri",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "contractUriSuffix",
+            type: "string",
+            internalType: "string",
+          },
           {
             name: "ownerOrMultiSigContract",
             type: "address",
@@ -2113,50 +3082,94 @@ const LIST: SmartContractTemplate[] = [
         name: "BATCH_LIMIT",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "DEFAULT_ADMIN_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "DEPOSITOR_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "LOCKER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "MINTER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "PAUSER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "approve",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "tokenId", type: "uint256", internalType: "uint256" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2164,14 +3177,32 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "balanceOf",
         type: "function",
-        inputs: [{ name: "owner", type: "address", internalType: "address" }],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "owner",
+            type: "address",
+            internalType: "address",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "burn",
         type: "function",
-        inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
@@ -2179,15 +3210,29 @@ const LIST: SmartContractTemplate[] = [
         name: "contractURI",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "deposit",
         type: "function",
         inputs: [
-          { name: "user", type: "address", internalType: "address" },
-          { name: "depositData", type: "bytes", internalType: "bytes" },
+          {
+            name: "user",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "depositData",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2195,30 +3240,74 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "encodeTokenMetadata",
         type: "function",
-        inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "bytes", internalType: "bytes" }],
+        inputs: [
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "bytes",
+            internalType: "bytes",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "getApproved",
         type: "function",
-        inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "address", internalType: "address" }],
+        inputs: [
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "address",
+            internalType: "address",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "getRoleAdmin",
         type: "function",
-        inputs: [{ name: "role", type: "bytes32", internalType: "bytes32" }],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        inputs: [
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "grantRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2227,20 +3316,48 @@ const LIST: SmartContractTemplate[] = [
         name: "hasRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "isApprovedForAll",
         type: "function",
         inputs: [
-          { name: "owner", type: "address", internalType: "address" },
-          { name: "operator", type: "address", internalType: "address" },
+          {
+            name: "owner",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "operator",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -2254,14 +3371,32 @@ const LIST: SmartContractTemplate[] = [
         name: "name",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "ownerOf",
         type: "function",
-        inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "address", internalType: "address" }],
+        inputs: [
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "address",
+            internalType: "address",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -2275,15 +3410,29 @@ const LIST: SmartContractTemplate[] = [
         name: "paused",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "renounceRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2292,8 +3441,16 @@ const LIST: SmartContractTemplate[] = [
         name: "revokeRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2302,8 +3459,16 @@ const LIST: SmartContractTemplate[] = [
         name: "safeMint",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "metadataURI", type: "string", internalType: "string" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "metadataURI",
+            type: "string",
+            internalType: "string",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2312,9 +3477,21 @@ const LIST: SmartContractTemplate[] = [
         name: "safeTransferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "tokenId", type: "uint256", internalType: "uint256" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2323,10 +3500,26 @@ const LIST: SmartContractTemplate[] = [
         name: "safeTransferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "tokenId", type: "uint256", internalType: "uint256" },
-          { name: "_data", type: "bytes", internalType: "bytes" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "_data",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2335,8 +3528,16 @@ const LIST: SmartContractTemplate[] = [
         name: "setApprovalForAll",
         type: "function",
         inputs: [
-          { name: "operator", type: "address", internalType: "address" },
-          { name: "approved", type: "bool", internalType: "bool" },
+          {
+            name: "operator",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "approved",
+            type: "bool",
+            internalType: "bool",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2358,56 +3559,128 @@ const LIST: SmartContractTemplate[] = [
         name: "supportsInterface",
         type: "function",
         inputs: [
-          { name: "interfaceId", type: "bytes4", internalType: "bytes4" },
+          {
+            name: "interfaceId",
+            type: "bytes4",
+            internalType: "bytes4",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "symbol",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "tokenByIndex",
         type: "function",
-        inputs: [{ name: "index", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "index",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "tokenOfOwnerByIndex",
         type: "function",
         inputs: [
-          { name: "owner", type: "address", internalType: "address" },
-          { name: "index", type: "uint256", internalType: "uint256" },
+          {
+            name: "owner",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "index",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "tokenURI",
         type: "function",
-        inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        inputs: [
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "totalSupply",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "transferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "tokenId", type: "uint256", internalType: "uint256" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2422,7 +3695,13 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "withdraw",
         type: "function",
-        inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
@@ -2430,7 +3709,11 @@ const LIST: SmartContractTemplate[] = [
         name: "withdrawBatch",
         type: "function",
         inputs: [
-          { name: "tokenIds", type: "uint256[]", internalType: "uint256[]" },
+          {
+            name: "tokenIds",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2438,15 +3721,33 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "withdrawWithMetadata",
         type: "function",
-        inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
       {
         name: "withdrawnTokens",
         type: "function",
-        inputs: [{ name: "", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        inputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
     ],
@@ -2463,14 +3764,16 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 95,
-    tags: [],
+    tags: [SmartContractTemplateCategory.DEPRECATED],
     category: SmartContractTemplateCategory.DEPRECATED,
   },
   {
     id: "sct_81d50607677241beac764bfadd31a3a7",
     name: "Fungible Token with fixed supply (ERC20)",
-    description: `<p>The ERC20 is a smart contract standard made for fungible tokens (i.e: interchangeable tokens like coins). The fixed supply version of this standard guarantees no token will ever be created after the initial emission. Therefore some flexibility is sacrificed for the sake of more trust towards the token.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation. You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</li> </ul>`,
-    shortDescription: `The smart contract template for fungible tokens. No new token can be created after the initial emission. The smart contract template for fungible tokens. No new token can be created after the initial emission.`,
+    description:
+      "<p>The ERC20 is a smart contract standard made for fungible tokens (i.e: interchangeable tokens like coins). The fixed supply version of this standard guarantees no token will ever be created after the initial emission. Therefore some flexibility is sacrificed for the sake of more trust towards the token.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation. You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</li> </ul>",
+    shortDescription:
+      "The smart contract template for fungible tokens. No new token can be created after the initial emission. The smart contract template for fungible tokens. No new token can be created after the initial emission.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -2481,9 +3784,21 @@ const LIST: SmartContractTemplate[] = [
       {
         type: "constructor",
         inputs: [
-          { name: "name", type: "string", internalType: "string" },
-          { name: "symbol", type: "string", internalType: "string" },
-          { name: "initialSupply", type: "uint256", internalType: "uint256" },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "symbol",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "initialSupply",
+            type: "uint256",
+            internalType: "uint256",
+          },
           {
             name: "ownerOrMultiSigContract",
             type: "address",
@@ -2647,47 +3962,105 @@ const LIST: SmartContractTemplate[] = [
         name: "DEFAULT_ADMIN_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "PAUSER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "allowance",
         type: "function",
         inputs: [
-          { name: "owner", type: "address", internalType: "address" },
-          { name: "spender", type: "address", internalType: "address" },
+          {
+            name: "owner",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "approve",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "balanceOf",
         type: "function",
-        inputs: [{ name: "account", type: "address", internalType: "address" }],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "burn",
         type: "function",
-        inputs: [{ name: "amount", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
@@ -2695,8 +4068,16 @@ const LIST: SmartContractTemplate[] = [
         name: "burnFrom",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2705,32 +4086,72 @@ const LIST: SmartContractTemplate[] = [
         name: "decimals",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "uint8", internalType: "uint8" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint8",
+            internalType: "uint8",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "decreaseAllowance",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "subtractedValue", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "subtractedValue",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "getRoleAdmin",
         type: "function",
-        inputs: [{ name: "role", type: "bytes32", internalType: "bytes32" }],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        inputs: [
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "grantRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2739,27 +4160,61 @@ const LIST: SmartContractTemplate[] = [
         name: "hasRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "increaseAllowance",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "addedValue", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "addedValue",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "name",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -2773,15 +4228,29 @@ const LIST: SmartContractTemplate[] = [
         name: "paused",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "renounceRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2790,8 +4259,16 @@ const LIST: SmartContractTemplate[] = [
         name: "revokeRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -2800,44 +4277,98 @@ const LIST: SmartContractTemplate[] = [
         name: "supportsInterface",
         type: "function",
         inputs: [
-          { name: "interfaceId", type: "bytes4", internalType: "bytes4" },
+          {
+            name: "interfaceId",
+            type: "bytes4",
+            internalType: "bytes4",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "symbol",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "totalSupply",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "transfer",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "transferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
@@ -2861,14 +4392,16 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 96,
-    tags: [],
+    tags: [SmartContractTemplateCategory.DEPRECATED],
     category: SmartContractTemplateCategory.DEPRECATED,
   },
   {
     id: "sct_82bde80651bd40cca12f044cb80821bc",
     name: "Fungible Token with mintable supply (ERC20)",
-    description: `<p>The ERC20 is a smart contract standard made for fungible tokens (I.e: interchangeable tokens like coins).</p> <p>The mintable version of this standard allows the creator to mint new tokens whenever they want.</p> <p>This brings more usage flexibility but implies more trust towards the creators as well.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation.</li> </ul> <p>You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</p>`,
-    shortDescription: `The smart contract template for fungible tokens. Creators can mint new tokens after initial emission. In a video game, mintable fungible tokens can represent the currency gamers can spend in-game.`,
+    description:
+      "<p>The ERC20 is a smart contract standard made for fungible tokens (I.e: interchangeable tokens like coins).</p> <p>The mintable version of this standard allows the creator to mint new tokens whenever they want.</p> <p>This brings more usage flexibility but implies more trust towards the creators as well.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation.</li> </ul> <p>You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</p>",
+    shortDescription:
+      "The smart contract template for fungible tokens. Creators can mint new tokens after initial emission. In a video game, mintable fungible tokens can represent the currency gamers can spend in-game.",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -2879,9 +4412,21 @@ const LIST: SmartContractTemplate[] = [
       {
         type: "constructor",
         inputs: [
-          { name: "name", type: "string", internalType: "string" },
-          { name: "symbol", type: "string", internalType: "string" },
-          { name: "initialSupply", type: "uint256", internalType: "uint256" },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "symbol",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "initialSupply",
+            type: "uint256",
+            internalType: "uint256",
+          },
           {
             name: "ownerOrMultiSigContract",
             type: "address",
@@ -3045,54 +4590,118 @@ const LIST: SmartContractTemplate[] = [
         name: "DEFAULT_ADMIN_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "MINTER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "PAUSER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "allowance",
         type: "function",
         inputs: [
-          { name: "owner", type: "address", internalType: "address" },
-          { name: "spender", type: "address", internalType: "address" },
+          {
+            name: "owner",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "approve",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "balanceOf",
         type: "function",
-        inputs: [{ name: "account", type: "address", internalType: "address" }],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "burn",
         type: "function",
-        inputs: [{ name: "amount", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
@@ -3100,8 +4709,16 @@ const LIST: SmartContractTemplate[] = [
         name: "burnFrom",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3110,32 +4727,72 @@ const LIST: SmartContractTemplate[] = [
         name: "decimals",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "uint8", internalType: "uint8" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint8",
+            internalType: "uint8",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "decreaseAllowance",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "subtractedValue", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "subtractedValue",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "getRoleAdmin",
         type: "function",
-        inputs: [{ name: "role", type: "bytes32", internalType: "bytes32" }],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        inputs: [
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "grantRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3144,28 +4801,64 @@ const LIST: SmartContractTemplate[] = [
         name: "hasRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "increaseAllowance",
         type: "function",
         inputs: [
-          { name: "spender", type: "address", internalType: "address" },
-          { name: "addedValue", type: "uint256", internalType: "uint256" },
+          {
+            name: "spender",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "addedValue",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "mint",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3174,7 +4867,13 @@ const LIST: SmartContractTemplate[] = [
         name: "name",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -3188,15 +4887,29 @@ const LIST: SmartContractTemplate[] = [
         name: "paused",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "renounceRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3205,8 +4918,16 @@ const LIST: SmartContractTemplate[] = [
         name: "revokeRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3215,44 +4936,98 @@ const LIST: SmartContractTemplate[] = [
         name: "supportsInterface",
         type: "function",
         inputs: [
-          { name: "interfaceId", type: "bytes4", internalType: "bytes4" },
+          {
+            name: "interfaceId",
+            type: "bytes4",
+            internalType: "bytes4",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "symbol",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "totalSupply",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "transfer",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
         name: "transferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "nonpayable",
       },
       {
@@ -3276,32 +5051,16 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 97,
-    tags: [],
+    tags: [SmartContractTemplateCategory.DEPRECATED],
     category: SmartContractTemplateCategory.DEPRECATED,
   },
   {
     id: "sct_d4c1d5f2ed6f44d185bfb60eee2dbcaf",
     name: "One-to-many NFT Collection (ERC-1155)",
-    description: `<p>The ERC1155 is a smart contract standard which is specialised in multiple-copies Non Fungible Tokens (NFT).
-			Within this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>
-			<p>It is important to notice that we do not store any content directly inside the smart contract.
-			Only references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>
-			<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>
-			<p>Parameters :</p>
-			<ul>
-			<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>
-			<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>
-			<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>
-			<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>
-			</ul>
-			</li>
-			<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>
-			<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>
-			<li>Using a centralised server: the path of the contract metadata json</li>
-			</ul>
-			</li>
-			</ul>`,
-    shortDescription: `The smart contract standard to manage multiple-copies NFTs. Though their content is identical, each NFT has a different token ID. In a video game, it can be a piece of equipment won after an action such as a powerful sword after defeating an enemy. Every user defeating the enemy will own an edition of the sword with a different identifier. `,
+    description:
+      '<p>The ERC1155 is a smart contract standard which is specialised in multiple-copies Non Fungible Tokens (NFT).\n\t\t\tWithin this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>\n\t\t\t<p>It is important to notice that we do not store any content directly inside the smart contract.\n\t\t\tOnly references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>\n\t\t\t<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>\n\t\t\t<p>Parameters :</p>\n\t\t\t<ul>\n\t\t\t<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>\n\t\t\t<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>\n\t\t\t<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>\n\t\t\t<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>\n\t\t\t<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>\n\t\t\t<li>Using a centralised server: the path of the contract metadata json</li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t</ul>',
+    shortDescription:
+      "The smart contract standard to manage multiple-copies NFTs. Though their content is identical, each NFT has a different token ID. In a video game, it can be a piece of equipment won after an action such as a powerful sword after defeating an enemy. Every user defeating the enemy will own an edition of the sword with a different identifier. ",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -3312,9 +5071,21 @@ const LIST: SmartContractTemplate[] = [
       {
         type: "constructor",
         inputs: [
-          { name: "name", type: "string", internalType: "string" },
-          { name: "baseUri", type: "string", internalType: "string" },
-          { name: "contractUriSuffix", type: "string", internalType: "string" },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "baseUri",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "contractUriSuffix",
+            type: "string",
+            internalType: "string",
+          },
           {
             name: "ownerOrMultiSigContract",
             type: "address",
@@ -3546,64 +5317,134 @@ const LIST: SmartContractTemplate[] = [
         name: "DEFAULT_ADMIN_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "LOCKER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "MINTER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "PAUSER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "URI_SETTER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "balanceOf",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "id", type: "uint256", internalType: "uint256" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "id",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "balanceOfBatch",
         type: "function",
         inputs: [
-          { name: "accounts", type: "address[]", internalType: "address[]" },
-          { name: "ids", type: "uint256[]", internalType: "uint256[]" },
+          {
+            name: "accounts",
+            type: "address[]",
+            internalType: "address[]",
+          },
+          {
+            name: "ids",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
         ],
-        outputs: [{ name: "", type: "uint256[]", internalType: "uint256[]" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "burn",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "id", type: "uint256", internalType: "uint256" },
-          { name: "value", type: "uint256", internalType: "uint256" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "id",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "value",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3612,9 +5453,21 @@ const LIST: SmartContractTemplate[] = [
         name: "burnBatch",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "ids", type: "uint256[]", internalType: "uint256[]" },
-          { name: "values", type: "uint256[]", internalType: "uint256[]" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "ids",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "values",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3623,22 +5476,48 @@ const LIST: SmartContractTemplate[] = [
         name: "contractURI",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "getRoleAdmin",
         type: "function",
-        inputs: [{ name: "role", type: "bytes32", internalType: "bytes32" }],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        inputs: [
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "grantRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3647,20 +5526,48 @@ const LIST: SmartContractTemplate[] = [
         name: "hasRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "isApprovedForAll",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "operator", type: "address", internalType: "address" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "operator",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -3674,10 +5581,26 @@ const LIST: SmartContractTemplate[] = [
         name: "mint",
         type: "function",
         inputs: [
-          { name: "account", type: "address", internalType: "address" },
-          { name: "id", type: "uint256", internalType: "uint256" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
-          { name: "data", type: "bytes", internalType: "bytes" },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "id",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "data",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3686,10 +5609,26 @@ const LIST: SmartContractTemplate[] = [
         name: "mintBatch",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "ids", type: "uint256[]", internalType: "uint256[]" },
-          { name: "amounts", type: "uint256[]", internalType: "uint256[]" },
-          { name: "data", type: "bytes", internalType: "bytes" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "ids",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "amounts",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "data",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3705,15 +5644,29 @@ const LIST: SmartContractTemplate[] = [
         name: "paused",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "renounceRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3722,8 +5675,16 @@ const LIST: SmartContractTemplate[] = [
         name: "revokeRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3732,11 +5693,31 @@ const LIST: SmartContractTemplate[] = [
         name: "safeBatchTransferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "ids", type: "uint256[]", internalType: "uint256[]" },
-          { name: "amounts", type: "uint256[]", internalType: "uint256[]" },
-          { name: "data", type: "bytes", internalType: "bytes" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "ids",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "amounts",
+            type: "uint256[]",
+            internalType: "uint256[]",
+          },
+          {
+            name: "data",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3745,11 +5726,31 @@ const LIST: SmartContractTemplate[] = [
         name: "safeTransferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "id", type: "uint256", internalType: "uint256" },
-          { name: "amount", type: "uint256", internalType: "uint256" },
-          { name: "data", type: "bytes", internalType: "bytes" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "id",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "data",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3758,8 +5759,16 @@ const LIST: SmartContractTemplate[] = [
         name: "setApprovalForAll",
         type: "function",
         inputs: [
-          { name: "operator", type: "address", internalType: "address" },
-          { name: "approved", type: "bool", internalType: "bool" },
+          {
+            name: "operator",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "approved",
+            type: "bool",
+            internalType: "bool",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -3780,7 +5789,13 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "setURI",
         type: "function",
-        inputs: [{ name: "newuri", type: "string", internalType: "string" }],
+        inputs: [
+          {
+            name: "newuri",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
@@ -3788,9 +5803,19 @@ const LIST: SmartContractTemplate[] = [
         name: "supportsInterface",
         type: "function",
         inputs: [
-          { name: "interfaceId", type: "bytes4", internalType: "bytes4" },
+          {
+            name: "interfaceId",
+            type: "bytes4",
+            internalType: "bytes4",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -3803,8 +5828,20 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "uri",
         type: "function",
-        inputs: [{ name: "", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        inputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
     ],
@@ -3821,33 +5858,16 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 98,
-    tags: [],
+    tags: [SmartContractTemplateCategory.DEPRECATED],
     category: SmartContractTemplateCategory.DEPRECATED,
   },
   {
     id: "sct_e851adefe4494fc991207b2c37ed8a83",
     name: "One-to-one NFT Deployment (ERC-721)",
-    description: `<p>The ERC721 is a smart contract standard which is specialised in single-copy Non Fungible Tokens (NFT).
-			Within this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>
-			<p>It is important to notice that we do not store any content directly inside the smart contract.
-			Only references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>
-			<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>
-			<p>Parameters :</p>
-			<ul>
-			<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>
-			<li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li>
-			<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>
-			<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>
-			<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>
-			</ul>
-			</li>
-			<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>
-			<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>
-			<li>Using a centralised server: the path of the contract metadata json</li>
-			</ul>
-			</li>
-			</ul>`,
-    shortDescription: `The smart contract template for single-copy Non Fungible Tokens (NFT). In a video game, one-of-one NFT can consist of a digital good only one player can own at a time such as a piece of land. `,
+    description:
+      '<p>The ERC721 is a smart contract standard which is specialised in single-copy Non Fungible Tokens (NFT).\n\t\t\tWithin this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>\n\t\t\t<p>It is important to notice that we do not store any content directly inside the smart contract.\n\t\t\tOnly references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>\n\t\t\t<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>\n\t\t\t<p>Parameters :</p>\n\t\t\t<ul>\n\t\t\t<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>\n\t\t\t<li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li>\n\t\t\t<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>\n\t\t\t<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>\n\t\t\t<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>\n\t\t\t<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>\n\t\t\t<li>Using a centralised server: the path of the contract metadata json</li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t</ul>',
+    shortDescription:
+      "The smart contract template for single-copy Non Fungible Tokens (NFT). In a video game, one-of-one NFT can consist of a digital good only one player can own at a time such as a piece of land. ",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -3858,10 +5878,26 @@ const LIST: SmartContractTemplate[] = [
       {
         type: "constructor",
         inputs: [
-          { name: "name", type: "string", internalType: "string" },
-          { name: "symbol", type: "string", internalType: "string" },
-          { name: "baseUri", type: "string", internalType: "string" },
-          { name: "contractUriSuffix", type: "string", internalType: "string" },
+          {
+            name: "name",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "symbol",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "baseUri",
+            type: "string",
+            internalType: "string",
+          },
+          {
+            name: "contractUriSuffix",
+            type: "string",
+            internalType: "string",
+          },
           {
             name: "ownerOrMultiSigContract",
             type: "address",
@@ -4050,36 +6086,68 @@ const LIST: SmartContractTemplate[] = [
         name: "DEFAULT_ADMIN_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "LOCKER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "MINTER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "PAUSER_ROLE",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "approve",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "tokenId", type: "uint256", internalType: "uint256" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -4087,14 +6155,32 @@ const LIST: SmartContractTemplate[] = [
       {
         name: "balanceOf",
         type: "function",
-        inputs: [{ name: "owner", type: "address", internalType: "address" }],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "owner",
+            type: "address",
+            internalType: "address",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "burn",
         type: "function",
-        inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         outputs: [],
         stateMutability: "nonpayable",
       },
@@ -4102,29 +6188,67 @@ const LIST: SmartContractTemplate[] = [
         name: "contractURI",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "getApproved",
         type: "function",
-        inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "address", internalType: "address" }],
+        inputs: [
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "address",
+            internalType: "address",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "getRoleAdmin",
         type: "function",
-        inputs: [{ name: "role", type: "bytes32", internalType: "bytes32" }],
-        outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+        inputs: [
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "grantRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -4133,20 +6257,48 @@ const LIST: SmartContractTemplate[] = [
         name: "hasRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "isApprovedForAll",
         type: "function",
         inputs: [
-          { name: "owner", type: "address", internalType: "address" },
-          { name: "operator", type: "address", internalType: "address" },
+          {
+            name: "owner",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "operator",
+            type: "address",
+            internalType: "address",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -4160,14 +6312,32 @@ const LIST: SmartContractTemplate[] = [
         name: "name",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "ownerOf",
         type: "function",
-        inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "address", internalType: "address" }],
+        inputs: [
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "address",
+            internalType: "address",
+          },
+        ],
         stateMutability: "view",
       },
       {
@@ -4181,15 +6351,29 @@ const LIST: SmartContractTemplate[] = [
         name: "paused",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "renounceRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -4198,8 +6382,16 @@ const LIST: SmartContractTemplate[] = [
         name: "revokeRole",
         type: "function",
         inputs: [
-          { name: "role", type: "bytes32", internalType: "bytes32" },
-          { name: "account", type: "address", internalType: "address" },
+          {
+            name: "role",
+            type: "bytes32",
+            internalType: "bytes32",
+          },
+          {
+            name: "account",
+            type: "address",
+            internalType: "address",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -4208,8 +6400,16 @@ const LIST: SmartContractTemplate[] = [
         name: "safeMint",
         type: "function",
         inputs: [
-          { name: "to", type: "address", internalType: "address" },
-          { name: "metadataURI", type: "string", internalType: "string" },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "metadataURI",
+            type: "string",
+            internalType: "string",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -4218,9 +6418,21 @@ const LIST: SmartContractTemplate[] = [
         name: "safeTransferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "tokenId", type: "uint256", internalType: "uint256" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -4229,10 +6441,26 @@ const LIST: SmartContractTemplate[] = [
         name: "safeTransferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "tokenId", type: "uint256", internalType: "uint256" },
-          { name: "_data", type: "bytes", internalType: "bytes" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "_data",
+            type: "bytes",
+            internalType: "bytes",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -4241,8 +6469,16 @@ const LIST: SmartContractTemplate[] = [
         name: "setApprovalForAll",
         type: "function",
         inputs: [
-          { name: "operator", type: "address", internalType: "address" },
-          { name: "approved", type: "bool", internalType: "bool" },
+          {
+            name: "operator",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "approved",
+            type: "bool",
+            internalType: "bool",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -4264,56 +6500,128 @@ const LIST: SmartContractTemplate[] = [
         name: "supportsInterface",
         type: "function",
         inputs: [
-          { name: "interfaceId", type: "bytes4", internalType: "bytes4" },
+          {
+            name: "interfaceId",
+            type: "bytes4",
+            internalType: "bytes4",
+          },
         ],
-        outputs: [{ name: "", type: "bool", internalType: "bool" }],
+        outputs: [
+          {
+            name: "",
+            type: "bool",
+            internalType: "bool",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "symbol",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "tokenByIndex",
         type: "function",
-        inputs: [{ name: "index", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        inputs: [
+          {
+            name: "index",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "tokenOfOwnerByIndex",
         type: "function",
         inputs: [
-          { name: "owner", type: "address", internalType: "address" },
-          { name: "index", type: "uint256", internalType: "uint256" },
+          {
+            name: "owner",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "index",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "tokenURI",
         type: "function",
-        inputs: [{ name: "tokenId", type: "uint256", internalType: "uint256" }],
-        outputs: [{ name: "", type: "string", internalType: "string" }],
+        inputs: [
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
+        outputs: [
+          {
+            name: "",
+            type: "string",
+            internalType: "string",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "totalSupply",
         type: "function",
         inputs: [],
-        outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+        outputs: [
+          {
+            name: "",
+            type: "uint256",
+            internalType: "uint256",
+          },
+        ],
         stateMutability: "view",
       },
       {
         name: "transferFrom",
         type: "function",
         inputs: [
-          { name: "from", type: "address", internalType: "address" },
-          { name: "to", type: "address", internalType: "address" },
-          { name: "tokenId", type: "uint256", internalType: "uint256" },
+          {
+            name: "from",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "to",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "tokenId",
+            type: "uint256",
+            internalType: "uint256",
+          },
         ],
         outputs: [],
         stateMutability: "nonpayable",
@@ -4339,7 +6647,7 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 99,
-    tags: [],
+    tags: [SmartContractTemplateCategory.DEPRECATED],
     category: SmartContractTemplateCategory.DEPRECATED,
   },
 ];
