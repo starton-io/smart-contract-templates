@@ -63,7 +63,6 @@ contract StartonERC721Base is
         _isMetadataChangingAllowed = true;
 
         // Set the default royalty fee and receiver
-        require(definitiveRoyaltyFee <= 1000, "Royalty fee is too high compared to opensea");
         _setDefaultRoyalty(definitiveFeeReceiver, definitiveRoyaltyFee);
 
         // Intialize the EIP712 so we can perform metatransactions
