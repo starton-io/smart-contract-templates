@@ -1,9 +1,9 @@
 image: node:16
 
 workflow:
-    rules:
-        - if: $CI_COMMIT_BRANCH == "master"
-        - if: $CI_COMMIT_BRANCH == "develop"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "develop"
 
 cache:
   paths:
@@ -23,3 +23,8 @@ coverage:
   script:
     - yarn install
     - yarn coverage
+
+lint:
+  script:
+    - yarn install
+    - yarn lint
