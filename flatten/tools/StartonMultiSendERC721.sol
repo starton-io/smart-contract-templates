@@ -178,7 +178,7 @@ interface IERC721 is IERC165 {
 // File contracts/tools/StartonMultiSendERC721.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 /// @title StartonMultiSendERC721
 /// @author Starton

@@ -10,9 +10,9 @@ abstract contract AStartonWhitelist is Context {
     bytes32 internal _merkleRoot;
 
     /** @dev Modifier that reverts when the sender is not whitelisted */
-    modifier isWhitelisted(bytes32[] calldata merkleProof) {
+    modifier isWhitelisted(bytes32[] memory merkleProof) {
         bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
-        require(MerkleProof.verifyCalldata(merkleProof, _merkleRoot, leaf), "Invalid proof");
+        require(MerkleProof.verify(merkleProof, _merkleRoot, leaf), "Invalid proof");
         _;
     }
 }

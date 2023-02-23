@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
+import "operator-filter-registry/src/DefaultOperatorFilterer.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "../abstracts/AStartonNativeMetaTransaction.sol";
 import "../abstracts/AStartonContextMixin.sol";
 import "../abstracts/AStartonAccessControl.sol";
-import "../abstracts/AStartonBlacklist.sol";
 import "../abstracts/AStartonPausable.sol";
 import "../abstracts/AStartonMintLock.sol";
 import "../abstracts/AStartonMetadataLock.sol";
@@ -19,10 +20,11 @@ contract StartonERC1155Base is
     AStartonAccessControl,
     AStartonPausable,
     AStartonContextMixin,
-    AStartonBlacklist,
     AStartonNativeMetaTransaction,
     AStartonMintLock,
-    AStartonMetadataLock
+    AStartonMetadataLock,
+    DefaultOperatorFilterer,
+    ERC2981
 {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
@@ -33,6 +35,8 @@ contract StartonERC1155Base is
 
     constructor(
         string memory definitiveName,
+        uint96 definitiveRoyaltyFee,
+        address definitiveFeeReceiver,
         string memory initialTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
@@ -43,12 +47,14 @@ contract StartonERC1155Base is
         _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(LOCKER_ROLE, initialOwnerOrMultiSigContract);
-        _setupRole(BLACKLISTER_ROLE, initialOwnerOrMultiSigContract);
 
         name = definitiveName;
         _contractURI = initialContractURI;
         _isMintAllowed = true;
         _isMetadataChangingAllowed = true;
+
+        // Set the royalty fee and the fee receiver
+        _setDefaultRoyalty(definitiveFeeReceiver, definitiveRoyaltyFee);
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(definitiveName);
@@ -154,7 +160,13 @@ contract StartonERC1155Base is
      * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
      * @return True if the interface is supported
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC1155, AccessControl, ERC2981)
+        returns (bool)
+    {
         return super.supportsInterface(interfaceId);
     }
 
@@ -176,7 +188,7 @@ contract StartonERC1155Base is
         address owner,
         address operator,
         bool approved
-    ) internal virtual override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused {
         super._setApprovalForAll(owner, operator, approved);
     }
 
@@ -196,7 +208,7 @@ contract StartonERC1155Base is
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 

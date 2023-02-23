@@ -2128,7 +2128,7 @@ contract AStartonPausable is Pausable, AccessControl {
 // File contracts/fungible/StartonERC20Base.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
 

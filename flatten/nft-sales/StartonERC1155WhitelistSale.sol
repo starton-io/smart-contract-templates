@@ -265,9 +265,9 @@ abstract contract AStartonWhitelist is Context {
     bytes32 internal _merkleRoot;
 
     /** @dev Modifier that reverts when the sender is not whitelisted */
-    modifier isWhitelisted(bytes32[] calldata merkleProof) {
+    modifier isWhitelisted(bytes32[] memory merkleProof) {
         bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
-        require(MerkleProof.verifyCalldata(merkleProof, _merkleRoot, leaf), "Invalid proof");
+        require(MerkleProof.verify(merkleProof, _merkleRoot, leaf), "Invalid proof");
         _;
     }
 }
@@ -464,7 +464,7 @@ interface IStartonERC1155 is IERC1155 {
 // File contracts/nft-sales/StartonERC1155BaseSale.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
 /// @title StartonERC1155BaseSale
@@ -620,7 +620,7 @@ contract StartonERC1155BaseSale is Context {
 // File contracts/nft-sales/StartonERC1155WhitelistSale.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
 /// @title StartonERC1155WhitelistSale
@@ -659,7 +659,7 @@ contract StartonERC1155WhitelistSale is StartonERC1155BaseSale, AStartonWhitelis
         address to,
         uint256 id,
         uint256 amount,
-        bytes32[] calldata merkleProof
+        bytes32[] memory merkleProof
     ) public payable override isWhitelisted(merkleProof) {
         super.mint(to, id, amount, new bytes32[](0));
     }
@@ -675,7 +675,7 @@ contract StartonERC1155WhitelistSale is StartonERC1155BaseSale, AStartonWhitelis
         address to,
         uint256[] calldata ids,
         uint256[] calldata amounts,
-        bytes32[] calldata merkleProof
+        bytes32[] memory merkleProof
     ) public payable override isWhitelisted(merkleProof) {
         super.mintBatch(to, ids, amounts, new bytes32[](0));
     }

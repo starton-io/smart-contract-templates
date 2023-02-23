@@ -38,6 +38,8 @@ describe("StartonERC1155BaseSale", () => {
 
     instanceERC1155 = (await ERC1155.deploy(
       "StartonToken",
+      "1000",
+      owner.address,
       "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address

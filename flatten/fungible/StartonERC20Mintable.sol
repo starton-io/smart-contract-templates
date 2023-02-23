@@ -2168,7 +2168,7 @@ abstract contract AStartonContextMixin {
 // File contracts/fungible/StartonERC20Base.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
 
@@ -2228,7 +2228,7 @@ contract StartonERC20Base is
 // File contracts/fungible/StartonERC20Mintable.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
 /// @title StartonERC20Mintable

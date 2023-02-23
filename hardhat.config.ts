@@ -29,7 +29,7 @@ subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.9",
+    version: "0.8.17",
     settings: {
       optimizer: {
         enabled: true,

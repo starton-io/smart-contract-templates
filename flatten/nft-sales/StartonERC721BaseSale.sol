@@ -664,7 +664,7 @@ interface IStartonERC721 is IERC721Enumerable {
 // File contracts/nft-sales/StartonERC721BaseSale.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
 
