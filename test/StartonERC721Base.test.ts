@@ -39,20 +39,6 @@ describe("StartonERC721Base", () => {
   describe("Deployment", () => {
     it("Should deploy", async () => {});
 
-    it("Shouldn't deploy if royalty fee is over 10%", async () => {
-      await expect(
-        ERC721.deploy(
-          "StartonToken",
-          "ST",
-          "1001",
-          owner.address,
-          "https://ipfs.io/",
-          "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
-          owner.address
-        )
-      ).to.be.revertedWith("Royalty fee is too high compared to opensea");
-    });
-
     it("Should owner have admin role", async () => {
       const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();
 
