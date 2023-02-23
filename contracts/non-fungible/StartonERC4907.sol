@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 import "./StartonERC721Base.sol";
 import "../interfaces/IERC4907.sol";
@@ -20,6 +20,8 @@ contract StartonERC4907 is StartonERC721Base, IERC4907 {
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
+        uint96 definitiveRoyaltyFee,
+        address definitiveFeeReceiver,
         string memory initialBaseTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
@@ -27,6 +29,8 @@ contract StartonERC4907 is StartonERC721Base, IERC4907 {
         StartonERC721Base(
             definitiveName,
             definitiveSymbol,
+            definitiveRoyaltyFee,
+            definitiveFeeReceiver,
             initialBaseTokenURI,
             initialContractURI,
             initialOwnerOrMultiSigContract
@@ -95,9 +99,10 @@ contract StartonERC4907 is StartonERC721Base, IERC4907 {
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
+        uint256 tokenId,
+        uint256 batchSize
     ) internal virtual override {
-        super._beforeTokenTransfer(from, to, tokenId);
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
 
         if (from != to && _users[tokenId].user != address(0)) {
             delete _users[tokenId];

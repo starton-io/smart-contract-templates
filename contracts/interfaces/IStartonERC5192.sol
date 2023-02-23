@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.0;
 
 interface IStartonERC5192 {
     /// @notice Emitted when the locking status is changed to locked.

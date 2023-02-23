@@ -27,6 +27,8 @@ describe("StartonERC5192", () => {
     instanceERC5192 = (await ERC5192.deploy(
       "StartonToken",
       "ST",
+      "1000",
+      owner.address,
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address

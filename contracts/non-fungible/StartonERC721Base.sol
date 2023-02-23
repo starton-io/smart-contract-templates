@@ -197,6 +197,7 @@ contract StartonERC721Base is
 
     function approve(address operator, uint256 tokenId)
         public
+        virtual
         override(IERC721, ERC721)
         onlyAllowedOperatorApproval(operator)
     {
@@ -207,7 +208,7 @@ contract StartonERC721Base is
         address from,
         address to,
         uint256 tokenId
-    ) public override(IERC721, ERC721) onlyAllowedOperator(from) {
+    ) public virtual override(IERC721, ERC721) onlyAllowedOperator(from) {
         super.transferFrom(from, to, tokenId);
     }
 
@@ -215,7 +216,7 @@ contract StartonERC721Base is
         address from,
         address to,
         uint256 tokenId
-    ) public override(IERC721, ERC721) onlyAllowedOperator(from) {
+    ) public virtual override(IERC721, ERC721) onlyAllowedOperator(from) {
         super.safeTransferFrom(from, to, tokenId);
     }
 
@@ -224,7 +225,7 @@ contract StartonERC721Base is
         address to,
         uint256 tokenId,
         bytes memory data
-    ) public override(IERC721, ERC721) onlyAllowedOperator(from) {
+    ) public virtual override(IERC721, ERC721) onlyAllowedOperator(from) {
         super.safeTransferFrom(from, to, tokenId, data);
     }
 }

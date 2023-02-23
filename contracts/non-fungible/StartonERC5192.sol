@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 import "../interfaces/IStartonERC5192.sol";
 import "./StartonERC721Base.sol";
@@ -20,6 +20,8 @@ contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
+        uint96 definitiveRoyaltyFee,
+        address definitiveFeeReceiver,
         string memory initialBaseTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
@@ -27,6 +29,8 @@ contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
         StartonERC721Base(
             definitiveName,
             definitiveSymbol,
+            definitiveRoyaltyFee,
+            definitiveFeeReceiver,
             initialBaseTokenURI,
             initialContractURI,
             initialOwnerOrMultiSigContract
@@ -92,7 +96,7 @@ contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
     /**
      * @notice Block the setApprovalForAll because it is a SBT
      */
-    function setApprovalForAll(address operator, bool approved) public override checkLock {}
+    function setApprovalForAll(address operator, bool approved) public override(ERC721, IERC721) checkLock {}
 
     /**
      * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
