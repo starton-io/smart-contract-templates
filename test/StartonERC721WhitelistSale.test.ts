@@ -81,7 +81,7 @@ describe("StartonERC721WhitelistSale", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy the contract", async () => { });
+    it("Should deploy the contract", async () => {});
 
     it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC721.address);

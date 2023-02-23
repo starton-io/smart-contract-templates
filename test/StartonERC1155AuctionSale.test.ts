@@ -63,7 +63,7 @@ describe("StartonERC1155AuctionSale", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy the contract", async () => { });
+    it("Should deploy the contract", async () => {});
 
     it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC1155.address);

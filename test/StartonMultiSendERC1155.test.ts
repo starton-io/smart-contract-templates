@@ -45,7 +45,7 @@ describe("StartonMultiSendERC1155", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => { });
+    it("Should deploy", async () => {});
   });
 
   describe("MultiSend", () => {

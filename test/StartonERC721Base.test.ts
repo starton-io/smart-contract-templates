@@ -37,7 +37,7 @@ describe("StartonERC721Base", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => { });
+    it("Should deploy", async () => {});
 
     it("Shouldn't deploy if royalty fee is over 10%", async () => {
       await expect(

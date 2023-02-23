@@ -38,7 +38,7 @@ describe("StartonERC721Capped", () => {
   });
 
   describe("Deployment", () => {
-    it("Should deploy", async () => { });
+    it("Should deploy", async () => {});
 
     it("Shouldn't deploy if maxSupply is 0", async () => {
       await expect(
