@@ -39,6 +39,8 @@ describe("StartonERC721BaseSale", () => {
     instanceERC721 = (await ERC721.deploy(
       "StartonToken",
       "ST",
+      "1000",
+      owner.address,
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
@@ -63,6 +65,20 @@ describe("StartonERC721BaseSale", () => {
 
   describe("Deployment", () => {
     it("Should deploy the contract", async () => {});
+
+    it("Shouldn't deploy if the start tile is after the end time", async () => {
+      await expect(
+        ERC721Sale.deploy(
+          instanceERC721.address,
+          BigNumber.from("1000"),
+          now.valueOf() + 1000 * 60 * 60 * 24 * 7,
+          now.valueOf(),
+          BigNumber.from("3"),
+          BigNumber.from("10"),
+          owner.address
+        )
+      ).to.be.revertedWith("End time after start time");
+    });
 
     it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC721.address);
@@ -185,6 +201,43 @@ describe("StartonERC721BaseSale", () => {
           value: BigNumber.from("1000"),
         })
       ).to.be.revertedWith("Max supply reached");
+    });
+
+    it("Should mint with timestamp before actual time", async () => {
+      now = new Date();
+      instanceSale = (await ERC721Sale.deploy(
+        instanceERC721.address,
+        BigNumber.from("1000"),
+        now.valueOf() - 1000,
+        now.valueOf() + 1000 * 60 * 60 * 24 * 7,
+        BigNumber.from("3"),
+        BigNumber.from("10"),
+        owner.address
+      )) as StartonERC721BaseSale;
+      await instanceSale.deployed();
+
+      const minterRole = await instanceERC721.MINTER_ROLE();
+      await instanceERC721.grantRole(minterRole, instanceSale.address);
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
+
+      await instanceSale.mint(addr1.address, [], {
+        value: BigNumber.from("1000"),
+      });
+
+      expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(1);
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [
+        now.valueOf() + 1000 * 60 * 60 * 24 * 7,
+      ]);
+
+      await instanceSale.mint(addr1.address, [], {
+        value: BigNumber.from("1000"),
+      });
+
+      expect(await instanceERC721.balanceOf(addr1.address)).to.be.equal(2);
+      expect(await instanceERC721.tokenURI(0)).to.be.equal("https://ipfs.io/0");
+      expect(await instanceERC721.tokenURI(1)).to.be.equal("https://ipfs.io/1");
     });
 
     it("Should mint with a correct time and correct value", async () => {

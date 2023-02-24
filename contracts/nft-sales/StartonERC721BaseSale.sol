@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
@@ -39,6 +39,9 @@ contract StartonERC721BaseSale is Context {
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
+        // Check if the end time is after the starting time
+        require(definitiveStartTime < definitiveEndTime, "End time after start time");
+
         token = IStartonERC721(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;
         price = definitivePrice;

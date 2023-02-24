@@ -1,25 +1,25 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/cryptography/MerkleProof.sol@v4.7.1
+// File @openzeppelin/contracts/utils/cryptography/MerkleProof.sol@v4.8.1
 
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (utils/cryptography/MerkleProof.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/MerkleProof.sol)
 
 pragma solidity ^0.8.0;
 
 /**
  * @dev These functions deal with verification of Merkle Tree proofs.
  *
- * The proofs can be generated using the JavaScript library
- * https://github.com/miguelmota/merkletreejs[merkletreejs].
- * Note: the hashing algorithm should be keccak256 and pair sorting should be enabled.
- *
- * See `test/utils/cryptography/MerkleProof.test.js` for some examples.
+ * The tree and the proofs can be generated using our
+ * https://github.com/OpenZeppelin/merkle-tree[JavaScript library].
+ * You will find a quickstart guide in the readme.
  *
  * WARNING: You should avoid using leaf values that are 64 bytes long prior to
  * hashing, or use a hash function other than keccak256 for hashing leaves.
  * This is because the concatenation of a sorted pair of internal nodes in
  * the merkle tree could be reinterpreted as a leaf value.
+ * OpenZeppelin's JavaScript library generates merkle trees that are safe
+ * against this attack out of the box.
  */
 library MerkleProof {
     /**
@@ -79,8 +79,10 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns true if the `leaves` can be proved to be a part of a Merkle tree defined by
+     * @dev Returns true if the `leaves` can be simultaneously proven to be a part of a merkle tree defined by
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
      *
      * _Available since v4.7._
      */
@@ -96,6 +98,8 @@ library MerkleProof {
     /**
      * @dev Calldata version of {multiProofVerify}
      *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
+     *
      * _Available since v4.7._
      */
     function multiProofVerifyCalldata(
@@ -108,9 +112,14 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns the root of a tree reconstructed from `leaves` and the sibling nodes in `proof`,
-     * consuming from one or the other at each step according to the instructions given by
-     * `proofFlags`.
+     * @dev Returns the root of a tree reconstructed from `leaves` and sibling nodes in `proof`. The reconstruction
+     * proceeds by incrementally reconstructing all inner nodes by combining a leaf/inner node with either another
+     * leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
+     * respectively.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
+     * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
+     * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
      *
      * _Available since v4.7._
      */
@@ -156,7 +165,9 @@ library MerkleProof {
     }
 
     /**
-     * @dev Calldata version of {processMultiProof}
+     * @dev Calldata version of {processMultiProof}.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
      *
      * _Available since v4.7._
      */
@@ -216,7 +227,7 @@ library MerkleProof {
 }
 
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.7.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.8.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
@@ -262,7 +273,7 @@ abstract contract AStartonWhitelist is Context {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.7.1
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -290,7 +301,7 @@ interface IERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.7.1
+// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.8.1
 
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC1155/IERC1155.sol)
 
@@ -453,7 +464,7 @@ interface IStartonERC1155 is IERC1155 {
 // File contracts/nft-sales/StartonERC1155BaseSale.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
 /// @title StartonERC1155BaseSale
@@ -500,6 +511,9 @@ contract StartonERC1155BaseSale is Context {
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
+        // Check if the end time is after the starting time
+        require(definitiveStartTime < definitiveEndTime, "End time after start time");
+
         token = IStartonERC1155(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;
         startTime = definitiveStartTime;
@@ -539,7 +553,7 @@ contract StartonERC1155BaseSale is Context {
         uint256[] calldata amounts,
         bytes32[] memory data
     ) public payable virtual isTimeCorrect {
-        require(ids.length == amounts.length, "ids and amounts length mismatch");
+        require(ids.length == amounts.length, "Ids and amounts length mismatch");
 
         uint256 value = msg.value;
         uint256 totalAmount = 0;
@@ -606,7 +620,7 @@ contract StartonERC1155BaseSale is Context {
 // File contracts/nft-sales/StartonERC1155WhitelistSale.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
 /// @title StartonERC1155WhitelistSale
@@ -645,7 +659,7 @@ contract StartonERC1155WhitelistSale is StartonERC1155BaseSale, AStartonWhitelis
         address to,
         uint256 id,
         uint256 amount,
-        bytes32[] calldata merkleProof
+        bytes32[] memory merkleProof
     ) public payable override isWhitelisted(merkleProof) {
         super.mint(to, id, amount, new bytes32[](0));
     }
@@ -661,7 +675,7 @@ contract StartonERC1155WhitelistSale is StartonERC1155BaseSale, AStartonWhitelis
         address to,
         uint256[] calldata ids,
         uint256[] calldata amounts,
-        bytes32[] calldata merkleProof
+        bytes32[] memory merkleProof
     ) public payable override isWhitelisted(merkleProof) {
         super.mintBatch(to, ids, amounts, new bytes32[](0));
     }

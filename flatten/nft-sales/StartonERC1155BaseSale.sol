@@ -1,6 +1,6 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.7.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.8.1
 
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
@@ -28,7 +28,7 @@ abstract contract Context {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.7.1
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -56,7 +56,7 @@ interface IERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.7.1
+// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.8.1
 
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC1155/IERC1155.sol)
 
@@ -219,7 +219,7 @@ interface IStartonERC1155 is IERC1155 {
 // File contracts/nft-sales/StartonERC1155BaseSale.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
 /// @title StartonERC1155BaseSale
@@ -266,6 +266,9 @@ contract StartonERC1155BaseSale is Context {
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
+        // Check if the end time is after the starting time
+        require(definitiveStartTime < definitiveEndTime, "End time after start time");
+
         token = IStartonERC1155(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;
         startTime = definitiveStartTime;
@@ -305,7 +308,7 @@ contract StartonERC1155BaseSale is Context {
         uint256[] calldata amounts,
         bytes32[] memory data
     ) public payable virtual isTimeCorrect {
-        require(ids.length == amounts.length, "ids and amounts length mismatch");
+        require(ids.length == amounts.length, "Ids and amounts length mismatch");
 
         uint256 value = msg.value;
         uint256 totalAmount = 0;

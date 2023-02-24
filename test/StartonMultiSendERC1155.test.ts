@@ -35,6 +35,8 @@ describe("StartonMultiSendERC1155", () => {
 
     instanceERC1155 = (await ERC1155.deploy(
       "StartonToken",
+      "1000",
+      owner.address,
       "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
@@ -47,6 +49,48 @@ describe("StartonMultiSendERC1155", () => {
   });
 
   describe("MultiSend", () => {
+    it("Shouldn't send tokens if arrays not equal ", async () => {
+      // mint tokens
+      await instanceERC1155["mint(address,uint256,uint256)"](
+        owner.address,
+        1536,
+        11
+      );
+      await instanceERC1155["mint(address,uint256,uint256)"](
+        owner.address,
+        156,
+        20
+      );
+
+      await instanceERC1155.setApprovalForAll(instanceMultisend.address, true);
+      await expect(
+        instanceMultisend.multiSend(
+          instanceERC1155.address,
+          [1536, 1536, 156],
+          [4, 7, 20],
+          [addr1.address, addr2.address]
+        )
+      ).to.be.revertedWith("Arrays must be of equal length");
+
+      await expect(
+        instanceMultisend.multiSend(
+          instanceERC1155.address,
+          [1536, 1536],
+          [4, 7, 20],
+          [addr1.address, addr2.address, addrs[3].address]
+        )
+      ).to.be.revertedWith("Arrays must be of equal length");
+
+      await expect(
+        instanceMultisend.multiSend(
+          instanceERC1155.address,
+          [1536, 1536, 156],
+          [4, 7],
+          [addr1.address, addr2.address, addrs[3].address]
+        )
+      ).to.be.revertedWith("Arrays must be of equal length");
+    });
+
     it("Should send tokens to multiple addresses", async () => {
       // mint tokens
       await instanceERC1155["mint(address,uint256,uint256)"](

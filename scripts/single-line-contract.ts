@@ -1,19 +1,29 @@
 import { readFileSync, writeFileSync } from "fs";
 
-if (process.argv[1] === "-h" || process.argv[1] === "--help") {
-  console.log("");
-  console.log("\tUsage: single-line-contract CONTRACT OUT");
+function printUsage(): void {
+  console.log("USAGE\n\tts-node single-line-contract input out");
   console.log();
+  console.log("DESCRIPTION\n\tinput\tThe input contract file to convert");
+  console.log("\tout\tThe output file where to write the converted contract");
 }
 
-const filePath = process.argv[1];
+function main() {
+  if (process.argv.length !== 4) {
+    printUsage();
+    return;
+  }
 
-const fileContents = readFileSync(filePath, {
-  encoding: "utf8",
-  flag: "r",
-}).toString();
+  const contractFilePath = process.argv[2];
+  const outFilePath = process.argv[3];
 
-writeFileSync(
-  "test.txt",
-  fileContents.replace(/\n/g, "\\n").replace(/'/g, "\\'")
-);
+  const fileContents = readFileSync(contractFilePath, {
+    encoding: "utf8",
+    flag: "r",
+  }).toString();
+
+  writeFileSync(
+    outFilePath,
+    fileContents.replace(/\n/g, "\\n").replace(/'/g, "\\'")
+  );
+}
+main();

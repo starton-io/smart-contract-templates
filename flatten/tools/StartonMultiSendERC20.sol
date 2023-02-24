@@ -1,6 +1,6 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.7.1
+// File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.8.1
 
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)
@@ -89,7 +89,7 @@ interface IERC20 {
 // File contracts/tools/StartonMultiSendERC20.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 /// @title StartonMultiSendERC20
 /// @author Starton

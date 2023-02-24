@@ -14,11 +14,10 @@ describe("StartonERC721Base", () => {
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
-  let addrs: SignerWithAddress[];
 
   before(async () => {
     // Get the Signers here
-    [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
+    [owner, addr1, addr2] = await ethers.getSigners();
 
     // Create factory
     ERC721 = new StartonERC721Base__factory(owner);
@@ -28,6 +27,8 @@ describe("StartonERC721Base", () => {
     instanceERC721 = (await ERC721.deploy(
       "StartonToken",
       "ST",
+      "1000",
+      owner.address,
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
@@ -129,7 +130,7 @@ describe("StartonERC721Base", () => {
           addr2.address,
           0
         )
-      ).to.be.revertedWith("ERC721: caller is not token owner nor approved");
+      ).to.be.revertedWith("ERC721: caller is not token owner or approved");
     });
 
     it("Should transfer without approval while owner", async () => {
@@ -161,102 +162,6 @@ describe("StartonERC721Base", () => {
       ](addr1.address, addr2.address, 0);
       expect(await instanceERC721.balanceOf(addr1.address)).to.equal(0);
       expect(await instanceERC721.balanceOf(addr2.address)).to.equal(1);
-    });
-  });
-
-  describe("Blacklist", () => {
-    it("Shouldn't blacklist if already blacklisted", async () => {
-      await instanceERC721.addToBlacklist(addr1.address);
-      await expect(
-        instanceERC721.addToBlacklist(addr1.address)
-      ).to.be.revertedWith("Address is already blacklisted");
-    });
-
-    it("Shouldn't remove from blacklist is not blacklisted", async () => {
-      await expect(
-        instanceERC721.removeFromBlacklist(addr1.address)
-      ).to.be.revertedWith("Address is not blacklisted");
-    });
-
-    it("Shouldn't set any addresses as blacklisted", async () => {
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
-    });
-
-    it("Should blacklist an address", async () => {
-      await instanceERC721.addToBlacklist(addr1.address);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
-    });
-
-    it("Should batch blacklist an address", async () => {
-      await instanceERC721.addBatchToBlacklist([addr1.address]);
-      await instanceERC721.addBatchToBlacklist([
-        addr1.address,
-        addr2.address,
-        addrs[3].address,
-      ]);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
-      expect(await instanceERC721.isBlacklisted(addr2.address)).to.equal(true);
-      expect(await instanceERC721.isBlacklisted(addrs[3].address)).to.equal(
-        true
-      );
-    });
-
-    it("Should be able to remove from blacklist", async () => {
-      await instanceERC721.addToBlacklist(addr1.address);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
-      await instanceERC721.removeFromBlacklist(addr1.address);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
-    });
-
-    it("Should be able to batch remove blacklist", async () => {
-      await instanceERC721.addBatchToBlacklist([
-        addr2.address,
-        addrs[3].address,
-      ]);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
-      expect(await instanceERC721.isBlacklisted(addr2.address)).to.equal(true);
-      expect(await instanceERC721.isBlacklisted(addrs[3].address)).to.equal(
-        true
-      );
-
-      await instanceERC721.removeBatchFromBlacklist([
-        addr1.address,
-        addr2.address,
-      ]);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(false);
-      expect(await instanceERC721.isBlacklisted(addr2.address)).to.equal(false);
-      expect(await instanceERC721.isBlacklisted(addrs[3].address)).to.equal(
-        true
-      );
-    });
-
-    it("Shouldn't approve while blacklisted", async () => {
-      await instanceERC721.addToBlacklist(addr1.address);
-      expect(await instanceERC721.isBlacklisted(addr1.address)).to.equal(true);
-      await expect(
-        instanceERC721.setApprovalForAll(addr1.address, true)
-      ).to.be.revertedWith("The caller of the contract is blacklisted");
-    });
-
-    it("Shouldn't transfer while blacklisted", async () => {
-      await instanceERC721.mint(
-        addr2.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await instanceERC721
-        .connect(addr2)
-        .setApprovalForAll(addr1.address, true);
-
-      await instanceERC721.addToBlacklist(addr1.address);
-      await expect(
-        instanceERC721
-          .connect(addr1)
-          .functions["safeTransferFrom(address,address,uint256)"](
-            addr2.address,
-            addrs[3].address,
-            0
-          )
-      ).to.be.revertedWith("The caller of the contract is blacklisted");
     });
   });
 
@@ -434,37 +339,17 @@ describe("StartonERC721Base", () => {
           "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGPMnR"
         );
     });
-
-    it("Shouldn't let anyone without the blacklister role to be able to blacklist", async () => {
-      await expect(instanceERC721.connect(addr1).addToBlacklist(addr2.address))
-        .to.be.reverted;
-      await expect(
-        instanceERC721.connect(addr1).removeFromBlacklist(addr2.address)
-      ).to.be.reverted;
-      await expect(
-        instanceERC721.connect(addr1).addBatchToBlacklist([addr2.address])
-      ).to.be.reverted;
-      await expect(
-        instanceERC721.connect(addr1).removeBatchFromBlacklist([addr2.address])
-      ).to.be.reverted;
-    });
-
-    it("Should let anyone with the blacklister role to be able to blacklist", async () => {
-      const blacklisterRole = await instanceERC721.BLACKLISTER_ROLE();
-      await instanceERC721.grantRole(blacklisterRole, addr1.address);
-
-      await instanceERC721.connect(addr1).addToBlacklist(addr2.address);
-      await instanceERC721.connect(addr1).removeFromBlacklist(addr2.address);
-      await instanceERC721.connect(addr1).addBatchToBlacklist([addr2.address]);
-      await instanceERC721
-        .connect(addr1)
-        .removeBatchFromBlacklist([addr2.address]);
-    });
   });
 
   describe("SupportsInterface", () => {
     it("Should support ERC721", async () => {
       expect(await instanceERC721.supportsInterface("0x80ac58cd")).to.equal(
+        true
+      );
+    });
+
+    it("Should support ERC2981", async () => {
+      expect(await instanceERC721.supportsInterface("0x2a55205a")).to.equal(
         true
       );
     });
@@ -482,7 +367,187 @@ describe("StartonERC721Base", () => {
     });
   });
 
+  describe("Royalties", () => {
+    it("Should return the correct royalty amount", async () => {
+      expect(await instanceERC721.royaltyInfo(1, 100)).to.deep.equal([
+        owner.address,
+        "10",
+      ]);
+    });
+  });
+
   describe("Forwarder", () => {
+    it("Shouldn't forward a transaction with different signer", async () => {
+      const metaTransactionType = [
+        {
+          name: "nonce",
+          type: "uint256",
+        },
+        {
+          name: "from",
+          type: "address",
+        },
+        {
+          name: "functionSignature",
+          type: "bytes",
+        },
+      ];
+
+      const name = await instanceERC721.name();
+      const nonce = await instanceERC721.getNonce(addr1.address);
+      const { chainId } = await ethers.provider.getNetwork();
+
+      const domainType = {
+        name,
+        version: "1",
+        verifyingContract: instanceERC721.address,
+        salt: "0x" + chainId.toString(16).padStart(64, "0"),
+      };
+
+      const functionSignature = instanceERC721.interface.encodeFunctionData(
+        "setApprovalForAll",
+        [addr2.address, true]
+      );
+
+      const signature = await addr1._signTypedData(
+        domainType,
+        {
+          MetaTransaction: metaTransactionType,
+        },
+        {
+          nonce: nonce.toString(),
+          from: addr1.address,
+          functionSignature,
+        }
+      );
+
+      const { r, s, v } = ethers.utils.splitSignature(signature);
+
+      await expect(
+        instanceERC721.executeMetaTransaction(
+          addr2.address,
+          functionSignature,
+          r,
+          s,
+          v
+        )
+      ).to.be.revertedWith("Signer and signature do not match");
+    });
+
+    it("Shouldn't forward a transaction with a transaction that will revert", async () => {
+      const metaTransactionType = [
+        {
+          name: "nonce",
+          type: "uint256",
+        },
+        {
+          name: "from",
+          type: "address",
+        },
+        {
+          name: "functionSignature",
+          type: "bytes",
+        },
+      ];
+
+      const name = await instanceERC721.name();
+      const nonce = await instanceERC721.getNonce(addr1.address);
+      const { chainId } = await ethers.provider.getNetwork();
+
+      const domainType = {
+        name,
+        version: "1",
+        verifyingContract: instanceERC721.address,
+        salt: "0x" + chainId.toString(16).padStart(64, "0"),
+      };
+
+      const functionSignature = instanceERC721.interface.encodeFunctionData(
+        "setApprovalForAll",
+        [addr1.address, true]
+      );
+
+      const signature = await addr1._signTypedData(
+        domainType,
+        {
+          MetaTransaction: metaTransactionType,
+        },
+        {
+          nonce: nonce.toString(),
+          from: addr1.address,
+          functionSignature,
+        }
+      );
+
+      const { r, s, v } = ethers.utils.splitSignature(signature);
+
+      await expect(
+        instanceERC721.executeMetaTransaction(
+          addr1.address,
+          functionSignature,
+          r,
+          s,
+          v
+        )
+      ).to.be.revertedWith("Function call not successful");
+    });
+
+    it("Shouldn't forward a transaction with a null signer", async () => {
+      const metaTransactionType = [
+        {
+          name: "nonce",
+          type: "uint256",
+        },
+        {
+          name: "from",
+          type: "address",
+        },
+        {
+          name: "functionSignature",
+          type: "bytes",
+        },
+      ];
+
+      const name = await instanceERC721.name();
+      const nonce = await instanceERC721.getNonce(addr1.address);
+      const { chainId } = await ethers.provider.getNetwork();
+
+      const domainType = {
+        name,
+        version: "1",
+        verifyingContract: instanceERC721.address,
+        salt: "0x" + chainId.toString(16).padStart(64, "0"),
+      };
+
+      const functionSignature = instanceERC721.interface.encodeFunctionData(
+        "setApprovalForAll",
+        [addr2.address, true]
+      );
+
+      const signature = await addr1._signTypedData(
+        domainType,
+        {
+          MetaTransaction: metaTransactionType,
+        },
+        {
+          nonce: nonce.toString(),
+          from: addr1.address,
+          functionSignature,
+        }
+      );
+
+      const { r, s, v } = ethers.utils.splitSignature(signature);
+
+      await expect(
+        instanceERC721.executeMetaTransaction(
+          "0x0000000000000000000000000000000000000000",
+          functionSignature,
+          r,
+          s,
+          v
+        )
+      ).to.be.revertedWith("NativeMetaTransaction: INVALID_SIGNER");
+    });
+
     it("Should be able to send a forwarded transaction", async () => {
       const metaTransactionType = [
         {

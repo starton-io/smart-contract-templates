@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 import "../abstracts/AStartonWhitelist.sol";
 import "./StartonERC721BaseSale.sol";
@@ -37,7 +37,7 @@ contract StartonERC721WhitelistSale is StartonERC721BaseSale, AStartonWhitelist 
      * @param to The address to mint the token to
      * @param merkleProof The merkle proof of the address in the whitelist
      */
-    function mint(address to, bytes32[] calldata merkleProof) public payable override isWhitelisted(merkleProof) {
+    function mint(address to, bytes32[] memory merkleProof) public payable override isWhitelisted(merkleProof) {
         super.mint(to, new bytes32[](0));
     }
 
@@ -49,7 +49,7 @@ contract StartonERC721WhitelistSale is StartonERC721BaseSale, AStartonWhitelist 
     function mintBatch(
         address to,
         uint256 amount,
-        bytes32[] calldata merkleProof
+        bytes32[] memory merkleProof
     ) public payable override isWhitelisted(merkleProof) {
         super.mintBatch(to, amount, new bytes32[](0));
     }

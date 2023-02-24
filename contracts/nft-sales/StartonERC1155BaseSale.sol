@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/utils/Context.sol";
 import "../interfaces/IStartonERC1155.sol";
@@ -49,6 +49,9 @@ contract StartonERC1155BaseSale is Context {
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
+        // Check if the end time is after the starting time
+        require(definitiveStartTime < definitiveEndTime, "End time after start time");
+
         token = IStartonERC1155(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;
         startTime = definitiveStartTime;
@@ -88,7 +91,7 @@ contract StartonERC1155BaseSale is Context {
         uint256[] calldata amounts,
         bytes32[] memory data
     ) public payable virtual isTimeCorrect {
-        require(ids.length == amounts.length, "ids and amounts length mismatch");
+        require(ids.length == amounts.length, "Ids and amounts length mismatch");
 
         uint256 value = msg.value;
         uint256 totalAmount = 0;

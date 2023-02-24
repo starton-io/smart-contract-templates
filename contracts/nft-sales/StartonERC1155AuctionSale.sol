@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IStartonERC1155.sol";
 
@@ -48,7 +47,7 @@ contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
         uint256 initialTokenAmount
     ) {
         // Check if the end time is after the starting time
-        require(initialStartTime < initialEndTime, "Start time must be before end time");
+        require(initialStartTime < initialEndTime, "End time after start time");
 
         token = IStartonERC1155(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;

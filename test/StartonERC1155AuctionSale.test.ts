@@ -37,6 +37,8 @@ describe("StartonERC1155AuctionSale", () => {
 
     instanceERC1155 = (await ERC1155.deploy(
       "StartonToken",
+      "1000",
+      owner.address,
       "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
@@ -62,6 +64,21 @@ describe("StartonERC1155AuctionSale", () => {
 
   describe("Deployment", () => {
     it("Should deploy the contract", async () => {});
+
+    it("Shouldn't deploy if the start tile is after the end time", async () => {
+      await expect(
+        ERC1155Sale.deploy(
+          instanceERC1155.address,
+          owner.address,
+          BigNumber.from("1000"),
+          BigNumber.from("100"),
+          now.valueOf() + 1000 * 60 * 60 * 24 * 7,
+          now.valueOf(),
+          10,
+          1
+        )
+      ).to.be.revertedWith("End time after start time");
+    });
 
     it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC1155.address);
