@@ -66,6 +66,19 @@ describe("StartonERC1155BaseSale", () => {
   describe("Deployment", () => {
     it("Should deploy the contract", async () => {});
 
+    it("Shouldn't deploy if the start tile is after the end time", async () => {
+      await expect(
+        ERC1155Sale.deploy(
+          instanceERC1155.address,
+          now.valueOf() + 1000 * 60 * 60 * 24 * 7,
+          now.valueOf(),
+          BigNumber.from("3"),
+          BigNumber.from("10"),
+          owner.address
+        )
+      ).to.be.revertedWith("End time after start time");
+    });
+
     it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC1155.address);
     });
@@ -98,6 +111,25 @@ describe("StartonERC1155BaseSale", () => {
 
     it("Should set the maxSupply correctly", async () => {
       expect(await instanceSale.leftSupply()).to.be.equal(BigNumber.from("10"));
+    });
+  });
+
+  describe("SetPrices", () => {
+    it("Shouldn't set the price if arrays length mismatch", async () => {
+      await expect(instanceSale.setPrices([10, 11], [1001])).to.be.revertedWith(
+        "Ids and prices length mismatch"
+      );
+    });
+
+    it("Should set the price correctly", async () => {
+      await instanceSale.setPrices([10, 11], [1001, 1002]);
+
+      expect(await instanceSale.pricePerToken(10)).to.be.equal(
+        BigNumber.from("1001")
+      );
+      expect(await instanceSale.pricePerToken(11)).to.be.equal(
+        BigNumber.from("1002")
+      );
     });
   });
 
@@ -163,6 +195,16 @@ describe("StartonERC1155BaseSale", () => {
           value: BigNumber.from("2000"),
         })
       ).to.be.revertedWith("Max supply reached");
+    });
+
+    it("Shouldn't mint with a unset price", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
+
+      await expect(
+        instanceSale.mint(addr1.address, 13, 3, [], {
+          value: BigNumber.from("3000"),
+        })
+      ).to.be.revertedWith("Price not set");
     });
 
     it("Should mint with a correct time and correct value", async () => {
@@ -252,6 +294,26 @@ describe("StartonERC1155BaseSale", () => {
           value: BigNumber.from("2000"),
         })
       ).to.be.revertedWith("Max supply reached");
+    });
+
+    it("Shouldn't batch mint with a different lengths", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
+
+      await expect(
+        instanceSale.mintBatch(addr1.address, [10], [2, 1], [], {
+          value: BigNumber.from("3000"),
+        })
+      ).to.be.revertedWith("Ids and amounts length mismatch");
+    });
+
+    it("Shouldn't batch mint with a unset price", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
+
+      await expect(
+        instanceSale.mintBatch(addr1.address, [10, 12], [2, 1], [], {
+          value: BigNumber.from("3000"),
+        })
+      ).to.be.revertedWith("Price not set");
     });
 
     it("Should batch mint with a correct time and correct value", async () => {

@@ -702,7 +702,7 @@ contract StartonERC721BaseSale is Context {
         address definitiveFeeReceiver
     ) {
         // Check if the end time is after the starting time
-        require(definitiveStartTime < definitiveEndTime, "Start time must be before end time");
+        require(definitiveStartTime < definitiveEndTime, "End time after start time");
 
         token = IStartonERC721(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;

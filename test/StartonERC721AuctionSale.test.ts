@@ -65,6 +65,20 @@ describe("StartonERC721AuctionSale", () => {
   describe("Deployment", () => {
     it("Should deploy the contract", async () => {});
 
+    it("Shouldn't deploy if the start tile is after the end time", async () => {
+      await expect(
+        ERC721Sale.deploy(
+          instanceERC721.address,
+          owner.address,
+          BigNumber.from("1000"),
+          BigNumber.from("100"),
+          now.valueOf() + 1000 * 60 * 60 * 24 * 7,
+          now.valueOf(),
+          "gvygvy"
+        )
+      ).to.be.revertedWith("End time after start time");
+    });
+
     it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC721.address);
     });

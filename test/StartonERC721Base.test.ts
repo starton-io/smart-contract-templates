@@ -377,6 +377,177 @@ describe("StartonERC721Base", () => {
   });
 
   describe("Forwarder", () => {
+    it("Shouldn't forward a transaction with different signer", async () => {
+      const metaTransactionType = [
+        {
+          name: "nonce",
+          type: "uint256",
+        },
+        {
+          name: "from",
+          type: "address",
+        },
+        {
+          name: "functionSignature",
+          type: "bytes",
+        },
+      ];
+
+      const name = await instanceERC721.name();
+      const nonce = await instanceERC721.getNonce(addr1.address);
+      const { chainId } = await ethers.provider.getNetwork();
+
+      const domainType = {
+        name,
+        version: "1",
+        verifyingContract: instanceERC721.address,
+        salt: "0x" + chainId.toString(16).padStart(64, "0"),
+      };
+
+      const functionSignature = instanceERC721.interface.encodeFunctionData(
+        "setApprovalForAll",
+        [addr2.address, true]
+      );
+
+      const signature = await addr1._signTypedData(
+        domainType,
+        {
+          MetaTransaction: metaTransactionType,
+        },
+        {
+          nonce: nonce.toString(),
+          from: addr1.address,
+          functionSignature,
+        }
+      );
+
+      const { r, s, v } = ethers.utils.splitSignature(signature);
+
+      await expect(
+        instanceERC721.executeMetaTransaction(
+          addr2.address,
+          functionSignature,
+          r,
+          s,
+          v
+        )
+      ).to.be.revertedWith("Signer and signature do not match");
+    });
+
+    it("Shouldn't forward a transaction with a transaction that will revert", async () => {
+      const metaTransactionType = [
+        {
+          name: "nonce",
+          type: "uint256",
+        },
+        {
+          name: "from",
+          type: "address",
+        },
+        {
+          name: "functionSignature",
+          type: "bytes",
+        },
+      ];
+
+      const name = await instanceERC721.name();
+      const nonce = await instanceERC721.getNonce(addr1.address);
+      const { chainId } = await ethers.provider.getNetwork();
+
+      const domainType = {
+        name,
+        version: "1",
+        verifyingContract: instanceERC721.address,
+        salt: "0x" + chainId.toString(16).padStart(64, "0"),
+      };
+
+      const functionSignature = instanceERC721.interface.encodeFunctionData(
+        "setApprovalForAll",
+        [addr1.address, true]
+      );
+
+      const signature = await addr1._signTypedData(
+        domainType,
+        {
+          MetaTransaction: metaTransactionType,
+        },
+        {
+          nonce: nonce.toString(),
+          from: addr1.address,
+          functionSignature,
+        }
+      );
+
+      const { r, s, v } = ethers.utils.splitSignature(signature);
+
+      await expect(
+        instanceERC721.executeMetaTransaction(
+          addr1.address,
+          functionSignature,
+          r,
+          s,
+          v
+        )
+      ).to.be.revertedWith("Function call not successful");
+    });
+
+    it("Shouldn't forward a transaction with a null signer", async () => {
+      const metaTransactionType = [
+        {
+          name: "nonce",
+          type: "uint256",
+        },
+        {
+          name: "from",
+          type: "address",
+        },
+        {
+          name: "functionSignature",
+          type: "bytes",
+        },
+      ];
+
+      const name = await instanceERC721.name();
+      const nonce = await instanceERC721.getNonce(addr1.address);
+      const { chainId } = await ethers.provider.getNetwork();
+
+      const domainType = {
+        name,
+        version: "1",
+        verifyingContract: instanceERC721.address,
+        salt: "0x" + chainId.toString(16).padStart(64, "0"),
+      };
+
+      const functionSignature = instanceERC721.interface.encodeFunctionData(
+        "setApprovalForAll",
+        [addr2.address, true]
+      );
+
+      const signature = await addr1._signTypedData(
+        domainType,
+        {
+          MetaTransaction: metaTransactionType,
+        },
+        {
+          nonce: nonce.toString(),
+          from: addr1.address,
+          functionSignature,
+        }
+      );
+
+      const { r, s, v } = ethers.utils.splitSignature(signature);
+
+      await expect(
+        instanceERC721.executeMetaTransaction(
+          "0x0000000000000000000000000000000000000000",
+          functionSignature,
+          r,
+          s,
+          v
+        )
+      ).to.be.revertedWith("NativeMetaTransaction: INVALID_SIGNER");
+    });
+
     it("Should be able to send a forwarded transaction", async () => {
       const metaTransactionType = [
         {

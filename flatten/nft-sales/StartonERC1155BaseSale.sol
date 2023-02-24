@@ -267,7 +267,7 @@ contract StartonERC1155BaseSale is Context {
         address definitiveFeeReceiver
     ) {
         // Check if the end time is after the starting time
-        require(definitiveStartTime < definitiveEndTime, "Start time must be before end time");
+        require(definitiveStartTime < definitiveEndTime, "End time after start time");
 
         token = IStartonERC1155(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;
@@ -308,7 +308,7 @@ contract StartonERC1155BaseSale is Context {
         uint256[] calldata amounts,
         bytes32[] memory data
     ) public payable virtual isTimeCorrect {
-        require(ids.length == amounts.length, "ids and amounts length mismatch");
+        require(ids.length == amounts.length, "Ids and amounts length mismatch");
 
         uint256 value = msg.value;
         uint256 totalAmount = 0;

@@ -45,7 +45,7 @@ contract StartonERC721AuctionSale is Ownable, ReentrancyGuard {
         string memory initialTokenURI
     ) {
         // Check if the end time is after the starting time
-        require(initialStartTime < initialEndTime, "Start time must be before end time");
+        require(initialStartTime < initialEndTime, "End time after start time");
 
         token = IStartonERC721(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;

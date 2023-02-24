@@ -71,6 +71,24 @@ describe("StartonMultiSendERC1155", () => {
           [addr1.address, addr2.address]
         )
       ).to.be.revertedWith("Arrays must be of equal length");
+
+      await expect(
+        instanceMultisend.multiSend(
+          instanceERC1155.address,
+          [1536, 1536],
+          [4, 7, 20],
+          [addr1.address, addr2.address, addrs[3].address]
+        )
+      ).to.be.revertedWith("Arrays must be of equal length");
+
+      await expect(
+        instanceMultisend.multiSend(
+          instanceERC1155.address,
+          [1536, 1536, 156],
+          [4, 7],
+          [addr1.address, addr2.address, addrs[3].address]
+        )
+      ).to.be.revertedWith("Arrays must be of equal length");
     });
 
     it("Should send tokens to multiple addresses", async () => {
