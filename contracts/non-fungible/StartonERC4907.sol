@@ -95,6 +95,7 @@ contract StartonERC4907 is StartonERC721Base, IERC4907 {
      * @param from The address that owns the NFT
      * @param to The address that will receive the NFT
      * @param tokenId The NFT to transfer
+     * @param batchSize The number of NFTs to transfer
      */
     function _beforeTokenTransfer(
         address from,

@@ -3257,6 +3257,7 @@ contract StartonERC721Base is
      * @param from The address that will send the token
      * @param to The address that will receive the token
      * @param tokenId The ID of the token to be transferred
+     * @param batchSize The number of tokens to be transferred
      */
     function _beforeTokenTransfer(
         address from,
