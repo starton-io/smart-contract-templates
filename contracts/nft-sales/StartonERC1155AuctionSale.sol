@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IStartonERC1155.sol";
 
@@ -48,10 +47,7 @@ contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
         uint256 initialTokenAmount
     ) {
         // Check if the end time is after the starting time
-        require(
-            initialStartTime < initialEndTime,
-            "Start time must be before end time"
-        );
+        require(initialStartTime < initialEndTime, "End time after start time");
 
         token = IStartonERC1155(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;
@@ -76,10 +72,7 @@ contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
     function bid() public payable nonReentrant {
         require(startTime <= block.timestamp, "Bidding not started");
         require(endTime >= block.timestamp, "Bidding finished");
-        require(
-            currentPrice + minPriceDifference <= msg.value,
-            "Bid is too low"
-        );
+        require(currentPrice + minPriceDifference <= msg.value, "Bid is too low");
 
         // Store the old auction winner and price
         address oldAuctionWinner = currentAuctionWinner;
@@ -124,10 +117,7 @@ contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
         uint256 newTokenAmount
     ) public onlyOwner {
         require(_claimed, "The auction hasn't been claimed yet");
-        require(
-            newStartTime < newEndTime,
-            "Start time must be before end time"
-        );
+        require(newStartTime < newEndTime, "Start time must be before end time");
 
         // Reset the state variables for a new auction to begin
         _claimed = false;
@@ -147,9 +137,7 @@ contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
      */
     function withdraw() public {
         if (currentAuctionWinner != address(0) && !_claimed) {
-            payable(_feeReceiver).transfer(
-                address(this).balance - currentPrice
-            );
+            payable(_feeReceiver).transfer(address(this).balance - currentPrice);
         } else {
             payable(_feeReceiver).transfer(address(this).balance);
         }

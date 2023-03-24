@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
+import "operator-filter-registry/src/DefaultOperatorFilterer.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "../abstracts/AStartonNativeMetaTransaction.sol";
 import "../abstracts/AStartonContextMixin.sol";
 import "../abstracts/AStartonAccessControl.sol";
-import "../abstracts/AStartonBlacklist.sol";
+import "../abstracts/AStartonPausable.sol";
+import "../abstracts/AStartonMintLock.sol";
+import "../abstracts/AStartonMetadataLock.sol";
 
 /// @title StartonERC1155Base
 /// @author Starton
@@ -15,43 +18,25 @@ import "../abstracts/AStartonBlacklist.sol";
 contract StartonERC1155Base is
     ERC1155Burnable,
     AStartonAccessControl,
-    Pausable,
+    AStartonPausable,
     AStartonContextMixin,
-    AStartonBlacklist,
-    AStartonNativeMetaTransaction
+    AStartonNativeMetaTransaction,
+    AStartonMintLock,
+    AStartonMetadataLock,
+    DefaultOperatorFilterer,
+    ERC2981
 {
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
-    bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
 
     string public name;
 
     string private _contractURI;
 
-    bool internal _isMintAllowed;
-    bool internal _isMetatadataChangingAllowed;
-
-    /** @notice Event emitted when the minting is locked */
-    event MintingLocked(address indexed account);
-
-    /** @notice Event emitted when the metadata are locked */
-    event MetadataLocked(address indexed account);
-
-    /** @dev Modifier that reverts when the minting is locked */
-    modifier mintingNotLocked() {
-        require(_isMintAllowed, "Minting is locked");
-        _;
-    }
-
-    /** @dev Modifier that reverts when the metadatas are locked */
-    modifier metadataNotLocked() {
-        require(_isMintAllowed, "Metadatas are locked");
-        _;
-    }
-
     constructor(
         string memory definitiveName,
+        uint96 definitiveRoyaltyFee,
+        address definitiveFeeReceiver,
         string memory initialTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
@@ -62,12 +47,14 @@ contract StartonERC1155Base is
         _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(LOCKER_ROLE, initialOwnerOrMultiSigContract);
-        _setupRole(BLACKLISTER_ROLE, initialOwnerOrMultiSigContract);
 
         name = definitiveName;
         _contractURI = initialContractURI;
         _isMintAllowed = true;
-        _isMetatadataChangingAllowed = true;
+        _isMetadataChangingAllowed = true;
+
+        // Set the royalty fee and the fee receiver
+        _setDefaultRoyalty(definitiveFeeReceiver, definitiveRoyaltyFee);
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(definitiveName);
@@ -101,8 +88,8 @@ contract StartonERC1155Base is
         address to,
         uint256 id,
         uint256 amount
-    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
-        _mint(to, id, amount, "");
+    ) public virtual {
+        mint(to, id, amount, "");
     }
 
     /**
@@ -133,8 +120,8 @@ contract StartonERC1155Base is
         address to,
         uint256[] memory ids,
         uint256[] memory amounts
-    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
-        _mintBatch(to, ids, amounts, "");
+    ) public virtual {
+        mintBatch(to, ids, amounts, "");
     }
 
     /**
@@ -170,40 +157,6 @@ contract StartonERC1155Base is
     }
 
     /**
-     * @notice Pause the contract which stop any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function pause() public virtual onlyRole(PAUSER_ROLE) {
-        _pause();
-    }
-
-    /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function unpause() public virtual onlyRole(PAUSER_ROLE) {
-        _unpause();
-    }
-
-    /**
-     * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
-     * @custom:requires LOCKER_ROLE
-     */
-    function lockMint() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
-        _isMintAllowed = false;
-        emit MintingLocked(_msgSender());
-    }
-
-    /**
-     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
-     * @custom:requires LOCKER_ROLE
-     */
-    function lockMetadata() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
-        _isMetatadataChangingAllowed = false;
-        emit MetadataLocked(_msgSender());
-    }
-
-    /**
      * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
      * @return True if the interface is supported
      */
@@ -211,7 +164,7 @@ contract StartonERC1155Base is
         public
         view
         virtual
-        override(ERC1155, AccessControl)
+        override(ERC1155, AccessControl, ERC2981)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
@@ -235,7 +188,7 @@ contract StartonERC1155Base is
         address owner,
         address operator,
         bool approved
-    ) internal virtual override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused {
         super._setApprovalForAll(owner, operator, approved);
     }
 
@@ -255,7 +208,7 @@ contract StartonERC1155Base is
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
@@ -263,13 +216,7 @@ contract StartonERC1155Base is
      * @dev Specify the _msgSender in case the forwarder calls a function to the real sender
      * @return The sender of the message
      */
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context, AStartonContextMixin)
-        returns (address)
-    {
+    function _msgSender() internal view virtual override(Context, AStartonContextMixin) returns (address) {
         return super._msgSender();
     }
 }

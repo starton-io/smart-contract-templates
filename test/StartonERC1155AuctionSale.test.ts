@@ -37,6 +37,8 @@ describe("StartonERC1155AuctionSale", () => {
 
     instanceERC1155 = (await ERC1155.deploy(
       "StartonToken",
+      "1000",
+      owner.address,
       "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
@@ -62,6 +64,21 @@ describe("StartonERC1155AuctionSale", () => {
 
   describe("Deployment", () => {
     it("Should deploy the contract", async () => {});
+
+    it("Shouldn't deploy if the start tile is after the end time", async () => {
+      await expect(
+        ERC1155Sale.deploy(
+          instanceERC1155.address,
+          owner.address,
+          BigNumber.from("1000"),
+          BigNumber.from("100"),
+          now.valueOf() + 1000 * 60 * 60 * 24 * 7,
+          now.valueOf(),
+          10,
+          1
+        )
+      ).to.be.revertedWith("End time after start time");
+    });
 
     it("Should set the token correctly", async () => {
       expect(await instanceSale.token()).to.be.equal(instanceERC1155.address);
@@ -231,6 +248,36 @@ describe("StartonERC1155AuctionSale", () => {
         now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
       ]);
       await instanceSale.claim();
+
+      const oldBalance = await owner.getBalance();
+      await instanceSale.connect(addr1).withdraw();
+      expect(await owner.getBalance()).to.be.equal(
+        oldBalance.add(ethers.utils.parseEther("0.11"))
+      );
+    });
+
+    it("Should transfer the remaining when a auction is ongoing", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
+
+      await instanceSale
+        .connect(addr2)
+        .bid({ value: ethers.utils.parseEther("0.11") });
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [
+        now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 1,
+      ]);
+      await instanceSale.claim();
+
+      const start = now.valueOf() + 1000 * 60 * 60 * 24 * 7 + 100;
+      const end = start + 1000;
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [start]);
+
+      await instanceSale.startNewAuction("1000", "1", start, end, 10, 1);
+
+      await instanceSale
+        .connect(addr2)
+        .bid({ value: ethers.utils.parseEther("0.2") });
 
       const oldBalance = await owner.getBalance();
       await instanceSale.connect(addr1).withdraw();

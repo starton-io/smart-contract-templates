@@ -1,25 +1,25 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/cryptography/MerkleProof.sol@v4.7.1
+// File @openzeppelin/contracts/utils/cryptography/MerkleProof.sol@v4.8.1
 
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (utils/cryptography/MerkleProof.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/MerkleProof.sol)
 
 pragma solidity ^0.8.0;
 
 /**
  * @dev These functions deal with verification of Merkle Tree proofs.
  *
- * The proofs can be generated using the JavaScript library
- * https://github.com/miguelmota/merkletreejs[merkletreejs].
- * Note: the hashing algorithm should be keccak256 and pair sorting should be enabled.
- *
- * See `test/utils/cryptography/MerkleProof.test.js` for some examples.
+ * The tree and the proofs can be generated using our
+ * https://github.com/OpenZeppelin/merkle-tree[JavaScript library].
+ * You will find a quickstart guide in the readme.
  *
  * WARNING: You should avoid using leaf values that are 64 bytes long prior to
  * hashing, or use a hash function other than keccak256 for hashing leaves.
  * This is because the concatenation of a sorted pair of internal nodes in
  * the merkle tree could be reinterpreted as a leaf value.
+ * OpenZeppelin's JavaScript library generates merkle trees that are safe
+ * against this attack out of the box.
  */
 library MerkleProof {
     /**
@@ -79,8 +79,10 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns true if the `leaves` can be proved to be a part of a Merkle tree defined by
+     * @dev Returns true if the `leaves` can be simultaneously proven to be a part of a merkle tree defined by
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
      *
      * _Available since v4.7._
      */
@@ -96,6 +98,8 @@ library MerkleProof {
     /**
      * @dev Calldata version of {multiProofVerify}
      *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
+     *
      * _Available since v4.7._
      */
     function multiProofVerifyCalldata(
@@ -108,9 +112,14 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns the root of a tree reconstructed from `leaves` and the sibling nodes in `proof`,
-     * consuming from one or the other at each step according to the instructions given by
-     * `proofFlags`.
+     * @dev Returns the root of a tree reconstructed from `leaves` and sibling nodes in `proof`. The reconstruction
+     * proceeds by incrementally reconstructing all inner nodes by combining a leaf/inner node with either another
+     * leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
+     * respectively.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
+     * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
+     * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
      *
      * _Available since v4.7._
      */
@@ -156,7 +165,9 @@ library MerkleProof {
     }
 
     /**
-     * @dev Calldata version of {processMultiProof}
+     * @dev Calldata version of {processMultiProof}.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
      *
      * _Available since v4.7._
      */
@@ -216,7 +227,7 @@ library MerkleProof {
 }
 
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.7.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.8.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
@@ -243,7 +254,26 @@ abstract contract Context {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.7.1
+// File contracts/abstracts/AStartonWhitelist.sol
+
+
+pragma solidity ^0.8.0;
+
+
+abstract contract AStartonWhitelist is Context {
+    // Root of the merkle tree for the whitelisted address
+    bytes32 internal _merkleRoot;
+
+    /** @dev Modifier that reverts when the sender is not whitelisted */
+    modifier isWhitelisted(bytes32[] memory merkleProof) {
+        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
+        require(MerkleProof.verify(merkleProof, _merkleRoot, leaf), "Invalid proof");
+        _;
+    }
+}
+
+
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -271,7 +301,7 @@ interface IERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.7.1
+// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.8.1
 
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC1155/IERC1155.sol)
 
@@ -431,17 +461,16 @@ interface IStartonERC1155 is IERC1155 {
 }
 
 
-// File contracts/nft-sales/StartonERC1155WhitelistSale.sol
+// File contracts/nft-sales/StartonERC1155BaseSale.sol
 
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
 
-
-/// @title StartonERC1155WhitelistSale
+/// @title StartonERC1155BaseSale
 /// @author Starton
-/// @notice Sell ERC721 tokens through a whitelist sale with a limited available supply, start and end time as well as max tokens per address
-contract StartonERC1155WhitelistSale is Context {
+/// @notice Sell ERC1155 tokens through a public sale with a limited available supply, start and end time as well as max tokens per address
+contract StartonERC1155BaseSale is Context {
     struct TokenInformations {
         uint256 price;
         bool isSet;
@@ -450,9 +479,6 @@ contract StartonERC1155WhitelistSale is Context {
     mapping(uint256 => TokenInformations) private _pricePerToken;
 
     address private immutable _feeReceiver;
-
-    // Root of the merkle tree for the whitelisted address
-    bytes32 private _merkleRoot;
 
     IStartonERC1155 public immutable token;
 
@@ -477,28 +503,19 @@ contract StartonERC1155WhitelistSale is Context {
         _;
     }
 
-    /** @dev Modifier that reverts when the sender is not whitelisted */
-    modifier isWhitelisted(bytes32[] calldata merkleProof) {
-        bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
-        require(
-            MerkleProof.verify(merkleProof, _merkleRoot, leaf),
-            "Invalid proof"
-        );
-        _;
-    }
-
     constructor(
         address definitiveTokenAddress,
-        bytes32 definitiveMerkleRoot,
         uint256 definitiveStartTime,
         uint256 definitiveEndTime,
         uint256 definitiveMaxTokensPerAddress,
         uint256 definitiveMaxSupply,
         address definitiveFeeReceiver
     ) {
+        // Check if the end time is after the starting time
+        require(definitiveStartTime < definitiveEndTime, "End time after start time");
+
         token = IStartonERC1155(definitiveTokenAddress);
         _feeReceiver = definitiveFeeReceiver;
-        _merkleRoot = definitiveMerkleRoot;
         startTime = definitiveStartTime;
         endTime = definitiveEndTime;
         maxTokensPerAddress = definitiveMaxTokensPerAddress;
@@ -506,43 +523,37 @@ contract StartonERC1155WhitelistSale is Context {
     }
 
     /**
-     * @notice Mint a token to a given address for a price if the given address is whitelisted
+     * @notice Mint a token to a given address for a price
      * @param to The address to mint the token to
      * @param id The id of the token
      * @param amount The amount of tokens to mint
-     * @param merkleProof The merkle proof of the address in the whitelist
+     * @param data The data to pass to the token (optional)
      */
     function mint(
         address to,
         uint256 id,
         uint256 amount,
-        bytes32[] calldata merkleProof
-    ) public payable isPriceSet(id) isTimeCorrect isWhitelisted(merkleProof) {
-        require(
-            msg.value >= _pricePerToken[id].price * amount,
-            "Insufficient funds"
-        );
+        bytes32[] memory data
+    ) public payable virtual isPriceSet(id) isTimeCorrect {
+        require(msg.value >= _pricePerToken[id].price * amount, "Insufficient funds");
 
         _mint(to, id, amount);
     }
 
     /**
-     * @notice Mint multiple tokens to a given address for a price if the given address is whitelisted
-     * @param to The address to mint the token to
+     * @notice Mint multiple tokens to a given address for a price
+     * @param to The address to mint the tokens to
      * @param ids The ids of the token to mint
      * @param amounts The amounts of tokens to mint
-     * @param merkleProof The merkle proof of the address in the whitelist
+     * @param data The data to pass to the token (optional)
      */
     function mintBatch(
         address to,
         uint256[] calldata ids,
         uint256[] calldata amounts,
-        bytes32[] calldata merkleProof
-    ) public payable isTimeCorrect isWhitelisted(merkleProof) {
-        require(
-            ids.length == amounts.length,
-            "Ids and amounts length mismatch"
-        );
+        bytes32[] memory data
+    ) public payable virtual isTimeCorrect {
+        require(ids.length == amounts.length, "Ids and amounts length mismatch");
 
         uint256 value = msg.value;
         uint256 totalAmount = 0;
@@ -561,9 +572,7 @@ contract StartonERC1155WhitelistSale is Context {
      * @param ids The ids of the tokens
      * @param prices The prices of the tokens
      */
-    function setPrices(uint256[] calldata ids, uint256[] calldata prices)
-        public
-    {
+    function setPrices(uint256[] calldata ids, uint256[] calldata prices) public virtual {
         require(ids.length == prices.length, "Ids and prices length mismatch");
 
         for (uint256 i = 0; i < ids.length; ++i) {
@@ -574,7 +583,7 @@ contract StartonERC1155WhitelistSale is Context {
     /**
      * @notice Withdraw funds from the smart contract to the feeReceiver
      */
-    function withdraw() public {
+    function withdraw() public virtual {
         payable(_feeReceiver).transfer(address(this).balance);
     }
 
@@ -583,12 +592,7 @@ contract StartonERC1155WhitelistSale is Context {
      * @param id The id of the token
      * @return The price of the token
      */
-    function pricePerToken(uint256 id)
-        public
-        view
-        isPriceSet(id)
-        returns (uint256)
-    {
+    function pricePerToken(uint256 id) public view virtual isPriceSet(id) returns (uint256) {
         return _pricePerToken[id].price;
     }
 
@@ -602,15 +606,77 @@ contract StartonERC1155WhitelistSale is Context {
         address to,
         uint256 id,
         uint256 amount
-    ) internal {
-        require(
-            tokensClaimed[_msgSender()] + amount <= maxTokensPerAddress,
-            "Max tokens reached"
-        );
+    ) internal virtual {
+        require(tokensClaimed[_msgSender()] + amount <= maxTokensPerAddress, "Max tokens reached");
         require(leftSupply >= amount, "Max supply reached");
 
         leftSupply -= amount;
         tokensClaimed[_msgSender()] += amount;
         token.mint(to, id, amount);
+    }
+}
+
+
+// File contracts/nft-sales/StartonERC1155WhitelistSale.sol
+
+
+pragma solidity 0.8.17;
+
+
+/// @title StartonERC1155WhitelistSale
+/// @author Starton
+/// @notice Sell ERC721 tokens through a whitelist sale with a limited available supply, start and end time as well as max tokens per address
+contract StartonERC1155WhitelistSale is StartonERC1155BaseSale, AStartonWhitelist {
+    constructor(
+        address definitiveTokenAddress,
+        bytes32 definitiveMerkleRoot,
+        uint256 definitiveStartTime,
+        uint256 definitiveEndTime,
+        uint256 definitiveMaxTokensPerAddress,
+        uint256 definitiveMaxSupply,
+        address definitiveFeeReceiver
+    )
+        StartonERC1155BaseSale(
+            definitiveTokenAddress,
+            definitiveStartTime,
+            definitiveEndTime,
+            definitiveMaxTokensPerAddress,
+            definitiveMaxSupply,
+            definitiveFeeReceiver
+        )
+    {
+        _merkleRoot = definitiveMerkleRoot;
+    }
+
+    /**
+     * @notice Mint a token to a given address for a price if the given address is whitelisted
+     * @param to The address to mint the token to
+     * @param id The id of the token
+     * @param amount The amount of tokens to mint
+     * @param merkleProof The merkle proof of the address in the whitelist
+     */
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes32[] memory merkleProof
+    ) public payable override isWhitelisted(merkleProof) {
+        super.mint(to, id, amount, new bytes32[](0));
+    }
+
+    /**
+     * @notice Mint multiple tokens to a given address for a price if the given address is whitelisted
+     * @param to The address to mint the token to
+     * @param ids The ids of the token to mint
+     * @param amounts The amounts of tokens to mint
+     * @param merkleProof The merkle proof of the address in the whitelist
+     */
+    function mintBatch(
+        address to,
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
+        bytes32[] memory merkleProof
+    ) public payable override isWhitelisted(merkleProof) {
+        super.mintBatch(to, ids, amounts, new bytes32[](0));
     }
 }

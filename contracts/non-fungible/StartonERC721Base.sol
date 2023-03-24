@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.9;
+pragma solidity 0.8.17;
 
+import "operator-filter-registry/src/DefaultOperatorFilterer.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "../abstracts/AStartonNativeMetaTransaction.sol";
 import "../abstracts/AStartonContextMixin.sol";
 import "../abstracts/AStartonAccessControl.sol";
-import "../abstracts/AStartonBlacklist.sol";
+import "../abstracts/AStartonPausable.sol";
+import "../abstracts/AStartonMintLock.sol";
+import "../abstracts/AStartonMetadataLock.sol";
 
 /// @title StartonERC721Base
 /// @author Starton
@@ -19,17 +22,18 @@ contract StartonERC721Base is
     ERC721Enumerable,
     ERC721URIStorage,
     ERC721Burnable,
-    Pausable,
+    AStartonPausable,
     AStartonAccessControl,
-    AStartonBlacklist,
     AStartonContextMixin,
-    AStartonNativeMetaTransaction
+    AStartonNativeMetaTransaction,
+    AStartonMintLock,
+    AStartonMetadataLock,
+    DefaultOperatorFilterer,
+    ERC2981
 {
     using Counters for Counters.Counter;
 
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
     bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
 
     Counters.Counter internal _tokenIdCounter;
@@ -37,30 +41,11 @@ contract StartonERC721Base is
     string private _baseTokenURI;
     string private _contractURI;
 
-    bool internal _isMintAllowed;
-    bool internal _isMetatadataChangingAllowed;
-
-    /** @notice Event emitted when the minting is locked */
-    event MintingLocked(address indexed account);
-
-    /** @notice Event emitted when the metadata are locked */
-    event MetadataLocked(address indexed account);
-
-    /** @dev Modifier that reverts when the minting is locked */
-    modifier mintingNotLocked() {
-        require(_isMintAllowed, "Minting is locked");
-        _;
-    }
-
-    /** @dev Modifier that reverts when the metadatas are locked */
-    modifier metadataNotLocked() {
-        require(_isMintAllowed, "Metadatas are locked");
-        _;
-    }
-
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
+        uint96 definitiveRoyaltyFee,
+        address definitiveFeeReceiver,
         string memory initialBaseTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
@@ -71,12 +56,14 @@ contract StartonERC721Base is
         _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(LOCKER_ROLE, initialOwnerOrMultiSigContract);
-        _setupRole(BLACKLISTER_ROLE, initialOwnerOrMultiSigContract);
 
         _baseTokenURI = initialBaseTokenURI;
         _contractURI = initialContractURI;
         _isMintAllowed = true;
-        _isMetatadataChangingAllowed = true;
+        _isMetadataChangingAllowed = true;
+
+        // Set the default royalty fee and receiver
+        _setDefaultRoyalty(definitiveFeeReceiver, definitiveRoyaltyFee);
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(definitiveName);
@@ -88,14 +75,8 @@ contract StartonERC721Base is
      * @param uri The URI of the token metadata
      * @custom:requires MINTER_ROLE
      */
-    function mint(address to, string memory uri)
-        public
-        virtual
-        whenNotPaused
-        mintingNotLocked
-        onlyRole(MINTER_ROLE)
-    {
-        _safeMint(to, _tokenIdCounter.current());
+    function mint(address to, string memory uri) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+        _mint(to, _tokenIdCounter.current());
         _setTokenURI(_tokenIdCounter.current(), uri);
         _tokenIdCounter.increment();
     }
@@ -131,40 +112,6 @@ contract StartonERC721Base is
     }
 
     /**
-     * @notice Pause the contract which stop any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function pause() public virtual onlyRole(PAUSER_ROLE) {
-        _pause();
-    }
-
-    /**
-     * @notice Unpause the contract which allow back any changes regarding the ERC721 and minting
-     * @custom:requires PAUSER_ROLE
-     */
-    function unpause() public virtual onlyRole(PAUSER_ROLE) {
-        _unpause();
-    }
-
-    /**
-     * @notice Lock the mint and won't allow any minting anymore if the contract is not paused
-     * @custom:requires LOCKER_ROLE
-     */
-    function lockMint() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
-        _isMintAllowed = false;
-        emit MintingLocked(_msgSender());
-    }
-
-    /**
-     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
-     * @custom:requires LOCKER_ROLE
-     */
-    function lockMetadata() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
-        _isMetatadataChangingAllowed = false;
-        emit MetadataLocked(_msgSender());
-    }
-
-    /**
      * @notice Returns the metadata of the contract
      * @return Contract URI of the token
      */
@@ -177,13 +124,7 @@ contract StartonERC721Base is
      * @param tokenId The token id of the token
      * @return Contract URI of the token
      */
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        virtual
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
+    function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
@@ -195,7 +136,7 @@ contract StartonERC721Base is
         public
         view
         virtual
-        override(ERC721, AccessControl, ERC721Enumerable)
+        override(ERC721, AccessControl, ERC721Enumerable, ERC2981)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
@@ -211,7 +152,7 @@ contract StartonERC721Base is
         address owner,
         address operator,
         bool approved
-    ) internal virtual override whenNotPaused notBlacklisted(operator) {
+    ) internal virtual override whenNotPaused onlyAllowedOperatorApproval(operator) {
         super._setApprovalForAll(owner, operator, approved);
     }
 
@@ -220,30 +161,22 @@ contract StartonERC721Base is
      * @param from The address that will send the token
      * @param to The address that will receive the token
      * @param tokenId The ID of the token to be transferred
+     * @param batchSize The number of tokens to be transferred
      */
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
-    )
-        internal
-        virtual
-        override(ERC721, ERC721Enumerable)
-        whenNotPaused
-        notBlacklisted(_msgSender())
-    {
-        super._beforeTokenTransfer(from, to, tokenId);
+        uint256 tokenId,
+        uint256 batchSize
+    ) internal virtual override(ERC721, ERC721Enumerable) whenNotPaused {
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
     /**
      * @dev Fix the inheritence problem for the _burn between ERC721 and ERC721URIStorage
      * @param tokenId Id of the token that will be burnt
      */
-    function _burn(uint256 tokenId)
-        internal
-        virtual
-        override(ERC721, ERC721URIStorage)
-    {
+    function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
     }
 
@@ -259,13 +192,41 @@ contract StartonERC721Base is
      * @dev Specify the _msgSender in case the forwarder calls a function to the real sender
      * @return The sender of the message
      */
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context, AStartonContextMixin)
-        returns (address)
-    {
+    function _msgSender() internal view virtual override(Context, AStartonContextMixin) returns (address) {
         return super._msgSender();
+    }
+
+    function approve(address operator, uint256 tokenId)
+        public
+        virtual
+        override(IERC721, ERC721)
+        onlyAllowedOperatorApproval(operator)
+    {
+        super.approve(operator, tokenId);
+    }
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override(IERC721, ERC721) onlyAllowedOperator(from) {
+        super.transferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override(IERC721, ERC721) onlyAllowedOperator(from) {
+        super.safeTransferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes memory data
+    ) public virtual override(IERC721, ERC721) onlyAllowedOperator(from) {
+        super.safeTransferFrom(from, to, tokenId, data);
     }
 }

@@ -44,6 +44,8 @@ describe("StartonERC721WhitelistSale", () => {
     instanceERC721 = (await ERC721.deploy(
       "StartonToken",
       "ST",
+      "1000",
+      owner.address,
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
@@ -327,16 +329,16 @@ describe("StartonERC721WhitelistSale", () => {
       const proof3 = merkleTree.getHexProof(keccak256(addr2.address));
       const proof4 = merkleTree.getHexProof(keccak256(addrs[3].address));
 
-      instanceSale.mintBatch(addr1.address, 3, proof, {
+      await instanceSale.mintBatch(addr1.address, 3, proof, {
         value: BigNumber.from("3000"),
       });
-      instanceSale.connect(addr1).mintBatch(addr1.address, 3, proof2, {
+      await instanceSale.connect(addr1).mintBatch(addr1.address, 3, proof2, {
         value: BigNumber.from("3000"),
       });
-      instanceSale.connect(addr2).mintBatch(addr1.address, 3, proof3, {
+      await instanceSale.connect(addr2).mintBatch(addr1.address, 3, proof3, {
         value: BigNumber.from("3000"),
       });
-      instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, proof4, {
+      await instanceSale.connect(addrs[3]).mintBatch(addr1.address, 1, proof4, {
         value: BigNumber.from("3000"),
       });
       await expect(

@@ -35,6 +35,16 @@ yarn coverage
 
 When you're going to run the tests you will get all the informations about gas comsuption of every functions inside the contracts
 
+## Documentation
+
+A script is available to generate the documentation of the contracts
+
+```shell
+yarn doc FILENAME
+```
+
+This script will take all the informations as input from the doc.ts file and fill the abi, bytecode and compilation details. PS: You need to specify the contractName in the compilation details for it to works
+
 ## Author
 
 [Starton](https://www.starton.io/)
