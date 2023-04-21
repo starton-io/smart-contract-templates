@@ -328,7 +328,7 @@ const LIST: SmartContractTemplate[] = [
     form: {
       infos: {
         description:
-          "Set a price, a date, and a supply and you can sell your NFT collections deployed using the ERC1155 smart contract template.",
+          "Set a price, a date, and a supply and you can sell your NFT collections deployed using the ERC1155 smart contract template. ",
         tag: "ERC1155, Sale",
         usecases: [
           "In a video game, you can sell a piece of equipment to another player.",
@@ -342,12 +342,12 @@ const LIST: SmartContractTemplate[] = [
         ],
         resources: {
           documentation: {
-            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Auction-Sale",
-            alt: "Go to ERC721 Auction Sale Documentation",
+            href: "https://docs.starton.io/docs/Smart-contract/ERC1155-Sale",
+            alt: "Go to ERC1155 Sale Documentation",
           },
           tutorials: {
-            href: "https://docs.starton.io/docs/Tutorials/create-an-NFT-auction",
-            alt: "Go to Create an NFT Auction Tutorial",
+            href: "https://docs.starton.io/docs/Tutorials/create-an-NFT-collection-sale",
+            alt: "Go to ERC1155 Tutorials",
           },
         },
       },
@@ -379,23 +379,24 @@ const LIST: SmartContractTemplate[] = [
     form: {
       infos: {
         description:
-          "Select who can buy your NFTs. Then set a price, a date, and a supply and you can sell your NFTs, deployed using an ERC721 NFT deployment template.",
+          "Select who can buy your NFT collection. Then set a price, a date and a supply and you can sell your NFTs, deployed using an ERC1155 NFT deployment template.",
+        tag: "ERC1155, Sale",
         usecases: [
-          "In a video game, you can sell a piece of land only to an approved rank of players.",
+          "In a video game, you can sell a piece of equipment only to a list of approved players.",
         ],
         requirements: [
-          "The token address of the ERC721 that you want to sell",
+          "The token address of the ERC1155 that you want to sell",
           "The price that the NFTs will be sold for",
           "The root of the merkle tree that contains the list of the users that can buy the NFTs",
-          "The time when the sale will begin and end ",
+          "The start and end time for your sale (in timestamp seconds)",
           "The maximum amount of tokens that can be minted by a single address",
           "The maximum amount of tokens that can be minted during the sale",
           "The address that will receive all the price paid to mint the NFTs",
         ],
         resources: {
           documentation: {
-            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Whitelist-Sale",
-            alt: "Go to Documentation",
+            href: "https://docs.starton.io/docs/Smart-contract/ERC1155-Whitelist-Sale",
+            alt: "ERC1155 Whitelist Sale Documentation",
           },
           tutorial: {
             href: "https://docs.starton.io/docs/Tutorials/Home",
