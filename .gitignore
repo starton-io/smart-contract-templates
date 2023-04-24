@@ -4,6 +4,7 @@ coverage
 coverage.json
 .idea
 .DS_Store
+seeder.ts
 
 #Hardhat files
 cache
