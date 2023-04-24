@@ -10,6 +10,8 @@ const LIST: SmartContractTemplate[] = [
     name: "ERC721 NFT smart contract",
     description: "The smart contract template to deploy single-copy NFTs",
     shortDescription: "The smart contract template to deploy single-copy NFTs",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721Base.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -58,6 +60,8 @@ const LIST: SmartContractTemplate[] = [
       "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT).",
     shortDescription:
       "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT).",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721Capped.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -106,6 +110,8 @@ const LIST: SmartContractTemplate[] = [
     description: "The smart contract standard to manage multiple-copies NFTs.",
     shortDescription:
       "The smart contract standard to manage multiple-copies NFTs.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC1155Base.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -154,6 +160,8 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template for fungible tokens. No new tokens can be created after the initial emission.",
     shortDescription:
       "The smart contract template for fungible tokens. No new tokens can be created after the initial emission.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/fungible/StartonERC20Base.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -187,6 +195,10 @@ const LIST: SmartContractTemplate[] = [
             href: "https://docs.starton.io/docs/Smart-contract/ERC20-fixed-Meta",
             alt: "Documentation",
           },
+          tutorial: {
+            href: "https://docs.starton.io/docs/Tutorials/Home",
+            alt: "Go to Tutorials",
+          },
         },
       },
     },
@@ -198,6 +210,8 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template for fungible tokens. Admin can mint new tokens after initial emission.",
     shortDescription:
       "The smart contract template for fungible tokens. Admin can mint new tokens after initial emission.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/fungible/StartonERC20Mintable.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -245,6 +259,8 @@ const LIST: SmartContractTemplate[] = [
     description: "The smart contract template for selling single-copy NFTs.",
     shortDescription:
       "The smart contract template for selling single-copy NFTs.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC721BaseSale.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -262,7 +278,7 @@ const LIST: SmartContractTemplate[] = [
     form: {
       infos: {
         description:
-          "Set a price, a date, and a supply and you can sell your NFTs deployed using the ERC721 smart contract template. ",
+          "Set a price, a date, and a supply and you can sell your NFTs deployed using the ERC721 smart contract template.",
         tag: "ERC721, Sale",
         usecases: ["In a video game, you can sell a piece of land."],
         requirements: [
@@ -293,6 +309,8 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template for selling multiple-copies NFTs.",
     shortDescription:
       "The smart contract template for selling multiple-copies NFTs.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC1155BaseSale.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -313,24 +331,23 @@ const LIST: SmartContractTemplate[] = [
           "Set a price, a date, and a supply and you can sell your NFT collections deployed using the ERC1155 smart contract template. ",
         tag: "ERC1155, Sale",
         usecases: [
-          "In a video game, you can sell a piece of land to the player placing the highest bid.",
+          "In a video game, you can sell a piece of equipment to another player.",
         ],
         requirements: [
-          "The token address of the ERC721 that you want to sell",
+          "The token address of the ERC1155 that you want to sell",
           "The address that will receive the amount paid for the NFTs",
           "The initial price offered for the NFT",
-          "The minimum bid increment to place a bid on top of the current maximum bid",
           "The time at which the sale will begin and end, where users can bid. Timestamp in seconds",
           "The URI that will append at the end of the base token URI for the token that will be minted",
         ],
         resources: {
           documentation: {
-            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Auction-Sale",
-            alt: "Go to ERC721 Auction Sale Documentation",
+            href: "https://docs.starton.io/docs/Smart-contract/ERC1155-Sale",
+            alt: "Go to ERC1155 Sale Documentation",
           },
           tutorials: {
-            href: "https://docs.starton.io/docs/Tutorials/create-an-NFT-auction",
-            alt: "Go to Create an NFT Auction Tutorial",
+            href: "https://docs.starton.io/docs/Tutorials/create-an-NFT-collection-sale",
+            alt: "Go to ERC1155 Tutorials",
           },
         },
       },
@@ -343,6 +360,8 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template to sell NFTs only to selected users.",
     shortDescription:
       "The smart contract template to sell NFTs only to selected users.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC721WhitelistSale.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -360,23 +379,24 @@ const LIST: SmartContractTemplate[] = [
     form: {
       infos: {
         description:
-          "Select who can buy your NFTs. Then set a price, a date, and a supply and you can sell your NFTs, deployed using an ERC721 NFT deployment template.",
+          "Select who can buy your NFT collection. Then set a price, a date and a supply and you can sell your NFTs, deployed using an ERC1155 NFT deployment template.",
+        tag: "ERC1155, Sale",
         usecases: [
-          "In a video game, you can sell a piece of land only to an approved rank of players.",
+          "In a video game, you can sell a piece of equipment only to a list of approved players.",
         ],
         requirements: [
-          "The token address of the ERC721 that you want to sell",
+          "The token address of the ERC1155 that you want to sell",
           "The price that the NFTs will be sold for",
           "The root of the merkle tree that contains the list of the users that can buy the NFTs",
-          "The time when the sale will begin and end ",
+          "The start and end time for your sale (in timestamp seconds)",
           "The maximum amount of tokens that can be minted by a single address",
           "The maximum amount of tokens that can be minted during the sale",
           "The address that will receive all the price paid to mint the NFTs",
         ],
         resources: {
           documentation: {
-            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Whitelist-Sale",
-            alt: "Go to Documentation",
+            href: "https://docs.starton.io/docs/Smart-contract/ERC1155-Whitelist-Sale",
+            alt: "ERC1155 Whitelist Sale Documentation",
           },
           tutorial: {
             href: "https://docs.starton.io/docs/Tutorials/Home",
@@ -393,6 +413,8 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template for selling multiple copies of NFTs only to a specified list of addresses.",
     shortDescription:
       "The smart contract template for selling multiple copies of NFTs only to a specified list of addresses.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC1155WhitelistSale.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -410,27 +432,28 @@ const LIST: SmartContractTemplate[] = [
     form: {
       infos: {
         description:
-          "Set a price, a date, and a supply and you can sell your NFT collections deployed using the ERC1155 smart contract template. ",
+          "Select who can buy your NFT collection. Then set a price, a date and a supply and you can sell your NFTs, deployed using an ERC1155 NFT deployment template.",
         tag: "ERC1155, Sale",
         usecases: [
-          "In a video game, you can sell a piece of land to the player placing the highest bid.",
+          "In a video game, you can sell a piece of equipment only to a list of approved players.",
         ],
         requirements: [
-          "The token address of the ERC721 that you want to sell",
-          "The address that will receive the amount paid for the NFTs",
-          "The initial price offered for the NFT",
-          "The minimum bid increment to place a bid on top of the current maximum bid",
-          "The time at which the sale will begin and end, where users can bid. Timestamp in seconds",
-          "The URI that will append at the end of the base token URI for the token that will be minted",
+          "The token address of the ERC1155 that you want to sell",
+          "The price that the NFTs will be sold for",
+          "The root of the merkle tree that contains the list of the users that can buy the NFTs",
+          "The start and end time for your sale (in timestamp seconds)",
+          "The maximum amount of tokens that can be minted by a single address",
+          "The maximum amount of tokens that can be minted during the sale",
+          "The address that will receive all the price paid to mint the NFTs",
         ],
         resources: {
           documentation: {
-            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Auction-Sale",
-            alt: "Go to ERC721 Auction Sale Documentation",
+            href: "https://docs.starton.io/docs/Smart-contract/ERC1155-Whitelist-Sale",
+            alt: "ERC1155 Whitelist Sale Documentation",
           },
           tutorials: {
-            href: "https://docs.starton.io/docs/Tutorials/create-an-NFT-auction",
-            alt: "Go to Create an NFT Auction Tutorial",
+            href: "https://docs.starton.io/docs/Tutorials/Home",
+            alt: "Go to Tutorials",
           },
         },
       },
@@ -441,6 +464,8 @@ const LIST: SmartContractTemplate[] = [
     name: "ERC721 NFT Sale in an Auction",
     description: "The smart contract to sell NFTs in a form of auction.",
     shortDescription: "The smart contract to sell NFTs in a form of auction.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC721AuctionSale.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -491,6 +516,8 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template for selling multiple copies of NFTs in the form of an Auction to the highest bidder in a time slot.",
     shortDescription:
       "The smart contract template for selling multiple copies of NFTs in the form of an Auction to the highest bidder in a time slot.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC1155AuctionSale.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -540,6 +567,8 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template to split all payments between a list of users with a defined share for each of them.",
     shortDescription:
       "The smart contract template to split all payments between a list of users with a defined share for each of them.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/tools/StartonPaymentSplitter.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,

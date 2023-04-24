@@ -29,6 +29,7 @@ type SmartContractTemplate = {
   name: string;
   description: string;
   shortDescription: string;
+  githubUrl?: string;
   blockchains: Blockchain[];
   compilationDetails: CompilationDetails;
   tags: SmartContractTemplateCategory[];
