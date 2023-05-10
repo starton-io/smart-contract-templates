@@ -3421,7 +3421,7 @@ contract StartonERC4907 is StartonERC721Base, IERC4907 {
         address user,
         uint64 expires
     ) public virtual {
-        require(_isApprovedOrOwner(msg.sender, tokenId), "Caller is not owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "Caller is not owner nor approved");
 
         UserInfo storage info = _users[tokenId];
         info.user = user;
