@@ -610,7 +610,9 @@ contract StartonERC1155BaseSale is Context {
         require(tokensClaimed[_msgSender()] + amount <= maxTokensPerAddress, "Max tokens reached");
         require(leftSupply >= amount, "Max supply reached");
 
-        leftSupply -= amount;
+        unchecked {
+            leftSupply -= amount;
+        }
         tokensClaimed[_msgSender()] += amount;
         token.mint(to, id, amount);
     }
