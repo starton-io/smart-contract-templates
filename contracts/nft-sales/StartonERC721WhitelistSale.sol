@@ -37,8 +37,8 @@ contract StartonERC721WhitelistSale is StartonERC721BaseSale, AStartonWhitelist 
      * @param to The address to mint the token to
      * @param merkleProof The merkle proof of the address in the whitelist
      */
-    function mint(address to, bytes32[] memory merkleProof) public payable override isWhitelisted(merkleProof) {
-        super.mint(to, new bytes32[](0));
+    function mint(address to, bytes32[] calldata merkleProof) public payable override isWhitelisted(merkleProof) {
+        super.mint(to, merkleProof);
     }
 
     /**
@@ -49,8 +49,8 @@ contract StartonERC721WhitelistSale is StartonERC721BaseSale, AStartonWhitelist 
     function mintBatch(
         address to,
         uint256 amount,
-        bytes32[] memory merkleProof
+        bytes32[] calldata merkleProof
     ) public payable override isWhitelisted(merkleProof) {
-        super.mintBatch(to, amount, new bytes32[](0));
+        super.mintBatch(to, amount, merkleProof);
     }
 }

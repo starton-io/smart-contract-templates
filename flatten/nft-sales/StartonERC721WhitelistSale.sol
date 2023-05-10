@@ -265,7 +265,7 @@ abstract contract AStartonWhitelist is Context {
     bytes32 internal _merkleRoot;
 
     /** @dev Modifier that reverts when the sender is not whitelisted */
-    modifier isWhitelisted(bytes32[] memory merkleProof) {
+    modifier isWhitelisted(bytes32[] calldata merkleProof) {
         bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
         require(MerkleProof.verify(merkleProof, _merkleRoot, leaf), "Invalid proof");
         _;
@@ -961,9 +961,11 @@ contract StartonERC721BaseSale is Context {
     /**
      * @notice Mint a token to a given address for a price
      * @param to The address to mint the token to
-     * @param data The data to pass to the token (optional)
      */
-    function mint(address to, bytes32[] memory data) public payable virtual isTimeCorrect {
+    function mint(
+        address to,
+        bytes32[] calldata /*data*/
+    ) public payable virtual isTimeCorrect {
         require(msg.value >= price, "Insufficient funds");
 
         uint256 totalSupply = token.totalSupply();
@@ -977,12 +979,11 @@ contract StartonERC721BaseSale is Context {
     /**
      * @notice Mint multiple tokens to a given address for a price
      * @param to The address to mint the token to
-     * @param data The data to pass to the token (optional)
      */
     function mintBatch(
         address to,
         uint256 amount,
-        bytes32[] memory data
+        bytes32[] calldata /*data*/
     ) public payable virtual isTimeCorrect {
         require(msg.value >= price * amount, "Insufficient funds");
 
@@ -1059,8 +1060,8 @@ contract StartonERC721WhitelistSale is StartonERC721BaseSale, AStartonWhitelist 
      * @param to The address to mint the token to
      * @param merkleProof The merkle proof of the address in the whitelist
      */
-    function mint(address to, bytes32[] memory merkleProof) public payable override isWhitelisted(merkleProof) {
-        super.mint(to, new bytes32[](0));
+    function mint(address to, bytes32[] calldata merkleProof) public payable override isWhitelisted(merkleProof) {
+        super.mint(to, merkleProof);
     }
 
     /**
@@ -1071,8 +1072,8 @@ contract StartonERC721WhitelistSale is StartonERC721BaseSale, AStartonWhitelist 
     function mintBatch(
         address to,
         uint256 amount,
-        bytes32[] memory merkleProof
+        bytes32[] calldata merkleProof
     ) public payable override isWhitelisted(merkleProof) {
-        super.mintBatch(to, amount, new bytes32[](0));
+        super.mintBatch(to, amount, merkleProof);
     }
 }
