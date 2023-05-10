@@ -232,7 +232,6 @@ contract StartonVesting is Context {
         uint256 totalAmount = 0;
         for (uint256 i = 0; i < startTimestamps.length; ++i) {
             totalAmount += amounts[i];
-            require(totalAmount <= msg.value, "Not enough value");
             _createVesting(
                 beneficiary,
                 address(0),
@@ -243,6 +242,7 @@ contract StartonVesting is Context {
                 vestingType
             );
         }
+        require(totalAmount <= msg.value, "Not enough value");
     }
 
     /**
