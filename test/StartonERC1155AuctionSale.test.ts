@@ -168,17 +168,48 @@ describe("StartonERC1155AuctionSale", () => {
       );
     });
 
-    it("Should send back the money of the last bid", async () => {
+    it("Should add the amount of the last bid", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
 
       await instanceSale.bid({ value: ethers.utils.parseEther("0.1") });
 
-      const oldBalance = await owner.getBalance();
       await instanceSale
         .connect(addr1)
         .bid({ value: ethers.utils.parseEther("0.11") });
+      expect(await instanceSale.oldBidsAmount(owner.address)).to.be.equal(
+        ethers.utils.parseEther("0.1")
+      );
+    });
+  });
+
+  describe("WithdrawOldBids", () => {
+    it("Should let the previous winner withdraw back his bids", async () => {
+      await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);
+
+      await instanceSale.bid({ value: ethers.utils.parseEther("0.1") });
+      await instanceSale.bid({ value: ethers.utils.parseEther("0.13") });
+
+      await instanceSale
+        .connect(addr1)
+        .bid({ value: ethers.utils.parseEther("0.15") });
+
+      const balanceBefore = await owner.getBalance();
+      const tx = await instanceSale.connect(owner).withdrawOldBids();
+      const receipt = await tx.wait();
+
+      expect(await instanceSale.oldBidsAmount(owner.address)).to.be.equal(0);
       expect(await owner.getBalance()).to.be.equal(
-        oldBalance.add(ethers.utils.parseEther("0.1"))
+        balanceBefore.add(
+          ethers.utils
+            .parseEther("0.23")
+            .sub(receipt.gasUsed.mul(receipt.effectiveGasPrice))
+        )
+      );
+    });
+
+    it("Shouldn't withdraw if there is anything to withdraw", async () => {
+      await expect(instanceSale.withdrawOldBids()).to.be.revertedWith(
+        "No old bids to withdraw"
       );
     });
   });
