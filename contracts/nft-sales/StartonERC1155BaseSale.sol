@@ -2,13 +2,13 @@
 
 pragma solidity 0.8.17;
 
-import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IStartonERC1155.sol";
 
 /// @title StartonERC1155BaseSale
 /// @author Starton
 /// @notice Sell ERC1155 tokens through a public sale with a limited available supply, start and end time as well as max tokens per address
-contract StartonERC1155BaseSale is Context {
+contract StartonERC1155BaseSale is Ownable {
     struct TokenInformations {
         uint256 price;
         bool isSet;
@@ -110,7 +110,7 @@ contract StartonERC1155BaseSale is Context {
      * @param ids The ids of the tokens
      * @param prices The prices of the tokens
      */
-    function setPrices(uint256[] calldata ids, uint256[] calldata prices) public virtual {
+    function setPrices(uint256[] calldata ids, uint256[] calldata prices) public virtual onlyOwner {
         require(ids.length == prices.length, "Ids and prices length mismatch");
 
         for (uint256 i = 0; i < ids.length; ++i) {
