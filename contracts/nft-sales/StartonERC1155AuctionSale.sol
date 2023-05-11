@@ -20,6 +20,9 @@ contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
     uint256 public startTime;
     uint256 public endTime;
 
+    // Mapping of old auction winners and their outdated bids
+    mapping(address => uint256) public oldBidsAmount;
+
     // Informations of the token to be sold
     uint256 public tokenId;
     uint256 public tokenAmount;
@@ -82,9 +85,10 @@ contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
         currentAuctionWinner = _msgSender();
         emit Bided(_msgSender(), msg.value);
 
-        // If there is a current winner, send the money back
+        // If there is a current winner, send back the money or add the money to claimable amount
         if (oldAuctionWinner != address(0)) {
-            payable(oldAuctionWinner).call{value: oldPrice}("");
+            (bool success, ) = payable(oldAuctionWinner).call{value: oldPrice}("");
+            if (!success) oldBidsAmount[oldAuctionWinner] += oldPrice;
         }
     }
 
@@ -130,6 +134,19 @@ contract StartonERC1155AuctionSale is Ownable, ReentrancyGuard {
         tokenAmount = newTokenAmount;
 
         emit AuctionStarted(startTime, endTime);
+    }
+
+    /**
+     * @notice Withdraw the olds bids amount of the sender
+     */
+    function withdrawOldBids() public {
+        require(oldBidsAmount[_msgSender()] > 0, "No old bids to withdraw");
+
+        uint256 amount = oldBidsAmount[_msgSender()];
+        oldBidsAmount[_msgSender()] = 0;
+
+        (bool success, ) = payable(_msgSender()).call{value: amount}("");
+        require(success, "Failed to withdraw");
     }
 
     /**
