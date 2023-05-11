@@ -82,9 +82,10 @@ contract StartonERC721AuctionSale is Ownable, ReentrancyGuard {
         currentAuctionWinner = _msgSender();
         emit Bided(_msgSender(), msg.value);
 
-        // If there is a current winner, add the money to claimable amount
+        // If there is a current winner, send back the money or add the money to claimable amount
         if (oldAuctionWinner != address(0)) {
-            oldBidsAmount[oldAuctionWinner] += oldPrice;
+            (bool success, ) = payable(oldAuctionWinner).call{value: oldPrice}("");
+            if (!success) oldBidsAmount[oldAuctionWinner] += oldPrice;
         }
     }
 
