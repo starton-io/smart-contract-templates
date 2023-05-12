@@ -61,8 +61,4 @@ Please adhere to Starton's ![Code of Conduct](CODE_OF_CONDUCT.md).
 ## Authors
 
 - Starton [support@starton.com](mailto:support@starton.com)
-- Matéo Viel
-
-```
-
-```
+- Matéo Viel [mateo@starton.com](mailto:mateo@starton.com)
