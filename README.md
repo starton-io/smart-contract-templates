@@ -1,18 +1,22 @@
 # StartonSmartContracts
 
-This repository has all the templates provided by Starton that you can access and deploy using the official API.
+his repository has all the templates provided by Starton that you can access and deploy using the official API.
+
+## Requirements
+
+You will need :
+
+- [NodeJS](https://nodejs.org/en) (we recommend the use of [nvm](https://github.com/nvm-sh/nvm))
+- [Yarn](https://yarnpkg.com/)
 
 ## Installation
 
-First of all, make sure you have `node` and `yarn` installed successfully
+To install the project, first clone the repository and go inside project directory, then :
 
-You can now install the dependencies using:
-
-```shell
-yarn
-```
-
-It installs mainly hardhat and a few plugins on top of it that are usefull for developpements
+- With [yarn](https://yarnpkg.com/) :
+  ```bash
+  $ yarn install
+  ```
 
 ## Tests
 
@@ -42,6 +46,23 @@ yarn doc FILENAME
 
 This script will take all the informations as input from the doc.ts file and fill the abi, bytecode and compilation details. PS: You need to specify the contractName in the compilation details for it to works
 
-## Author
+## Contributing
 
-[Starton](https://www.starton.io/)
+Contributions are always welcome!
+
+See ![CONTRIBUTING.md](CONTRIBUTING.md) for ways to get started.
+
+Please adhere to Starton's ![Code of Conduct](CODE_OF_CONDUCT.md).
+
+## License
+
+![Apache License 2.0](LICENSE.md)
+
+## Authors
+
+- Starton [support@starton.com](mailto:support@starton.com)
+- Matéo Viel
+
+```
+
+```
