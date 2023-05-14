@@ -183,6 +183,14 @@ describe("StartonERC1155AuctionSale", () => {
     });
   });
 
+  describe("WithdrawOldBids", () => {
+    it("Shouldn't withdraw if there is anything to withdraw", async () => {
+      await expect(instanceSale.withdrawOldBids()).to.be.revertedWith(
+        "No old bids to withdraw"
+      );
+    });
+  });
+
   describe("Claim", () => {
     it("Shouldn't claim if the auction hasn't finished", async () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [now.valueOf()]);

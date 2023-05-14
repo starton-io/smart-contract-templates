@@ -41,9 +41,9 @@ contract StartonERC1155WhitelistSale is StartonERC1155BaseSale, AStartonWhitelis
         address to,
         uint256 id,
         uint256 amount,
-        bytes32[] memory merkleProof
+        bytes32[] calldata merkleProof
     ) public payable override isWhitelisted(merkleProof) {
-        super.mint(to, id, amount, new bytes32[](0));
+        super.mint(to, id, amount, merkleProof);
     }
 
     /**
@@ -57,8 +57,8 @@ contract StartonERC1155WhitelistSale is StartonERC1155BaseSale, AStartonWhitelis
         address to,
         uint256[] calldata ids,
         uint256[] calldata amounts,
-        bytes32[] memory merkleProof
+        bytes32[] calldata merkleProof
     ) public payable override isWhitelisted(merkleProof) {
-        super.mintBatch(to, ids, amounts, new bytes32[](0));
+        super.mintBatch(to, ids, amounts, merkleProof);
     }
 }

@@ -52,12 +52,6 @@ describe("StartonVesting", () => {
 
   describe("Deployment", () => {
     it("Should deploy the contract", async () => {});
-
-    it("Should be a empty array of vestingBeneficiaries", async () => {
-      const vestingBeneficiaries =
-        await instanceVesting.getVestingsBeneficiaries();
-      expect(vestingBeneficiaries).to.deep.equal([]);
-    });
   });
 
   describe("CliffVesting", () => {
@@ -198,8 +192,6 @@ describe("StartonVesting", () => {
           const vesting3 = await instanceVesting.getVesting(addr2.address, 0);
           const vestings1 = await instanceVesting.getVestings(addr1.address);
           const vestings2 = await instanceVesting.getVestings(addr2.address);
-          const vestingBeneficiary =
-            await instanceVesting.getVestingsBeneficiaries();
           const awaitedVesting1 = [
             amount1,
             TypeOfToken.NATIVE,
@@ -235,10 +227,6 @@ describe("StartonVesting", () => {
           expect(vesting3).to.deep.equal(awaitedVesting3);
           expect(vestings1).to.deep.equal([awaitedVesting1, awaitedVesting2]);
           expect(vestings2).to.deep.equal([awaitedVesting3]);
-          expect(vestingBeneficiary).to.deep.equal([
-            addr1.address,
-            addr2.address,
-          ]);
         });
       });
 
@@ -461,8 +449,6 @@ describe("StartonVesting", () => {
           const vesting3 = await instanceVesting.getVesting(addr2.address, 0);
           const vestings1 = await instanceVesting.getVestings(addr1.address);
           const vestings2 = await instanceVesting.getVestings(addr2.address);
-          const vestingBeneficiary =
-            await instanceVesting.getVestingsBeneficiaries();
           const awaitedVesting1 = [
             amount1,
             TypeOfToken.NATIVE,
@@ -498,10 +484,6 @@ describe("StartonVesting", () => {
           expect(vesting3).to.deep.equal(awaitedVesting3);
           expect(vestings1).to.deep.equal([awaitedVesting1, awaitedVesting2]);
           expect(vestings2).to.deep.equal([awaitedVesting3]);
-          expect(vestingBeneficiary).to.deep.equal([
-            addr1.address,
-            addr2.address,
-          ]);
         });
       });
 
@@ -911,8 +893,6 @@ describe("StartonVesting", () => {
           const vesting3 = await instanceVesting.getVesting(addr2.address, 0);
           const vestings1 = await instanceVesting.getVestings(addr1.address);
           const vestings2 = await instanceVesting.getVestings(addr2.address);
-          const vestingBeneficiary =
-            await instanceVesting.getVestingsBeneficiaries();
           const awaitedVesting1 = [
             amount1,
             TypeOfToken.TOKEN,
@@ -946,10 +926,6 @@ describe("StartonVesting", () => {
           expect(vesting3).to.deep.equal(awaitedVesting3);
           expect(vestings1).to.deep.equal([awaitedVesting1, awaitedVesting2]);
           expect(vestings2).to.deep.equal([awaitedVesting3]);
-          expect(vestingBeneficiary).to.deep.equal([
-            addr1.address,
-            addr2.address,
-          ]);
         });
       });
 
@@ -1184,8 +1160,6 @@ describe("StartonVesting", () => {
           const vesting3 = await instanceVesting.getVesting(addr2.address, 0);
           const vestings1 = await instanceVesting.getVestings(addr1.address);
           const vestings2 = await instanceVesting.getVestings(addr2.address);
-          const vestingBeneficiary =
-            await instanceVesting.getVestingsBeneficiaries();
           const awaitedVesting1 = [
             amount1,
             TypeOfToken.TOKEN,
@@ -1219,10 +1193,6 @@ describe("StartonVesting", () => {
           expect(vesting3).to.deep.equal(awaitedVesting3);
           expect(vestings1).to.deep.equal([awaitedVesting1, awaitedVesting2]);
           expect(vestings2).to.deep.equal([awaitedVesting3]);
-          expect(vestingBeneficiary).to.deep.equal([
-            addr1.address,
-            addr2.address,
-          ]);
         });
       });
 
@@ -1583,8 +1553,6 @@ describe("StartonVesting", () => {
           const vesting3 = await instanceVesting.getVesting(addr2.address, 0);
           const vestings1 = await instanceVesting.getVestings(addr1.address);
           const vestings2 = await instanceVesting.getVestings(addr2.address);
-          const vestingBeneficiary =
-            await instanceVesting.getVestingsBeneficiaries();
           const awaitedVesting1 = [
             amount1,
             TypeOfToken.NATIVE,
@@ -1620,10 +1588,6 @@ describe("StartonVesting", () => {
           expect(vesting3).to.deep.equal(awaitedVesting3);
           expect(vestings1).to.deep.equal([awaitedVesting1, awaitedVesting2]);
           expect(vestings2).to.deep.equal([awaitedVesting3]);
-          expect(vestingBeneficiary).to.deep.equal([
-            addr1.address,
-            addr2.address,
-          ]);
         });
       });
 
@@ -1846,8 +1810,6 @@ describe("StartonVesting", () => {
           const vesting3 = await instanceVesting.getVesting(addr2.address, 0);
           const vestings1 = await instanceVesting.getVestings(addr1.address);
           const vestings2 = await instanceVesting.getVestings(addr2.address);
-          const vestingBeneficiary =
-            await instanceVesting.getVestingsBeneficiaries();
           const awaitedVesting1 = [
             amount1,
             TypeOfToken.NATIVE,
@@ -1883,10 +1845,6 @@ describe("StartonVesting", () => {
           expect(vesting3).to.deep.equal(awaitedVesting3);
           expect(vestings1).to.deep.equal([awaitedVesting1, awaitedVesting2]);
           expect(vestings2).to.deep.equal([awaitedVesting3]);
-          expect(vestingBeneficiary).to.deep.equal([
-            addr1.address,
-            addr2.address,
-          ]);
         });
       });
 
@@ -2436,8 +2394,6 @@ describe("StartonVesting", () => {
           const vesting3 = await instanceVesting.getVesting(addr2.address, 0);
           const vestings1 = await instanceVesting.getVestings(addr1.address);
           const vestings2 = await instanceVesting.getVestings(addr2.address);
-          const vestingBeneficiary =
-            await instanceVesting.getVestingsBeneficiaries();
           const awaitedVesting1 = [
             amount1,
             TypeOfToken.TOKEN,
@@ -2471,10 +2427,6 @@ describe("StartonVesting", () => {
           expect(vesting3).to.deep.equal(awaitedVesting3);
           expect(vestings1).to.deep.equal([awaitedVesting1, awaitedVesting2]);
           expect(vestings2).to.deep.equal([awaitedVesting3]);
-          expect(vestingBeneficiary).to.deep.equal([
-            addr1.address,
-            addr2.address,
-          ]);
         });
       });
 
@@ -2709,8 +2661,6 @@ describe("StartonVesting", () => {
           const vesting3 = await instanceVesting.getVesting(addr2.address, 0);
           const vestings1 = await instanceVesting.getVestings(addr1.address);
           const vestings2 = await instanceVesting.getVestings(addr2.address);
-          const vestingBeneficiary =
-            await instanceVesting.getVestingsBeneficiaries();
           const awaitedVesting1 = [
             amount1,
             TypeOfToken.TOKEN,
@@ -2744,10 +2694,6 @@ describe("StartonVesting", () => {
           expect(vesting3).to.deep.equal(awaitedVesting3);
           expect(vestings1).to.deep.equal([awaitedVesting1, awaitedVesting2]);
           expect(vestings2).to.deep.equal([awaitedVesting3]);
-          expect(vestingBeneficiary).to.deep.equal([
-            addr1.address,
-            addr2.address,
-          ]);
         });
       });
 

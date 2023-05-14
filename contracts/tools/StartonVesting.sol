@@ -32,9 +32,6 @@ contract StartonVesting is Context {
     // Mapping of vestings
     mapping(address => VestingData[]) private _vestings;
 
-    // List of the addresses that have a vesting
-    address[] private _vestingBeneficiaries;
-
     /** @notice Event emitted when a new vesting has been added */
     event AddedVesting(
         address indexed beneficiary,
@@ -125,14 +122,6 @@ contract StartonVesting is Context {
      */
     function getVestingNumber(address beneficiary) public view returns (uint256) {
         return _vestings[beneficiary].length;
-    }
-
-    /**
-     * @notice Get the list of addresses that have at least one vesting
-     * @return The list of addresses
-     */
-    function getVestingsBeneficiaries() public view virtual returns (address[] memory) {
-        return _vestingBeneficiaries;
     }
 
     /**
@@ -232,7 +221,6 @@ contract StartonVesting is Context {
         uint256 totalAmount = 0;
         for (uint256 i = 0; i < startTimestamps.length; ++i) {
             totalAmount += amounts[i];
-            require(totalAmount <= msg.value, "Not enough value");
             _createVesting(
                 beneficiary,
                 address(0),
@@ -243,6 +231,7 @@ contract StartonVesting is Context {
                 vestingType
             );
         }
+        require(totalAmount <= msg.value, "Not enough value");
     }
 
     /**
@@ -269,18 +258,6 @@ contract StartonVesting is Context {
             VestingData[] storage vestings = _vestings[_msgSender()];
             vestings[index] = vestings[vestings.length - 1];
             vestings.pop();
-
-            // If the sender doesn't have any vesting, remove it from the list
-            if (vestings.length == 0) {
-                uint256 nbBeneficiaries = _vestingBeneficiaries.length;
-                for (uint256 i = 0; i < nbBeneficiaries; ++i) {
-                    if (_vestingBeneficiaries[i] == _msgSender()) {
-                        _vestingBeneficiaries[i] = _vestingBeneficiaries[nbBeneficiaries - 1];
-                        _vestingBeneficiaries.pop();
-                        break;
-                    }
-                }
-            }
         } else {
             // Update the amount claimed
             _vestings[_msgSender()][index].amountClaimed += value;
@@ -340,22 +317,7 @@ contract StartonVesting is Context {
             })
         );
 
-        // If the beneficiary is not already in the list, add it
-        if (!_isBeneficiary(beneficiary)) _vestingBeneficiaries.push(beneficiary);
-
         emit AddedVesting(beneficiary, getVestingNumber(beneficiary) - 1, token, amount, startTimestamp, endTimestamp);
-    }
-
-    /**
-     * @dev Check if a beneficiary have a vesting
-     * @return bool True if the beneficiary have a vesting
-     */
-    function _isBeneficiary(address beneficiary) internal view virtual returns (bool) {
-        uint256 nbBeneficiaries = _vestingBeneficiaries.length;
-        for (uint256 i = 0; i < nbBeneficiaries; ++i) {
-            if (_vestingBeneficiaries[i] == beneficiary) return true;
-        }
-        return false;
     }
 
     /**

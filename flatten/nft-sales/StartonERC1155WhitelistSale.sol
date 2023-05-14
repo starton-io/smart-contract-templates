@@ -265,10 +265,94 @@ abstract contract AStartonWhitelist is Context {
     bytes32 internal _merkleRoot;
 
     /** @dev Modifier that reverts when the sender is not whitelisted */
-    modifier isWhitelisted(bytes32[] memory merkleProof) {
+    modifier isWhitelisted(bytes32[] calldata merkleProof) {
         bytes32 leaf = keccak256(abi.encodePacked(_msgSender()));
         require(MerkleProof.verify(merkleProof, _merkleRoot, leaf), "Invalid proof");
         _;
+    }
+}
+
+
+// File @openzeppelin/contracts/access/Ownable.sol@v4.8.1
+
+// OpenZeppelin Contracts (last updated v4.7.0) (access/Ownable.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * By default, the owner account will be the one that deploys the contract. This
+ * can later be changed with {transferOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * the owner.
+ */
+abstract contract Ownable is Context {
+    address private _owner;
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    constructor() {
+        _transferOwnership(_msgSender());
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        _checkOwner();
+        _;
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if the sender is not the owner.
+     */
+    function _checkOwner() internal view virtual {
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby removing any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        _transferOwnership(address(0));
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        _transferOwnership(newOwner);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
+     */
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
     }
 }
 
@@ -470,7 +554,7 @@ pragma solidity 0.8.17;
 /// @title StartonERC1155BaseSale
 /// @author Starton
 /// @notice Sell ERC1155 tokens through a public sale with a limited available supply, start and end time as well as max tokens per address
-contract StartonERC1155BaseSale is Context {
+contract StartonERC1155BaseSale is Ownable {
     struct TokenInformations {
         uint256 price;
         bool isSet;
@@ -527,13 +611,12 @@ contract StartonERC1155BaseSale is Context {
      * @param to The address to mint the token to
      * @param id The id of the token
      * @param amount The amount of tokens to mint
-     * @param data The data to pass to the token (optional)
      */
     function mint(
         address to,
         uint256 id,
         uint256 amount,
-        bytes32[] memory data
+        bytes32[] calldata /*data*/
     ) public payable virtual isPriceSet(id) isTimeCorrect {
         require(msg.value >= _pricePerToken[id].price * amount, "Insufficient funds");
 
@@ -545,13 +628,12 @@ contract StartonERC1155BaseSale is Context {
      * @param to The address to mint the tokens to
      * @param ids The ids of the token to mint
      * @param amounts The amounts of tokens to mint
-     * @param data The data to pass to the token (optional)
      */
     function mintBatch(
         address to,
         uint256[] calldata ids,
         uint256[] calldata amounts,
-        bytes32[] memory data
+        bytes32[] calldata /*data*/
     ) public payable virtual isTimeCorrect {
         require(ids.length == amounts.length, "Ids and amounts length mismatch");
 
@@ -572,7 +654,7 @@ contract StartonERC1155BaseSale is Context {
      * @param ids The ids of the tokens
      * @param prices The prices of the tokens
      */
-    function setPrices(uint256[] calldata ids, uint256[] calldata prices) public virtual {
+    function setPrices(uint256[] calldata ids, uint256[] calldata prices) public virtual onlyOwner {
         require(ids.length == prices.length, "Ids and prices length mismatch");
 
         for (uint256 i = 0; i < ids.length; ++i) {
@@ -610,7 +692,9 @@ contract StartonERC1155BaseSale is Context {
         require(tokensClaimed[_msgSender()] + amount <= maxTokensPerAddress, "Max tokens reached");
         require(leftSupply >= amount, "Max supply reached");
 
-        leftSupply -= amount;
+        unchecked {
+            leftSupply -= amount;
+        }
         tokensClaimed[_msgSender()] += amount;
         token.mint(to, id, amount);
     }
@@ -659,9 +743,9 @@ contract StartonERC1155WhitelistSale is StartonERC1155BaseSale, AStartonWhitelis
         address to,
         uint256 id,
         uint256 amount,
-        bytes32[] memory merkleProof
+        bytes32[] calldata merkleProof
     ) public payable override isWhitelisted(merkleProof) {
-        super.mint(to, id, amount, new bytes32[](0));
+        super.mint(to, id, amount, merkleProof);
     }
 
     /**
@@ -675,8 +759,8 @@ contract StartonERC1155WhitelistSale is StartonERC1155BaseSale, AStartonWhitelis
         address to,
         uint256[] calldata ids,
         uint256[] calldata amounts,
-        bytes32[] memory merkleProof
+        bytes32[] calldata merkleProof
     ) public payable override isWhitelisted(merkleProof) {
-        super.mintBatch(to, ids, amounts, new bytes32[](0));
+        super.mintBatch(to, ids, amounts, merkleProof);
     }
 }

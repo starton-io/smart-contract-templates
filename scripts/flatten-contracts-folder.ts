@@ -79,7 +79,7 @@ function main() {
   console.log("Flattening files : " + filesToFlatten);
 
   for (const file of filesToFlatten) {
-    const relativeFilePath = file.split(dir)[1];
+    const relativeFilePath = file.replace("\\", "/").split(dir)[1];
     const dest = outDir + relativeFilePath;
     const source = dir + relativeFilePath;
 
