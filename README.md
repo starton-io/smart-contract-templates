@@ -1,3 +1,5 @@
+![Starton Banner](https://github.com/starton-io/.github/blob/master/github-banner.jpg?raw=true)
+
 # Starton - Smart Contracts
 
 This repository has all the templates provided by Starton that you can access and deploy using the official API.
@@ -45,6 +47,10 @@ yarn doc FILENAME
 ```
 
 This script will take all the informations as input from the doc.ts file and fill the abi, bytecode and compilation details. PS: You need to specify the contractName in the compilation details for it to works
+
+## Audits and Security
+
+You can find the audit of the contracts by Pessimistic: [Report](./audits/Starton%20Security%20Analysis%20by%20Pessimistic.pdf)
 
 ## Contributing
 
