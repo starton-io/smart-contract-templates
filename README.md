@@ -1,3 +1,5 @@
+![Starton Banner](https://github.com/starton-io/.github/blob/master/github-banner.jpg?raw=true)
+
 # Starton - Smart Contracts
 
 This repository has all the templates provided by Starton that you can access and deploy using the official API.
