@@ -2,12 +2,12 @@
 
 pragma solidity 0.8.17;
 
-import "./StartonERC721Base.sol";
+import "./StartonERC721BaseRoyalties.sol";
 
 /// @title StartonERC721Capped
 /// @author Starton
 /// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management, max number of tokens and handle meta transactions
-contract StartonERC721Capped is StartonERC721Base {
+contract StartonERC721CappedRoyalties is StartonERC721BaseRoyalties {
     using Counters for Counters.Counter;
 
     uint256 public immutable maxSupply;
@@ -15,14 +15,18 @@ contract StartonERC721Capped is StartonERC721Base {
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
+        uint96 definitiveRoyaltyFee,
+        address definitiveFeeReceiver,
         uint256 definitiveMaxSupply,
         string memory initialBaseTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
     )
-        StartonERC721Base(
+        StartonERC721BaseRoyalties(
             definitiveName,
             definitiveSymbol,
+            definitiveRoyaltyFee,
+            definitiveFeeReceiver,
             initialBaseTokenURI,
             initialContractURI,
             initialOwnerOrMultiSigContract

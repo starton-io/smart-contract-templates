@@ -3344,65 +3344,25 @@ contract StartonERC721BaseRoyalties is StartonERC721Base, ERC2981 {
 }
 
 
-// File contracts/interfaces/IERC4907.sol
-
-
-pragma solidity ^0.8.0;
-
-interface IERC4907 {
-    // Logged when the user of an NFT is changed or expires is changed
-    /// @notice Emitted when the `user` of an NFT or the `expires` of the `user` is changed
-    /// The zero address for user indicates that there is no user address
-    event UpdateUser(uint256 indexed tokenId, address indexed user, uint64 expires);
-
-    /// @notice set the user and expires of an NFT
-    /// @dev The zero address indicates there is no user
-    /// Throws if `tokenId` is not valid NFT
-    /// @param user  The new user of the NFT
-    /// @param expires  UNIX timestamp, The new user could use the NFT before expires
-    function setUser(
-        uint256 tokenId,
-        address user,
-        uint64 expires
-    ) external;
-
-    /// @notice Get the user address of an NFT
-    /// @dev The zero address indicates that there is no user or the user is expired
-    /// @param tokenId The NFT to get the user address for
-    /// @return The user address for this NFT
-    function userOf(uint256 tokenId) external view returns (address);
-
-    /// @notice Get the user expires of an NFT
-    /// @dev The zero value indicates that there is no user
-    /// @param tokenId The NFT to get the user expires for
-    /// @return The user expires for this NFT
-    function userExpires(uint256 tokenId) external view returns (uint256);
-}
-
-
-// File contracts/non-fungible/StartonERC4907.sol
+// File contracts/non-fungible/StartonERC721CappedRoyalties.sol
 
 
 pragma solidity 0.8.17;
 
-
-/// @title StartonERC4907
+/// @title StartonERC721Capped
 /// @author Starton
-/// @notice This contract allows to rent NFTs
-contract StartonERC4907 is StartonERC721BaseRoyalties, IERC4907 {
-    /** @notice Structure of data reprensenting the user and expiration of usage */
-    struct UserInfo {
-        address user;
-        uint64 expires;
-    }
+/// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management, max number of tokens and handle meta transactions
+contract StartonERC721CappedRoyalties is StartonERC721BaseRoyalties {
+    using Counters for Counters.Counter;
 
-    mapping(uint256 => UserInfo) internal _users;
+    uint256 public immutable maxSupply;
 
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
         uint96 definitiveRoyaltyFee,
         address definitiveFeeReceiver,
+        uint256 definitiveMaxSupply,
         string memory initialBaseTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
@@ -3416,79 +3376,21 @@ contract StartonERC4907 is StartonERC721BaseRoyalties, IERC4907 {
             initialContractURI,
             initialOwnerOrMultiSigContract
         )
-    {}
+    {
+        require(definitiveMaxSupply > 0, "maxSupply must be greater than 0");
 
-    /**
-     * @notice Get the user address of an NFT
-     * @dev The zero address indicates that there is no user or the user is expired
-     * @param tokenId The NFT to get the user address for
-     * @return The user address for this NFT
-     */
-    function userOf(uint256 tokenId) public view virtual returns (address) {
-        if (uint256(_users[tokenId].expires) >= block.timestamp) {
-            return _users[tokenId].user;
-        } else {
-            return address(0);
-        }
+        maxSupply = definitiveMaxSupply;
     }
 
     /**
-     * @notice Get the user expires of an NFT
-     * @dev The zero value indicates that there is no user
-     * @param tokenId The NFT to get the user expires for
-     * @return The user expires for this NFT
+     * @notice Mint a new token to the given address and set the token metadata while minting is not locked
+     * @param to The address that will receive the token
+     * @param uri The URI of the token metadata
+     * @custom:requires MINTER_ROLE
      */
-    function userExpires(uint256 tokenId) public view virtual returns (uint256) {
-        return _users[tokenId].expires;
-    }
+    function mint(address to, string memory uri) public virtual override {
+        require(_tokenIdCounter.current() < maxSupply, "Max supply reached");
 
-    /**
-     * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
-     * @return True if the interface is supported
-     */
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC4907).interfaceId || super.supportsInterface(interfaceId);
-    }
-
-    /**
-     * @notice Set the user and expires of an NFT
-     * @dev The zero address indicates there is no user
-     * Throws if `tokenId` is not valid NFT
-     * @param user  The new user of the NFT
-     * @param expires UNIX timestamp, The new user could use the NFT before expires
-     */
-    function setUser(
-        uint256 tokenId,
-        address user,
-        uint64 expires
-    ) public virtual {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "Caller is not owner nor approved");
-
-        UserInfo storage info = _users[tokenId];
-        info.user = user;
-        info.expires = expires;
-        emit UpdateUser(tokenId, user, expires);
-    }
-
-    /**
-     * @dev Call the inherited contract _beforeTokenTransfer function
-     * then delete the user of the NFT if the transfer is not a mint or a burn
-     * @param from The address that owns the NFT
-     * @param to The address that will receive the NFT
-     * @param tokenId The NFT to transfer
-     * @param batchSize The number of NFTs to transfer
-     */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 batchSize
-    ) internal virtual override {
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
-
-        if (from != to && _users[tokenId].user != address(0)) {
-            delete _users[tokenId];
-            emit UpdateUser(tokenId, address(0), 0);
-        }
+        super.mint(to, uri);
     }
 }
