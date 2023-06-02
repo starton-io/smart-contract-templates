@@ -56,8 +56,10 @@ const LIST: SmartContractTemplate[] = [
   {
     id: "ERC721_ROYALTIES_META_TRANSACTION",
     name: "ERC721 NFT smart contract (with Royalty)",
-    description: "The smart contract template to deploy single-copy NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
-    shortDescription: "The smart contract template to deploy single-copy NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
+    description:
+      "The smart contract template to deploy single-copy NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
+    shortDescription:
+      "The smart contract template to deploy single-copy NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721BaseRoyalties.sol",
     blockchains: [
@@ -259,7 +261,8 @@ const LIST: SmartContractTemplate[] = [
   {
     id: "ERC1155_ROYALTIES_META_TRANSACTION",
     name: "ERC1155 NFTs collection (with Royalty)",
-    description: "The smart contract standard to manage multiple-copies NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
+    description:
+      "The smart contract standard to manage multiple-copies NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
     shortDescription:
       "The smart contract standard to manage multiple-copies NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
     githubUrl:
