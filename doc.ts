@@ -55,11 +55,11 @@ const LIST: SmartContractTemplate[] = [
   },
   {
     id: "ERC721_ROYALTIES_META_TRANSACTION",
-    name: "ERC721 NFT smart contract",
-    description: "The smart contract template to deploy single-copy NFTs",
-    shortDescription: "The smart contract template to deploy single-copy NFTs",
+    name: "ERC721 NFT smart contract (with Royalty)",
+    description: "The smart contract template to deploy single-copy NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
+    shortDescription: "The smart contract template to deploy single-copy NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
     githubUrl:
-      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721Base.sol",
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721BaseRoyalties.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -71,7 +71,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 1,
+    order: 4,
     category: SmartContractTemplateCategory.NFT,
     tags: [SmartContractTemplateCategory.NFT],
     form: {
@@ -92,7 +92,7 @@ const LIST: SmartContractTemplate[] = [
         ],
         resources: {
           documentation: {
-            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Meta",
+            href: "https://docs.starton.io/docs/Smart-contract/ERC721_ROYALTIES_META_TRANSACTION",
             alt: "Go to ERC721 NFT Smart Contract",
           },
           tutorials: {
@@ -156,13 +156,13 @@ const LIST: SmartContractTemplate[] = [
   },
   {
     id: "ERC721_ROYALTIES_CAPPED_META_TRANSACTION",
-    name: "ERC721 NFT with limited supply",
+    name: "ERC721 NFT with limited supply (with Royalty)",
     description:
-      "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT).",
+      "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT). This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
     shortDescription:
-      "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT).",
+      "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT). This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
     githubUrl:
-      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721Capped.sol",
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721CappedRoyalties.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -174,7 +174,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 2,
+    order: 5,
     category: SmartContractTemplateCategory.NFT,
     tags: [SmartContractTemplateCategory.NFT],
     form: {
@@ -196,7 +196,7 @@ const LIST: SmartContractTemplate[] = [
         ],
         resources: {
           documentation: {
-            href: "https://docs.starton.io/docs/Smart-contract/ERC721-Capped",
+            href: "https://docs.starton.io/docs/Smart-contract/ERC721_ROYALTIES_CAPPED_META_TRANSACTION",
             alt: "Go to ERC721 NFT Capped Documentation",
           },
           tutorial: {
@@ -258,12 +258,12 @@ const LIST: SmartContractTemplate[] = [
   },
   {
     id: "ERC1155_ROYALTIES_META_TRANSACTION",
-    name: "ERC1155 NFTs collection",
-    description: "The smart contract standard to manage multiple-copies NFTs.",
+    name: "ERC1155 NFTs collection (with Royalty)",
+    description: "The smart contract standard to manage multiple-copies NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
     shortDescription:
-      "The smart contract standard to manage multiple-copies NFTs.",
+      "The smart contract standard to manage multiple-copies NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
     githubUrl:
-      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC1155Base.sol",
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC1155BaseRoyalties.sol",
     blockchains: [
       Blockchain.POLYGON,
       Blockchain.AVALANCHE,
@@ -275,7 +275,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 3,
+    order: 6,
     category: SmartContractTemplateCategory.NFT,
     tags: [SmartContractTemplateCategory.NFT],
     form: {
@@ -327,7 +327,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 4,
+    order: 7,
     category: SmartContractTemplateCategory.FUNGIBLE,
     tags: [SmartContractTemplateCategory.FUNGIBLE],
     form: {
@@ -377,7 +377,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 5,
+    order: 8,
     category: SmartContractTemplateCategory.FUNGIBLE,
     tags: [SmartContractTemplateCategory.FUNGIBLE],
     form: {
@@ -426,7 +426,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 6,
+    order: 9,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -476,7 +476,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 7,
+    order: 10,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -527,7 +527,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 8,
+    order: 11,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -580,7 +580,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 9,
+    order: 12,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -631,7 +631,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 10,
+    order: 13,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -683,7 +683,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 11,
+    order: 14,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -734,7 +734,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 12,
+    order: 15,
     category: SmartContractTemplateCategory.OTHER,
     tags: [SmartContractTemplateCategory.OTHER],
     form: {
