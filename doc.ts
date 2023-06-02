@@ -77,7 +77,7 @@ const LIST: SmartContractTemplate[] = [
     form: {
       infos: {
         description:
-          "The ERC721 smart contract standard is built for single-copy Non Fungible Tokens (NFT) and is out-of-the-box compatible with Opensea. With an ERC721, every NFT is unique, so you have to reference the content for each NFT. You can also send transactions on behalf of your users so they can use their tokens without having to pay for gas fees.",
+          "The ERC721 smart contract standard is built for single-copy Non Fungible Tokens (NFT) and is out-of-the-box compatible with Opensea. With an ERC721, every NFT is unique, so you have to reference the content for each NFT. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT",
         usecases: [
           "In a video game, one-of-one NFT can consist of a digital good only one player can own at a time such as a piece of land.",
         ],
@@ -87,6 +87,8 @@ const LIST: SmartContractTemplate[] = [
           "The URI of the content of the NFT",
           "The address of the initial owner",
           "The network on which you want to deploy",
+          "The fraction of sale price representing the royalty fees",
+          "The address that will receive the royalty fees",
         ],
         resources: {
           documentation: {
@@ -178,7 +180,7 @@ const LIST: SmartContractTemplate[] = [
     form: {
       infos: {
         description:
-          "The NFT ERC721 smart contract where you can define the maximum supply of NFT you can mint.",
+          "The NFT ERC721 smart contract where you can define the maximum supply of NFT you can mint. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT",
         usecases: [
           "In a video game, you can sell an NFT and pay for gas in place of the NFT receiver.",
         ],
@@ -189,6 +191,8 @@ const LIST: SmartContractTemplate[] = [
           "The address of the initial owner",
           "The network on which you want to deploy",
           "The maximum supply of NFTs that can be minted",
+          "The fraction of sale price representing the royalty fees",
+          "The address that will receive the royalty fees",
         ],
         resources: {
           documentation: {
@@ -277,7 +281,7 @@ const LIST: SmartContractTemplate[] = [
     form: {
       infos: {
         description:
-          "The smart contract standard to manage multiple-copies NFTs. Though their content is identical, each NFT has a different token ID.",
+          "The smart contract standard to manage multiple-copies NFTs. Though their content is identical, each NFT has a different token ID. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT",
         usecases: [
           "In a video game, it can be a piece of equipment won after an action such as a powerful sword after defeating an enemy. Every user defeating the enemy will own an edition of the sword with a different identifier.",
         ],
@@ -287,6 +291,8 @@ const LIST: SmartContractTemplate[] = [
           "The URI of the content of the NFT",
           "The address of the initial owner",
           "The network on which you want to deploy",
+          "The fraction of sale price representing the royalty fees",
+          "The address that will receive the royalty fees",
         ],
         resources: {
           documentation: {
