@@ -3,14 +3,14 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 
 import {
-  StartonERC721Capped,
-  StartonERC721Capped__factory, // eslint-disable-line camelcase
+  StartonERC721BaseRoyalties,
+  StartonERC721BaseRoyalties__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let ERC721: StartonERC721Capped__factory; // eslint-disable-line camelcase
+let ERC721: StartonERC721BaseRoyalties__factory; // eslint-disable-line camelcase
 
-describe("StartonERC721Capped", () => {
-  let instanceERC721: StartonERC721Capped;
+describe("StartonERC721BaseRoyalties", () => {
+  let instanceERC721: StartonERC721BaseRoyalties;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
@@ -20,36 +20,24 @@ describe("StartonERC721Capped", () => {
     [owner, addr1, addr2] = await ethers.getSigners();
 
     // Create factory
-    ERC721 = new StartonERC721Capped__factory(owner);
+    ERC721 = new StartonERC721BaseRoyalties__factory(owner);
   });
 
   beforeEach(async () => {
     instanceERC721 = (await ERC721.deploy(
       "StartonToken",
       "ST",
-      10,
+      "1000",
+      owner.address,
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
-    )) as StartonERC721Capped;
+    )) as StartonERC721BaseRoyalties;
     await instanceERC721.deployed();
   });
 
   describe("Deployment", () => {
     it("Should deploy", async () => {});
-
-    it("Shouldn't deploy if maxSupply is 0", async () => {
-      await expect(
-        ERC721.deploy(
-          "StartonToken",
-          "ST",
-          0,
-          "https://ipfs.io/",
-          "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
-          owner.address
-        )
-      ).to.be.revertedWith("maxSupply must be greater than 0");
-    });
 
     it("Should owner have admin role", async () => {
       const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();
@@ -114,55 +102,6 @@ describe("StartonERC721Capped", () => {
   });
 
   describe("Minting", () => {
-    it("Shouldn't let anyone mint more than max supply", async () => {
-      await instanceERC721.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await instanceERC721.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await instanceERC721.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await instanceERC721.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await instanceERC721.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await instanceERC721.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await instanceERC721.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await instanceERC721.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await instanceERC721.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await instanceERC721.mint(
-        addr1.address,
-        "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-      );
-      await expect(
-        instanceERC721.mint(
-          addr1.address,
-          "QmQT4UPwNY6614CFCA5MWKCnHExC4UME7m8hi6nYBm17u1"
-        )
-      ).to.be.revertedWith("Max supply reached");
-    });
-
     it("Should mint token correctly", async () => {
       await instanceERC721.mint(
         addr1.address,
@@ -409,6 +348,12 @@ describe("StartonERC721Capped", () => {
       );
     });
 
+    it("Should support ERC2981", async () => {
+      expect(await instanceERC721.supportsInterface("0x2a55205a")).to.equal(
+        true
+      );
+    });
+
     it("should support ERC721Enumerable", async () => {
       expect(await instanceERC721.supportsInterface("0x780e9d63")).to.equal(
         true
@@ -422,7 +367,187 @@ describe("StartonERC721Capped", () => {
     });
   });
 
+  describe("Royalties", () => {
+    it("Should return the correct royalty amount", async () => {
+      expect(await instanceERC721.royaltyInfo(1, 100)).to.deep.equal([
+        owner.address,
+        "10",
+      ]);
+    });
+  });
+
   describe("Forwarder", () => {
+    it("Shouldn't forward a transaction with different signer", async () => {
+      const metaTransactionType = [
+        {
+          name: "nonce",
+          type: "uint256",
+        },
+        {
+          name: "from",
+          type: "address",
+        },
+        {
+          name: "functionSignature",
+          type: "bytes",
+        },
+      ];
+
+      const name = await instanceERC721.name();
+      const nonce = await instanceERC721.getNonce(addr1.address);
+      const { chainId } = await ethers.provider.getNetwork();
+
+      const domainType = {
+        name,
+        version: "1",
+        verifyingContract: instanceERC721.address,
+        salt: "0x" + chainId.toString(16).padStart(64, "0"),
+      };
+
+      const functionSignature = instanceERC721.interface.encodeFunctionData(
+        "setApprovalForAll",
+        [addr2.address, true]
+      );
+
+      const signature = await addr1._signTypedData(
+        domainType,
+        {
+          MetaTransaction: metaTransactionType,
+        },
+        {
+          nonce: nonce.toString(),
+          from: addr1.address,
+          functionSignature,
+        }
+      );
+
+      const { r, s, v } = ethers.utils.splitSignature(signature);
+
+      await expect(
+        instanceERC721.executeMetaTransaction(
+          addr2.address,
+          functionSignature,
+          r,
+          s,
+          v
+        )
+      ).to.be.revertedWith("Signer and signature do not match");
+    });
+
+    it("Shouldn't forward a transaction with a transaction that will revert", async () => {
+      const metaTransactionType = [
+        {
+          name: "nonce",
+          type: "uint256",
+        },
+        {
+          name: "from",
+          type: "address",
+        },
+        {
+          name: "functionSignature",
+          type: "bytes",
+        },
+      ];
+
+      const name = await instanceERC721.name();
+      const nonce = await instanceERC721.getNonce(addr1.address);
+      const { chainId } = await ethers.provider.getNetwork();
+
+      const domainType = {
+        name,
+        version: "1",
+        verifyingContract: instanceERC721.address,
+        salt: "0x" + chainId.toString(16).padStart(64, "0"),
+      };
+
+      const functionSignature = instanceERC721.interface.encodeFunctionData(
+        "setApprovalForAll",
+        [addr1.address, true]
+      );
+
+      const signature = await addr1._signTypedData(
+        domainType,
+        {
+          MetaTransaction: metaTransactionType,
+        },
+        {
+          nonce: nonce.toString(),
+          from: addr1.address,
+          functionSignature,
+        }
+      );
+
+      const { r, s, v } = ethers.utils.splitSignature(signature);
+
+      await expect(
+        instanceERC721.executeMetaTransaction(
+          addr1.address,
+          functionSignature,
+          r,
+          s,
+          v
+        )
+      ).to.be.revertedWith("Function call not successful");
+    });
+
+    it("Shouldn't forward a transaction with a null signer", async () => {
+      const metaTransactionType = [
+        {
+          name: "nonce",
+          type: "uint256",
+        },
+        {
+          name: "from",
+          type: "address",
+        },
+        {
+          name: "functionSignature",
+          type: "bytes",
+        },
+      ];
+
+      const name = await instanceERC721.name();
+      const nonce = await instanceERC721.getNonce(addr1.address);
+      const { chainId } = await ethers.provider.getNetwork();
+
+      const domainType = {
+        name,
+        version: "1",
+        verifyingContract: instanceERC721.address,
+        salt: "0x" + chainId.toString(16).padStart(64, "0"),
+      };
+
+      const functionSignature = instanceERC721.interface.encodeFunctionData(
+        "setApprovalForAll",
+        [addr2.address, true]
+      );
+
+      const signature = await addr1._signTypedData(
+        domainType,
+        {
+          MetaTransaction: metaTransactionType,
+        },
+        {
+          nonce: nonce.toString(),
+          from: addr1.address,
+          functionSignature,
+        }
+      );
+
+      const { r, s, v } = ethers.utils.splitSignature(signature);
+
+      await expect(
+        instanceERC721.executeMetaTransaction(
+          "0x0000000000000000000000000000000000000000",
+          functionSignature,
+          r,
+          s,
+          v
+        )
+      ).to.be.revertedWith("NativeMetaTransaction: INVALID_SIGNER");
+    });
+
     it("Should be able to send a forwarded transaction", async () => {
       const metaTransactionType = [
         {

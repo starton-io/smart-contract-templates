@@ -2,13 +2,13 @@
 
 pragma solidity 0.8.17;
 
-import "./StartonERC721Base.sol";
+import "./StartonERC721BaseRoyalties.sol";
 import "../interfaces/IERC4907.sol";
 
 /// @title StartonERC4907
 /// @author Starton
 /// @notice This contract allows to rent NFTs
-contract StartonERC4907 is StartonERC721Base, IERC4907 {
+contract StartonERC4907 is StartonERC721BaseRoyalties, IERC4907 {
     /** @notice Structure of data reprensenting the user and expiration of usage */
     struct UserInfo {
         address user;
@@ -26,7 +26,7 @@ contract StartonERC4907 is StartonERC721Base, IERC4907 {
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
     )
-        StartonERC721Base(
+        StartonERC721BaseRoyalties(
             definitiveName,
             definitiveSymbol,
             definitiveRoyaltyFee,

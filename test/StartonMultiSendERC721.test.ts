@@ -36,8 +36,6 @@ describe("StartonMultiSendERC721", () => {
     instanceERC721 = (await ERC721.deploy(
       "StartonToken",
       "ST",
-      "1000",
-      owner.address,
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address

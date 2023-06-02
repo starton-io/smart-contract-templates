@@ -6,6 +6,10 @@ import {
   SmartContractTemplateCategory,
 } from "./smart-contract-template";
 
+function replaceAll(str: string, find: string, replace: string) {
+  return str.replace(new RegExp(find, "g"), replace);
+}
+
 function parseAbi(contractMetadata: any): any {
   return contractMetadata.abi;
 }
@@ -153,15 +157,17 @@ function main() {
 
   let stringifiedContent = JSON.stringify(doc, null, 2);
 
-  // Remove the quptes of the enum values
+  // Remove the quotes of the enum values
   for (const item in Blockchain) {
-    stringifiedContent = stringifiedContent.replace(
+    stringifiedContent = replaceAll(
+      stringifiedContent,
       `"Blockchain.${item}"`,
       `Blockchain.${item}`
     );
   }
   for (const item in SmartContractTemplateCategory) {
-    stringifiedContent = stringifiedContent.replace(
+    stringifiedContent = replaceAll(
+      stringifiedContent,
       `"SmartContractTemplateCategory.${item}"`,
       `SmartContractTemplateCategory.${item}`
     );

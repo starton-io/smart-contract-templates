@@ -25,6 +25,202 @@ interface IStartonERC5192 {
 }
 
 
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
+
+// OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Interface of the ERC165 standard, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-165[EIP].
+ *
+ * Implementers can declare support of contract interfaces, which can then be
+ * queried by others ({ERC165Checker}).
+ *
+ * For an implementation, see {ERC165}.
+ */
+interface IERC165 {
+    /**
+     * @dev Returns true if this contract implements the interface defined by
+     * `interfaceId`. See the corresponding
+     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
+     * to learn more about how these ids are created.
+     *
+     * This function call must use less than 30 000 gas.
+     */
+    function supportsInterface(bytes4 interfaceId) external view returns (bool);
+}
+
+
+// File @openzeppelin/contracts/interfaces/IERC2981.sol@v4.8.1
+
+// OpenZeppelin Contracts (last updated v4.6.0) (interfaces/IERC2981.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Interface for the NFT Royalty Standard.
+ *
+ * A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal
+ * support for royalty payments across all NFT marketplaces and ecosystem participants.
+ *
+ * _Available since v4.5._
+ */
+interface IERC2981 is IERC165 {
+    /**
+     * @dev Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
+     * exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
+     */
+    function royaltyInfo(uint256 tokenId, uint256 salePrice)
+        external
+        view
+        returns (address receiver, uint256 royaltyAmount);
+}
+
+
+// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.8.1
+
+// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Implementation of the {IERC165} interface.
+ *
+ * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
+ * for the additional interface id that will be supported. For example:
+ *
+ * ```solidity
+ * function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+ *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
+ * }
+ * ```
+ *
+ * Alternatively, {ERC165Storage} provides an easier to use but more expensive implementation.
+ */
+abstract contract ERC165 is IERC165 {
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IERC165).interfaceId;
+    }
+}
+
+
+// File @openzeppelin/contracts/token/common/ERC2981.sol@v4.8.1
+
+// OpenZeppelin Contracts (last updated v4.7.0) (token/common/ERC2981.sol)
+
+pragma solidity ^0.8.0;
+
+
+/**
+ * @dev Implementation of the NFT Royalty Standard, a standardized way to retrieve royalty payment information.
+ *
+ * Royalty information can be specified globally for all token ids via {_setDefaultRoyalty}, and/or individually for
+ * specific token ids via {_setTokenRoyalty}. The latter takes precedence over the first.
+ *
+ * Royalty is specified as a fraction of sale price. {_feeDenominator} is overridable but defaults to 10000, meaning the
+ * fee is specified in basis points by default.
+ *
+ * IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
+ * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
+ * voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
+ *
+ * _Available since v4.5._
+ */
+abstract contract ERC2981 is IERC2981, ERC165 {
+    struct RoyaltyInfo {
+        address receiver;
+        uint96 royaltyFraction;
+    }
+
+    RoyaltyInfo private _defaultRoyaltyInfo;
+    mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
+        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @inheritdoc IERC2981
+     */
+    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) public view virtual override returns (address, uint256) {
+        RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
+
+        if (royalty.receiver == address(0)) {
+            royalty = _defaultRoyaltyInfo;
+        }
+
+        uint256 royaltyAmount = (_salePrice * royalty.royaltyFraction) / _feeDenominator();
+
+        return (royalty.receiver, royaltyAmount);
+    }
+
+    /**
+     * @dev The denominator with which to interpret the fee set in {_setTokenRoyalty} and {_setDefaultRoyalty} as a
+     * fraction of the sale price. Defaults to 10000 so fees are expressed in basis points, but may be customized by an
+     * override.
+     */
+    function _feeDenominator() internal pure virtual returns (uint96) {
+        return 10000;
+    }
+
+    /**
+     * @dev Sets the royalty information that all ids in this contract will default to.
+     *
+     * Requirements:
+     *
+     * - `receiver` cannot be the zero address.
+     * - `feeNumerator` cannot be greater than the fee denominator.
+     */
+    function _setDefaultRoyalty(address receiver, uint96 feeNumerator) internal virtual {
+        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
+        require(receiver != address(0), "ERC2981: invalid receiver");
+
+        _defaultRoyaltyInfo = RoyaltyInfo(receiver, feeNumerator);
+    }
+
+    /**
+     * @dev Removes default royalty information.
+     */
+    function _deleteDefaultRoyalty() internal virtual {
+        delete _defaultRoyaltyInfo;
+    }
+
+    /**
+     * @dev Sets the royalty information for a specific token id, overriding the global default.
+     *
+     * Requirements:
+     *
+     * - `receiver` cannot be the zero address.
+     * - `feeNumerator` cannot be greater than the fee denominator.
+     */
+    function _setTokenRoyalty(
+        uint256 tokenId,
+        address receiver,
+        uint96 feeNumerator
+    ) internal virtual {
+        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
+        require(receiver != address(0), "ERC2981: Invalid parameters");
+
+        _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, feeNumerator);
+    }
+
+    /**
+     * @dev Resets royalty information for the token id back to the global default.
+     */
+    function _resetTokenRoyalty(uint256 tokenId) internal virtual {
+        delete _tokenRoyaltyInfo[tokenId];
+    }
+}
+
+
 // File operator-filter-registry/src/IOperatorFilterRegistry.sol@v1.4.0
 
 pragma solidity ^0.8.13;
@@ -270,34 +466,6 @@ pragma solidity ^0.8.13;
 abstract contract DefaultOperatorFilterer is OperatorFilterer {
     /// @dev The constructor that is called when the contract is being deployed.
     constructor() OperatorFilterer(CANONICAL_CORI_SUBSCRIPTION, true) {}
-}
-
-
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
-
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Interface of the ERC165 standard, as defined in the
- * https://eips.ethereum.org/EIPS/eip-165[EIP].
- *
- * Implementers can declare support of contract interfaces, which can then be
- * queried by others ({ERC165Checker}).
- *
- * For an implementation, see {ERC165}.
- */
-interface IERC165 {
-    /**
-     * @dev Returns true if this contract implements the interface defined by
-     * `interfaceId`. See the corresponding
-     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
-     * to learn more about how these ids are created.
-     *
-     * This function call must use less than 30 000 gas.
-     */
-    function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
 
 
@@ -1198,36 +1366,6 @@ library Strings {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.8.1
-
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Implementation of the {IERC165} interface.
- *
- * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
- * for the additional interface id that will be supported. For example:
- *
- * ```solidity
- * function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
- *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
- * }
- * ```
- *
- * Alternatively, {ERC165Storage} provides an easier to use but more expensive implementation.
- */
-abstract contract ERC165 is IERC165 {
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC165).interfaceId;
-    }
-}
-
-
 // File @openzeppelin/contracts/token/ERC721/ERC721.sol@v4.8.1
 
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/ERC721.sol)
@@ -2008,144 +2146,6 @@ abstract contract ERC721Burnable is Context, ERC721 {
         //solhint-disable-next-line max-line-length
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
         _burn(tokenId);
-    }
-}
-
-
-// File @openzeppelin/contracts/interfaces/IERC2981.sol@v4.8.1
-
-// OpenZeppelin Contracts (last updated v4.6.0) (interfaces/IERC2981.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Interface for the NFT Royalty Standard.
- *
- * A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal
- * support for royalty payments across all NFT marketplaces and ecosystem participants.
- *
- * _Available since v4.5._
- */
-interface IERC2981 is IERC165 {
-    /**
-     * @dev Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
-     * exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
-     */
-    function royaltyInfo(uint256 tokenId, uint256 salePrice)
-        external
-        view
-        returns (address receiver, uint256 royaltyAmount);
-}
-
-
-// File @openzeppelin/contracts/token/common/ERC2981.sol@v4.8.1
-
-// OpenZeppelin Contracts (last updated v4.7.0) (token/common/ERC2981.sol)
-
-pragma solidity ^0.8.0;
-
-
-/**
- * @dev Implementation of the NFT Royalty Standard, a standardized way to retrieve royalty payment information.
- *
- * Royalty information can be specified globally for all token ids via {_setDefaultRoyalty}, and/or individually for
- * specific token ids via {_setTokenRoyalty}. The latter takes precedence over the first.
- *
- * Royalty is specified as a fraction of sale price. {_feeDenominator} is overridable but defaults to 10000, meaning the
- * fee is specified in basis points by default.
- *
- * IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
- * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
- * voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
- *
- * _Available since v4.5._
- */
-abstract contract ERC2981 is IERC2981, ERC165 {
-    struct RoyaltyInfo {
-        address receiver;
-        uint96 royaltyFraction;
-    }
-
-    RoyaltyInfo private _defaultRoyaltyInfo;
-    mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
-
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
-        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
-    }
-
-    /**
-     * @inheritdoc IERC2981
-     */
-    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) public view virtual override returns (address, uint256) {
-        RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
-
-        if (royalty.receiver == address(0)) {
-            royalty = _defaultRoyaltyInfo;
-        }
-
-        uint256 royaltyAmount = (_salePrice * royalty.royaltyFraction) / _feeDenominator();
-
-        return (royalty.receiver, royaltyAmount);
-    }
-
-    /**
-     * @dev The denominator with which to interpret the fee set in {_setTokenRoyalty} and {_setDefaultRoyalty} as a
-     * fraction of the sale price. Defaults to 10000 so fees are expressed in basis points, but may be customized by an
-     * override.
-     */
-    function _feeDenominator() internal pure virtual returns (uint96) {
-        return 10000;
-    }
-
-    /**
-     * @dev Sets the royalty information that all ids in this contract will default to.
-     *
-     * Requirements:
-     *
-     * - `receiver` cannot be the zero address.
-     * - `feeNumerator` cannot be greater than the fee denominator.
-     */
-    function _setDefaultRoyalty(address receiver, uint96 feeNumerator) internal virtual {
-        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
-        require(receiver != address(0), "ERC2981: invalid receiver");
-
-        _defaultRoyaltyInfo = RoyaltyInfo(receiver, feeNumerator);
-    }
-
-    /**
-     * @dev Removes default royalty information.
-     */
-    function _deleteDefaultRoyalty() internal virtual {
-        delete _defaultRoyaltyInfo;
-    }
-
-    /**
-     * @dev Sets the royalty information for a specific token id, overriding the global default.
-     *
-     * Requirements:
-     *
-     * - `receiver` cannot be the zero address.
-     * - `feeNumerator` cannot be greater than the fee denominator.
-     */
-    function _setTokenRoyalty(
-        uint256 tokenId,
-        address receiver,
-        uint96 feeNumerator
-    ) internal virtual {
-        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
-        require(receiver != address(0), "ERC2981: Invalid parameters");
-
-        _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, feeNumerator);
-    }
-
-    /**
-     * @dev Resets royalty information for the token id back to the global default.
-     */
-    function _resetTokenRoyalty(uint256 tokenId) internal virtual {
-        delete _tokenRoyaltyInfo[tokenId];
     }
 }
 
@@ -3110,7 +3110,6 @@ pragma solidity 0.8.17;
 
 
 
-
 /// @title StartonERC721Base
 /// @author Starton
 /// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
@@ -3124,8 +3123,7 @@ contract StartonERC721Base is
     AStartonNativeMetaTransaction,
     AStartonMintLock,
     AStartonMetadataLock,
-    DefaultOperatorFilterer,
-    ERC2981
+    DefaultOperatorFilterer
 {
     using Counters for Counters.Counter;
 
@@ -3140,8 +3138,6 @@ contract StartonERC721Base is
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
-        uint96 definitiveRoyaltyFee,
-        address definitiveFeeReceiver,
         string memory initialBaseTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
@@ -3157,9 +3153,6 @@ contract StartonERC721Base is
         _contractURI = initialContractURI;
         _isMintAllowed = true;
         _isMetadataChangingAllowed = true;
-
-        // Set the default royalty fee and receiver
-        _setDefaultRoyalty(definitiveFeeReceiver, definitiveRoyaltyFee);
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(definitiveName);
@@ -3232,7 +3225,7 @@ contract StartonERC721Base is
         public
         view
         virtual
-        override(ERC721, AccessControl, ERC721Enumerable, ERC2981)
+        override(ERC721, AccessControl, ERC721Enumerable)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
@@ -3328,6 +3321,53 @@ contract StartonERC721Base is
 }
 
 
+// File contracts/non-fungible/StartonERC721BaseRoyalties.sol
+
+
+pragma solidity 0.8.17;
+
+
+/// @title StartonERC721Base
+/// @author Starton
+/// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
+contract StartonERC721BaseRoyalties is StartonERC721Base, ERC2981 {
+    constructor(
+        string memory definitiveName,
+        string memory definitiveSymbol,
+        uint96 definitiveRoyaltyFee,
+        address definitiveFeeReceiver,
+        string memory initialBaseTokenURI,
+        string memory initialContractURI,
+        address initialOwnerOrMultiSigContract
+    )
+        StartonERC721Base(
+            definitiveName,
+            definitiveSymbol,
+            initialBaseTokenURI,
+            initialContractURI,
+            initialOwnerOrMultiSigContract
+        )
+    {
+        // Set the default royalty fee and receiver
+        _setDefaultRoyalty(definitiveFeeReceiver, definitiveRoyaltyFee);
+    }
+
+    /**
+     * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
+     * @return True if the interface is supported
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(StartonERC721Base, ERC2981)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+}
+
+
 // File contracts/non-fungible/StartonERC5192.sol
 
 
@@ -3337,7 +3377,7 @@ pragma solidity 0.8.17;
 /// @title StartonERC5192
 /// @author Starton
 /// @notice ERC5192 token that is locked by default and which is based of the StartonERC721Base
-contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
+contract StartonERC5192 is StartonERC721BaseRoyalties, IStartonERC5192 {
     using Counters for Counters.Counter;
 
     /** @dev Modifier that reverts because the token is locked */
@@ -3355,7 +3395,7 @@ contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
     )
-        StartonERC721Base(
+        StartonERC721BaseRoyalties(
             definitiveName,
             definitiveSymbol,
             definitiveRoyaltyFee,
