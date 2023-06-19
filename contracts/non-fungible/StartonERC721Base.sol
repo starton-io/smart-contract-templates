@@ -129,7 +129,7 @@ contract StartonERC721Base is
         public
         view
         virtual
-        override(ERC721, AccessControl, ERC721Enumerable)
+        override(ERC721, AccessControl, ERC721Enumerable, ERC721URIStorage)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);

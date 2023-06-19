@@ -1,9 +1,9 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/cryptography/MerkleProof.sol@v4.8.1
+// File @openzeppelin/contracts/utils/cryptography/MerkleProof.sol@v4.9.2
 
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/MerkleProof.sol)
+// OpenZeppelin Contracts (last updated v4.9.2) (utils/cryptography/MerkleProof.sol)
 
 pragma solidity ^0.8.0;
 
@@ -28,11 +28,7 @@ library MerkleProof {
      * sibling hashes on the branch from the leaf to the root of the tree. Each
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      */
-    function verify(
-        bytes32[] memory proof,
-        bytes32 root,
-        bytes32 leaf
-    ) internal pure returns (bool) {
+    function verify(bytes32[] memory proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
         return processProof(proof, leaf) == root;
     }
 
@@ -41,11 +37,7 @@ library MerkleProof {
      *
      * _Available since v4.7._
      */
-    function verifyCalldata(
-        bytes32[] calldata proof,
-        bytes32 root,
-        bytes32 leaf
-    ) internal pure returns (bool) {
+    function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
         return processProofCalldata(proof, leaf) == root;
     }
 
@@ -128,15 +120,16 @@ library MerkleProof {
         bool[] memory proofFlags,
         bytes32[] memory leaves
     ) internal pure returns (bytes32 merkleRoot) {
-        // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
+        // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
         uint256 leavesLen = leaves.length;
+        uint256 proofLen = proof.length;
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        require(leavesLen + proof.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
+        require(leavesLen + proofLen - 1 == totalHashes, "MerkleProof: invalid multiproof");
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
@@ -147,16 +140,21 @@ library MerkleProof {
         // At each step, we compute the next hash using two values:
         // - a value from the "main queue". If not all leaves have been consumed, we get the next leaf, otherwise we
         //   get the next hash.
-        // - depending on the flag, either another value for the "main queue" (merging branches) or an element from the
+        // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-            bytes32 b = proofFlags[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proof[proofPos++];
+            bytes32 b = proofFlags[i]
+                ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
+                : proof[proofPos++];
             hashes[i] = _hashPair(a, b);
         }
 
         if (totalHashes > 0) {
-            return hashes[totalHashes - 1];
+            require(proofPos == proofLen, "MerkleProof: invalid multiproof");
+            unchecked {
+                return hashes[totalHashes - 1];
+            }
         } else if (leavesLen > 0) {
             return leaves[0];
         } else {
@@ -176,15 +174,16 @@ library MerkleProof {
         bool[] calldata proofFlags,
         bytes32[] memory leaves
     ) internal pure returns (bytes32 merkleRoot) {
-        // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
+        // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
         uint256 leavesLen = leaves.length;
+        uint256 proofLen = proof.length;
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        require(leavesLen + proof.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
+        require(leavesLen + proofLen - 1 == totalHashes, "MerkleProof: invalid multiproof");
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
@@ -195,16 +194,21 @@ library MerkleProof {
         // At each step, we compute the next hash using two values:
         // - a value from the "main queue". If not all leaves have been consumed, we get the next leaf, otherwise we
         //   get the next hash.
-        // - depending on the flag, either another value for the "main queue" (merging branches) or an element from the
+        // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-            bytes32 b = proofFlags[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proof[proofPos++];
+            bytes32 b = proofFlags[i]
+                ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
+                : proof[proofPos++];
             hashes[i] = _hashPair(a, b);
         }
 
         if (totalHashes > 0) {
-            return hashes[totalHashes - 1];
+            require(proofPos == proofLen, "MerkleProof: invalid multiproof");
+            unchecked {
+                return hashes[totalHashes - 1];
+            }
         } else if (leavesLen > 0) {
             return leaves[0];
         } else {
@@ -227,7 +231,7 @@ library MerkleProof {
 }
 
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.8.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
@@ -273,9 +277,9 @@ abstract contract AStartonWhitelist is Context {
 }
 
 
-// File @openzeppelin/contracts/access/Ownable.sol@v4.8.1
+// File @openzeppelin/contracts/access/Ownable.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.7.0) (access/Ownable.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)
 
 pragma solidity ^0.8.0;
 
@@ -327,10 +331,10 @@ abstract contract Ownable is Context {
 
     /**
      * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     * `onlyOwner` functions. Can only be called by the current owner.
      *
      * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby removing any functionality that is only available to the owner.
+     * thereby disabling any functionality that is only available to the owner.
      */
     function renounceOwnership() public virtual onlyOwner {
         _transferOwnership(address(0));
@@ -357,7 +361,7 @@ abstract contract Ownable is Context {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -385,9 +389,9 @@ interface IERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC1155/IERC1155.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC1155/IERC1155.sol)
 
 pragma solidity ^0.8.0;
 
@@ -446,10 +450,10 @@ interface IERC1155 is IERC165 {
      *
      * - `accounts` and `ids` must have the same length.
      */
-    function balanceOfBatch(address[] calldata accounts, uint256[] calldata ids)
-        external
-        view
-        returns (uint256[] memory);
+    function balanceOfBatch(
+        address[] calldata accounts,
+        uint256[] calldata ids
+    ) external view returns (uint256[] memory);
 
     /**
      * @dev Grants or revokes permission to `operator` to transfer the caller's tokens, according to `approved`,
@@ -482,13 +486,7 @@ interface IERC1155 is IERC165 {
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
      * acceptance magic value.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes calldata data
-    ) external;
+    function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes calldata data) external;
 
     /**
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
