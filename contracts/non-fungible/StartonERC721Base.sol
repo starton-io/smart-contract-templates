@@ -6,7 +6,6 @@ import "operator-filter-registry/src/DefaultOperatorFilterer.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "../abstracts/AStartonNativeMetaTransaction.sol";
 import "../abstracts/AStartonContextMixin.sol";
@@ -28,8 +27,7 @@ contract StartonERC721Base is
     AStartonNativeMetaTransaction,
     AStartonMintLock,
     AStartonMetadataLock,
-    DefaultOperatorFilterer,
-    ERC2981
+    DefaultOperatorFilterer
 {
     using Counters for Counters.Counter;
 
@@ -44,8 +42,6 @@ contract StartonERC721Base is
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
-        uint96 definitiveRoyaltyFee,
-        address definitiveFeeReceiver,
         string memory initialBaseTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
@@ -61,9 +57,6 @@ contract StartonERC721Base is
         _contractURI = initialContractURI;
         _isMintAllowed = true;
         _isMetadataChangingAllowed = true;
-
-        // Set the default royalty fee and receiver
-        _setDefaultRoyalty(definitiveFeeReceiver, definitiveRoyaltyFee);
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(definitiveName);
@@ -136,7 +129,7 @@ contract StartonERC721Base is
         public
         view
         virtual
-        override(ERC721, AccessControl, ERC721Enumerable, ERC2981)
+        override(ERC721, AccessControl, ERC721Enumerable, ERC721URIStorage)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);

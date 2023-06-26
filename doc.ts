@@ -54,6 +54,58 @@ const LIST: SmartContractTemplate[] = [
     },
   },
   {
+    id: "ERC721_ROYALTIES_META_TRANSACTION",
+    name: "ERC721 NFT smart contract (with Royalty)",
+    description:
+      "The smart contract template to deploy single-copy NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
+    shortDescription:
+      "The smart contract template to deploy single-copy NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721BaseRoyalties.sol",
+    blockchains: [
+      Blockchain.POLYGON,
+      Blockchain.AVALANCHE,
+      Blockchain.BINANCE,
+      Blockchain.ETHEREUM,
+    ],
+    compilationDetails: {
+      contractName: "StartonERC721BaseRoyalties",
+    },
+    isActivated: true,
+    isAudited: false,
+    order: 4,
+    category: SmartContractTemplateCategory.NFT,
+    tags: [SmartContractTemplateCategory.NFT],
+    form: {
+      infos: {
+        description:
+          "The ERC721 smart contract standard is built for single-copy Non Fungible Tokens (NFT) and is out-of-the-box compatible with Opensea. With an ERC721, every NFT is unique, so you have to reference the content for each NFT. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT",
+        usecases: [
+          "In a video game, one-of-one NFT can consist of a digital good only one player can own at a time such as a piece of land.",
+        ],
+        requirements: [
+          "A wallet to fund the creation of your contract",
+          "The URI of the metadata of your collection",
+          "The URI of the content of the NFT",
+          "The address of the initial owner",
+          "The network on which you want to deploy",
+          "The fraction of sale price representing the royalty fees",
+          "The address that will receive the royalty fees",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC721_ROYALTIES_META_TRANSACTION",
+            alt: "Go to ERC721 NFT Smart Contract",
+          },
+          tutorials: {
+            href: "https://docs.starton.io/docs/Tutorials/deploy-Nfts-with-Binance",
+            alt: "Go to Deploy your NFTs with Starton",
+          },
+        },
+      },
+    },
+  },
+  {
     id: "ERC721_CAPPED_META_TRANSACTION",
     name: "ERC721 NFT with limited supply",
     description:
@@ -94,6 +146,59 @@ const LIST: SmartContractTemplate[] = [
         resources: {
           documentation: {
             href: "https://docs.starton.io/docs/Smart-contract/ERC721-Capped",
+            alt: "Go to ERC721 NFT Capped Documentation",
+          },
+          tutorial: {
+            href: "https://docs.starton.io/docs/Tutorials/Home",
+            alt: "Go to Tutorials",
+          },
+        },
+      },
+    },
+  },
+  {
+    id: "ERC721_ROYALTIES_CAPPED_META_TRANSACTION",
+    name: "ERC721 NFT with limited supply (with Royalty)",
+    description:
+      "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT). This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
+    shortDescription:
+      "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT). This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721CappedRoyalties.sol",
+    blockchains: [
+      Blockchain.POLYGON,
+      Blockchain.AVALANCHE,
+      Blockchain.BINANCE,
+      Blockchain.ETHEREUM,
+    ],
+    compilationDetails: {
+      contractName: "StartonERC721CappedRoyalties",
+    },
+    isActivated: true,
+    isAudited: false,
+    order: 5,
+    category: SmartContractTemplateCategory.NFT,
+    tags: [SmartContractTemplateCategory.NFT],
+    form: {
+      infos: {
+        description:
+          "The NFT ERC721 smart contract where you can define the maximum supply of NFT you can mint. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT",
+        usecases: [
+          "In a video game, you can sell an NFT and pay for gas in place of the NFT receiver.",
+        ],
+        requirements: [
+          "A wallet to fund the creation of your contract",
+          "The URI of the metadata of your collection",
+          "The URI of the content of the NFT",
+          "The address of the initial owner",
+          "The network on which you want to deploy",
+          "The maximum supply of NFTs that can be minted",
+          "The fraction of sale price representing the royalty fees",
+          "The address that will receive the royalty fees",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC721_ROYALTIES_CAPPED_META_TRANSACTION",
             alt: "Go to ERC721 NFT Capped Documentation",
           },
           tutorial: {
@@ -154,6 +259,58 @@ const LIST: SmartContractTemplate[] = [
     },
   },
   {
+    id: "ERC1155_ROYALTIES_META_TRANSACTION",
+    name: "ERC1155 NFTs collection (with Royalty)",
+    description:
+      "The smart contract standard to manage multiple-copies NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
+    shortDescription:
+      "The smart contract standard to manage multiple-copies NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
+    githubUrl:
+      "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC1155BaseRoyalties.sol",
+    blockchains: [
+      Blockchain.POLYGON,
+      Blockchain.AVALANCHE,
+      Blockchain.BINANCE,
+      Blockchain.ETHEREUM,
+    ],
+    compilationDetails: {
+      contractName: "StartonERC1155BaseRoyalties",
+    },
+    isActivated: true,
+    isAudited: false,
+    order: 6,
+    category: SmartContractTemplateCategory.NFT,
+    tags: [SmartContractTemplateCategory.NFT],
+    form: {
+      infos: {
+        description:
+          "The smart contract standard to manage multiple-copies NFTs. Though their content is identical, each NFT has a different token ID. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT",
+        usecases: [
+          "In a video game, it can be a piece of equipment won after an action such as a powerful sword after defeating an enemy. Every user defeating the enemy will own an edition of the sword with a different identifier.",
+        ],
+        requirements: [
+          "A wallet to fund the creation of your contract",
+          "The URI of the metadata of your collection",
+          "The URI of the content of the NFT",
+          "The address of the initial owner",
+          "The network on which you want to deploy",
+          "The fraction of sale price representing the royalty fees",
+          "The address that will receive the royalty fees",
+        ],
+        resources: {
+          documentation: {
+            href: "https://docs.starton.io/docs/Smart-contract/ERC1155-Meta",
+            alt: "Go to ERC1155 NFT Smart contract Documentation",
+          },
+          tutorial: {
+            href: "https://docs.starton.io/docs/Tutorials/creating-NFT-collection",
+            alt: "Go to Tutorials",
+          },
+        },
+      },
+    },
+  },
+  {
     id: "ERC20_META_TRANSACTION",
     name: "ERC20 Token with fixed supply",
     description:
@@ -173,7 +330,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 4,
+    order: 7,
     category: SmartContractTemplateCategory.FUNGIBLE,
     tags: [SmartContractTemplateCategory.FUNGIBLE],
     form: {
@@ -223,7 +380,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 5,
+    order: 8,
     category: SmartContractTemplateCategory.FUNGIBLE,
     tags: [SmartContractTemplateCategory.FUNGIBLE],
     form: {
@@ -272,7 +429,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 6,
+    order: 9,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -322,7 +479,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 7,
+    order: 10,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -373,7 +530,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 8,
+    order: 11,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -426,7 +583,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 9,
+    order: 12,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -477,7 +634,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 10,
+    order: 13,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -529,7 +686,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 11,
+    order: 14,
     category: SmartContractTemplateCategory.SALE,
     tags: [SmartContractTemplateCategory.SALE],
     form: {
@@ -580,7 +737,7 @@ const LIST: SmartContractTemplate[] = [
     },
     isActivated: true,
     isAudited: false,
-    order: 12,
+    order: 15,
     category: SmartContractTemplateCategory.OTHER,
     tags: [SmartContractTemplateCategory.OTHER],
     form: {

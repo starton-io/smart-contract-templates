@@ -1,6 +1,6 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/access/IAccessControl.sol@v4.8.1
+// File @openzeppelin/contracts/access/IAccessControl.sol@v4.9.2
 
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (access/IAccessControl.sol)
@@ -92,7 +92,7 @@ interface IAccessControl {
 }
 
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.8.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
@@ -119,9 +119,9 @@ abstract contract Context {
 }
 
 
-// File @openzeppelin/contracts/utils/math/Math.sol@v4.8.1
+// File @openzeppelin/contracts/utils/math/Math.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.0;
 
@@ -174,11 +174,7 @@ library Math {
      * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv)
      * with further edits by Uniswap Labs also under MIT license.
      */
-    function mulDiv(
-        uint256 x,
-        uint256 y,
-        uint256 denominator
-    ) internal pure returns (uint256 result) {
+    function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
             // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
@@ -193,11 +189,14 @@ library Math {
 
             // Handle non-overflow cases, 256 by 256 division.
             if (prod1 == 0) {
+                // Solidity will revert if denominator == 0, unlike the div opcode on its own.
+                // The surrounding unchecked block does not change this fact.
+                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
                 return prod0 / denominator;
             }
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
-            require(denominator > prod1);
+            require(denominator > prod1, "Math: mulDiv overflow");
 
             ///////////////////////////////////////////////
             // 512 by 256 division.
@@ -259,12 +258,7 @@ library Math {
     /**
      * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
      */
-    function mulDiv(
-        uint256 x,
-        uint256 y,
-        uint256 denominator,
-        Rounding rounding
-    ) internal pure returns (uint256) {
+    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
         uint256 result = mulDiv(x, y, denominator);
         if (rounding == Rounding.Up && mulmod(x, y, denominator) > 0) {
             result += 1;
@@ -380,31 +374,31 @@ library Math {
     function log10(uint256 value) internal pure returns (uint256) {
         uint256 result = 0;
         unchecked {
-            if (value >= 10**64) {
-                value /= 10**64;
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
                 result += 64;
             }
-            if (value >= 10**32) {
-                value /= 10**32;
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
                 result += 32;
             }
-            if (value >= 10**16) {
-                value /= 10**16;
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
                 result += 16;
             }
-            if (value >= 10**8) {
-                value /= 10**8;
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
                 result += 8;
             }
-            if (value >= 10**4) {
-                value /= 10**4;
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
                 result += 4;
             }
-            if (value >= 10**2) {
-                value /= 10**2;
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
                 result += 2;
             }
-            if (value >= 10**1) {
+            if (value >= 10 ** 1) {
                 result += 1;
             }
         }
@@ -418,7 +412,7 @@ library Math {
     function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log10(value);
-            return result + (rounding == Rounding.Up && 10**result < value ? 1 : 0);
+            return result + (rounding == Rounding.Up && 10 ** result < value ? 1 : 0);
         }
     }
 
@@ -455,23 +449,70 @@ library Math {
     }
 
     /**
-     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
+     * @dev Return the log in base 256, following the selected rounding direction, of a positive value.
      * Returns 0 if given 0.
      */
     function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log256(value);
-            return result + (rounding == Rounding.Up && 1 << (result * 8) < value ? 1 : 0);
+            return result + (rounding == Rounding.Up && 1 << (result << 3) < value ? 1 : 0);
         }
     }
 }
 
 
-// File @openzeppelin/contracts/utils/Strings.sol@v4.8.1
+// File @openzeppelin/contracts/utils/math/SignedMath.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/Strings.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/SignedMath.sol)
 
 pragma solidity ^0.8.0;
+
+/**
+ * @dev Standard signed math utilities missing in the Solidity language.
+ */
+library SignedMath {
+    /**
+     * @dev Returns the largest of two signed numbers.
+     */
+    function max(int256 a, int256 b) internal pure returns (int256) {
+        return a > b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two signed numbers.
+     */
+    function min(int256 a, int256 b) internal pure returns (int256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two signed numbers without overflow.
+     * The result is rounded towards zero.
+     */
+    function average(int256 a, int256 b) internal pure returns (int256) {
+        // Formula from the book "Hacker's Delight"
+        int256 x = (a & b) + ((a ^ b) >> 1);
+        return x + (int256(uint256(x) >> 255) & (a ^ b));
+    }
+
+    /**
+     * @dev Returns the absolute unsigned value of a signed value.
+     */
+    function abs(int256 n) internal pure returns (uint256) {
+        unchecked {
+            // must be unchecked in order to support `n = type(int256).min`
+            return uint256(n >= 0 ? n : -n);
+        }
+    }
+}
+
+
+// File @openzeppelin/contracts/utils/Strings.sol@v4.9.2
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/Strings.sol)
+
+pragma solidity ^0.8.0;
+
 
 /**
  * @dev String operations.
@@ -506,6 +547,13 @@ library Strings {
     }
 
     /**
+     * @dev Converts a `int256` to its ASCII `string` decimal representation.
+     */
+    function toString(int256 value) internal pure returns (string memory) {
+        return string(abi.encodePacked(value < 0 ? "-" : "", toString(SignedMath.abs(value))));
+    }
+
+    /**
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
      */
     function toHexString(uint256 value) internal pure returns (string memory) {
@@ -535,10 +583,17 @@ library Strings {
     function toHexString(address addr) internal pure returns (string memory) {
         return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);
     }
+
+    /**
+     * @dev Returns true if the two strings are equal.
+     */
+    function equal(string memory a, string memory b) internal pure returns (bool) {
+        return keccak256(bytes(a)) == keccak256(bytes(b));
+    }
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -566,7 +621,7 @@ interface IERC165 {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.8.1
+// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
 
@@ -596,9 +651,9 @@ abstract contract ERC165 is IERC165 {
 }
 
 
-// File @openzeppelin/contracts/access/AccessControl.sol@v4.8.1
+// File @openzeppelin/contracts/access/AccessControl.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (access/AccessControl.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (access/AccessControl.sol)
 
 pragma solidity ^0.8.0;
 
@@ -616,14 +671,14 @@ pragma solidity ^0.8.0;
  * in the external API and be unique. The best way to achieve this is by
  * using `public constant` hash digests:
  *
- * ```
+ * ```solidity
  * bytes32 public constant MY_ROLE = keccak256("MY_ROLE");
  * ```
  *
  * Roles can be used to represent a set of permissions. To restrict access to a
  * function call, use {hasRole}:
  *
- * ```
+ * ```solidity
  * function foo() public {
  *     require(hasRole(MY_ROLE, msg.sender));
  *     ...
@@ -641,7 +696,8 @@ pragma solidity ^0.8.0;
  *
  * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
  * grant and revoke this role. Extra precautions should be taken to secure
- * accounts that have been granted it.
+ * accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules}
+ * to enforce additional security measures for this role.
  */
 abstract contract AccessControl is Context, IAccessControl, ERC165 {
     struct RoleData {
@@ -844,7 +900,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC721/IERC721Receiver.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC721/IERC721Receiver.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/IERC721Receiver.sol)
 
@@ -874,7 +930,7 @@ interface IERC721Receiver {
 }
 
 
-// File @openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.5.0) (token/ERC1155/IERC1155Receiver.sol)
 
@@ -933,259 +989,11 @@ interface IERC1155Receiver is IERC165 {
 }
 
 
-// File @openzeppelin/contracts/utils/Address.sol@v4.8.1
+// File @openzeppelin/contracts/governance/TimelockController.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/Address.sol)
-
-pragma solidity ^0.8.1;
-
-/**
- * @dev Collection of functions related to the address type
- */
-library Address {
-    /**
-     * @dev Returns true if `account` is a contract.
-     *
-     * [IMPORTANT]
-     * ====
-     * It is unsafe to assume that an address for which this function returns
-     * false is an externally-owned account (EOA) and not a contract.
-     *
-     * Among others, `isContract` will return false for the following
-     * types of addresses:
-     *
-     *  - an externally-owned account
-     *  - a contract in construction
-     *  - an address where a contract will be created
-     *  - an address where a contract lived, but was destroyed
-     * ====
-     *
-     * [IMPORTANT]
-     * ====
-     * You shouldn't rely on `isContract` to protect against flash loan attacks!
-     *
-     * Preventing calls from contracts is highly discouraged. It breaks composability, breaks support for smart wallets
-     * like Gnosis Safe, and does not provide security since it can be circumvented by calling from a contract
-     * constructor.
-     * ====
-     */
-    function isContract(address account) internal view returns (bool) {
-        // This method relies on extcodesize/address.code.length, which returns 0
-        // for contracts in construction, since the code is only stored at the end
-        // of the constructor execution.
-
-        return account.code.length > 0;
-    }
-
-    /**
-     * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
-     * `recipient`, forwarding all available gas and reverting on errors.
-     *
-     * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost
-     * of certain opcodes, possibly making contracts go over the 2300 gas limit
-     * imposed by `transfer`, making them unable to receive funds via
-     * `transfer`. {sendValue} removes this limitation.
-     *
-     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].
-     *
-     * IMPORTANT: because control is transferred to `recipient`, care must be
-     * taken to not create reentrancy vulnerabilities. Consider using
-     * {ReentrancyGuard} or the
-     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
-     */
-    function sendValue(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: insufficient balance");
-
-        (bool success, ) = recipient.call{value: amount}("");
-        require(success, "Address: unable to send value, recipient may have reverted");
-    }
-
-    /**
-     * @dev Performs a Solidity function call using a low level `call`. A
-     * plain `call` is an unsafe replacement for a function call: use this
-     * function instead.
-     *
-     * If `target` reverts with a revert reason, it is bubbled up by this
-     * function (like regular Solidity function calls).
-     *
-     * Returns the raw returned data. To convert to the expected return value,
-     * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].
-     *
-     * Requirements:
-     *
-     * - `target` must be a contract.
-     * - calling `target` with `data` must not revert.
-     *
-     * _Available since v3.1._
-     */
-    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, 0, "Address: low-level call failed");
-    }
-
-    /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with
-     * `errorMessage` as a fallback revert reason when `target` reverts.
-     *
-     * _Available since v3.1._
-     */
-    function functionCall(
-        address target,
-        bytes memory data,
-        string memory errorMessage
-    ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, 0, errorMessage);
-    }
-
-    /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
-     * but also transferring `value` wei to `target`.
-     *
-     * Requirements:
-     *
-     * - the calling contract must have an ETH balance of at least `value`.
-     * - the called Solidity function must be `payable`.
-     *
-     * _Available since v3.1._
-     */
-    function functionCallWithValue(
-        address target,
-        bytes memory data,
-        uint256 value
-    ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
-    }
-
-    /**
-     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
-     * with `errorMessage` as a fallback revert reason when `target` reverts.
-     *
-     * _Available since v3.1._
-     */
-    function functionCallWithValue(
-        address target,
-        bytes memory data,
-        uint256 value,
-        string memory errorMessage
-    ) internal returns (bytes memory) {
-        require(address(this).balance >= value, "Address: insufficient balance for call");
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
-    }
-
-    /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
-     * but performing a static call.
-     *
-     * _Available since v3.3._
-     */
-    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        return functionStaticCall(target, data, "Address: low-level static call failed");
-    }
-
-    /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
-     * but performing a static call.
-     *
-     * _Available since v3.3._
-     */
-    function functionStaticCall(
-        address target,
-        bytes memory data,
-        string memory errorMessage
-    ) internal view returns (bytes memory) {
-        (bool success, bytes memory returndata) = target.staticcall(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
-    }
-
-    /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
-     * but performing a delegate call.
-     *
-     * _Available since v3.4._
-     */
-    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
-    }
-
-    /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
-     * but performing a delegate call.
-     *
-     * _Available since v3.4._
-     */
-    function functionDelegateCall(
-        address target,
-        bytes memory data,
-        string memory errorMessage
-    ) internal returns (bytes memory) {
-        (bool success, bytes memory returndata) = target.delegatecall(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
-    }
-
-    /**
-     * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling
-     * the revert reason or using the provided one) in case of unsuccessful call or if target was not a contract.
-     *
-     * _Available since v4.8._
-     */
-    function verifyCallResultFromTarget(
-        address target,
-        bool success,
-        bytes memory returndata,
-        string memory errorMessage
-    ) internal view returns (bytes memory) {
-        if (success) {
-            if (returndata.length == 0) {
-                // only check isContract if the call was successful and the return data is empty
-                // otherwise we already know that it was a contract
-                require(isContract(target), "Address: call to non-contract");
-            }
-            return returndata;
-        } else {
-            _revert(returndata, errorMessage);
-        }
-    }
-
-    /**
-     * @dev Tool to verify that a low level call was successful, and revert if it wasn't, either by bubbling the
-     * revert reason or using the provided one.
-     *
-     * _Available since v4.3._
-     */
-    function verifyCallResult(
-        bool success,
-        bytes memory returndata,
-        string memory errorMessage
-    ) internal pure returns (bytes memory) {
-        if (success) {
-            return returndata;
-        } else {
-            _revert(returndata, errorMessage);
-        }
-    }
-
-    function _revert(bytes memory returndata, string memory errorMessage) private pure {
-        // Look for revert reason and bubble it up if present
-        if (returndata.length > 0) {
-            // The easiest way to bubble the revert reason is using memory via assembly
-            /// @solidity memory-safe-assembly
-            assembly {
-                let returndata_size := mload(returndata)
-                revert(add(32, returndata), returndata_size)
-            }
-        } else {
-            revert(errorMessage);
-        }
-    }
-}
-
-
-// File @openzeppelin/contracts/governance/TimelockController.sol@v4.8.1
-
-// OpenZeppelin Contracts (last updated v4.8.0) (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/TimelockController.sol)
 
 pragma solidity ^0.8.0;
-
 
 
 
@@ -1233,6 +1041,11 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     event CallExecuted(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
 
     /**
+     * @dev Emitted when new proposal is scheduled with non-zero salt.
+     */
+    event CallSalt(bytes32 indexed id, bytes32 salt);
+
+    /**
      * @dev Emitted when operation `id` is cancelled.
      */
     event Cancelled(bytes32 indexed id);
@@ -1255,12 +1068,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * administration through timelocked proposals. Previous versions of this contract would assign
      * this admin to the deployer automatically and should be renounced as well.
      */
-    constructor(
-        uint256 minDelay,
-        address[] memory proposers,
-        address[] memory executors,
-        address admin
-    ) {
+    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors, address admin) {
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
@@ -1318,21 +1126,21 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * @dev Returns whether an id correspond to a registered operation. This
      * includes both Pending, Ready and Done operations.
      */
-    function isOperation(bytes32 id) public view virtual returns (bool registered) {
+    function isOperation(bytes32 id) public view virtual returns (bool) {
         return getTimestamp(id) > 0;
     }
 
     /**
-     * @dev Returns whether an operation is pending or not.
+     * @dev Returns whether an operation is pending or not. Note that a "pending" operation may also be "ready".
      */
-    function isOperationPending(bytes32 id) public view virtual returns (bool pending) {
+    function isOperationPending(bytes32 id) public view virtual returns (bool) {
         return getTimestamp(id) > _DONE_TIMESTAMP;
     }
 
     /**
-     * @dev Returns whether an operation is ready or not.
+     * @dev Returns whether an operation is ready for execution. Note that a "ready" operation is also "pending".
      */
-    function isOperationReady(bytes32 id) public view virtual returns (bool ready) {
+    function isOperationReady(bytes32 id) public view virtual returns (bool) {
         uint256 timestamp = getTimestamp(id);
         return timestamp > _DONE_TIMESTAMP && timestamp <= block.timestamp;
     }
@@ -1340,15 +1148,15 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev Returns whether an operation is done or not.
      */
-    function isOperationDone(bytes32 id) public view virtual returns (bool done) {
+    function isOperationDone(bytes32 id) public view virtual returns (bool) {
         return getTimestamp(id) == _DONE_TIMESTAMP;
     }
 
     /**
-     * @dev Returns the timestamp at with an operation becomes ready (0 for
+     * @dev Returns the timestamp at which an operation becomes ready (0 for
      * unset operations, 1 for done operations).
      */
-    function getTimestamp(bytes32 id) public view virtual returns (uint256 timestamp) {
+    function getTimestamp(bytes32 id) public view virtual returns (uint256) {
         return _timestamps[id];
     }
 
@@ -1357,7 +1165,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      *
      * This value can be changed by executing an operation that calls `updateDelay`.
      */
-    function getMinDelay() public view virtual returns (uint256 duration) {
+    function getMinDelay() public view virtual returns (uint256) {
         return _minDelay;
     }
 
@@ -1371,7 +1179,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes calldata data,
         bytes32 predecessor,
         bytes32 salt
-    ) public pure virtual returns (bytes32 hash) {
+    ) public pure virtual returns (bytes32) {
         return keccak256(abi.encode(target, value, data, predecessor, salt));
     }
 
@@ -1385,14 +1193,14 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt
-    ) public pure virtual returns (bytes32 hash) {
+    ) public pure virtual returns (bytes32) {
         return keccak256(abi.encode(targets, values, payloads, predecessor, salt));
     }
 
     /**
      * @dev Schedule an operation containing a single transaction.
      *
-     * Emits a {CallScheduled} event.
+     * Emits {CallSalt} if salt is nonzero, and {CallScheduled}.
      *
      * Requirements:
      *
@@ -1409,12 +1217,15 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes32 id = hashOperation(target, value, data, predecessor, salt);
         _schedule(id, delay);
         emit CallScheduled(id, 0, target, value, data, predecessor, delay);
+        if (salt != bytes32(0)) {
+            emit CallSalt(id, salt);
+        }
     }
 
     /**
      * @dev Schedule an operation containing a batch of transactions.
      *
-     * Emits one {CallScheduled} event per transaction in the batch.
+     * Emits {CallSalt} if salt is nonzero, and one {CallScheduled} event per transaction in the batch.
      *
      * Requirements:
      *
@@ -1436,10 +1247,13 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         for (uint256 i = 0; i < targets.length; ++i) {
             emit CallScheduled(id, i, targets[i], values[i], payloads[i], predecessor, delay);
         }
+        if (salt != bytes32(0)) {
+            emit CallSalt(id, salt);
+        }
     }
 
     /**
-     * @dev Schedule an operation that is to becomes valid after a given delay.
+     * @dev Schedule an operation that is to become valid after a given delay.
      */
     function _schedule(bytes32 id, uint256 delay) private {
         require(!isOperation(id), "TimelockController: operation already scheduled");
@@ -1497,6 +1311,9 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      *
      * - the caller must have the 'executor' role.
      */
+    // This function can reenter, but it doesn't pose a risk because _afterCall checks that the proposal is pending,
+    // thus any modifications to the operation during reentrancy should be caught.
+    // slither-disable-next-line reentrancy-eth
     function executeBatch(
         address[] calldata targets,
         uint256[] calldata values,
@@ -1523,11 +1340,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev Execute an operation's call.
      */
-    function _execute(
-        address target,
-        uint256 value,
-        bytes calldata data
-    ) internal virtual {
+    function _execute(address target, uint256 value, bytes calldata data) internal virtual {
         (bool success, ) = target.call{value: value}(data);
         require(success, "TimelockController: underlying transaction reverted");
     }
@@ -1567,12 +1380,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev See {IERC721Receiver-onERC721Received}.
      */
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes memory
-    ) public virtual override returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
         return this.onERC721Received.selector;
     }
 

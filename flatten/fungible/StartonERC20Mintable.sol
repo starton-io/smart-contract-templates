@@ -1,6 +1,6 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/access/IAccessControl.sol@v4.8.1
+// File @openzeppelin/contracts/access/IAccessControl.sol@v4.9.2
 
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (access/IAccessControl.sol)
@@ -92,7 +92,7 @@ interface IAccessControl {
 }
 
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.8.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
@@ -119,9 +119,9 @@ abstract contract Context {
 }
 
 
-// File @openzeppelin/contracts/utils/math/Math.sol@v4.8.1
+// File @openzeppelin/contracts/utils/math/Math.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.0;
 
@@ -174,11 +174,7 @@ library Math {
      * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv)
      * with further edits by Uniswap Labs also under MIT license.
      */
-    function mulDiv(
-        uint256 x,
-        uint256 y,
-        uint256 denominator
-    ) internal pure returns (uint256 result) {
+    function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
             // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
@@ -193,11 +189,14 @@ library Math {
 
             // Handle non-overflow cases, 256 by 256 division.
             if (prod1 == 0) {
+                // Solidity will revert if denominator == 0, unlike the div opcode on its own.
+                // The surrounding unchecked block does not change this fact.
+                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
                 return prod0 / denominator;
             }
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
-            require(denominator > prod1);
+            require(denominator > prod1, "Math: mulDiv overflow");
 
             ///////////////////////////////////////////////
             // 512 by 256 division.
@@ -259,12 +258,7 @@ library Math {
     /**
      * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
      */
-    function mulDiv(
-        uint256 x,
-        uint256 y,
-        uint256 denominator,
-        Rounding rounding
-    ) internal pure returns (uint256) {
+    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
         uint256 result = mulDiv(x, y, denominator);
         if (rounding == Rounding.Up && mulmod(x, y, denominator) > 0) {
             result += 1;
@@ -380,31 +374,31 @@ library Math {
     function log10(uint256 value) internal pure returns (uint256) {
         uint256 result = 0;
         unchecked {
-            if (value >= 10**64) {
-                value /= 10**64;
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
                 result += 64;
             }
-            if (value >= 10**32) {
-                value /= 10**32;
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
                 result += 32;
             }
-            if (value >= 10**16) {
-                value /= 10**16;
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
                 result += 16;
             }
-            if (value >= 10**8) {
-                value /= 10**8;
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
                 result += 8;
             }
-            if (value >= 10**4) {
-                value /= 10**4;
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
                 result += 4;
             }
-            if (value >= 10**2) {
-                value /= 10**2;
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
                 result += 2;
             }
-            if (value >= 10**1) {
+            if (value >= 10 ** 1) {
                 result += 1;
             }
         }
@@ -418,7 +412,7 @@ library Math {
     function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log10(value);
-            return result + (rounding == Rounding.Up && 10**result < value ? 1 : 0);
+            return result + (rounding == Rounding.Up && 10 ** result < value ? 1 : 0);
         }
     }
 
@@ -455,23 +449,70 @@ library Math {
     }
 
     /**
-     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
+     * @dev Return the log in base 256, following the selected rounding direction, of a positive value.
      * Returns 0 if given 0.
      */
     function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log256(value);
-            return result + (rounding == Rounding.Up && 1 << (result * 8) < value ? 1 : 0);
+            return result + (rounding == Rounding.Up && 1 << (result << 3) < value ? 1 : 0);
         }
     }
 }
 
 
-// File @openzeppelin/contracts/utils/Strings.sol@v4.8.1
+// File @openzeppelin/contracts/utils/math/SignedMath.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/Strings.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/SignedMath.sol)
 
 pragma solidity ^0.8.0;
+
+/**
+ * @dev Standard signed math utilities missing in the Solidity language.
+ */
+library SignedMath {
+    /**
+     * @dev Returns the largest of two signed numbers.
+     */
+    function max(int256 a, int256 b) internal pure returns (int256) {
+        return a > b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two signed numbers.
+     */
+    function min(int256 a, int256 b) internal pure returns (int256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two signed numbers without overflow.
+     * The result is rounded towards zero.
+     */
+    function average(int256 a, int256 b) internal pure returns (int256) {
+        // Formula from the book "Hacker's Delight"
+        int256 x = (a & b) + ((a ^ b) >> 1);
+        return x + (int256(uint256(x) >> 255) & (a ^ b));
+    }
+
+    /**
+     * @dev Returns the absolute unsigned value of a signed value.
+     */
+    function abs(int256 n) internal pure returns (uint256) {
+        unchecked {
+            // must be unchecked in order to support `n = type(int256).min`
+            return uint256(n >= 0 ? n : -n);
+        }
+    }
+}
+
+
+// File @openzeppelin/contracts/utils/Strings.sol@v4.9.2
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/Strings.sol)
+
+pragma solidity ^0.8.0;
+
 
 /**
  * @dev String operations.
@@ -506,6 +547,13 @@ library Strings {
     }
 
     /**
+     * @dev Converts a `int256` to its ASCII `string` decimal representation.
+     */
+    function toString(int256 value) internal pure returns (string memory) {
+        return string(abi.encodePacked(value < 0 ? "-" : "", toString(SignedMath.abs(value))));
+    }
+
+    /**
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
      */
     function toHexString(uint256 value) internal pure returns (string memory) {
@@ -535,10 +583,17 @@ library Strings {
     function toHexString(address addr) internal pure returns (string memory) {
         return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);
     }
+
+    /**
+     * @dev Returns true if the two strings are equal.
+     */
+    function equal(string memory a, string memory b) internal pure returns (bool) {
+        return keccak256(bytes(a)) == keccak256(bytes(b));
+    }
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -566,7 +621,7 @@ interface IERC165 {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.8.1
+// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
 
@@ -596,9 +651,9 @@ abstract contract ERC165 is IERC165 {
 }
 
 
-// File @openzeppelin/contracts/access/AccessControl.sol@v4.8.1
+// File @openzeppelin/contracts/access/AccessControl.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (access/AccessControl.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (access/AccessControl.sol)
 
 pragma solidity ^0.8.0;
 
@@ -616,14 +671,14 @@ pragma solidity ^0.8.0;
  * in the external API and be unique. The best way to achieve this is by
  * using `public constant` hash digests:
  *
- * ```
+ * ```solidity
  * bytes32 public constant MY_ROLE = keccak256("MY_ROLE");
  * ```
  *
  * Roles can be used to represent a set of permissions. To restrict access to a
  * function call, use {hasRole}:
  *
- * ```
+ * ```solidity
  * function foo() public {
  *     require(hasRole(MY_ROLE, msg.sender));
  *     ...
@@ -641,7 +696,8 @@ pragma solidity ^0.8.0;
  *
  * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
  * grant and revoke this role. Extra precautions should be taken to secure
- * accounts that have been granted it.
+ * accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules}
+ * to enforce additional security measures for this role.
  */
 abstract contract AccessControl is Context, IAccessControl, ERC165 {
     struct RoleData {
@@ -844,7 +900,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
 }
 
 
-// File @openzeppelin/contracts/security/Pausable.sol@v4.8.1
+// File @openzeppelin/contracts/security/Pausable.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.7.0) (security/Pausable.sol)
 
@@ -1017,9 +1073,9 @@ abstract contract AStartonMintLock is AStartonPausable, AStartonLock {
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)
 
 pragma solidity ^0.8.0;
 
@@ -1094,15 +1150,11 @@ interface IERC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 amount
-    ) external returns (bool);
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/IERC20Metadata.sol)
 
@@ -1131,9 +1183,9 @@ interface IERC20Metadata is IERC20 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/ERC20.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC20/ERC20.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/ERC20.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/ERC20.sol)
 
 pragma solidity ^0.8.0;
 
@@ -1149,6 +1201,9 @@ pragma solidity ^0.8.0;
  * TIP: For a detailed writeup see our guide
  * https://forum.openzeppelin.com/t/how-to-implement-erc20-supply-mechanisms/226[How
  * to implement supply mechanisms].
+ *
+ * The default value of {decimals} is 18. To change this, you should override
+ * this function so it returns a different value.
  *
  * We have followed general OpenZeppelin Contracts guidelines: functions revert
  * instead returning `false` on failure. This behavior is nonetheless
@@ -1176,9 +1231,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     /**
      * @dev Sets the values for {name} and {symbol}.
-     *
-     * The default value of {decimals} is 18. To select a different value for
-     * {decimals} you should overload it.
      *
      * All two of these values are immutable: they can only be set once during
      * construction.
@@ -1209,8 +1261,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * be displayed to a user as `5.05` (`505 / 10 ** 2`).
      *
      * Tokens usually opt for a value of 18, imitating the relationship between
-     * Ether and Wei. This is the value {ERC20} uses, unless this function is
-     * overridden;
+     * Ether and Wei. This is the default value returned by this function, unless
+     * it's overridden.
      *
      * NOTE: This information is only used for _display_ purposes: it in
      * no way affects any of the arithmetic of the contract, including
@@ -1287,11 +1339,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - the caller must have allowance for ``from``'s tokens of at least
      * `amount`.
      */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 amount
-    ) public virtual override returns (bool) {
+    function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
         _transfer(from, to, amount);
@@ -1355,11 +1403,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `to` cannot be the zero address.
      * - `from` must have a balance of at least `amount`.
      */
-    function _transfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {
+    function _transfer(address from, address to, uint256 amount) internal virtual {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
 
@@ -1445,11 +1489,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
      */
-    function _approve(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {
+    function _approve(address owner, address spender, uint256 amount) internal virtual {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
 
@@ -1465,11 +1505,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * Might emit an {Approval} event.
      */
-    function _spendAllowance(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {
+    function _spendAllowance(address owner, address spender, uint256 amount) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);
         if (currentAllowance != type(uint256).max) {
             require(currentAllowance >= amount, "ERC20: insufficient allowance");
@@ -1493,11 +1529,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {}
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {}
 
     /**
      * @dev Hook that is called after any transfer of tokens. This includes
@@ -1513,15 +1545,11 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {}
+    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual {}
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20Burnable.sol)
 
@@ -1561,9 +1589,9 @@ abstract contract ERC20Burnable is Context, ERC20 {
 }
 
 
-// File @openzeppelin/contracts/utils/Address.sol@v4.8.1
+// File @openzeppelin/contracts/utils/Address.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/Address.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/Address.sol)
 
 pragma solidity ^0.8.1;
 
@@ -1586,6 +1614,10 @@ library Address {
      *  - a contract in construction
      *  - an address where a contract will be created
      *  - an address where a contract lived, but was destroyed
+     *
+     * Furthermore, `isContract` will also return true if the target contract within
+     * the same transaction is already scheduled for destruction by `SELFDESTRUCT`,
+     * which only has an effect at the end of a transaction.
      * ====
      *
      * [IMPORTANT]
@@ -1614,12 +1646,12 @@ library Address {
      * imposed by `transfer`, making them unable to receive funds via
      * `transfer`. {sendValue} removes this limitation.
      *
-     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].
+     * https://consensys.net/diligence/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more].
      *
      * IMPORTANT: because control is transferred to `recipient`, care must be
      * taken to not create reentrancy vulnerabilities. Consider using
      * {ReentrancyGuard} or the
-     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
+     * https://solidity.readthedocs.io/en/v0.8.0/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
         require(address(this).balance >= amount, "Address: insufficient balance");
@@ -1675,11 +1707,7 @@ library Address {
      *
      * _Available since v3.1._
      */
-    function functionCallWithValue(
-        address target,
-        bytes memory data,
-        uint256 value
-    ) internal returns (bytes memory) {
+    function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
         return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
     }
 
@@ -1808,9 +1836,9 @@ library Address {
 }
 
 
-// File @openzeppelin/contracts/proxy/utils/Initializable.sol@v4.8.1
+// File @openzeppelin/contracts/proxy/utils/Initializable.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.1) (proxy/utils/Initializable.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/Initializable.sol)
 
 pragma solidity ^0.8.2;
 
@@ -1827,12 +1855,13 @@ pragma solidity ^0.8.2;
  * For example:
  *
  * [.hljs-theme-light.nopadding]
- * ```
+ * ```solidity
  * contract MyToken is ERC20Upgradeable {
  *     function initialize() initializer public {
  *         __ERC20_init("MyToken", "MTK");
  *     }
  * }
+ *
  * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {
  *     function initializeV2() reinitializer(2) public {
  *         __ERC20Permit_init("MyToken");
@@ -1952,7 +1981,7 @@ abstract contract Initializable {
      */
     function _disableInitializers() internal virtual {
         require(!_initializing, "Initializable: contract is initializing");
-        if (_initialized < type(uint8).max) {
+        if (_initialized != type(uint8).max) {
             _initialized = type(uint8).max;
             emit Initialized(type(uint8).max);
         }

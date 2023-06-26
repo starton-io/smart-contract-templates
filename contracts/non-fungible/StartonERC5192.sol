@@ -3,12 +3,12 @@
 pragma solidity 0.8.17;
 
 import "../interfaces/IStartonERC5192.sol";
-import "./StartonERC721Base.sol";
+import "./StartonERC721BaseRoyalties.sol";
 
 /// @title StartonERC5192
 /// @author Starton
 /// @notice ERC5192 token that is locked by default and which is based of the StartonERC721Base
-contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
+contract StartonERC5192 is StartonERC721BaseRoyalties, IStartonERC5192 {
     using Counters for Counters.Counter;
 
     /** @dev Modifier that reverts because the token is locked */
@@ -26,7 +26,7 @@ contract StartonERC5192 is StartonERC721Base, IStartonERC5192 {
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
     )
-        StartonERC721Base(
+        StartonERC721BaseRoyalties(
             definitiveName,
             definitiveSymbol,
             definitiveRoyaltyFee,

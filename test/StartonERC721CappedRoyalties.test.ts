@@ -3,14 +3,14 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 
 import {
-  StartonERC721Capped,
-  StartonERC721Capped__factory, // eslint-disable-line camelcase
+  StartonERC721CappedRoyalties,
+  StartonERC721CappedRoyalties__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let ERC721: StartonERC721Capped__factory; // eslint-disable-line camelcase
+let ERC721: StartonERC721CappedRoyalties__factory; // eslint-disable-line camelcase
 
-describe("StartonERC721Capped", () => {
-  let instanceERC721: StartonERC721Capped;
+describe("StartonERC721CappedRoyalties", () => {
+  let instanceERC721: StartonERC721CappedRoyalties;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
@@ -20,18 +20,20 @@ describe("StartonERC721Capped", () => {
     [owner, addr1, addr2] = await ethers.getSigners();
 
     // Create factory
-    ERC721 = new StartonERC721Capped__factory(owner);
+    ERC721 = new StartonERC721CappedRoyalties__factory(owner);
   });
 
   beforeEach(async () => {
     instanceERC721 = (await ERC721.deploy(
       "StartonToken",
       "ST",
+      "1000",
+      owner.address,
       10,
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
-    )) as StartonERC721Capped;
+    )) as StartonERC721CappedRoyalties;
     await instanceERC721.deployed();
   });
 
@@ -43,6 +45,8 @@ describe("StartonERC721Capped", () => {
         ERC721.deploy(
           "StartonToken",
           "ST",
+          "1000",
+          owner.address,
           0,
           "https://ipfs.io/",
           "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
@@ -409,6 +413,12 @@ describe("StartonERC721Capped", () => {
       );
     });
 
+    it("Should support ERC2981", async () => {
+      expect(await instanceERC721.supportsInterface("0x2a55205a")).to.equal(
+        true
+      );
+    });
+
     it("should support ERC721Enumerable", async () => {
       expect(await instanceERC721.supportsInterface("0x780e9d63")).to.equal(
         true
@@ -419,6 +429,15 @@ describe("StartonERC721Capped", () => {
       expect(await instanceERC721.supportsInterface("0x7965db0b")).to.equal(
         true
       );
+    });
+  });
+
+  describe("Royalties", () => {
+    it("Should return the correct royalty amount", async () => {
+      expect(await instanceERC721.royaltyInfo(1, 100)).to.deep.equal([
+        owner.address,
+        "10",
+      ]);
     });
   });
 

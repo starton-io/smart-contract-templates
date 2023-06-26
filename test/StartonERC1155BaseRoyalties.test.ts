@@ -3,14 +3,14 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 
 import {
-  StartonERC1155Base,
-  StartonERC1155Base__factory, // eslint-disable-line camelcase
+  StartonERC1155BaseRoyalties,
+  StartonERC1155BaseRoyalties__factory, // eslint-disable-line camelcase
 } from "../typechain-types";
 
-let ERC1155: StartonERC1155Base__factory; // eslint-disable-line camelcase
+let ERC1155: StartonERC1155BaseRoyalties__factory; // eslint-disable-line camelcase
 
-describe("StartonERC1155Base", () => {
-  let instanceERC1155: StartonERC1155Base;
+describe("StartonERC1155BaseRoyalties", () => {
+  let instanceERC1155: StartonERC1155BaseRoyalties;
   let owner: SignerWithAddress;
   let addr1: SignerWithAddress;
   let addr2: SignerWithAddress;
@@ -20,16 +20,18 @@ describe("StartonERC1155Base", () => {
     [owner, addr1, addr2] = await ethers.getSigners();
 
     // Create factory
-    ERC1155 = new StartonERC1155Base__factory(owner);
+    ERC1155 = new StartonERC1155BaseRoyalties__factory(owner);
   });
 
   beforeEach(async () => {
     instanceERC1155 = (await ERC1155.deploy(
       "StartonToken",
+      "1000",
+      owner.address,
       "https://ipfs.io/QmbWqibQSuvvsGVDUVvDCGdgcdCDCfycDFC3VV4v4Ghgc4/{id}",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
-    )) as StartonERC1155Base;
+    )) as StartonERC1155BaseRoyalties;
     await instanceERC1155.deployed();
   });
 
@@ -562,10 +564,25 @@ describe("StartonERC1155Base", () => {
       );
     });
 
+    it("Should support ERC2981", async () => {
+      expect(await instanceERC1155.supportsInterface("0x2a55205a")).to.equal(
+        true
+      );
+    });
+
     it("Should support AccessControl", async () => {
       expect(await instanceERC1155.supportsInterface("0x7965db0b")).to.be.equal(
         true
       );
+    });
+  });
+
+  describe("Royalties", () => {
+    it("Should return the correct royalty amount", async () => {
+      expect(await instanceERC1155.royaltyInfo(1, 100)).to.deep.equal([
+        owner.address,
+        "10",
+      ]);
     });
   });
 

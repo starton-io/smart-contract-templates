@@ -63,7 +63,7 @@ contract StartonERC721BaseSale is Context {
 
         uint256 totalSupply = token.totalSupply();
         if (totalSupply == 0) {
-            _mint(to, Strings.toString(0));
+            _mint(to, Strings.toString(uint256(0)));
         } else {
             _mint(to, Strings.toString(token.tokenByIndex(totalSupply - 1) + 1));
         }

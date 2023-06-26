@@ -1,546 +1,645 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/token/ERC20/IERC20.sol@v4.9.2
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.9.2
 
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)
+// OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
 pragma solidity ^0.8.0;
 
 /**
- * @dev Interface of the ERC20 standard as defined in the EIP.
+ * @dev Interface of the ERC165 standard, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-165[EIP].
+ *
+ * Implementers can declare support of contract interfaces, which can then be
+ * queried by others ({ERC165Checker}).
+ *
+ * For an implementation, see {ERC165}.
  */
-interface IERC20 {
+interface IERC165 {
     /**
-     * @dev Emitted when `value` tokens are moved from one account (`from`) to
-     * another (`to`).
+     * @dev Returns true if this contract implements the interface defined by
+     * `interfaceId`. See the corresponding
+     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
+     * to learn more about how these ids are created.
      *
-     * Note that `value` may be zero.
+     * This function call must use less than 30 000 gas.
      */
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
-    /**
-     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
-     * a call to {approve}. `value` is the new allowance.
-     */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-
-    /**
-     * @dev Returns the amount of tokens in existence.
-     */
-    function totalSupply() external view returns (uint256);
-
-    /**
-     * @dev Returns the amount of tokens owned by `account`.
-     */
-    function balanceOf(address account) external view returns (uint256);
-
-    /**
-     * @dev Moves `amount` tokens from the caller's account to `to`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transfer(address to, uint256 amount) external returns (bool);
-
-    /**
-     * @dev Returns the remaining number of tokens that `spender` will be
-     * allowed to spend on behalf of `owner` through {transferFrom}. This is
-     * zero by default.
-     *
-     * This value changes when {approve} or {transferFrom} are called.
-     */
-    function allowance(address owner, address spender) external view returns (uint256);
-
-    /**
-     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * IMPORTANT: Beware that changing an allowance with this method brings the risk
-     * that someone may use both the old and the new allowance by unfortunate
-     * transaction ordering. One possible solution to mitigate this race
-     * condition is to first reduce the spender's allowance to 0 and set the
-     * desired value afterwards:
-     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-     *
-     * Emits an {Approval} event.
-     */
-    function approve(address spender, uint256 amount) external returns (bool);
-
-    /**
-     * @dev Moves `amount` tokens from `from` to `to` using the
-     * allowance mechanism. `amount` is then deducted from the caller's
-     * allowance.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+    function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol@v4.9.2
+// File @openzeppelin/contracts/interfaces/IERC2981.sol@v4.9.2
 
-// OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/IERC20Metadata.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (interfaces/IERC2981.sol)
 
 pragma solidity ^0.8.0;
 
 /**
- * @dev Interface for the optional metadata functions from the ERC20 standard.
+ * @dev Interface for the NFT Royalty Standard.
  *
- * _Available since v4.1._
+ * A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal
+ * support for royalty payments across all NFT marketplaces and ecosystem participants.
+ *
+ * _Available since v4.5._
  */
-interface IERC20Metadata is IERC20 {
+interface IERC2981 is IERC165 {
     /**
-     * @dev Returns the name of the token.
+     * @dev Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
+     * exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
      */
-    function name() external view returns (string memory);
-
-    /**
-     * @dev Returns the symbol of the token.
-     */
-    function symbol() external view returns (string memory);
-
-    /**
-     * @dev Returns the decimals places of the token.
-     */
-    function decimals() external view returns (uint8);
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) external view returns (address receiver, uint256 royaltyAmount);
 }
 
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.9.2
+// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.9.2
 
-// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
+// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
 
 pragma solidity ^0.8.0;
 
 /**
- * @dev Provides information about the current execution context, including the
- * sender of the transaction and its data. While these are generally available
- * via msg.sender and msg.data, they should not be accessed in such a direct
- * manner, since when dealing with meta-transactions the account sending and
- * paying for execution may not be the actual sender (as far as an application
- * is concerned).
+ * @dev Implementation of the {IERC165} interface.
  *
- * This contract is only required for intermediate, library-like contracts.
+ * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
+ * for the additional interface id that will be supported. For example:
+ *
+ * ```solidity
+ * function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+ *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
+ * }
+ * ```
+ *
+ * Alternatively, {ERC165Storage} provides an easier to use but more expensive implementation.
  */
-abstract contract Context {
-    function _msgSender() internal view virtual returns (address) {
-        return msg.sender;
-    }
-
-    function _msgData() internal view virtual returns (bytes calldata) {
-        return msg.data;
+abstract contract ERC165 is IERC165 {
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IERC165).interfaceId;
     }
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/ERC20.sol@v4.9.2
+// File @openzeppelin/contracts/token/common/ERC2981.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/ERC20.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/common/ERC2981.sol)
 
 pragma solidity ^0.8.0;
 
 
+/**
+ * @dev Implementation of the NFT Royalty Standard, a standardized way to retrieve royalty payment information.
+ *
+ * Royalty information can be specified globally for all token ids via {_setDefaultRoyalty}, and/or individually for
+ * specific token ids via {_setTokenRoyalty}. The latter takes precedence over the first.
+ *
+ * Royalty is specified as a fraction of sale price. {_feeDenominator} is overridable but defaults to 10000, meaning the
+ * fee is specified in basis points by default.
+ *
+ * IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
+ * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
+ * voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
+ *
+ * _Available since v4.5._
+ */
+abstract contract ERC2981 is IERC2981, ERC165 {
+    struct RoyaltyInfo {
+        address receiver;
+        uint96 royaltyFraction;
+    }
+
+    RoyaltyInfo private _defaultRoyaltyInfo;
+    mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
+        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @inheritdoc IERC2981
+     */
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual override returns (address, uint256) {
+        RoyaltyInfo memory royalty = _tokenRoyaltyInfo[tokenId];
+
+        if (royalty.receiver == address(0)) {
+            royalty = _defaultRoyaltyInfo;
+        }
+
+        uint256 royaltyAmount = (salePrice * royalty.royaltyFraction) / _feeDenominator();
+
+        return (royalty.receiver, royaltyAmount);
+    }
+
+    /**
+     * @dev The denominator with which to interpret the fee set in {_setTokenRoyalty} and {_setDefaultRoyalty} as a
+     * fraction of the sale price. Defaults to 10000 so fees are expressed in basis points, but may be customized by an
+     * override.
+     */
+    function _feeDenominator() internal pure virtual returns (uint96) {
+        return 10000;
+    }
+
+    /**
+     * @dev Sets the royalty information that all ids in this contract will default to.
+     *
+     * Requirements:
+     *
+     * - `receiver` cannot be the zero address.
+     * - `feeNumerator` cannot be greater than the fee denominator.
+     */
+    function _setDefaultRoyalty(address receiver, uint96 feeNumerator) internal virtual {
+        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
+        require(receiver != address(0), "ERC2981: invalid receiver");
+
+        _defaultRoyaltyInfo = RoyaltyInfo(receiver, feeNumerator);
+    }
+
+    /**
+     * @dev Removes default royalty information.
+     */
+    function _deleteDefaultRoyalty() internal virtual {
+        delete _defaultRoyaltyInfo;
+    }
+
+    /**
+     * @dev Sets the royalty information for a specific token id, overriding the global default.
+     *
+     * Requirements:
+     *
+     * - `receiver` cannot be the zero address.
+     * - `feeNumerator` cannot be greater than the fee denominator.
+     */
+    function _setTokenRoyalty(uint256 tokenId, address receiver, uint96 feeNumerator) internal virtual {
+        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
+        require(receiver != address(0), "ERC2981: Invalid parameters");
+
+        _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, feeNumerator);
+    }
+
+    /**
+     * @dev Resets royalty information for the token id back to the global default.
+     */
+    function _resetTokenRoyalty(uint256 tokenId) internal virtual {
+        delete _tokenRoyaltyInfo[tokenId];
+    }
+}
+
+
+// File operator-filter-registry/src/IOperatorFilterRegistry.sol@v1.4.0
+
+pragma solidity ^0.8.13;
+
+interface IOperatorFilterRegistry {
+    /**
+     * @notice Returns true if operator is not filtered for a given token, either by address or codeHash. Also returns
+     *         true if supplied registrant address is not registered.
+     */
+    function isOperatorAllowed(address registrant, address operator) external view returns (bool);
+
+    /**
+     * @notice Registers an address with the registry. May be called by address itself or by EIP-173 owner.
+     */
+    function register(address registrant) external;
+
+    /**
+     * @notice Registers an address with the registry and "subscribes" to another address's filtered operators and codeHashes.
+     */
+    function registerAndSubscribe(address registrant, address subscription) external;
+
+    /**
+     * @notice Registers an address with the registry and copies the filtered operators and codeHashes from another
+     *         address without subscribing.
+     */
+    function registerAndCopyEntries(address registrant, address registrantToCopy) external;
+
+    /**
+     * @notice Unregisters an address with the registry and removes its subscription. May be called by address itself or by EIP-173 owner.
+     *         Note that this does not remove any filtered addresses or codeHashes.
+     *         Also note that any subscriptions to this registrant will still be active and follow the existing filtered addresses and codehashes.
+     */
+    function unregister(address addr) external;
+
+    /**
+     * @notice Update an operator address for a registered address - when filtered is true, the operator is filtered.
+     */
+    function updateOperator(address registrant, address operator, bool filtered) external;
+
+    /**
+     * @notice Update multiple operators for a registered address - when filtered is true, the operators will be filtered. Reverts on duplicates.
+     */
+    function updateOperators(address registrant, address[] calldata operators, bool filtered) external;
+
+    /**
+     * @notice Update a codeHash for a registered address - when filtered is true, the codeHash is filtered.
+     */
+    function updateCodeHash(address registrant, bytes32 codehash, bool filtered) external;
+
+    /**
+     * @notice Update multiple codeHashes for a registered address - when filtered is true, the codeHashes will be filtered. Reverts on duplicates.
+     */
+    function updateCodeHashes(address registrant, bytes32[] calldata codeHashes, bool filtered) external;
+
+    /**
+     * @notice Subscribe an address to another registrant's filtered operators and codeHashes. Will remove previous
+     *         subscription if present.
+     *         Note that accounts with subscriptions may go on to subscribe to other accounts - in this case,
+     *         subscriptions will not be forwarded. Instead the former subscription's existing entries will still be
+     *         used.
+     */
+    function subscribe(address registrant, address registrantToSubscribe) external;
+
+    /**
+     * @notice Unsubscribe an address from its current subscribed registrant, and optionally copy its filtered operators and codeHashes.
+     */
+    function unsubscribe(address registrant, bool copyExistingEntries) external;
+
+    /**
+     * @notice Get the subscription address of a given registrant, if any.
+     */
+    function subscriptionOf(address addr) external returns (address registrant);
+
+    /**
+     * @notice Get the set of addresses subscribed to a given registrant.
+     *         Note that order is not guaranteed as updates are made.
+     */
+    function subscribers(address registrant) external returns (address[] memory);
+
+    /**
+     * @notice Get the subscriber at a given index in the set of addresses subscribed to a given registrant.
+     *         Note that order is not guaranteed as updates are made.
+     */
+    function subscriberAt(address registrant, uint256 index) external returns (address);
+
+    /**
+     * @notice Copy filtered operators and codeHashes from a different registrantToCopy to addr.
+     */
+    function copyEntriesOf(address registrant, address registrantToCopy) external;
+
+    /**
+     * @notice Returns true if operator is filtered by a given address or its subscription.
+     */
+    function isOperatorFiltered(address registrant, address operator) external returns (bool);
+
+    /**
+     * @notice Returns true if the hash of an address's code is filtered by a given address or its subscription.
+     */
+    function isCodeHashOfFiltered(address registrant, address operatorWithCode) external returns (bool);
+
+    /**
+     * @notice Returns true if a codeHash is filtered by a given address or its subscription.
+     */
+    function isCodeHashFiltered(address registrant, bytes32 codeHash) external returns (bool);
+
+    /**
+     * @notice Returns a list of filtered operators for a given address or its subscription.
+     */
+    function filteredOperators(address addr) external returns (address[] memory);
+
+    /**
+     * @notice Returns the set of filtered codeHashes for a given address or its subscription.
+     *         Note that order is not guaranteed as updates are made.
+     */
+    function filteredCodeHashes(address addr) external returns (bytes32[] memory);
+
+    /**
+     * @notice Returns the filtered operator at the given index of the set of filtered operators for a given address or
+     *         its subscription.
+     *         Note that order is not guaranteed as updates are made.
+     */
+    function filteredOperatorAt(address registrant, uint256 index) external returns (address);
+
+    /**
+     * @notice Returns the filtered codeHash at the given index of the list of filtered codeHashes for a given address or
+     *         its subscription.
+     *         Note that order is not guaranteed as updates are made.
+     */
+    function filteredCodeHashAt(address registrant, uint256 index) external returns (bytes32);
+
+    /**
+     * @notice Returns true if an address has registered
+     */
+    function isRegistered(address addr) external returns (bool);
+
+    /**
+     * @dev Convenience method to compute the code hash of an arbitrary contract
+     */
+    function codeHashOf(address addr) external returns (bytes32);
+}
+
+
+// File operator-filter-registry/src/lib/Constants.sol@v1.4.0
+
+pragma solidity ^0.8.17;
+
+address constant CANONICAL_OPERATOR_FILTER_REGISTRY_ADDRESS = 0x000000000000AAeB6D7670E522A718067333cd4E;
+address constant CANONICAL_CORI_SUBSCRIPTION = 0x3cc6CddA760b79bAfa08dF41ECFA224f810dCeB6;
+
+
+// File operator-filter-registry/src/OperatorFilterer.sol@v1.4.0
+
+pragma solidity ^0.8.13;
+
 
 /**
- * @dev Implementation of the {IERC20} interface.
- *
- * This implementation is agnostic to the way tokens are created. This means
- * that a supply mechanism has to be added in a derived contract using {_mint}.
- * For a generic mechanism see {ERC20PresetMinterPauser}.
- *
- * TIP: For a detailed writeup see our guide
- * https://forum.openzeppelin.com/t/how-to-implement-erc20-supply-mechanisms/226[How
- * to implement supply mechanisms].
- *
- * The default value of {decimals} is 18. To change this, you should override
- * this function so it returns a different value.
- *
- * We have followed general OpenZeppelin Contracts guidelines: functions revert
- * instead returning `false` on failure. This behavior is nonetheless
- * conventional and does not conflict with the expectations of ERC20
- * applications.
- *
- * Additionally, an {Approval} event is emitted on calls to {transferFrom}.
- * This allows applications to reconstruct the allowance for all accounts just
- * by listening to said events. Other implementations of the EIP may not emit
- * these events, as it isn't required by the specification.
- *
- * Finally, the non-standard {decreaseAllowance} and {increaseAllowance}
- * functions have been added to mitigate the well-known issues around setting
- * allowances. See {IERC20-approve}.
+ * @title  OperatorFilterer
+ * @notice Abstract contract whose constructor automatically registers and optionally subscribes to or copies another
+ *         registrant's entries in the OperatorFilterRegistry.
+ * @dev    This smart contract is meant to be inherited by token contracts so they can use the following:
+ *         - `onlyAllowedOperator` modifier for `transferFrom` and `safeTransferFrom` methods.
+ *         - `onlyAllowedOperatorApproval` modifier for `approve` and `setApprovalForAll` methods.
+ *         Please note that if your token contract does not provide an owner with EIP-173, it must provide
+ *         administration methods on the contract itself to interact with the registry otherwise the subscription
+ *         will be locked to the options set during construction.
  */
-contract ERC20 is Context, IERC20, IERC20Metadata {
-    mapping(address => uint256) private _balances;
 
-    mapping(address => mapping(address => uint256)) private _allowances;
+abstract contract OperatorFilterer {
+    /// @dev Emitted when an operator is not allowed.
+    error OperatorNotAllowed(address operator);
 
-    uint256 private _totalSupply;
+    IOperatorFilterRegistry public constant OPERATOR_FILTER_REGISTRY =
+        IOperatorFilterRegistry(CANONICAL_OPERATOR_FILTER_REGISTRY_ADDRESS);
 
-    string private _name;
-    string private _symbol;
-
-    /**
-     * @dev Sets the values for {name} and {symbol}.
-     *
-     * All two of these values are immutable: they can only be set once during
-     * construction.
-     */
-    constructor(string memory name_, string memory symbol_) {
-        _name = name_;
-        _symbol = symbol_;
-    }
-
-    /**
-     * @dev Returns the name of the token.
-     */
-    function name() public view virtual override returns (string memory) {
-        return _name;
-    }
-
-    /**
-     * @dev Returns the symbol of the token, usually a shorter version of the
-     * name.
-     */
-    function symbol() public view virtual override returns (string memory) {
-        return _symbol;
-    }
-
-    /**
-     * @dev Returns the number of decimals used to get its user representation.
-     * For example, if `decimals` equals `2`, a balance of `505` tokens should
-     * be displayed to a user as `5.05` (`505 / 10 ** 2`).
-     *
-     * Tokens usually opt for a value of 18, imitating the relationship between
-     * Ether and Wei. This is the default value returned by this function, unless
-     * it's overridden.
-     *
-     * NOTE: This information is only used for _display_ purposes: it in
-     * no way affects any of the arithmetic of the contract, including
-     * {IERC20-balanceOf} and {IERC20-transfer}.
-     */
-    function decimals() public view virtual override returns (uint8) {
-        return 18;
-    }
-
-    /**
-     * @dev See {IERC20-totalSupply}.
-     */
-    function totalSupply() public view virtual override returns (uint256) {
-        return _totalSupply;
-    }
-
-    /**
-     * @dev See {IERC20-balanceOf}.
-     */
-    function balanceOf(address account) public view virtual override returns (uint256) {
-        return _balances[account];
-    }
-
-    /**
-     * @dev See {IERC20-transfer}.
-     *
-     * Requirements:
-     *
-     * - `to` cannot be the zero address.
-     * - the caller must have a balance of at least `amount`.
-     */
-    function transfer(address to, uint256 amount) public virtual override returns (bool) {
-        address owner = _msgSender();
-        _transfer(owner, to, amount);
-        return true;
-    }
-
-    /**
-     * @dev See {IERC20-allowance}.
-     */
-    function allowance(address owner, address spender) public view virtual override returns (uint256) {
-        return _allowances[owner][spender];
-    }
-
-    /**
-     * @dev See {IERC20-approve}.
-     *
-     * NOTE: If `amount` is the maximum `uint256`, the allowance is not updated on
-     * `transferFrom`. This is semantically equivalent to an infinite approval.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     */
-    function approve(address spender, uint256 amount) public virtual override returns (bool) {
-        address owner = _msgSender();
-        _approve(owner, spender, amount);
-        return true;
-    }
-
-    /**
-     * @dev See {IERC20-transferFrom}.
-     *
-     * Emits an {Approval} event indicating the updated allowance. This is not
-     * required by the EIP. See the note at the beginning of {ERC20}.
-     *
-     * NOTE: Does not update the allowance if the current allowance
-     * is the maximum `uint256`.
-     *
-     * Requirements:
-     *
-     * - `from` and `to` cannot be the zero address.
-     * - `from` must have a balance of at least `amount`.
-     * - the caller must have allowance for ``from``'s tokens of at least
-     * `amount`.
-     */
-    function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
-        address spender = _msgSender();
-        _spendAllowance(from, spender, amount);
-        _transfer(from, to, amount);
-        return true;
-    }
-
-    /**
-     * @dev Atomically increases the allowance granted to `spender` by the caller.
-     *
-     * This is an alternative to {approve} that can be used as a mitigation for
-     * problems described in {IERC20-approve}.
-     *
-     * Emits an {Approval} event indicating the updated allowance.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     */
-    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
-        address owner = _msgSender();
-        _approve(owner, spender, allowance(owner, spender) + addedValue);
-        return true;
-    }
-
-    /**
-     * @dev Atomically decreases the allowance granted to `spender` by the caller.
-     *
-     * This is an alternative to {approve} that can be used as a mitigation for
-     * problems described in {IERC20-approve}.
-     *
-     * Emits an {Approval} event indicating the updated allowance.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     * - `spender` must have allowance for the caller of at least
-     * `subtractedValue`.
-     */
-    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
-        address owner = _msgSender();
-        uint256 currentAllowance = allowance(owner, spender);
-        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
-        unchecked {
-            _approve(owner, spender, currentAllowance - subtractedValue);
-        }
-
-        return true;
-    }
-
-    /**
-     * @dev Moves `amount` of tokens from `from` to `to`.
-     *
-     * This internal function is equivalent to {transfer}, and can be used to
-     * e.g. implement automatic token fees, slashing mechanisms, etc.
-     *
-     * Emits a {Transfer} event.
-     *
-     * Requirements:
-     *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `from` must have a balance of at least `amount`.
-     */
-    function _transfer(address from, address to, uint256 amount) internal virtual {
-        require(from != address(0), "ERC20: transfer from the zero address");
-        require(to != address(0), "ERC20: transfer to the zero address");
-
-        _beforeTokenTransfer(from, to, amount);
-
-        uint256 fromBalance = _balances[from];
-        require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
-        unchecked {
-            _balances[from] = fromBalance - amount;
-            // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
-            // decrementing then incrementing.
-            _balances[to] += amount;
-        }
-
-        emit Transfer(from, to, amount);
-
-        _afterTokenTransfer(from, to, amount);
-    }
-
-    /** @dev Creates `amount` tokens and assigns them to `account`, increasing
-     * the total supply.
-     *
-     * Emits a {Transfer} event with `from` set to the zero address.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
-     */
-    function _mint(address account, uint256 amount) internal virtual {
-        require(account != address(0), "ERC20: mint to the zero address");
-
-        _beforeTokenTransfer(address(0), account, amount);
-
-        _totalSupply += amount;
-        unchecked {
-            // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
-            _balances[account] += amount;
-        }
-        emit Transfer(address(0), account, amount);
-
-        _afterTokenTransfer(address(0), account, amount);
-    }
-
-    /**
-     * @dev Destroys `amount` tokens from `account`, reducing the
-     * total supply.
-     *
-     * Emits a {Transfer} event with `to` set to the zero address.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
-     * - `account` must have at least `amount` tokens.
-     */
-    function _burn(address account, uint256 amount) internal virtual {
-        require(account != address(0), "ERC20: burn from the zero address");
-
-        _beforeTokenTransfer(account, address(0), amount);
-
-        uint256 accountBalance = _balances[account];
-        require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
-        unchecked {
-            _balances[account] = accountBalance - amount;
-            // Overflow not possible: amount <= accountBalance <= totalSupply.
-            _totalSupply -= amount;
-        }
-
-        emit Transfer(account, address(0), amount);
-
-        _afterTokenTransfer(account, address(0), amount);
-    }
-
-    /**
-     * @dev Sets `amount` as the allowance of `spender` over the `owner` s tokens.
-     *
-     * This internal function is equivalent to `approve`, and can be used to
-     * e.g. set automatic allowances for certain subsystems, etc.
-     *
-     * Emits an {Approval} event.
-     *
-     * Requirements:
-     *
-     * - `owner` cannot be the zero address.
-     * - `spender` cannot be the zero address.
-     */
-    function _approve(address owner, address spender, uint256 amount) internal virtual {
-        require(owner != address(0), "ERC20: approve from the zero address");
-        require(spender != address(0), "ERC20: approve to the zero address");
-
-        _allowances[owner][spender] = amount;
-        emit Approval(owner, spender, amount);
-    }
-
-    /**
-     * @dev Updates `owner` s allowance for `spender` based on spent `amount`.
-     *
-     * Does not update the allowance amount in case of infinite allowance.
-     * Revert if not enough allowance is available.
-     *
-     * Might emit an {Approval} event.
-     */
-    function _spendAllowance(address owner, address spender, uint256 amount) internal virtual {
-        uint256 currentAllowance = allowance(owner, spender);
-        if (currentAllowance != type(uint256).max) {
-            require(currentAllowance >= amount, "ERC20: insufficient allowance");
-            unchecked {
-                _approve(owner, spender, currentAllowance - amount);
+    /// @dev The constructor that is called when the contract is being deployed.
+    constructor(address subscriptionOrRegistrantToCopy, bool subscribe) {
+        // If an inheriting token contract is deployed to a network without the registry deployed, the modifier
+        // will not revert, but the contract will need to be registered with the registry once it is deployed in
+        // order for the modifier to filter addresses.
+        if (address(OPERATOR_FILTER_REGISTRY).code.length > 0) {
+            if (subscribe) {
+                OPERATOR_FILTER_REGISTRY.registerAndSubscribe(address(this), subscriptionOrRegistrantToCopy);
+            } else {
+                if (subscriptionOrRegistrantToCopy != address(0)) {
+                    OPERATOR_FILTER_REGISTRY.registerAndCopyEntries(address(this), subscriptionOrRegistrantToCopy);
+                } else {
+                    OPERATOR_FILTER_REGISTRY.register(address(this));
+                }
             }
         }
     }
 
     /**
-     * @dev Hook that is called before any transfer of tokens. This includes
-     * minting and burning.
-     *
-     * Calling conditions:
-     *
-     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
-     * will be transferred to `to`.
-     * - when `from` is zero, `amount` tokens will be minted for `to`.
-     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
-     * - `from` and `to` are never both zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     * @dev A helper function to check if an operator is allowed.
      */
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {}
+    modifier onlyAllowedOperator(address from) virtual {
+        // Allow spending tokens from addresses with balance
+        // Note that this still allows listings and marketplaces with escrow to transfer tokens if transferred
+        // from an EOA.
+        if (from != msg.sender) {
+            _checkFilterOperator(msg.sender);
+        }
+        _;
+    }
 
     /**
-     * @dev Hook that is called after any transfer of tokens. This includes
-     * minting and burning.
-     *
-     * Calling conditions:
-     *
-     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
-     * has been transferred to `to`.
-     * - when `from` is zero, `amount` tokens have been minted for `to`.
-     * - when `to` is zero, `amount` of ``from``'s tokens have been burned.
-     * - `from` and `to` are never both zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     * @dev A helper function to check if an operator approval is allowed.
      */
-    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual {}
+    modifier onlyAllowedOperatorApproval(address operator) virtual {
+        _checkFilterOperator(operator);
+        _;
+    }
+
+    /**
+     * @dev A helper function to check if an operator is allowed.
+     */
+    function _checkFilterOperator(address operator) internal view virtual {
+        // Check registry code length to facilitate testing in environments without a deployed registry.
+        if (address(OPERATOR_FILTER_REGISTRY).code.length > 0) {
+            // under normal circumstances, this function will revert rather than return false, but inheriting contracts
+            // may specify their own OperatorFilterRegistry implementations, which may behave differently
+            if (!OPERATOR_FILTER_REGISTRY.isOperatorAllowed(address(this), operator)) {
+                revert OperatorNotAllowed(operator);
+            }
+        }
+    }
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol@v4.9.2
+// File operator-filter-registry/src/DefaultOperatorFilterer.sol@v1.4.0
 
-// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20Burnable.sol)
-
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.13;
 
 
 /**
- * @dev Extension of {ERC20} that allows token holders to destroy both their own
- * tokens and those that they have an allowance for, in a way that can be
- * recognized off-chain (via event analysis).
+ * @title  DefaultOperatorFilterer
+ * @notice Inherits from OperatorFilterer and automatically subscribes to the default OpenSea subscription.
+ * @dev    Please note that if your token contract does not provide an owner with EIP-173, it must provide
+ *         administration methods on the contract itself to interact with the registry otherwise the subscription
+ *         will be locked to the options set during construction.
  */
-abstract contract ERC20Burnable is Context, ERC20 {
+
+abstract contract DefaultOperatorFilterer is OperatorFilterer {
+    /// @dev The constructor that is called when the contract is being deployed.
+    constructor() OperatorFilterer(CANONICAL_CORI_SUBSCRIPTION, true) {}
+}
+
+
+// File @openzeppelin/contracts/token/ERC1155/IERC1155.sol@v4.9.2
+
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC1155/IERC1155.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Required interface of an ERC1155 compliant contract, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-1155[EIP].
+ *
+ * _Available since v3.1._
+ */
+interface IERC1155 is IERC165 {
     /**
-     * @dev Destroys `amount` tokens from the caller.
-     *
-     * See {ERC20-_burn}.
+     * @dev Emitted when `value` tokens of token type `id` are transferred from `from` to `to` by `operator`.
      */
-    function burn(uint256 amount) public virtual {
-        _burn(_msgSender(), amount);
-    }
+    event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value);
 
     /**
-     * @dev Destroys `amount` tokens from `account`, deducting from the caller's
-     * allowance.
+     * @dev Equivalent to multiple {TransferSingle} events, where `operator`, `from` and `to` are the same for all
+     * transfers.
+     */
+    event TransferBatch(
+        address indexed operator,
+        address indexed from,
+        address indexed to,
+        uint256[] ids,
+        uint256[] values
+    );
+
+    /**
+     * @dev Emitted when `account` grants or revokes permission to `operator` to transfer their tokens, according to
+     * `approved`.
+     */
+    event ApprovalForAll(address indexed account, address indexed operator, bool approved);
+
+    /**
+     * @dev Emitted when the URI for token type `id` changes to `value`, if it is a non-programmatic URI.
      *
-     * See {ERC20-_burn} and {ERC20-allowance}.
+     * If an {URI} event was emitted for `id`, the standard
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions[guarantees] that `value` will equal the value
+     * returned by {IERC1155MetadataURI-uri}.
+     */
+    event URI(string value, uint256 indexed id);
+
+    /**
+     * @dev Returns the amount of tokens of token type `id` owned by `account`.
      *
      * Requirements:
      *
-     * - the caller must have allowance for ``accounts``'s tokens of at least
-     * `amount`.
+     * - `account` cannot be the zero address.
      */
-    function burnFrom(address account, uint256 amount) public virtual {
-        _spendAllowance(account, _msgSender(), amount);
-        _burn(account, amount);
-    }
+    function balanceOf(address account, uint256 id) external view returns (uint256);
+
+    /**
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {balanceOf}.
+     *
+     * Requirements:
+     *
+     * - `accounts` and `ids` must have the same length.
+     */
+    function balanceOfBatch(
+        address[] calldata accounts,
+        uint256[] calldata ids
+    ) external view returns (uint256[] memory);
+
+    /**
+     * @dev Grants or revokes permission to `operator` to transfer the caller's tokens, according to `approved`,
+     *
+     * Emits an {ApprovalForAll} event.
+     *
+     * Requirements:
+     *
+     * - `operator` cannot be the caller.
+     */
+    function setApprovalForAll(address operator, bool approved) external;
+
+    /**
+     * @dev Returns true if `operator` is approved to transfer ``account``'s tokens.
+     *
+     * See {setApprovalForAll}.
+     */
+    function isApprovedForAll(address account, address operator) external view returns (bool);
+
+    /**
+     * @dev Transfers `amount` tokens of token type `id` from `from` to `to`.
+     *
+     * Emits a {TransferSingle} event.
+     *
+     * Requirements:
+     *
+     * - `to` cannot be the zero address.
+     * - If the caller is not `from`, it must have been approved to spend ``from``'s tokens via {setApprovalForAll}.
+     * - `from` must have a balance of tokens of type `id` of at least `amount`.
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
+     * acceptance magic value.
+     */
+    function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes calldata data) external;
+
+    /**
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
+     *
+     * Emits a {TransferBatch} event.
+     *
+     * Requirements:
+     *
+     * - `ids` and `amounts` must have the same length.
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
+     * acceptance magic value.
+     */
+    function safeBatchTransferFrom(
+        address from,
+        address to,
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
+        bytes calldata data
+    ) external;
+}
+
+
+// File @openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol@v4.9.2
+
+// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC1155/IERC1155Receiver.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev _Available since v3.1._
+ */
+interface IERC1155Receiver is IERC165 {
+    /**
+     * @dev Handles the receipt of a single ERC1155 token type. This function is
+     * called at the end of a `safeTransferFrom` after the balance has been updated.
+     *
+     * NOTE: To accept the transfer, this must return
+     * `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))`
+     * (i.e. 0xf23a6e61, or its own function selector).
+     *
+     * @param operator The address which initiated the transfer (i.e. msg.sender)
+     * @param from The address which previously owned the token
+     * @param id The ID of the token being transferred
+     * @param value The amount of tokens being transferred
+     * @param data Additional data with no specified format
+     * @return `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))` if transfer is allowed
+     */
+    function onERC1155Received(
+        address operator,
+        address from,
+        uint256 id,
+        uint256 value,
+        bytes calldata data
+    ) external returns (bytes4);
+
+    /**
+     * @dev Handles the receipt of a multiple ERC1155 token types. This function
+     * is called at the end of a `safeBatchTransferFrom` after the balances have
+     * been updated.
+     *
+     * NOTE: To accept the transfer(s), this must return
+     * `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
+     * (i.e. 0xbc197c81, or its own function selector).
+     *
+     * @param operator The address which initiated the batch transfer (i.e. msg.sender)
+     * @param from The address which previously owned the token
+     * @param ids An array containing ids of each token being transferred (order and length must match values array)
+     * @param values An array containing amounts of each token being transferred (order and length must match ids array)
+     * @param data Additional data with no specified format
+     * @return `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))` if transfer is allowed
+     */
+    function onERC1155BatchReceived(
+        address operator,
+        address from,
+        uint256[] calldata ids,
+        uint256[] calldata values,
+        bytes calldata data
+    ) external returns (bytes4);
+}
+
+
+// File @openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol@v4.9.2
+
+// OpenZeppelin Contracts v4.4.1 (token/ERC1155/extensions/IERC1155MetadataURI.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Interface of the optional ERC1155MetadataExtension interface, as defined
+ * in the https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions[EIP].
+ *
+ * _Available since v3.1._
+ */
+interface IERC1155MetadataURI is IERC1155 {
+    /**
+     * @dev Returns the URI for token type `id`.
+     *
+     * If the `\{id\}` substring is present in the URI, it must be replaced by
+     * clients with the actual token type ID.
+     */
+    function uri(uint256 id) external view returns (string memory);
 }
 
 
@@ -787,6 +886,564 @@ library Address {
         } else {
             revert(errorMessage);
         }
+    }
+}
+
+
+// File @openzeppelin/contracts/utils/Context.sol@v4.9.2
+
+// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
+    }
+}
+
+
+// File @openzeppelin/contracts/token/ERC1155/ERC1155.sol@v4.9.2
+
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC1155/ERC1155.sol)
+
+pragma solidity ^0.8.0;
+
+
+
+
+
+
+/**
+ * @dev Implementation of the basic standard multi-token.
+ * See https://eips.ethereum.org/EIPS/eip-1155
+ * Originally based on code by Enjin: https://github.com/enjin/erc-1155
+ *
+ * _Available since v3.1._
+ */
+contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
+    using Address for address;
+
+    // Mapping from token ID to account balances
+    mapping(uint256 => mapping(address => uint256)) private _balances;
+
+    // Mapping from account to operator approvals
+    mapping(address => mapping(address => bool)) private _operatorApprovals;
+
+    // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
+    string private _uri;
+
+    /**
+     * @dev See {_setURI}.
+     */
+    constructor(string memory uri_) {
+        _setURI(uri_);
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+        return
+            interfaceId == type(IERC1155).interfaceId ||
+            interfaceId == type(IERC1155MetadataURI).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @dev See {IERC1155MetadataURI-uri}.
+     *
+     * This implementation returns the same URI for *all* token types. It relies
+     * on the token type ID substitution mechanism
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     *
+     * Clients calling this function must replace the `\{id\}` substring with the
+     * actual token type ID.
+     */
+    function uri(uint256) public view virtual override returns (string memory) {
+        return _uri;
+    }
+
+    /**
+     * @dev See {IERC1155-balanceOf}.
+     *
+     * Requirements:
+     *
+     * - `account` cannot be the zero address.
+     */
+    function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
+        require(account != address(0), "ERC1155: address zero is not a valid owner");
+        return _balances[id][account];
+    }
+
+    /**
+     * @dev See {IERC1155-balanceOfBatch}.
+     *
+     * Requirements:
+     *
+     * - `accounts` and `ids` must have the same length.
+     */
+    function balanceOfBatch(
+        address[] memory accounts,
+        uint256[] memory ids
+    ) public view virtual override returns (uint256[] memory) {
+        require(accounts.length == ids.length, "ERC1155: accounts and ids length mismatch");
+
+        uint256[] memory batchBalances = new uint256[](accounts.length);
+
+        for (uint256 i = 0; i < accounts.length; ++i) {
+            batchBalances[i] = balanceOf(accounts[i], ids[i]);
+        }
+
+        return batchBalances;
+    }
+
+    /**
+     * @dev See {IERC1155-setApprovalForAll}.
+     */
+    function setApprovalForAll(address operator, bool approved) public virtual override {
+        _setApprovalForAll(_msgSender(), operator, approved);
+    }
+
+    /**
+     * @dev See {IERC1155-isApprovedForAll}.
+     */
+    function isApprovedForAll(address account, address operator) public view virtual override returns (bool) {
+        return _operatorApprovals[account][operator];
+    }
+
+    /**
+     * @dev See {IERC1155-safeTransferFrom}.
+     */
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public virtual override {
+        require(
+            from == _msgSender() || isApprovedForAll(from, _msgSender()),
+            "ERC1155: caller is not token owner or approved"
+        );
+        _safeTransferFrom(from, to, id, amount, data);
+    }
+
+    /**
+     * @dev See {IERC1155-safeBatchTransferFrom}.
+     */
+    function safeBatchTransferFrom(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) public virtual override {
+        require(
+            from == _msgSender() || isApprovedForAll(from, _msgSender()),
+            "ERC1155: caller is not token owner or approved"
+        );
+        _safeBatchTransferFrom(from, to, ids, amounts, data);
+    }
+
+    /**
+     * @dev Transfers `amount` tokens of token type `id` from `from` to `to`.
+     *
+     * Emits a {TransferSingle} event.
+     *
+     * Requirements:
+     *
+     * - `to` cannot be the zero address.
+     * - `from` must have a balance of tokens of type `id` of at least `amount`.
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
+     * acceptance magic value.
+     */
+    function _safeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) internal virtual {
+        require(to != address(0), "ERC1155: transfer to the zero address");
+
+        address operator = _msgSender();
+        uint256[] memory ids = _asSingletonArray(id);
+        uint256[] memory amounts = _asSingletonArray(amount);
+
+        _beforeTokenTransfer(operator, from, to, ids, amounts, data);
+
+        uint256 fromBalance = _balances[id][from];
+        require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
+        unchecked {
+            _balances[id][from] = fromBalance - amount;
+        }
+        _balances[id][to] += amount;
+
+        emit TransferSingle(operator, from, to, id, amount);
+
+        _afterTokenTransfer(operator, from, to, ids, amounts, data);
+
+        _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
+    }
+
+    /**
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_safeTransferFrom}.
+     *
+     * Emits a {TransferBatch} event.
+     *
+     * Requirements:
+     *
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
+     * acceptance magic value.
+     */
+    function _safeBatchTransferFrom(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual {
+        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
+        require(to != address(0), "ERC1155: transfer to the zero address");
+
+        address operator = _msgSender();
+
+        _beforeTokenTransfer(operator, from, to, ids, amounts, data);
+
+        for (uint256 i = 0; i < ids.length; ++i) {
+            uint256 id = ids[i];
+            uint256 amount = amounts[i];
+
+            uint256 fromBalance = _balances[id][from];
+            require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
+            unchecked {
+                _balances[id][from] = fromBalance - amount;
+            }
+            _balances[id][to] += amount;
+        }
+
+        emit TransferBatch(operator, from, to, ids, amounts);
+
+        _afterTokenTransfer(operator, from, to, ids, amounts, data);
+
+        _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, amounts, data);
+    }
+
+    /**
+     * @dev Sets a new URI for all token types, by relying on the token type ID
+     * substitution mechanism
+     * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+     *
+     * By this mechanism, any occurrence of the `\{id\}` substring in either the
+     * URI or any of the amounts in the JSON file at said URI will be replaced by
+     * clients with the token type ID.
+     *
+     * For example, the `https://token-cdn-domain/\{id\}.json` URI would be
+     * interpreted by clients as
+     * `https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json`
+     * for token type ID 0x4cce0.
+     *
+     * See {uri}.
+     *
+     * Because these URIs cannot be meaningfully represented by the {URI} event,
+     * this function emits no events.
+     */
+    function _setURI(string memory newuri) internal virtual {
+        _uri = newuri;
+    }
+
+    /**
+     * @dev Creates `amount` tokens of token type `id`, and assigns them to `to`.
+     *
+     * Emits a {TransferSingle} event.
+     *
+     * Requirements:
+     *
+     * - `to` cannot be the zero address.
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
+     * acceptance magic value.
+     */
+    function _mint(address to, uint256 id, uint256 amount, bytes memory data) internal virtual {
+        require(to != address(0), "ERC1155: mint to the zero address");
+
+        address operator = _msgSender();
+        uint256[] memory ids = _asSingletonArray(id);
+        uint256[] memory amounts = _asSingletonArray(amount);
+
+        _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
+
+        _balances[id][to] += amount;
+        emit TransferSingle(operator, address(0), to, id, amount);
+
+        _afterTokenTransfer(operator, address(0), to, ids, amounts, data);
+
+        _doSafeTransferAcceptanceCheck(operator, address(0), to, id, amount, data);
+    }
+
+    /**
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_mint}.
+     *
+     * Emits a {TransferBatch} event.
+     *
+     * Requirements:
+     *
+     * - `ids` and `amounts` must have the same length.
+     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
+     * acceptance magic value.
+     */
+    function _mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual {
+        require(to != address(0), "ERC1155: mint to the zero address");
+        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
+
+        address operator = _msgSender();
+
+        _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
+
+        for (uint256 i = 0; i < ids.length; i++) {
+            _balances[ids[i]][to] += amounts[i];
+        }
+
+        emit TransferBatch(operator, address(0), to, ids, amounts);
+
+        _afterTokenTransfer(operator, address(0), to, ids, amounts, data);
+
+        _doSafeBatchTransferAcceptanceCheck(operator, address(0), to, ids, amounts, data);
+    }
+
+    /**
+     * @dev Destroys `amount` tokens of token type `id` from `from`
+     *
+     * Emits a {TransferSingle} event.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `from` must have at least `amount` tokens of token type `id`.
+     */
+    function _burn(address from, uint256 id, uint256 amount) internal virtual {
+        require(from != address(0), "ERC1155: burn from the zero address");
+
+        address operator = _msgSender();
+        uint256[] memory ids = _asSingletonArray(id);
+        uint256[] memory amounts = _asSingletonArray(amount);
+
+        _beforeTokenTransfer(operator, from, address(0), ids, amounts, "");
+
+        uint256 fromBalance = _balances[id][from];
+        require(fromBalance >= amount, "ERC1155: burn amount exceeds balance");
+        unchecked {
+            _balances[id][from] = fromBalance - amount;
+        }
+
+        emit TransferSingle(operator, from, address(0), id, amount);
+
+        _afterTokenTransfer(operator, from, address(0), ids, amounts, "");
+    }
+
+    /**
+     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_burn}.
+     *
+     * Emits a {TransferBatch} event.
+     *
+     * Requirements:
+     *
+     * - `ids` and `amounts` must have the same length.
+     */
+    function _burnBatch(address from, uint256[] memory ids, uint256[] memory amounts) internal virtual {
+        require(from != address(0), "ERC1155: burn from the zero address");
+        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
+
+        address operator = _msgSender();
+
+        _beforeTokenTransfer(operator, from, address(0), ids, amounts, "");
+
+        for (uint256 i = 0; i < ids.length; i++) {
+            uint256 id = ids[i];
+            uint256 amount = amounts[i];
+
+            uint256 fromBalance = _balances[id][from];
+            require(fromBalance >= amount, "ERC1155: burn amount exceeds balance");
+            unchecked {
+                _balances[id][from] = fromBalance - amount;
+            }
+        }
+
+        emit TransferBatch(operator, from, address(0), ids, amounts);
+
+        _afterTokenTransfer(operator, from, address(0), ids, amounts, "");
+    }
+
+    /**
+     * @dev Approve `operator` to operate on all of `owner` tokens
+     *
+     * Emits an {ApprovalForAll} event.
+     */
+    function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
+        require(owner != operator, "ERC1155: setting approval status for self");
+        _operatorApprovals[owner][operator] = approved;
+        emit ApprovalForAll(owner, operator, approved);
+    }
+
+    /**
+     * @dev Hook that is called before any token transfer. This includes minting
+     * and burning, as well as batched variants.
+     *
+     * The same hook is called on both single and batched variants. For single
+     * transfers, the length of the `ids` and `amounts` arrays will be 1.
+     *
+     * Calling conditions (for each `id` and `amount` pair):
+     *
+     * - When `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+     * of token type `id` will be  transferred to `to`.
+     * - When `from` is zero, `amount` tokens of token type `id` will be minted
+     * for `to`.
+     * - when `to` is zero, `amount` of ``from``'s tokens of token type `id`
+     * will be burned.
+     * - `from` and `to` are never both zero.
+     * - `ids` and `amounts` have the same, non-zero length.
+     *
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _beforeTokenTransfer(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual {}
+
+    /**
+     * @dev Hook that is called after any token transfer. This includes minting
+     * and burning, as well as batched variants.
+     *
+     * The same hook is called on both single and batched variants. For single
+     * transfers, the length of the `id` and `amount` arrays will be 1.
+     *
+     * Calling conditions (for each `id` and `amount` pair):
+     *
+     * - When `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+     * of token type `id` will be  transferred to `to`.
+     * - When `from` is zero, `amount` tokens of token type `id` will be minted
+     * for `to`.
+     * - when `to` is zero, `amount` of ``from``'s tokens of token type `id`
+     * will be burned.
+     * - `from` and `to` are never both zero.
+     * - `ids` and `amounts` have the same, non-zero length.
+     *
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _afterTokenTransfer(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual {}
+
+    function _doSafeTransferAcceptanceCheck(
+        address operator,
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) private {
+        if (to.isContract()) {
+            try IERC1155Receiver(to).onERC1155Received(operator, from, id, amount, data) returns (bytes4 response) {
+                if (response != IERC1155Receiver.onERC1155Received.selector) {
+                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                }
+            } catch Error(string memory reason) {
+                revert(reason);
+            } catch {
+                revert("ERC1155: transfer to non-ERC1155Receiver implementer");
+            }
+        }
+    }
+
+    function _doSafeBatchTransferAcceptanceCheck(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) private {
+        if (to.isContract()) {
+            try IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, amounts, data) returns (
+                bytes4 response
+            ) {
+                if (response != IERC1155Receiver.onERC1155BatchReceived.selector) {
+                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                }
+            } catch Error(string memory reason) {
+                revert(reason);
+            } catch {
+                revert("ERC1155: transfer to non-ERC1155Receiver implementer");
+            }
+        }
+    }
+
+    function _asSingletonArray(uint256 element) private pure returns (uint256[] memory) {
+        uint256[] memory array = new uint256[](1);
+        array[0] = element;
+
+        return array;
+    }
+}
+
+
+// File @openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol@v4.9.2
+
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC1155/extensions/ERC1155Burnable.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Extension of {ERC1155} that allows token holders to destroy both their
+ * own tokens and those that they have been approved to use.
+ *
+ * _Available since v3.1._
+ */
+abstract contract ERC1155Burnable is ERC1155 {
+    function burn(address account, uint256 id, uint256 value) public virtual {
+        require(
+            account == _msgSender() || isApprovedForAll(account, _msgSender()),
+            "ERC1155: caller is not token owner or approved"
+        );
+
+        _burn(account, id, value);
+    }
+
+    function burnBatch(address account, uint256[] memory ids, uint256[] memory values) public virtual {
+        require(
+            account == _msgSender() || isApprovedForAll(account, _msgSender()),
+            "ERC1155: caller is not token owner or approved"
+        );
+
+        _burnBatch(account, ids, values);
     }
 }
 
@@ -1096,6 +1753,35 @@ abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
     ) internal view returns (bool) {
         require(signer != address(0), "NativeMetaTransaction: INVALID_SIGNER");
         return signer == ecrecover(_toTypedMessageHash(_hashMetaTransaction(metaTx)), sigV, sigR, sigS);
+    }
+}
+
+
+// File contracts/abstracts/AStartonContextMixin.sol
+
+
+pragma solidity ^0.8.0;
+
+/// @title AStartonContextMixin
+/// @author Starton
+/// @notice Utility smart contract that track the signer of a meta transaction
+abstract contract AStartonContextMixin {
+    /**
+     * @dev Returns the address of the current signer.
+     * @return sender The address of the signer of the current meta transaction
+     */
+    function _msgSender() internal view virtual returns (address sender) {
+        if (msg.sender == address(this)) {
+            bytes memory array = msg.data;
+            uint256 index = msg.data.length;
+            assembly {
+                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
+                sender := and(mload(add(array, index)), 0xffffffffffffffffffffffffffffffffffffffff)
+            }
+        } else {
+            sender = msg.sender;
+        }
+        return sender;
     }
 }
 
@@ -1665,64 +2351,6 @@ library Strings {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.9.2
-
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Interface of the ERC165 standard, as defined in the
- * https://eips.ethereum.org/EIPS/eip-165[EIP].
- *
- * Implementers can declare support of contract interfaces, which can then be
- * queried by others ({ERC165Checker}).
- *
- * For an implementation, see {ERC165}.
- */
-interface IERC165 {
-    /**
-     * @dev Returns true if this contract implements the interface defined by
-     * `interfaceId`. See the corresponding
-     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
-     * to learn more about how these ids are created.
-     *
-     * This function call must use less than 30 000 gas.
-     */
-    function supportsInterface(bytes4 interfaceId) external view returns (bool);
-}
-
-
-// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.9.2
-
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Implementation of the {IERC165} interface.
- *
- * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
- * for the additional interface id that will be supported. For example:
- *
- * ```solidity
- * function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
- *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
- * }
- * ```
- *
- * Alternatively, {ERC165Storage} provides an easier to use but more expensive implementation.
- */
-abstract contract ERC165 is IERC165 {
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC165).interfaceId;
-    }
-}
-
-
 // File @openzeppelin/contracts/access/AccessControl.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.9.0) (access/AccessControl.sol)
@@ -1992,35 +2620,6 @@ abstract contract AStartonAccessControl is AccessControl {
 }
 
 
-// File contracts/abstracts/AStartonContextMixin.sol
-
-
-pragma solidity ^0.8.0;
-
-/// @title AStartonContextMixin
-/// @author Starton
-/// @notice Utility smart contract that track the signer of a meta transaction
-abstract contract AStartonContextMixin {
-    /**
-     * @dev Returns the address of the current signer.
-     * @return sender The address of the signer of the current meta transaction
-     */
-    function _msgSender() internal view virtual returns (address sender) {
-        if (msg.sender == address(this)) {
-            bytes memory array = msg.data;
-            uint256 index = msg.data.length;
-            assembly {
-                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
-                sender := and(mload(add(array, index)), 0xffffffffffffffffffffffffffffffffffffffff)
-            }
-        } else {
-            sender = msg.sender;
-        }
-        return sender;
-    }
-}
-
-
 // File @openzeppelin/contracts/security/Pausable.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.7.0) (security/Pausable.sol)
@@ -2154,7 +2753,77 @@ contract AStartonPausable is Pausable, AccessControl {
 }
 
 
-// File contracts/fungible/StartonERC20Base.sol
+// File contracts/abstracts/AStartonLock.sol
+
+
+pragma solidity ^0.8.0;
+
+abstract contract AStartonLock is AccessControl {
+    bytes32 public constant LOCKER_ROLE = keccak256("LOCKER_ROLE");
+}
+
+
+// File contracts/abstracts/AStartonMintLock.sol
+
+
+pragma solidity ^0.8.0;
+
+
+
+abstract contract AStartonMintLock is AStartonPausable, AStartonLock {
+    bool internal _isMintAllowed;
+
+    /** @notice Event emitted when the minting is locked */
+    event MintingLocked(address indexed account);
+
+    /** @dev Modifier that reverts when the minting is locked */
+    modifier mintingNotLocked() {
+        require(_isMintAllowed, "Minting is locked");
+        _;
+    }
+
+    /**
+     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
+     */
+    function lockMint() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
+        _isMintAllowed = false;
+        emit MintingLocked(_msgSender());
+    }
+}
+
+
+// File contracts/abstracts/AStartonMetadataLock.sol
+
+
+pragma solidity ^0.8.0;
+
+
+
+abstract contract AStartonMetadataLock is AStartonPausable, AStartonLock {
+    bool internal _isMetadataChangingAllowed;
+
+    /** @notice Event emitted when the metadata are locked */
+    event MetadataLocked(address indexed account);
+
+    /** @dev Modifier that reverts when the metadatas are locked */
+    modifier metadataNotLocked() {
+        require(_isMetadataChangingAllowed, "Metadatas are locked");
+        _;
+    }
+
+    /**
+     * @notice Lock the metadats and won't allow any changes anymore if the contract is not paused
+     * @custom:requires LOCKER_ROLE
+     */
+    function lockMetadata() public virtual whenNotPaused onlyRole(LOCKER_ROLE) {
+        _isMetadataChangingAllowed = false;
+        emit MetadataLocked(_msgSender());
+    }
+}
+
+
+// File contracts/non-fungible/StartonERC1155Base.sol
 
 
 pragma solidity 0.8.17;
@@ -2163,45 +2832,196 @@ pragma solidity 0.8.17;
 
 
 
-/// @title StartonERC20Base
+
+
+
+
+/// @title StartonERC1155Base
 /// @author Starton
-/// @notice ERC20 tokens that can be paused, burned, have a access management and handle meta transactions
-contract StartonERC20Base is
-    ERC20Burnable,
-    AStartonPausable,
+/// @notice ERC1155 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
+contract StartonERC1155Base is
+    ERC1155Burnable,
     AStartonAccessControl,
+    AStartonPausable,
     AStartonContextMixin,
-    AStartonNativeMetaTransaction
+    AStartonNativeMetaTransaction,
+    AStartonMintLock,
+    AStartonMetadataLock,
+    DefaultOperatorFilterer
 {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant METADATA_ROLE = keccak256("METADATA_ROLE");
+
+    string public name;
+
+    string private _contractURI;
+
     constructor(
         string memory definitiveName,
-        string memory definitiveSymbol,
-        uint256 definitiveSupply,
+        string memory initialTokenURI,
+        string memory initialContractURI,
         address initialOwnerOrMultiSigContract
-    ) ERC20(definitiveName, definitiveSymbol) {
+    ) ERC1155(initialTokenURI) {
         // Set all default roles for initialOwnerOrMultiSigContract
         _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);
+        _setupRole(LOCKER_ROLE, initialOwnerOrMultiSigContract);
 
-        // Mint definitiveSupply to initialOwnerOrMultiSigContract
-        _mint(initialOwnerOrMultiSigContract, definitiveSupply);
+        name = definitiveName;
+        _contractURI = initialContractURI;
+        _isMintAllowed = true;
+        _isMetadataChangingAllowed = true;
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(definitiveName);
     }
 
     /**
-     * @dev Stop the transfer if the contract is paused
+     * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param id The id of the token to mint
+     * @param amount The amount of tokens to mint
+     * @param data Extra data if necessary
+     * @custom:requires MINTER_ROLE
+     */
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+        _mint(to, id, amount, data);
+    }
+
+    /**
+     * @notice Mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param id The id of the token to mint
+     * @param amount The amount of tokens to mint
+     * @custom:requires MINTER_ROLE
+     */
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount
+    ) public virtual {
+        mint(to, id, amount, "");
+    }
+
+    /**
+     * @notice Batch mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param ids The ids of the token to mint
+     * @param amounts The amounts of tokens to mint
+     * @param data Extra data if necessary
+     * @custom:requires MINTER_ROLE
+     */
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) public virtual whenNotPaused mintingNotLocked onlyRole(MINTER_ROLE) {
+        _mintBatch(to, ids, amounts, data);
+    }
+
+    /**
+     * @notice Batch mint a new amount of tokens to a given address and by the given id if the minting is not locked and the contract is not paused
+     * @param to The address to mint the tokens to
+     * @param ids The ids of the token to mint
+     * @param amounts The amounts of tokens to mint
+     * @custom:requires MINTER_ROLE
+     */
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) public virtual {
+        mintBatch(to, ids, amounts, "");
+    }
+
+    /**
+     * @notice Set the URI if the token if the metadata are not locked and the contract is not paused
+     * @param newTokenURI The new URI of the token
+     * For ERC1155 there isn't any base uri so it's the whole uri with {id} in it
+     * example: ipfs://QmW77ZQQ7Jm9q8WuLbH8YZg2K7T9Qnjbzm7jYVQQrJY5Y/{id}
+     * @custom:requires METADATA_ROLE
+     */
+    function setTokenURI(string memory newTokenURI)
+        public
+        virtual
+        whenNotPaused
+        metadataNotLocked
+        onlyRole(METADATA_ROLE)
+    {
+        _setURI(newTokenURI);
+    }
+
+    /**
+     * @notice Set the URI of the contract if the metadata are not locked and the contract is not paused
+     * @param newContractURI The new URI of the contract
+     * @custom:requires METADATA_ROLE
+     */
+    function setContractURI(string memory newContractURI)
+        public
+        virtual
+        whenNotPaused
+        metadataNotLocked
+        onlyRole(METADATA_ROLE)
+    {
+        _contractURI = newContractURI;
+    }
+
+    /**
+     * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
+     * @return True if the interface is supported
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @notice Returns the metadata of the contract
+     * @return Contract URI of the token
+     */
+    function contractURI() public view virtual returns (string memory) {
+        return _contractURI;
+    }
+
+    /**
+     * @dev Stop approval of token if the contract is paused or the sender is blacklisted
+     * @param owner The owner of the token
+     * @param operator The operator of the token
+     * @param approved Approve or not the approval of the token
+     */
+    function _setApprovalForAll(
+        address owner,
+        address operator,
+        bool approved
+    ) internal virtual override whenNotPaused {
+        super._setApprovalForAll(owner, operator, approved);
+    }
+
+    /**
+     * @dev Stop transfer if the contract is paused or the sender is blacklisted
+     * @param operator The address that will send the token
      * @param from The address that will send the token
      * @param to The address that will receive the token
-     * @param amount The of token to be transfered
+     * @param ids The ID of the token to be transferred
+     * @param amounts The address that will send the token
+     * @param data The address that will send the token
      */
     function _beforeTokenTransfer(
+        address operator,
         address from,
         address to,
-        uint256 amount
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
     ) internal virtual override whenNotPaused {
-        super._beforeTokenTransfer(from, to, amount);
+        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
     /**
@@ -2210,5 +3030,43 @@ contract StartonERC20Base is
      */
     function _msgSender() internal view virtual override(Context, AStartonContextMixin) returns (address) {
         return super._msgSender();
+    }
+}
+
+
+// File contracts/non-fungible/StartonERC1155BaseRoyalties.sol
+
+
+pragma solidity 0.8.17;
+
+
+/// @title StartonERC1155Base
+/// @author Starton
+/// @notice ERC1155 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
+contract StartonERC1155BaseRoyalties is StartonERC1155Base, ERC2981 {
+    constructor(
+        string memory definitiveName,
+        uint96 definitiveRoyaltyFee,
+        address definitiveFeeReceiver,
+        string memory initialTokenURI,
+        string memory initialContractURI,
+        address initialOwnerOrMultiSigContract
+    ) StartonERC1155Base(definitiveName, initialTokenURI, initialContractURI, initialOwnerOrMultiSigContract) {
+        // Set the royalty fee and the fee receiver
+        _setDefaultRoyalty(definitiveFeeReceiver, definitiveRoyaltyFee);
+    }
+
+    /**
+     * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
+     * @return True if the interface is supported
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(StartonERC1155Base, ERC2981)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 }

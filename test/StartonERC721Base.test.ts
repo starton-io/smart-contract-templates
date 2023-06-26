@@ -27,8 +27,6 @@ describe("StartonERC721Base", () => {
     instanceERC721 = (await ERC721.deploy(
       "StartonToken",
       "ST",
-      "1000",
-      owner.address,
       "https://ipfs.io/",
       "https://ipfs.io/QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR",
       owner.address
@@ -348,12 +346,6 @@ describe("StartonERC721Base", () => {
       );
     });
 
-    it("Should support ERC2981", async () => {
-      expect(await instanceERC721.supportsInterface("0x2a55205a")).to.equal(
-        true
-      );
-    });
-
     it("should support ERC721Enumerable", async () => {
       expect(await instanceERC721.supportsInterface("0x780e9d63")).to.equal(
         true
@@ -364,15 +356,6 @@ describe("StartonERC721Base", () => {
       expect(await instanceERC721.supportsInterface("0x7965db0b")).to.equal(
         true
       );
-    });
-  });
-
-  describe("Royalties", () => {
-    it("Should return the correct royalty amount", async () => {
-      expect(await instanceERC721.royaltyInfo(1, 100)).to.deep.equal([
-        owner.address,
-        "10",
-      ]);
     });
   });
 

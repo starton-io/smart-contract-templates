@@ -1,8 +1,200 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File operator-filter-registry/src/IOperatorFilterRegistry.sol@v1.4.0
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.9.2
 
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Interface of the ERC165 standard, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-165[EIP].
+ *
+ * Implementers can declare support of contract interfaces, which can then be
+ * queried by others ({ERC165Checker}).
+ *
+ * For an implementation, see {ERC165}.
+ */
+interface IERC165 {
+    /**
+     * @dev Returns true if this contract implements the interface defined by
+     * `interfaceId`. See the corresponding
+     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
+     * to learn more about how these ids are created.
+     *
+     * This function call must use less than 30 000 gas.
+     */
+    function supportsInterface(bytes4 interfaceId) external view returns (bool);
+}
+
+
+// File @openzeppelin/contracts/interfaces/IERC2981.sol@v4.9.2
+
+// OpenZeppelin Contracts (last updated v4.9.0) (interfaces/IERC2981.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Interface for the NFT Royalty Standard.
+ *
+ * A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal
+ * support for royalty payments across all NFT marketplaces and ecosystem participants.
+ *
+ * _Available since v4.5._
+ */
+interface IERC2981 is IERC165 {
+    /**
+     * @dev Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
+     * exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
+     */
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) external view returns (address receiver, uint256 royaltyAmount);
+}
+
+
+// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.9.2
+
+// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Implementation of the {IERC165} interface.
+ *
+ * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
+ * for the additional interface id that will be supported. For example:
+ *
+ * ```solidity
+ * function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+ *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
+ * }
+ * ```
+ *
+ * Alternatively, {ERC165Storage} provides an easier to use but more expensive implementation.
+ */
+abstract contract ERC165 is IERC165 {
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IERC165).interfaceId;
+    }
+}
+
+
+// File @openzeppelin/contracts/token/common/ERC2981.sol@v4.9.2
+
+// OpenZeppelin Contracts (last updated v4.9.0) (token/common/ERC2981.sol)
+
+pragma solidity ^0.8.0;
+
+
+/**
+ * @dev Implementation of the NFT Royalty Standard, a standardized way to retrieve royalty payment information.
+ *
+ * Royalty information can be specified globally for all token ids via {_setDefaultRoyalty}, and/or individually for
+ * specific token ids via {_setTokenRoyalty}. The latter takes precedence over the first.
+ *
+ * Royalty is specified as a fraction of sale price. {_feeDenominator} is overridable but defaults to 10000, meaning the
+ * fee is specified in basis points by default.
+ *
+ * IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
+ * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
+ * voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
+ *
+ * _Available since v4.5._
+ */
+abstract contract ERC2981 is IERC2981, ERC165 {
+    struct RoyaltyInfo {
+        address receiver;
+        uint96 royaltyFraction;
+    }
+
+    RoyaltyInfo private _defaultRoyaltyInfo;
+    mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
+        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @inheritdoc IERC2981
+     */
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual override returns (address, uint256) {
+        RoyaltyInfo memory royalty = _tokenRoyaltyInfo[tokenId];
+
+        if (royalty.receiver == address(0)) {
+            royalty = _defaultRoyaltyInfo;
+        }
+
+        uint256 royaltyAmount = (salePrice * royalty.royaltyFraction) / _feeDenominator();
+
+        return (royalty.receiver, royaltyAmount);
+    }
+
+    /**
+     * @dev The denominator with which to interpret the fee set in {_setTokenRoyalty} and {_setDefaultRoyalty} as a
+     * fraction of the sale price. Defaults to 10000 so fees are expressed in basis points, but may be customized by an
+     * override.
+     */
+    function _feeDenominator() internal pure virtual returns (uint96) {
+        return 10000;
+    }
+
+    /**
+     * @dev Sets the royalty information that all ids in this contract will default to.
+     *
+     * Requirements:
+     *
+     * - `receiver` cannot be the zero address.
+     * - `feeNumerator` cannot be greater than the fee denominator.
+     */
+    function _setDefaultRoyalty(address receiver, uint96 feeNumerator) internal virtual {
+        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
+        require(receiver != address(0), "ERC2981: invalid receiver");
+
+        _defaultRoyaltyInfo = RoyaltyInfo(receiver, feeNumerator);
+    }
+
+    /**
+     * @dev Removes default royalty information.
+     */
+    function _deleteDefaultRoyalty() internal virtual {
+        delete _defaultRoyaltyInfo;
+    }
+
+    /**
+     * @dev Sets the royalty information for a specific token id, overriding the global default.
+     *
+     * Requirements:
+     *
+     * - `receiver` cannot be the zero address.
+     * - `feeNumerator` cannot be greater than the fee denominator.
+     */
+    function _setTokenRoyalty(uint256 tokenId, address receiver, uint96 feeNumerator) internal virtual {
+        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
+        require(receiver != address(0), "ERC2981: Invalid parameters");
+
+        _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, feeNumerator);
+    }
+
+    /**
+     * @dev Resets royalty information for the token id back to the global default.
+     */
+    function _resetTokenRoyalty(uint256 tokenId) internal virtual {
+        delete _tokenRoyaltyInfo[tokenId];
+    }
+}
+
+
+// File operator-filter-registry/src/IOperatorFilterRegistry.sol@v1.4.0
+
 pragma solidity ^0.8.13;
 
 interface IOperatorFilterRegistry {
@@ -249,37 +441,9 @@ abstract contract DefaultOperatorFilterer is OperatorFilterer {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC721/IERC721.sol@v4.9.2
 
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Interface of the ERC165 standard, as defined in the
- * https://eips.ethereum.org/EIPS/eip-165[EIP].
- *
- * Implementers can declare support of contract interfaces, which can then be
- * queried by others ({ERC165Checker}).
- *
- * For an implementation, see {ERC165}.
- */
-interface IERC165 {
-    /**
-     * @dev Returns true if this contract implements the interface defined by
-     * `interfaceId`. See the corresponding
-     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
-     * to learn more about how these ids are created.
-     *
-     * This function call must use less than 30 000 gas.
-     */
-    function supportsInterface(bytes4 interfaceId) external view returns (bool);
-}
-
-
-// File @openzeppelin/contracts/token/ERC721/IERC721.sol@v4.8.1
-
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/IERC721.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/IERC721.sol)
 
 pragma solidity ^0.8.0;
 
@@ -329,12 +493,7 @@ interface IERC721 is IERC165 {
      *
      * Emits a {Transfer} event.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes calldata data
-    ) external;
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;
 
     /**
      * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
@@ -350,11 +509,7 @@ interface IERC721 is IERC165 {
      *
      * Emits a {Transfer} event.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external;
+    function safeTransferFrom(address from, address to, uint256 tokenId) external;
 
     /**
      * @dev Transfers `tokenId` token from `from` to `to`.
@@ -372,11 +527,7 @@ interface IERC721 is IERC165 {
      *
      * Emits a {Transfer} event.
      */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external;
+    function transferFrom(address from, address to, uint256 tokenId) external;
 
     /**
      * @dev Gives permission to `to` to transfer `tokenId` token to another account.
@@ -403,7 +554,7 @@ interface IERC721 is IERC165 {
      *
      * Emits an {ApprovalForAll} event.
      */
-    function setApprovalForAll(address operator, bool _approved) external;
+    function setApprovalForAll(address operator, bool approved) external;
 
     /**
      * @dev Returns the account approved for `tokenId` token.
@@ -423,7 +574,7 @@ interface IERC721 is IERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC721/IERC721Receiver.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC721/IERC721Receiver.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/IERC721Receiver.sol)
 
@@ -453,7 +604,7 @@ interface IERC721Receiver {
 }
 
 
-// File @openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC721/extensions/IERC721Metadata.sol)
 
@@ -481,9 +632,9 @@ interface IERC721Metadata is IERC721 {
 }
 
 
-// File @openzeppelin/contracts/utils/Address.sol@v4.8.1
+// File @openzeppelin/contracts/utils/Address.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/Address.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/Address.sol)
 
 pragma solidity ^0.8.1;
 
@@ -506,6 +657,10 @@ library Address {
      *  - a contract in construction
      *  - an address where a contract will be created
      *  - an address where a contract lived, but was destroyed
+     *
+     * Furthermore, `isContract` will also return true if the target contract within
+     * the same transaction is already scheduled for destruction by `SELFDESTRUCT`,
+     * which only has an effect at the end of a transaction.
      * ====
      *
      * [IMPORTANT]
@@ -534,12 +689,12 @@ library Address {
      * imposed by `transfer`, making them unable to receive funds via
      * `transfer`. {sendValue} removes this limitation.
      *
-     * https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].
+     * https://consensys.net/diligence/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more].
      *
      * IMPORTANT: because control is transferred to `recipient`, care must be
      * taken to not create reentrancy vulnerabilities. Consider using
      * {ReentrancyGuard} or the
-     * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
+     * https://solidity.readthedocs.io/en/v0.8.0/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
         require(address(this).balance >= amount, "Address: insufficient balance");
@@ -595,11 +750,7 @@ library Address {
      *
      * _Available since v3.1._
      */
-    function functionCallWithValue(
-        address target,
-        bytes memory data,
-        uint256 value
-    ) internal returns (bytes memory) {
+    function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
         return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
     }
 
@@ -728,7 +879,7 @@ library Address {
 }
 
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.8.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
@@ -755,9 +906,9 @@ abstract contract Context {
 }
 
 
-// File @openzeppelin/contracts/utils/math/Math.sol@v4.8.1
+// File @openzeppelin/contracts/utils/math/Math.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.0;
 
@@ -810,11 +961,7 @@ library Math {
      * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv)
      * with further edits by Uniswap Labs also under MIT license.
      */
-    function mulDiv(
-        uint256 x,
-        uint256 y,
-        uint256 denominator
-    ) internal pure returns (uint256 result) {
+    function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
             // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
@@ -829,11 +976,14 @@ library Math {
 
             // Handle non-overflow cases, 256 by 256 division.
             if (prod1 == 0) {
+                // Solidity will revert if denominator == 0, unlike the div opcode on its own.
+                // The surrounding unchecked block does not change this fact.
+                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
                 return prod0 / denominator;
             }
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
-            require(denominator > prod1);
+            require(denominator > prod1, "Math: mulDiv overflow");
 
             ///////////////////////////////////////////////
             // 512 by 256 division.
@@ -895,12 +1045,7 @@ library Math {
     /**
      * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
      */
-    function mulDiv(
-        uint256 x,
-        uint256 y,
-        uint256 denominator,
-        Rounding rounding
-    ) internal pure returns (uint256) {
+    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
         uint256 result = mulDiv(x, y, denominator);
         if (rounding == Rounding.Up && mulmod(x, y, denominator) > 0) {
             result += 1;
@@ -1016,31 +1161,31 @@ library Math {
     function log10(uint256 value) internal pure returns (uint256) {
         uint256 result = 0;
         unchecked {
-            if (value >= 10**64) {
-                value /= 10**64;
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
                 result += 64;
             }
-            if (value >= 10**32) {
-                value /= 10**32;
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
                 result += 32;
             }
-            if (value >= 10**16) {
-                value /= 10**16;
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
                 result += 16;
             }
-            if (value >= 10**8) {
-                value /= 10**8;
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
                 result += 8;
             }
-            if (value >= 10**4) {
-                value /= 10**4;
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
                 result += 4;
             }
-            if (value >= 10**2) {
-                value /= 10**2;
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
                 result += 2;
             }
-            if (value >= 10**1) {
+            if (value >= 10 ** 1) {
                 result += 1;
             }
         }
@@ -1054,7 +1199,7 @@ library Math {
     function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log10(value);
-            return result + (rounding == Rounding.Up && 10**result < value ? 1 : 0);
+            return result + (rounding == Rounding.Up && 10 ** result < value ? 1 : 0);
         }
     }
 
@@ -1091,23 +1236,70 @@ library Math {
     }
 
     /**
-     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
+     * @dev Return the log in base 256, following the selected rounding direction, of a positive value.
      * Returns 0 if given 0.
      */
     function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log256(value);
-            return result + (rounding == Rounding.Up && 1 << (result * 8) < value ? 1 : 0);
+            return result + (rounding == Rounding.Up && 1 << (result << 3) < value ? 1 : 0);
         }
     }
 }
 
 
-// File @openzeppelin/contracts/utils/Strings.sol@v4.8.1
+// File @openzeppelin/contracts/utils/math/SignedMath.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/Strings.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/SignedMath.sol)
 
 pragma solidity ^0.8.0;
+
+/**
+ * @dev Standard signed math utilities missing in the Solidity language.
+ */
+library SignedMath {
+    /**
+     * @dev Returns the largest of two signed numbers.
+     */
+    function max(int256 a, int256 b) internal pure returns (int256) {
+        return a > b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two signed numbers.
+     */
+    function min(int256 a, int256 b) internal pure returns (int256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two signed numbers without overflow.
+     * The result is rounded towards zero.
+     */
+    function average(int256 a, int256 b) internal pure returns (int256) {
+        // Formula from the book "Hacker's Delight"
+        int256 x = (a & b) + ((a ^ b) >> 1);
+        return x + (int256(uint256(x) >> 255) & (a ^ b));
+    }
+
+    /**
+     * @dev Returns the absolute unsigned value of a signed value.
+     */
+    function abs(int256 n) internal pure returns (uint256) {
+        unchecked {
+            // must be unchecked in order to support `n = type(int256).min`
+            return uint256(n >= 0 ? n : -n);
+        }
+    }
+}
+
+
+// File @openzeppelin/contracts/utils/Strings.sol@v4.9.2
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/Strings.sol)
+
+pragma solidity ^0.8.0;
+
 
 /**
  * @dev String operations.
@@ -1142,6 +1334,13 @@ library Strings {
     }
 
     /**
+     * @dev Converts a `int256` to its ASCII `string` decimal representation.
+     */
+    function toString(int256 value) internal pure returns (string memory) {
+        return string(abi.encodePacked(value < 0 ? "-" : "", toString(SignedMath.abs(value))));
+    }
+
+    /**
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
      */
     function toHexString(uint256 value) internal pure returns (string memory) {
@@ -1171,42 +1370,19 @@ library Strings {
     function toHexString(address addr) internal pure returns (string memory) {
         return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);
     }
-}
 
-
-// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.8.1
-
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Implementation of the {IERC165} interface.
- *
- * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
- * for the additional interface id that will be supported. For example:
- *
- * ```solidity
- * function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
- *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
- * }
- * ```
- *
- * Alternatively, {ERC165Storage} provides an easier to use but more expensive implementation.
- */
-abstract contract ERC165 is IERC165 {
     /**
-     * @dev See {IERC165-supportsInterface}.
+     * @dev Returns true if the two strings are equal.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IERC165).interfaceId;
+    function equal(string memory a, string memory b) internal pure returns (bool) {
+        return keccak256(bytes(a)) == keccak256(bytes(b));
     }
 }
 
 
-// File @openzeppelin/contracts/token/ERC721/ERC721.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC721/ERC721.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/ERC721.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/ERC721.sol)
 
 pragma solidity ^0.8.0;
 
@@ -1352,11 +1528,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev See {IERC721-transferFrom}.
      */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public virtual override {
+    function transferFrom(address from, address to, uint256 tokenId) public virtual override {
         //solhint-disable-next-line max-line-length
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
 
@@ -1366,23 +1538,14 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public virtual override {
+    function safeTransferFrom(address from, address to, uint256 tokenId) public virtual override {
         safeTransferFrom(from, to, tokenId, "");
     }
 
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) public virtual override {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual override {
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
         _safeTransfer(from, to, tokenId, data);
     }
@@ -1405,12 +1568,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * Emits a {Transfer} event.
      */
-    function _safeTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal virtual {
+    function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual {
         _transfer(from, to, tokenId);
         require(_checkOnERC721Received(from, to, tokenId, data), "ERC721: transfer to non ERC721Receiver implementer");
     }
@@ -1464,11 +1622,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
      * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
-    function _safeMint(
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal virtual {
+    function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
         _mint(to, tokenId);
         require(
             _checkOnERC721Received(address(0), to, tokenId, data),
@@ -1557,11 +1711,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * Emits a {Transfer} event.
      */
-    function _transfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual {
+    function _transfer(address from, address to, uint256 tokenId) internal virtual {
         require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
         require(to != address(0), "ERC721: transfer to the zero address");
 
@@ -1604,11 +1754,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * Emits an {ApprovalForAll} event.
      */
-    function _setApprovalForAll(
-        address owner,
-        address operator,
-        bool approved
-    ) internal virtual {
+    function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
         require(owner != operator, "ERC721: approve to caller");
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
@@ -1669,21 +1815,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256, /* firstTokenId */
-        uint256 batchSize
-    ) internal virtual {
-        if (batchSize > 1) {
-            if (from != address(0)) {
-                _balances[from] -= batchSize;
-            }
-            if (to != address(0)) {
-                _balances[to] += batchSize;
-            }
-        }
-    }
+    function _beforeTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual {}
 
     /**
      * @dev Hook that is called after any token transfer. This includes minting and burning. If {ERC721Consecutive} is
@@ -1699,16 +1831,23 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual {}
+    function _afterTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual {}
+
+    /**
+     * @dev Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
+     *
+     * WARNING: Anyone calling this MUST ensure that the balances remain consistent with the ownership. The invariant
+     * being that for any address `a` the value returned by `balanceOf(a)` must be equal to the number of tokens such
+     * that `ownerOf(tokenId)` is `a`.
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function __unsafe_increaseBalance(address account, uint256 amount) internal {
+        _balances[account] += amount;
+    }
 }
 
 
-// File @openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.5.0) (token/ERC721/extensions/IERC721Enumerable.sol)
 
@@ -1738,7 +1877,7 @@ interface IERC721Enumerable is IERC721 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/extensions/ERC721Enumerable.sol)
 
@@ -1898,20 +2037,63 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
 }
 
 
-// File @openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol@v4.8.1
+// File @openzeppelin/contracts/interfaces/IERC165.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC721/extensions/ERC721URIStorage.sol)
+// OpenZeppelin Contracts v4.4.1 (interfaces/IERC165.sol)
 
 pragma solidity ^0.8.0;
+
+
+// File @openzeppelin/contracts/interfaces/IERC721.sol@v4.9.2
+
+// OpenZeppelin Contracts v4.4.1 (interfaces/IERC721.sol)
+
+pragma solidity ^0.8.0;
+
+
+// File @openzeppelin/contracts/interfaces/IERC4906.sol@v4.9.2
+
+// OpenZeppelin Contracts (last updated v4.9.0) (interfaces/IERC4906.sol)
+
+pragma solidity ^0.8.0;
+
+
+/// @title EIP-721 Metadata Update Extension
+interface IERC4906 is IERC165, IERC721 {
+    /// @dev This event emits when the metadata of a token is changed.
+    /// So that the third-party platforms such as NFT market could
+    /// timely update the images and related attributes of the NFT.
+    event MetadataUpdate(uint256 _tokenId);
+
+    /// @dev This event emits when the metadata of a range of tokens is changed.
+    /// So that the third-party platforms such as NFT market could
+    /// timely update the images and related attributes of the NFTs.
+    event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId);
+}
+
+
+// File @openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol@v4.9.2
+
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/extensions/ERC721URIStorage.sol)
+
+pragma solidity ^0.8.0;
+
 
 /**
  * @dev ERC721 token with storage based token URI management.
  */
-abstract contract ERC721URIStorage is ERC721 {
+abstract contract ERC721URIStorage is IERC4906, ERC721 {
     using Strings for uint256;
 
     // Optional mapping for token URIs
     mapping(uint256 => string) private _tokenURIs;
+
+    /**
+     * @dev See {IERC165-supportsInterface}
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
+        return interfaceId == bytes4(0x49064906) || super.supportsInterface(interfaceId);
+    }
 
     /**
      * @dev See {IERC721Metadata-tokenURI}.
@@ -1937,6 +2119,8 @@ abstract contract ERC721URIStorage is ERC721 {
     /**
      * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
      *
+     * Emits {MetadataUpdate}.
+     *
      * Requirements:
      *
      * - `tokenId` must exist.
@@ -1944,6 +2128,8 @@ abstract contract ERC721URIStorage is ERC721 {
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
         _tokenURIs[tokenId] = _tokenURI;
+
+        emit MetadataUpdate(tokenId);
     }
 
     /**
@@ -1961,7 +2147,7 @@ abstract contract ERC721URIStorage is ERC721 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/extensions/ERC721Burnable.sol)
 
@@ -1988,145 +2174,7 @@ abstract contract ERC721Burnable is Context, ERC721 {
 }
 
 
-// File @openzeppelin/contracts/interfaces/IERC2981.sol@v4.8.1
-
-// OpenZeppelin Contracts (last updated v4.6.0) (interfaces/IERC2981.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Interface for the NFT Royalty Standard.
- *
- * A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal
- * support for royalty payments across all NFT marketplaces and ecosystem participants.
- *
- * _Available since v4.5._
- */
-interface IERC2981 is IERC165 {
-    /**
-     * @dev Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
-     * exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
-     */
-    function royaltyInfo(uint256 tokenId, uint256 salePrice)
-        external
-        view
-        returns (address receiver, uint256 royaltyAmount);
-}
-
-
-// File @openzeppelin/contracts/token/common/ERC2981.sol@v4.8.1
-
-// OpenZeppelin Contracts (last updated v4.7.0) (token/common/ERC2981.sol)
-
-pragma solidity ^0.8.0;
-
-
-/**
- * @dev Implementation of the NFT Royalty Standard, a standardized way to retrieve royalty payment information.
- *
- * Royalty information can be specified globally for all token ids via {_setDefaultRoyalty}, and/or individually for
- * specific token ids via {_setTokenRoyalty}. The latter takes precedence over the first.
- *
- * Royalty is specified as a fraction of sale price. {_feeDenominator} is overridable but defaults to 10000, meaning the
- * fee is specified in basis points by default.
- *
- * IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
- * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
- * voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
- *
- * _Available since v4.5._
- */
-abstract contract ERC2981 is IERC2981, ERC165 {
-    struct RoyaltyInfo {
-        address receiver;
-        uint96 royaltyFraction;
-    }
-
-    RoyaltyInfo private _defaultRoyaltyInfo;
-    mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
-
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
-        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
-    }
-
-    /**
-     * @inheritdoc IERC2981
-     */
-    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) public view virtual override returns (address, uint256) {
-        RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
-
-        if (royalty.receiver == address(0)) {
-            royalty = _defaultRoyaltyInfo;
-        }
-
-        uint256 royaltyAmount = (_salePrice * royalty.royaltyFraction) / _feeDenominator();
-
-        return (royalty.receiver, royaltyAmount);
-    }
-
-    /**
-     * @dev The denominator with which to interpret the fee set in {_setTokenRoyalty} and {_setDefaultRoyalty} as a
-     * fraction of the sale price. Defaults to 10000 so fees are expressed in basis points, but may be customized by an
-     * override.
-     */
-    function _feeDenominator() internal pure virtual returns (uint96) {
-        return 10000;
-    }
-
-    /**
-     * @dev Sets the royalty information that all ids in this contract will default to.
-     *
-     * Requirements:
-     *
-     * - `receiver` cannot be the zero address.
-     * - `feeNumerator` cannot be greater than the fee denominator.
-     */
-    function _setDefaultRoyalty(address receiver, uint96 feeNumerator) internal virtual {
-        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
-        require(receiver != address(0), "ERC2981: invalid receiver");
-
-        _defaultRoyaltyInfo = RoyaltyInfo(receiver, feeNumerator);
-    }
-
-    /**
-     * @dev Removes default royalty information.
-     */
-    function _deleteDefaultRoyalty() internal virtual {
-        delete _defaultRoyaltyInfo;
-    }
-
-    /**
-     * @dev Sets the royalty information for a specific token id, overriding the global default.
-     *
-     * Requirements:
-     *
-     * - `receiver` cannot be the zero address.
-     * - `feeNumerator` cannot be greater than the fee denominator.
-     */
-    function _setTokenRoyalty(
-        uint256 tokenId,
-        address receiver,
-        uint96 feeNumerator
-    ) internal virtual {
-        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
-        require(receiver != address(0), "ERC2981: Invalid parameters");
-
-        _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, feeNumerator);
-    }
-
-    /**
-     * @dev Resets royalty information for the token id back to the global default.
-     */
-    function _resetTokenRoyalty(uint256 tokenId) internal virtual {
-        delete _tokenRoyaltyInfo[tokenId];
-    }
-}
-
-
-// File @openzeppelin/contracts/utils/Counters.sol@v4.8.1
+// File @openzeppelin/contracts/utils/Counters.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/Counters.sol)
 
@@ -2172,9 +2220,9 @@ library Counters {
 }
 
 
-// File @openzeppelin/contracts/proxy/utils/Initializable.sol@v4.8.1
+// File @openzeppelin/contracts/proxy/utils/Initializable.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.1) (proxy/utils/Initializable.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/Initializable.sol)
 
 pragma solidity ^0.8.2;
 
@@ -2191,12 +2239,13 @@ pragma solidity ^0.8.2;
  * For example:
  *
  * [.hljs-theme-light.nopadding]
- * ```
+ * ```solidity
  * contract MyToken is ERC20Upgradeable {
  *     function initialize() initializer public {
  *         __ERC20_init("MyToken", "MTK");
  *     }
  * }
+ *
  * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {
  *     function initializeV2() reinitializer(2) public {
  *         __ERC20Permit_init("MyToken");
@@ -2316,7 +2365,7 @@ abstract contract Initializable {
      */
     function _disableInitializers() internal virtual {
         require(!_initializing, "Initializable: contract is initializing");
-        if (_initialized < type(uint8).max) {
+        if (_initialized != type(uint8).max) {
             _initialized = type(uint8).max;
             emit Initialized(type(uint8).max);
         }
@@ -2509,7 +2558,7 @@ abstract contract AStartonContextMixin {
 }
 
 
-// File @openzeppelin/contracts/access/IAccessControl.sol@v4.8.1
+// File @openzeppelin/contracts/access/IAccessControl.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (access/IAccessControl.sol)
 
@@ -2600,9 +2649,9 @@ interface IAccessControl {
 }
 
 
-// File @openzeppelin/contracts/access/AccessControl.sol@v4.8.1
+// File @openzeppelin/contracts/access/AccessControl.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (access/AccessControl.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (access/AccessControl.sol)
 
 pragma solidity ^0.8.0;
 
@@ -2620,14 +2669,14 @@ pragma solidity ^0.8.0;
  * in the external API and be unique. The best way to achieve this is by
  * using `public constant` hash digests:
  *
- * ```
+ * ```solidity
  * bytes32 public constant MY_ROLE = keccak256("MY_ROLE");
  * ```
  *
  * Roles can be used to represent a set of permissions. To restrict access to a
  * function call, use {hasRole}:
  *
- * ```
+ * ```solidity
  * function foo() public {
  *     require(hasRole(MY_ROLE, msg.sender));
  *     ...
@@ -2645,7 +2694,8 @@ pragma solidity ^0.8.0;
  *
  * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
  * grant and revoke this role. Extra precautions should be taken to secure
- * accounts that have been granted it.
+ * accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules}
+ * to enforce additional security measures for this role.
  */
 abstract contract AccessControl is Context, IAccessControl, ERC165 {
     struct RoleData {
@@ -2868,7 +2918,7 @@ abstract contract AStartonAccessControl is AccessControl {
 }
 
 
-// File @openzeppelin/contracts/security/Pausable.sol@v4.8.1
+// File @openzeppelin/contracts/security/Pausable.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.7.0) (security/Pausable.sol)
 
@@ -3086,7 +3136,6 @@ pragma solidity 0.8.17;
 
 
 
-
 /// @title StartonERC721Base
 /// @author Starton
 /// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
@@ -3100,8 +3149,7 @@ contract StartonERC721Base is
     AStartonNativeMetaTransaction,
     AStartonMintLock,
     AStartonMetadataLock,
-    DefaultOperatorFilterer,
-    ERC2981
+    DefaultOperatorFilterer
 {
     using Counters for Counters.Counter;
 
@@ -3116,8 +3164,6 @@ contract StartonERC721Base is
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
-        uint96 definitiveRoyaltyFee,
-        address definitiveFeeReceiver,
         string memory initialBaseTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
@@ -3133,9 +3179,6 @@ contract StartonERC721Base is
         _contractURI = initialContractURI;
         _isMintAllowed = true;
         _isMetadataChangingAllowed = true;
-
-        // Set the default royalty fee and receiver
-        _setDefaultRoyalty(definitiveFeeReceiver, definitiveRoyaltyFee);
 
         // Intialize the EIP712 so we can perform metatransactions
         _initializeEIP712(definitiveName);
@@ -3208,7 +3251,7 @@ contract StartonERC721Base is
         public
         view
         virtual
-        override(ERC721, AccessControl, ERC721Enumerable, ERC2981)
+        override(ERC721, AccessControl, ERC721Enumerable, ERC721URIStorage)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
@@ -3304,6 +3347,53 @@ contract StartonERC721Base is
 }
 
 
+// File contracts/non-fungible/StartonERC721BaseRoyalties.sol
+
+
+pragma solidity 0.8.17;
+
+
+/// @title StartonERC721Base
+/// @author Starton
+/// @notice ERC721 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
+contract StartonERC721BaseRoyalties is StartonERC721Base, ERC2981 {
+    constructor(
+        string memory definitiveName,
+        string memory definitiveSymbol,
+        uint96 definitiveRoyaltyFee,
+        address definitiveFeeReceiver,
+        string memory initialBaseTokenURI,
+        string memory initialContractURI,
+        address initialOwnerOrMultiSigContract
+    )
+        StartonERC721Base(
+            definitiveName,
+            definitiveSymbol,
+            initialBaseTokenURI,
+            initialContractURI,
+            initialOwnerOrMultiSigContract
+        )
+    {
+        // Set the default royalty fee and receiver
+        _setDefaultRoyalty(definitiveFeeReceiver, definitiveRoyaltyFee);
+    }
+
+    /**
+     * @dev Call the inherited contract supportsInterface function to know the interfaces as EIP165 says
+     * @return True if the interface is supported
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(StartonERC721Base, ERC2981)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+}
+
+
 // File contracts/interfaces/IERC4907.sol
 
 
@@ -3349,7 +3439,7 @@ pragma solidity 0.8.17;
 /// @title StartonERC4907
 /// @author Starton
 /// @notice This contract allows to rent NFTs
-contract StartonERC4907 is StartonERC721Base, IERC4907 {
+contract StartonERC4907 is StartonERC721BaseRoyalties, IERC4907 {
     /** @notice Structure of data reprensenting the user and expiration of usage */
     struct UserInfo {
         address user;
@@ -3367,7 +3457,7 @@ contract StartonERC4907 is StartonERC721Base, IERC4907 {
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
     )
-        StartonERC721Base(
+        StartonERC721BaseRoyalties(
             definitiveName,
             definitiveSymbol,
             definitiveRoyaltyFee,

@@ -1,9 +1,9 @@
 // Sources flattened with hardhat v2.10.1 https://hardhat.org
 
-// File @openzeppelin/contracts/security/ReentrancyGuard.sol@v4.8.1
+// File @openzeppelin/contracts/security/ReentrancyGuard.sol@v4.9.2
 
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (security/ReentrancyGuard.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (security/ReentrancyGuard.sol)
 
 pragma solidity ^0.8.0;
 
@@ -70,10 +70,18 @@ abstract contract ReentrancyGuard {
         // https://eips.ethereum.org/EIPS/eip-2200)
         _status = _NOT_ENTERED;
     }
+
+    /**
+     * @dev Returns true if the reentrancy guard is currently set to "entered", which indicates there is a
+     * `nonReentrant` function in the call stack.
+     */
+    function _reentrancyGuardEntered() internal view returns (bool) {
+        return _status == _ENTERED;
+    }
 }
 
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.8.1
+// File @openzeppelin/contracts/utils/Context.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
@@ -100,9 +108,9 @@ abstract contract Context {
 }
 
 
-// File @openzeppelin/contracts/access/Ownable.sol@v4.8.1
+// File @openzeppelin/contracts/access/Ownable.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.7.0) (access/Ownable.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)
 
 pragma solidity ^0.8.0;
 
@@ -154,10 +162,10 @@ abstract contract Ownable is Context {
 
     /**
      * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     * `onlyOwner` functions. Can only be called by the current owner.
      *
      * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby removing any functionality that is only available to the owner.
+     * thereby disabling any functionality that is only available to the owner.
      */
     function renounceOwnership() public virtual onlyOwner {
         _transferOwnership(address(0));
@@ -184,7 +192,7 @@ abstract contract Ownable is Context {
 }
 
 
-// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.8.1
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v4.9.2
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
@@ -212,9 +220,9 @@ interface IERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC721/IERC721.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC721/IERC721.sol@v4.9.2
 
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/IERC721.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/IERC721.sol)
 
 pragma solidity ^0.8.0;
 
@@ -264,12 +272,7 @@ interface IERC721 is IERC165 {
      *
      * Emits a {Transfer} event.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes calldata data
-    ) external;
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;
 
     /**
      * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
@@ -285,11 +288,7 @@ interface IERC721 is IERC165 {
      *
      * Emits a {Transfer} event.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external;
+    function safeTransferFrom(address from, address to, uint256 tokenId) external;
 
     /**
      * @dev Transfers `tokenId` token from `from` to `to`.
@@ -307,11 +306,7 @@ interface IERC721 is IERC165 {
      *
      * Emits a {Transfer} event.
      */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external;
+    function transferFrom(address from, address to, uint256 tokenId) external;
 
     /**
      * @dev Gives permission to `to` to transfer `tokenId` token to another account.
@@ -338,7 +333,7 @@ interface IERC721 is IERC165 {
      *
      * Emits an {ApprovalForAll} event.
      */
-    function setApprovalForAll(address operator, bool _approved) external;
+    function setApprovalForAll(address operator, bool approved) external;
 
     /**
      * @dev Returns the account approved for `tokenId` token.
@@ -358,7 +353,7 @@ interface IERC721 is IERC165 {
 }
 
 
-// File @openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol@v4.8.1
+// File @openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol@v4.9.2
 
 // OpenZeppelin Contracts (last updated v4.5.0) (token/ERC721/extensions/IERC721Enumerable.sol)
 
