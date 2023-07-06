@@ -45,9 +45,8 @@ contract StartonERC721Base is
         string memory initialBaseTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
-    ) ERC721(definitiveName, definitiveSymbol) {
+    ) ERC721(definitiveName, definitiveSymbol) AStartonAccessControl(initialOwnerOrMultiSigContract) {
         // Set all default roles for initialOwnerOrMultiSigContract
-        _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);

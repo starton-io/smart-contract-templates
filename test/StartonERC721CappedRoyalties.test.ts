@@ -40,6 +40,10 @@ describe("StartonERC721CappedRoyalties", () => {
   describe("Deployment", () => {
     it("Should deploy", async () => {});
 
+    it("Should set the correct owner", async () => {
+      expect(await instanceERC721.owner()).to.equal(owner.address);
+    });
+
     it("Shouldn't deploy if maxSupply is 0", async () => {
       await expect(
         ERC721.deploy(

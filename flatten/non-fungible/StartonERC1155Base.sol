@@ -2610,12 +2610,23 @@ pragma solidity ^0.8.0;
 /// @notice Utility smart contract that can ease the transfer of ownership between one user to another
 abstract contract AStartonAccessControl is AccessControl {
     /**
+     * @notice The address of the owner of the contract
+     */
+    address public owner;
+
+    constructor(address initialOwnerOrMultiSigContract) {
+        _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
+        owner = initialOwnerOrMultiSigContract;
+    }
+
+    /**
      * @notice Transfer the ownership of the contract to a new address
      * @param newAdmin The address of the new owner
      */
     function transferOwnership(address newAdmin) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
         _revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        owner = newAdmin;
     }
 }
 
@@ -2861,9 +2872,8 @@ contract StartonERC1155Base is
         string memory initialTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
-    ) ERC1155(initialTokenURI) {
+    ) ERC1155(initialTokenURI) AStartonAccessControl(initialOwnerOrMultiSigContract) {
         // Set all default roles for initialOwnerOrMultiSigContract
-        _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);

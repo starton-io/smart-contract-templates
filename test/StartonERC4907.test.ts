@@ -39,6 +39,10 @@ describe("StartonERC4907", () => {
   describe("Deployment", () => {
     it("Should deploy", async () => {});
 
+    it("Should set the correct owner", async () => {
+      expect(await instanceERC4907.owner()).to.equal(owner.address);
+    });
+
     it("Should owner have admin role", async () => {
       const adminRole = await instanceERC4907.DEFAULT_ADMIN_ROLE();
 

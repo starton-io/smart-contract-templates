@@ -2145,26 +2145,6 @@ abstract contract AStartonNativeMetaTransaction is AStartonEIP712Base {
 }
 
 
-// File contracts/abstracts/AStartonAccessControl.sol
-
-
-pragma solidity ^0.8.0;
-
-/// @title AStartonAcessControl
-/// @author Starton
-/// @notice Utility smart contract that can ease the transfer of ownership between one user to another
-abstract contract AStartonAccessControl is AccessControl {
-    /**
-     * @notice Transfer the ownership of the contract to a new address
-     * @param newAdmin The address of the new owner
-     */
-    function transferOwnership(address newAdmin) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
-        _revokeRole(DEFAULT_ADMIN_ROLE, _msgSender());
-    }
-}
-
-
 // File contracts/abstracts/AStartonContextMixin.sol
 
 
@@ -2206,13 +2186,7 @@ pragma solidity 0.8.17;
 /// @title StartonERC20Base
 /// @author Starton
 /// @notice ERC20 tokens that can be paused, burned, have a access management and handle meta transactions
-contract StartonERC20Base is
-    ERC20Burnable,
-    AStartonPausable,
-    AStartonAccessControl,
-    AStartonContextMixin,
-    AStartonNativeMetaTransaction
-{
+contract StartonERC20Base is ERC20Burnable, AStartonPausable, AStartonContextMixin, AStartonNativeMetaTransaction {
     constructor(
         string memory definitiveName,
         string memory definitiveSymbol,
