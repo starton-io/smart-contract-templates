@@ -64,6 +64,10 @@ describe("StartonERC1155BaseSale", () => {
   describe("Deployment", () => {
     it("Should deploy the contract", async () => {});
 
+    it("Should set the correct owner", async () => {
+      expect(await instanceERC1155.owner()).to.equal(owner.address);
+    });
+
     it("Shouldn't deploy if the start tile is after the end time", async () => {
       await expect(
         ERC1155Sale.deploy(

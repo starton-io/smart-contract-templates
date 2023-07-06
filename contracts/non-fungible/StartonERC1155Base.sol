@@ -37,9 +37,8 @@ contract StartonERC1155Base is
         string memory initialTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
-    ) ERC1155(initialTokenURI) {
+    ) ERC1155(initialTokenURI) AStartonAccessControl(initialOwnerOrMultiSigContract) {
         // Set all default roles for initialOwnerOrMultiSigContract
-        _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);
