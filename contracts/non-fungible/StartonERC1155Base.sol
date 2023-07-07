@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "../abstracts/AStartonNativeMetaTransaction.sol";
 import "../abstracts/AStartonContextMixin.sol";
-import "../abstracts/AStartonAccessControl.sol";
+import "../abstracts/AStartonOwnable.sol";
 import "../abstracts/AStartonPausable.sol";
 import "../abstracts/AStartonMintLock.sol";
 import "../abstracts/AStartonMetadataLock.sol";
@@ -17,7 +17,7 @@ import "../abstracts/AStartonMetadataLock.sol";
 /// @notice ERC1155 tokens that can be blacklisted, paused, locked, burned, have a access management and handle meta transactions
 contract StartonERC1155Base is
     ERC1155Burnable,
-    AStartonAccessControl,
+    AStartonOwnable,
     AStartonPausable,
     AStartonContextMixin,
     AStartonNativeMetaTransaction,
@@ -37,7 +37,7 @@ contract StartonERC1155Base is
         string memory initialTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
-    ) ERC1155(initialTokenURI) AStartonAccessControl(initialOwnerOrMultiSigContract) {
+    ) ERC1155(initialTokenURI) AStartonOwnable(initialOwnerOrMultiSigContract) {
         // Set all default roles for initialOwnerOrMultiSigContract
         _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
