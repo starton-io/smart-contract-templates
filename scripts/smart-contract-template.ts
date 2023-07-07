@@ -1,12 +1,5 @@
 /* eslint-disable no-unused-vars */
 
-enum Blockchain {
-  POLYGON = "Blockchain.POLYGON",
-  AVALANCHE = "Blockchain.AVALANCHE",
-  BINANCE = "Blockchain.BINANCE",
-  ETHEREUM = "Blockchain.ETHEREUM",
-}
-
 enum SmartContractTemplateCategory {
   OTHER = "SmartContractTemplateCategory.OTHER",
   FUNGIBLE = "SmartContractTemplateCategory.FUNGIBLE",
@@ -30,7 +23,7 @@ type SmartContractTemplate = {
   description: string;
   shortDescription: string;
   githubUrl?: string;
-  blockchains: Blockchain[];
+  blockchains: string[];
   compilationDetails: CompilationDetails;
   tags: SmartContractTemplateCategory[];
   category: SmartContractTemplateCategory;
@@ -41,4 +34,4 @@ type SmartContractTemplate = {
   order?: number;
 };
 
-export { SmartContractTemplate, SmartContractTemplateCategory, Blockchain };
+export { SmartContractTemplate, SmartContractTemplateCategory };

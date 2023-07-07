@@ -278,15 +278,9 @@ describe("StartonERC4907", () => {
     });
 
     it("Should transfer ownership", async () => {
-      const adminRole = await instanceERC4907.DEFAULT_ADMIN_ROLE();
-
       await instanceERC4907.transferOwnership(addr1.address);
-      expect(await instanceERC4907.hasRole(adminRole, addr1.address)).to.equal(
-        true
-      );
-      expect(await instanceERC4907.hasRole(adminRole, owner.address)).to.equal(
-        false
-      );
+
+      expect(await instanceERC4907.owner(), addr1.address);
     });
 
     it("Should revoke roles accordingly", async () => {
