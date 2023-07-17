@@ -427,15 +427,8 @@ describe("StartonERC1155BaseRoyalties", () => {
     });
 
     it("Should transfer ownership", async () => {
-      const adminRole = await instanceERC1155.DEFAULT_ADMIN_ROLE();
-
       await instanceERC1155.transferOwnership(addr1.address);
-      expect(await instanceERC1155.hasRole(adminRole, addr1.address)).to.equal(
-        true
-      );
-      expect(await instanceERC1155.hasRole(adminRole, owner.address)).to.equal(
-        false
-      );
+      expect(await instanceERC1155.owner()).to.equal(addr1.address);
     });
 
     it("Should revoke roles accordingly", async () => {
