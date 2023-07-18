@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "../abstracts/AStartonNativeMetaTransaction.sol";
 import "../abstracts/AStartonContextMixin.sol";
-import "../abstracts/AStartonAccessControl.sol";
+import "../abstracts/AStartonOwnable.sol";
 import "../abstracts/AStartonPausable.sol";
 import "../abstracts/AStartonMintLock.sol";
 import "../abstracts/AStartonMetadataLock.sol";
@@ -22,7 +22,7 @@ contract StartonERC721Base is
     ERC721URIStorage,
     ERC721Burnable,
     AStartonPausable,
-    AStartonAccessControl,
+    AStartonOwnable,
     AStartonContextMixin,
     AStartonNativeMetaTransaction,
     AStartonMintLock,
@@ -45,9 +45,8 @@ contract StartonERC721Base is
         string memory initialBaseTokenURI,
         string memory initialContractURI,
         address initialOwnerOrMultiSigContract
-    ) ERC721(definitiveName, definitiveSymbol) {
+    ) ERC721(definitiveName, definitiveSymbol) AStartonOwnable(initialOwnerOrMultiSigContract) {
         // Set all default roles for initialOwnerOrMultiSigContract
-        _setupRole(DEFAULT_ADMIN_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(PAUSER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(MINTER_ROLE, initialOwnerOrMultiSigContract);
         _setupRole(METADATA_ROLE, initialOwnerOrMultiSigContract);

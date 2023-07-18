@@ -37,6 +37,10 @@ describe("StartonERC721Base", () => {
   describe("Deployment", () => {
     it("Should deploy", async () => {});
 
+    it("Should set the correct owner", async () => {
+      expect(await instanceERC721.owner()).to.equal(owner.address);
+    });
+
     it("Should owner have admin role", async () => {
       const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();
 
@@ -230,15 +234,8 @@ describe("StartonERC721Base", () => {
     });
 
     it("Should transfer ownership", async () => {
-      const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();
-
       await instanceERC721.transferOwnership(addr1.address);
-      expect(await instanceERC721.hasRole(adminRole, addr1.address)).to.equal(
-        true
-      );
-      expect(await instanceERC721.hasRole(adminRole, owner.address)).to.equal(
-        false
-      );
+      expect(await instanceERC721.owner()).to.equal(addr1.address);
     });
 
     it("Should revoke roles accordingly", async () => {

@@ -1,10 +1,7 @@
 import { exec } from "child_process";
 import { readdirSync, readFileSync, writeFileSync } from "fs";
 import doc from "../doc";
-import {
-  Blockchain,
-  SmartContractTemplateCategory,
-} from "./smart-contract-template";
+import { SmartContractTemplateCategory } from "./smart-contract-template";
 
 function replaceAll(str: string, find: string, replace: string) {
   return str.replace(new RegExp(find, "g"), replace);
@@ -158,13 +155,6 @@ function main() {
   let stringifiedContent = JSON.stringify(doc, null, 2);
 
   // Remove the quotes of the enum values
-  for (const item in Blockchain) {
-    stringifiedContent = replaceAll(
-      stringifiedContent,
-      `"Blockchain.${item}"`,
-      `Blockchain.${item}`
-    );
-  }
   for (const item in SmartContractTemplateCategory) {
     stringifiedContent = replaceAll(
       stringifiedContent,
@@ -173,7 +163,12 @@ function main() {
     );
   }
 
-  writeFileSync(process.argv[2], "export default " + stringifiedContent + ";");
+  writeFileSync(
+    process.argv[2],
+    'import type { EntityManager } from "@mikro-orm/core"\nimport { Seeder } from "@mikro-orm/seeder"\nimport { SmartContractTemplate } from "../../module/smart-contract-template/smart-contract-template.entity"\nimport { SmartContractTemplateCategory } from "../../module/smart-contract-template/smart-contract-template.interface"\n\nexport const templateSeeder: Partial<SmartContractTemplate>[] = ' +
+      stringifiedContent +
+      ";\n\nexport class DatabaseSeeder extends Seeder {\n\tasync run(em: EntityManager): Promise<void> {\n\t\tfor (const template of templateSeeder) {\n\t\t\tem.create(SmartContractTemplate, template)\n\t\t\tawait em.flush()\n\t\t}\n\t}\n}"
+  );
 
   exec("npx eslint " + process.argv[2] + " --fix", {
     encoding: "utf-8",

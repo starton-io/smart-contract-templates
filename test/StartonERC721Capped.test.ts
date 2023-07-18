@@ -38,6 +38,10 @@ describe("StartonERC721Capped", () => {
   describe("Deployment", () => {
     it("Should deploy", async () => {});
 
+    it("Should set the correct owner", async () => {
+      expect(await instanceERC721.owner()).to.equal(owner.address);
+    });
+
     it("Shouldn't deploy if maxSupply is 0", async () => {
       await expect(
         ERC721.deploy(
@@ -293,15 +297,8 @@ describe("StartonERC721Capped", () => {
     });
 
     it("Should transfer ownership", async () => {
-      const adminRole = await instanceERC721.DEFAULT_ADMIN_ROLE();
-
       await instanceERC721.transferOwnership(addr1.address);
-      expect(await instanceERC721.hasRole(adminRole, addr1.address)).to.equal(
-        true
-      );
-      expect(await instanceERC721.hasRole(adminRole, owner.address)).to.equal(
-        false
-      );
+      expect(await instanceERC721.owner()).to.equal(addr1.address);
     });
 
     it("Should revoke roles accordingly", async () => {

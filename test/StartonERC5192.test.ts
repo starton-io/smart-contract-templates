@@ -38,6 +38,10 @@ describe("StartonERC5192", () => {
 
   describe("Deployment", () => {
     it("Should deploy", async () => {});
+
+    it("Should set the correct owner", async () => {
+      expect(await instanceERC5192.owner()).to.equal(owner.address);
+    });
   });
 
   describe("Minting", () => {

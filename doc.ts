@@ -1,5 +1,4 @@
 import {
-  Blockchain,
   SmartContractTemplateCategory,
   SmartContractTemplate,
 } from "./scripts/smart-contract-template";
@@ -12,12 +11,7 @@ const LIST: SmartContractTemplate[] = [
     shortDescription: "The smart contract template to deploy single-copy NFTs",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721Base.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC721Base",
     },
@@ -62,12 +56,7 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template to deploy single-copy NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721BaseRoyalties.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC721BaseRoyalties",
     },
@@ -114,12 +103,7 @@ const LIST: SmartContractTemplate[] = [
       "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT).",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721Capped.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC721Capped",
     },
@@ -165,12 +149,7 @@ const LIST: SmartContractTemplate[] = [
       "The capped ERC721 NFT smart contract template for single-copy Non Fungible Tokens (NFT). This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC721CappedRoyalties.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC721CappedRoyalties",
     },
@@ -217,12 +196,7 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract standard to manage multiple-copies NFTs.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC1155Base.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC1155Base",
     },
@@ -267,12 +241,7 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract standard to manage multiple-copies NFTs. This template integrates the NFT Royalty standard enabling you to perceive a fraction of the price received for the NFT.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/non-fungible/StartonERC1155BaseRoyalties.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC1155BaseRoyalties",
     },
@@ -319,12 +288,7 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template for fungible tokens. No new tokens can be created after the initial emission.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/fungible/StartonERC20Base.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC20Base",
     },
@@ -369,12 +333,7 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template for fungible tokens. Admin can mint new tokens after initial emission.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/fungible/StartonERC20Mintable.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC20Mintable",
     },
@@ -418,12 +377,7 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template for selling single-copy NFTs.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC721BaseSale.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC721BaseSale",
     },
@@ -468,12 +422,7 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template for selling multiple-copies NFTs.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC1155BaseSale.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC1155BaseSale",
     },
@@ -519,12 +468,7 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template to sell NFTs only to selected users.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC721WhitelistSale.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC721WhitelistSale",
     },
@@ -572,12 +516,7 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template for selling multiple copies of NFTs only to a specified list of addresses.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC1155WhitelistSale.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC1155WhitelistSale",
     },
@@ -623,12 +562,7 @@ const LIST: SmartContractTemplate[] = [
     shortDescription: "The smart contract to sell NFTs in a form of auction.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC721AuctionSale.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC721AuctionSale",
     },
@@ -675,12 +609,7 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template for selling multiple copies of NFTs in the form of an Auction to the highest bidder in a time slot.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/nft-sales/StartonERC1155AuctionSale.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonERC1155AuctionSale",
     },
@@ -726,12 +655,7 @@ const LIST: SmartContractTemplate[] = [
       "The smart contract template to split all payments between a list of users with a defined share for each of them.",
     githubUrl:
       "https://github.com/starton-io/smart-contract-templates/blob/master/contracts/tools/StartonPaymentSplitter.sol",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     compilationDetails: {
       contractName: "StartonPaymentSplitter",
     },
@@ -771,7 +695,7 @@ const LIST: SmartContractTemplate[] = [
       '<p>The ERC1155 is a smart contract standard which is specialised in multiple-copies Non Fungible Tokens (NFT).\n\t\t\tWithin this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>\n\t\t\t<p>It is important to notice that we do not store any content directly inside the smart contract.\n\t\t\tOnly references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>\n\t\t\t<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>\n\t\t\t<p>Parameters :</p>\n\t\t\t<ul>\n\t\t\t<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>\n\t\t\t<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>\n\t\t\t<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>\n\t\t\t<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>\n\t\t\t<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>\n\t\t\t<li>Using a centralised server: the path of the contract metadata json</li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t</ul>',
     shortDescription:
       "The smart contract template for bridging multiple-copies Non Fungible Tokens (NFT) between Ethereum and Polygon. For example, at large scale, to reduce gas fees and increase speed, NFTs can be transferred from one blockchain network to another. ",
-    blockchains: [Blockchain.POLYGON],
+    blockchains: ["polygon"],
     abi: [
       {
         type: "constructor",
@@ -1640,7 +1564,7 @@ const LIST: SmartContractTemplate[] = [
       "<p>The ERC20 is a smart contract standard made for fungible tokens (I.e: interchangeable tokens like coins).</p> <p>The mintable version of this standard allows the creator to mint new tokens whenever they want.</p> <p>This brings more usage flexibility but implies more trust towards the creators as well.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation.</li> </ul> <p>You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</p>",
     shortDescription:
       "The smart contract template for bridging mintable fungible tokens between Ethereum and Polygon. For example, at large scale, to reduce gas fees and increase speed, tokens can be transferred from one blockchain network to another. ",
-    blockchains: [Blockchain.POLYGON],
+    blockchains: ["polygon"],
     abi: [
       {
         type: "constructor",
@@ -2338,7 +2262,7 @@ const LIST: SmartContractTemplate[] = [
       "<p>The ERC20 is a smart contract standard made for fungible tokens (i.e: interchangeable tokens like coins). The fixed supply version of this standard guarantees no token will ever be created after the initial emission. Therefore some flexibility is sacrificed for the sake of more trust towards the token.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation. You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</li> </ul>",
     shortDescription:
       "The smart contract template for bridging fixed fungible tokens between Ethereum and Polygon.For example, at large scale, to reduce gas fees and increase speed, tokens can be transferred from one blockchain network to another. ",
-    blockchains: [Blockchain.POLYGON],
+    blockchains: ["polygon"],
     abi: [
       {
         type: "constructor",
@@ -3005,7 +2929,7 @@ const LIST: SmartContractTemplate[] = [
       '<p>The ERC721 is a smart contract standard which is specialised in single-copy Non Fungible Tokens (NFT).\n\t\t\tWithin this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>\n\t\t\t<p>It is important to notice that we do not store any content directly inside the smart contract.\n\t\t\tOnly references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>\n\t\t\t<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>\n\t\t\t<p>Parameters :</p>\n\t\t\t<ul>\n\t\t\t<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>\n\t\t\t<li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li>\n\t\t\t<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>\n\t\t\t<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>\n\t\t\t<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>\n\t\t\t<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>\n\t\t\t<li>Using a centralised server: the path of the contract metadata json</li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t</ul>',
     shortDescription:
       "The smart contract template for bridging single-copy Non-Fungible Tokens (NFT) between Ethereum and Polygon. For example, at large scale, to reduce gas fees and increase speed, NFTs can be transferred from one blockchain network to another. ",
-    blockchains: [Blockchain.POLYGON],
+    blockchains: ["polygon"],
     abi: [
       {
         type: "constructor",
@@ -3960,12 +3884,7 @@ const LIST: SmartContractTemplate[] = [
       "<p>The ERC20 is a smart contract standard made for fungible tokens (i.e: interchangeable tokens like coins). The fixed supply version of this standard guarantees no token will ever be created after the initial emission. Therefore some flexibility is sacrificed for the sake of more trust towards the token.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation. You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</li> </ul>",
     shortDescription:
       "The smart contract template for fungible tokens. No new token can be created after the initial emission. The smart contract template for fungible tokens. No new token can be created after the initial emission.",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     abi: [
       {
         type: "constructor",
@@ -4588,12 +4507,7 @@ const LIST: SmartContractTemplate[] = [
       "<p>The ERC20 is a smart contract standard made for fungible tokens (I.e: interchangeable tokens like coins).</p> <p>The mintable version of this standard allows the creator to mint new tokens whenever they want.</p> <p>This brings more usage flexibility but implies more trust towards the creators as well.</p> <p>Parameters :</p> <ul> <li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li> <li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li> <li><strong>Initial Supply</strong> : Initial amount of token emitted at the smart contract creation.</li> </ul> <p>You should add 18 trailing zeros to compensate the number of digits reserved to decimals.</p>",
     shortDescription:
       "The smart contract template for fungible tokens. Creators can mint new tokens after initial emission. In a video game, mintable fungible tokens can represent the currency gamers can spend in-game.",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     abi: [
       {
         type: "constructor",
@@ -5247,12 +5161,7 @@ const LIST: SmartContractTemplate[] = [
       '<p>The ERC1155 is a smart contract standard which is specialised in multiple-copies Non Fungible Tokens (NFT).\n\t\t\tWithin this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>\n\t\t\t<p>It is important to notice that we do not store any content directly inside the smart contract.\n\t\t\tOnly references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>\n\t\t\t<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>\n\t\t\t<p>Parameters :</p>\n\t\t\t<ul>\n\t\t\t<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>\n\t\t\t<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>\n\t\t\t<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>\n\t\t\t<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>\n\t\t\t<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>\n\t\t\t<li>Using a centralised server: the path of the contract metadata json</li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t</ul>',
     shortDescription:
       "The smart contract standard to manage multiple-copies NFTs. Though their content is identical, each NFT has a different token ID. In a video game, it can be a piece of equipment won after an action such as a powerful sword after defeating an enemy. Every user defeating the enemy will own an edition of the sword with a different identifier. ",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     abi: [
       {
         type: "constructor",
@@ -6054,12 +5963,7 @@ const LIST: SmartContractTemplate[] = [
       '<p>The ERC721 is a smart contract standard which is specialised in single-copy Non Fungible Tokens (NFT).\n\t\t\tWithin this standard, tokens are linked to addresses (the owners) and to URIs (references of the NFT contents).</p>\n\t\t\t<p>It is important to notice that we do not store any content directly inside the smart contract.\n\t\t\tOnly references are stored. It is up to the smart contract readers to find the content by themselves using the references.</p>\n\t\t\t<p>Starton provides an <a href="https://app.starton.io/ipfs">IPFS integration</a> in case you need to host your NFT contents.</p>\n\t\t\t<p>Parameters :</p>\n\t\t\t<ul>\n\t\t\t<li><strong>Name</strong> : This is the name of your smart contract which will be reflected on-chain.</li>\n\t\t\t<li><strong>Symbol</strong> : This is the symbol associated to the NFT collection</li>\n\t\t\t<li><strong>BaseUri</strong> : Will be used to concatenate NFT URIs and the ContractUriSuffix<ul>\n\t\t\t<li>Using IPFS: it should be <code>ipfs://ipfs/</code></li>\n\t\t\t<li>Using a centralised server: it should be like <code>https://yourapi.com/endpoint/</code></li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t<li><strong>ContractUriSuffix</strong> (will be concatenated with baseUri):<ul>\n\t\t\t<li>Using IPFS: it is the CID of the contract metadata (more info <a href="https://docs.opensea.io/docs/contract-level-metadata">here</a>)</li>\n\t\t\t<li>Using a centralised server: the path of the contract metadata json</li>\n\t\t\t</ul>\n\t\t\t</li>\n\t\t\t</ul>',
     shortDescription:
       "The smart contract template for single-copy Non Fungible Tokens (NFT). In a video game, one-of-one NFT can consist of a digital good only one player can own at a time such as a piece of land. ",
-    blockchains: [
-      Blockchain.POLYGON,
-      Blockchain.AVALANCHE,
-      Blockchain.BINANCE,
-      Blockchain.ETHEREUM,
-    ],
+    blockchains: ["polygon", "avalanche", "binance", "ethereum"],
     abi: [
       {
         type: "constructor",
