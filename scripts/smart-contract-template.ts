@@ -1,11 +1,11 @@
 /* eslint-disable no-unused-vars */
 
-enum SmartContractTemplateCategory {
-  OTHER = "SmartContractTemplateCategory.OTHER",
-  FUNGIBLE = "SmartContractTemplateCategory.FUNGIBLE",
-  SALE = "SmartContractTemplateCategory.SALE",
-  NFT = "SmartContractTemplateCategory.NFT",
-  DEPRECATED = "SmartContractTemplateCategory.DEPRECATED",
+enum SmartContractTemplateCategories {
+  OTHER = "SmartContractTemplateCategories.OTHER",
+  FUNGIBLE = "SmartContractTemplateCategories.FUNGIBLE",
+  SALE = "SmartContractTemplateCategories.SALE",
+  NFT = "SmartContractTemplateCategories.NFT",
+  DEPRECATED = "SmartContractTemplateCategories.DEPRECATED",
 }
 
 type CompilationDetails = {
@@ -25,8 +25,8 @@ type SmartContractTemplate = {
   githubUrl?: string;
   blockchains: string[];
   compilationDetails: CompilationDetails;
-  tags: SmartContractTemplateCategory[];
-  category: SmartContractTemplateCategory;
+  tags: SmartContractTemplateCategories[];
+  category: SmartContractTemplateCategories;
   abi?: Array<Record<string, any>>;
   form?: Record<string, any>;
   isAudited?: boolean;
@@ -34,4 +34,4 @@ type SmartContractTemplate = {
   order?: number;
 };
 
-export { SmartContractTemplate, SmartContractTemplateCategory };
+export { SmartContractTemplate, SmartContractTemplateCategories };

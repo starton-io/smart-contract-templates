@@ -1,5 +1,5 @@
 import {
-  SmartContractTemplateCategory,
+  SmartContractTemplateCategories,
   SmartContractTemplate,
 } from "./scripts/smart-contract-template";
 
@@ -18,8 +18,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 1,
-    category: SmartContractTemplateCategory.NFT,
-    tags: [SmartContractTemplateCategory.NFT],
+    category: SmartContractTemplateCategories.NFT,
+    tags: [SmartContractTemplateCategories.NFT],
     form: {
       infos: {
         description:
@@ -63,8 +63,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 4,
-    category: SmartContractTemplateCategory.NFT,
-    tags: [SmartContractTemplateCategory.NFT],
+    category: SmartContractTemplateCategories.NFT,
+    tags: [SmartContractTemplateCategories.NFT],
     form: {
       infos: {
         description:
@@ -110,8 +110,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 2,
-    category: SmartContractTemplateCategory.NFT,
-    tags: [SmartContractTemplateCategory.NFT],
+    category: SmartContractTemplateCategories.NFT,
+    tags: [SmartContractTemplateCategories.NFT],
     form: {
       infos: {
         description:
@@ -156,8 +156,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 5,
-    category: SmartContractTemplateCategory.NFT,
-    tags: [SmartContractTemplateCategory.NFT],
+    category: SmartContractTemplateCategories.NFT,
+    tags: [SmartContractTemplateCategories.NFT],
     form: {
       infos: {
         description:
@@ -203,8 +203,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 3,
-    category: SmartContractTemplateCategory.NFT,
-    tags: [SmartContractTemplateCategory.NFT],
+    category: SmartContractTemplateCategories.NFT,
+    tags: [SmartContractTemplateCategories.NFT],
     form: {
       infos: {
         description:
@@ -248,8 +248,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 6,
-    category: SmartContractTemplateCategory.NFT,
-    tags: [SmartContractTemplateCategory.NFT],
+    category: SmartContractTemplateCategories.NFT,
+    tags: [SmartContractTemplateCategories.NFT],
     form: {
       infos: {
         description:
@@ -295,8 +295,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 7,
-    category: SmartContractTemplateCategory.FUNGIBLE,
-    tags: [SmartContractTemplateCategory.FUNGIBLE],
+    category: SmartContractTemplateCategories.FUNGIBLE,
+    tags: [SmartContractTemplateCategories.FUNGIBLE],
     form: {
       infos: {
         description:
@@ -340,8 +340,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 8,
-    category: SmartContractTemplateCategory.FUNGIBLE,
-    tags: [SmartContractTemplateCategory.FUNGIBLE],
+    category: SmartContractTemplateCategories.FUNGIBLE,
+    tags: [SmartContractTemplateCategories.FUNGIBLE],
     form: {
       infos: {
         description:
@@ -384,8 +384,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 9,
-    category: SmartContractTemplateCategory.SALE,
-    tags: [SmartContractTemplateCategory.SALE],
+    category: SmartContractTemplateCategories.SALE,
+    tags: [SmartContractTemplateCategories.SALE],
     form: {
       infos: {
         description:
@@ -429,8 +429,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 10,
-    category: SmartContractTemplateCategory.SALE,
-    tags: [SmartContractTemplateCategory.SALE],
+    category: SmartContractTemplateCategories.SALE,
+    tags: [SmartContractTemplateCategories.SALE],
     form: {
       infos: {
         description:
@@ -475,8 +475,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 11,
-    category: SmartContractTemplateCategory.SALE,
-    tags: [SmartContractTemplateCategory.SALE],
+    category: SmartContractTemplateCategories.SALE,
+    tags: [SmartContractTemplateCategories.SALE],
     form: {
       infos: {
         description:
@@ -523,8 +523,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 12,
-    category: SmartContractTemplateCategory.SALE,
-    tags: [SmartContractTemplateCategory.SALE],
+    category: SmartContractTemplateCategories.SALE,
+    tags: [SmartContractTemplateCategories.SALE],
     form: {
       infos: {
         description:
@@ -569,8 +569,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 13,
-    category: SmartContractTemplateCategory.SALE,
-    tags: [SmartContractTemplateCategory.SALE],
+    category: SmartContractTemplateCategories.SALE,
+    tags: [SmartContractTemplateCategories.SALE],
     form: {
       infos: {
         description:
@@ -616,8 +616,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 14,
-    category: SmartContractTemplateCategory.SALE,
-    tags: [SmartContractTemplateCategory.SALE],
+    category: SmartContractTemplateCategories.SALE,
+    tags: [SmartContractTemplateCategories.SALE],
     form: {
       infos: {
         description:
@@ -662,8 +662,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 15,
-    category: SmartContractTemplateCategory.OTHER,
-    tags: [SmartContractTemplateCategory.OTHER],
+    category: SmartContractTemplateCategories.OTHER,
+    tags: [SmartContractTemplateCategories.OTHER],
     form: {
       infos: {
         description:
@@ -1554,8 +1554,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 92,
-    tags: [SmartContractTemplateCategory.DEPRECATED],
-    category: SmartContractTemplateCategory.DEPRECATED,
+    tags: [SmartContractTemplateCategories.DEPRECATED],
+    category: SmartContractTemplateCategories.DEPRECATED,
   },
   {
     id: "sct_743c793cffa741cbafcb7a91f6fd9629",
@@ -2252,8 +2252,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 93,
-    tags: [SmartContractTemplateCategory.DEPRECATED],
-    category: SmartContractTemplateCategory.DEPRECATED,
+    tags: [SmartContractTemplateCategories.DEPRECATED],
+    category: SmartContractTemplateCategories.DEPRECATED,
   },
   {
     id: "sct_935a8097313a4240b434fd4bf6f6ee62",
@@ -2919,8 +2919,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 94,
-    tags: [SmartContractTemplateCategory.DEPRECATED],
-    category: SmartContractTemplateCategory.DEPRECATED,
+    tags: [SmartContractTemplateCategories.DEPRECATED],
+    category: SmartContractTemplateCategories.DEPRECATED,
   },
   {
     id: "sct_b17f3cc1e0a44b03b309d20a854fda48",
@@ -3874,8 +3874,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 95,
-    tags: [SmartContractTemplateCategory.DEPRECATED],
-    category: SmartContractTemplateCategory.DEPRECATED,
+    tags: [SmartContractTemplateCategories.DEPRECATED],
+    category: SmartContractTemplateCategories.DEPRECATED,
   },
   {
     id: "sct_81d50607677241beac764bfadd31a3a7",
@@ -4497,8 +4497,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 96,
-    tags: [SmartContractTemplateCategory.DEPRECATED],
-    category: SmartContractTemplateCategory.DEPRECATED,
+    tags: [SmartContractTemplateCategories.DEPRECATED],
+    category: SmartContractTemplateCategories.DEPRECATED,
   },
   {
     id: "sct_82bde80651bd40cca12f044cb80821bc",
@@ -5151,8 +5151,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 97,
-    tags: [SmartContractTemplateCategory.DEPRECATED],
-    category: SmartContractTemplateCategory.DEPRECATED,
+    tags: [SmartContractTemplateCategories.DEPRECATED],
+    category: SmartContractTemplateCategories.DEPRECATED,
   },
   {
     id: "sct_d4c1d5f2ed6f44d185bfb60eee2dbcaf",
@@ -5953,8 +5953,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 98,
-    tags: [SmartContractTemplateCategory.DEPRECATED],
-    category: SmartContractTemplateCategory.DEPRECATED,
+    tags: [SmartContractTemplateCategories.DEPRECATED],
+    category: SmartContractTemplateCategories.DEPRECATED,
   },
   {
     id: "sct_e851adefe4494fc991207b2c37ed8a83",
@@ -6737,8 +6737,8 @@ const LIST: SmartContractTemplate[] = [
     isActivated: true,
     isAudited: false,
     order: 99,
-    tags: [SmartContractTemplateCategory.DEPRECATED],
-    category: SmartContractTemplateCategory.DEPRECATED,
+    tags: [SmartContractTemplateCategories.DEPRECATED],
+    category: SmartContractTemplateCategories.DEPRECATED,
   },
 ];
 
