@@ -1,31 +1,72 @@
-image: node:16
-
-workflow:
-  rules:
-    - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_COMMIT_BRANCH == "develop"
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-
 cache:
   paths:
     - node_modules/
 
 build:
+  image: node:18-bookworm-slim
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   script:
     - yarn install
     - yarn compile
 
 test:
+  image: node:18-bookworm-slim
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   script:
     - yarn install
     - yarn test
 
 coverage:
+  image: node:18-bookworm-slim
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   script:
     - yarn install
     - yarn coverage
-
 lint:
+  image: node:18-bookworm-slim
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   script:
     - yarn install
     - yarn lint
+
+deploy:
+  image: node:18-bookworm-slim
+  tags: ["starton-standard"]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_PIPELINE_SOURCE == 'push'
+  before_script:
+    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client libssl-dev git -y )"
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "${SSH_PRIV_KEY}" | base64 --decode | tr -d "\r")
+    - git config --global user.name "${GITLAB_USER_NAME}"
+    - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - mkdir -p ~/.ssh
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - chmod 700 ~/.ssh
+    - echo gitlab.com >> ~/.ssh/known_hosts
+  script:
+    - yarn install
+    - yarn doc result.ts
+    - git clone git@gitlab.com:${PROJECT_PATH}.git
+    - cd ${PROJECT_NAME}
+    - git checkout ${COMMIT_BRANCH} || git checkout -b ${COMMIT_BRANCH}
+    - cp ../result.ts ./apps/library/src/db/seeders/template.ts
+    - >
+      if [[ `git status --porcelain` ]]; then
+        git add .
+        git commit -m "chore: update template.ts - ${CI_COMMIT_SHA}"
+        git push origin HEAD:${COMMIT_BRANCH} -o merge_request.create -o merge_request.target=${TARGET_BRANCH} -o merge_request.assign=${MR_ASSIGNEE} -o merge_request.title="Merge smart contract branch (master) into connect-backend (develop)"
+      fi

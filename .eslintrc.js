@@ -16,6 +16,7 @@ module.exports = {
     ecmaVersion: 12,
   },
   rules: {
+    "prettier/prettier": "off",
     "node/no-unsupported-features/es-syntax": [
       "error",
       { ignores: ["modules"] },

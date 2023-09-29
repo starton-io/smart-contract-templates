@@ -8,6 +8,22 @@
         "printWidth": 120,
         "explicitTypes": "always"
       }
+    },
+    {
+      "files": "*.ts",
+      "options": {
+        "printWidth": 120,
+        "tabWidth": 4,
+        "useTabs": true,
+        "semi": false,
+        "singleQuote": false,
+        "quoteProps": "as-needed",
+        "trailingComma": "all",
+        "bracketSpacing": true,
+        "arrowParens": "always",
+        "proseWrap": "preserve",
+        "endOfLine": "lf"
+      }
     }
   ]
 }
