@@ -46,7 +46,6 @@ deploy:
   tags: ["starton-standard"]
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_PIPELINE_SOURCE == 'push'
   before_script:
     - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client libssl-dev git -y )"
     - eval $(ssh-agent -s)
