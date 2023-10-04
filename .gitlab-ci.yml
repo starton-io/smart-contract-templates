@@ -54,7 +54,7 @@ deploy:
   stage: deploy
   tags: ["starton-standard"]
   rules:
-    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"
   before_script:
     - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client libssl-dev git -y )"
     - eval $(ssh-agent -s)
@@ -70,11 +70,12 @@ deploy:
     - yarn doc result.ts
     - git clone git@gitlab.com:${PROJECT_PATH}.git
     - cd ${PROJECT_NAME}
-    - git checkout ${COMMIT_BRANCH} || git checkout -b ${COMMIT_BRANCH}
+    # we must close the mr in the connect-backend before launch second mr in the same branch
+    - git checkout -b ${COMMIT_BRANCH}
     - cp ../result.ts ./apps/library/src/db/seeders/template.ts
     - >
       if [[ `git status --porcelain` ]]; then
         git add .
         git commit -m "chore: update template.ts - ${CI_COMMIT_SHA}"
-        git push origin HEAD:${COMMIT_BRANCH} -o merge_request.create -o merge_request.target=${TARGET_BRANCH} -o merge_request.assign=${MR_ASSIGNEE} -o merge_request.title="Merge smart contract branch (master) into connect-backend (develop)"
+        git push origin HEAD:${COMMIT_BRANCH} -o merge_request.create -o merge_request.target=${TARGET_BRANCH} -o merge_request.assign=${MR_ASSIGNEE} -o merge_request.title="Merge smart contract branch ($CI_COMMIT_REF_NAME) into connect-backend (develop)"
       fi
